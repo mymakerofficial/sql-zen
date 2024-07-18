@@ -3,7 +3,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectI
 </script>
 
 <template>
-  <Select model-value="postgresql">
+  <Select model-value="sqlite">
     <SelectTrigger class="bg-transparent border-transparent">
       <SelectValue placeholder="Select database..." />
     </SelectTrigger>
