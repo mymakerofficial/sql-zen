@@ -69,7 +69,7 @@ onMounted(async () => {
     <AppHeader v-model:database="selectedDatabase" />
     <main class="flex-1 flex flex-col">
       <ResizablePanelGroup direction="horizontal" class="flex-1">
-        <ResizablePanel :default-size="16">
+        <ResizablePanel :default-size="0">
           <DatabaseExplorerPanel />
         </ResizablePanel>
         <ResizableHandle />
