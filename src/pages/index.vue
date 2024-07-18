@@ -6,7 +6,8 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/componen
 
 <template>
   <div class="h-screen flex flex-col">
-    <nav class="h-16 px-3 flex items-center border-b border-border">
+    <nav class="relative h-16 px-3 flex items-center border-b border-border">
+      <span class="w-96 h-full absolute left-0 -z-10 bg-gradient-to-r from-blue-500/20 to-blue-500/0" />
       <div class="w-60">
         <DatabaseSelect />
       </div>
