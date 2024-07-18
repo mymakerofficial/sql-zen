@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from '@/components/ui/select'
+
+const model = defineModel<string>({ default: 'postgresql' })
 </script>
 
 <template>
-  <Select model-value="sqlite">
+  <Select v-model="model">
     <SelectTrigger class="bg-transparent border-transparent">
       <SelectValue placeholder="Select database..." />
     </SelectTrigger>
