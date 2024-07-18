@@ -13,6 +13,7 @@ onMounted(async () => {
     themes: [
       'vitesse-dark',
       'vitesse-light',
+      'dracula'
     ],
     langs: [
       'sql'
@@ -24,7 +25,11 @@ onMounted(async () => {
   shikiToMonaco(highlighter.value, monaco)
 
   editor.value = monaco.editor.create(container.value!, {
-    value: 'select * from users;',
+    value:
+`SELECT station_name, count(*) AS num_services
+FROM train_services
+ORDER BY num_services DESC
+LIMIT 3;`,
     language: 'sql',
     theme: 'vitesse-dark',
   })
@@ -37,5 +42,5 @@ onScopeDispose(() => {
 </script>
 
 <template>
-  <div ref="container" style="height: 100vh;"></div>
+  <div ref="container" class="w-full h-full"></div>
 </template>
