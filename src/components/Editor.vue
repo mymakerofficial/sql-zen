@@ -4,12 +4,14 @@ import { createHighlighter, type HighlighterGeneric } from 'shiki'
 import { shikiToMonaco } from '@shikijs/monaco'
 import { onMounted, onScopeDispose, ref } from 'vue'
 
+const model = defineModel<string>({ default: '' })
+
 const container = ref<HTMLElement | null>(null)
-const editor = ref<monaco.editor.IStandaloneCodeEditor | null>(null)
-const highlighter = ref<HighlighterGeneric<any, any> | null>(null)
+let editor: monaco.editor.IStandaloneCodeEditor | null = null
+let highlighter: HighlighterGeneric<any, any> | null = null
 
 onMounted(async () => {
-  highlighter.value = await createHighlighter({
+  highlighter = await createHighlighter({
     themes: [
       'vitesse-dark',
       'vitesse-light',
@@ -20,24 +22,22 @@ onMounted(async () => {
     ],
   })
 
-  monaco.languages.register({ id: 'sql' })
+  shikiToMonaco(highlighter, monaco)
 
-  shikiToMonaco(highlighter.value, monaco)
-
-  editor.value = monaco.editor.create(container.value!, {
-    value:
-`SELECT station_name, count(*) AS num_services
-FROM train_services
-ORDER BY num_services DESC
-LIMIT 3;`,
+  editor = monaco.editor.create(container.value!, {
+    value: model.value,
     language: 'sql',
     theme: 'vitesse-dark',
+  })
+
+  editor.onDidChangeModelContent(() => {
+    model.value = editor?.getValue() ?? ''
   })
 })
 
 onScopeDispose(() => {
-  editor.value?.dispose()
-  highlighter.value?.dispose()
+  editor?.dispose()
+  highlighter?.dispose()
 })
 </script>
 
