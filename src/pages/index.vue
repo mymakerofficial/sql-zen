@@ -2,6 +2,7 @@
 import Editor from '@/components/Editor.vue'
 import DatabaseSelect from '@/components/DatabaseSelect.vue'
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable'
+import { ListVideoIcon, PlusIcon } from 'lucide-vue-next'
 </script>
 
 <template>
@@ -19,8 +20,18 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/componen
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel>
-          <section class="h-16 flex items-center border-b border-border">
-            <div class="mx-6 text-muted-foreground">tabs</div>
+          <section class="h-12 flex items-center border-b border-border">
+            <div class="h-full px-6 text-muted-foreground flex gap-3 items-center border-r border-border">
+              <ListVideoIcon class="size-4" />
+              <span>console</span>
+            </div>
+            <div class="h-full px-6 text-muted-foreground flex gap-3 items-center border-r border-border">
+              <ListVideoIcon class="size-4" />
+              <span>console 2</span>
+            </div>
+            <div class="h-full aspect-square text-muted-foreground flex items-center justify-center">
+              <PlusIcon class="size-4" />
+            </div>
           </section>
           <ResizablePanelGroup direction="vertical">
             <ResizablePanel>
