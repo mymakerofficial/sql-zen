@@ -2,7 +2,7 @@
 import * as monaco from 'monaco-editor'
 import { createHighlighter, type HighlighterGeneric } from 'shiki'
 import { shikiToMonaco } from '@shikijs/monaco'
-import { onMounted, onScopeDispose, onUnmounted, ref } from 'vue'
+import { onMounted, onScopeDispose, onUnmounted, ref, watch } from 'vue'
 
 const model = defineModel<string>({ default: '' })
 
@@ -32,6 +32,10 @@ onMounted(async () => {
   editor.onDidChangeModelContent(() => {
     model.value = editor?.getValue() ?? ''
   })
+})
+
+watch(model, (value) => {
+  editor?.setValue(value)
 })
 
 onScopeDispose(() => {

@@ -46,6 +46,11 @@ function handleRun() {
   }
 }
 
+function handleClear() {
+  query.value = ''
+  result.value = []
+}
+
 onMounted(async () => {
   console.debug('Initializing SQLite3')
   const sqlite3 = await sqlite3InitModule({
@@ -70,7 +75,10 @@ onMounted(async () => {
           <ResizablePanelGroup direction="vertical">
             <!-- <Tabs /> -->
             <ResizablePanel>
-              <ConsoleToolbar @run="handleRun" />
+              <ConsoleToolbar
+                @run="handleRun"
+                @clear="handleClear"
+              />
               <Editor v-model="query" />
             </ResizablePanel>
             <ResizableHandle />
