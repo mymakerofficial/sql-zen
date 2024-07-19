@@ -13,6 +13,7 @@ import ConsoleToolbar from '@/components/ConsoleToolbar.vue'
 import ResultTable from '@/components/table/ResultTable.vue'
 import * as monaco from 'monaco-editor'
 import example from './example'
+import { LoaderCircleIcon } from 'lucide-vue-next'
 
 const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
   mvp: {
@@ -28,6 +29,7 @@ let connection: duckdb.AsyncDuckDBConnection | null = null
 
 const model = monaco.editor.createModel(example, 'sql')
 const result = ref<Array<object>>([])
+const isLoading = ref(false)
 
 async function handleRun() {
   if (!connection) {
@@ -36,8 +38,10 @@ async function handleRun() {
 
   const query = model.getValue()
 
+  isLoading.value = true
   const arrowResult = await connection.query(query)
   result.value = JSON.parse(arrowResult.toString()) // TODO: aaaaaaaaaaa
+  isLoading.value = false
 }
 
 function handleClear() {
@@ -46,6 +50,7 @@ function handleClear() {
 }
 
 onMounted(async () => {
+  isLoading.value = true;
   // Select a bundle based on browser checks
   const bundle = await duckdb.selectBundle(MANUAL_BUNDLES);
   // Instantiate the asynchronus version of DuckDB-wasm
@@ -55,6 +60,7 @@ onMounted(async () => {
   await database.instantiate(bundle.mainModule, bundle.pthreadWorker);
   console.debug('DuckDB version:', await database.getVersion());
   connection = await database.connect();
+  isLoading.value = false;
 });
 
 onScopeDispose(() => {
@@ -82,8 +88,11 @@ onScopeDispose(() => {
             </ResizablePanel>
             <ResizableHandle />
             <ResizablePanel :default-size="24">
-              <div class="h-full overflow-y-auto">
+              <div v-if="!isLoading" class="h-full overflow-y-auto">
                 <ResultTable :data="result" />
+              </div>
+              <div v-else class="h-full flex justify-center items-center">
+                <LoaderCircleIcon class="w-8 h-8 animate-spin text-muted-foreground" />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>

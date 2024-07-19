@@ -9,13 +9,16 @@ import ResultTable from '@/components/table/ResultTable.vue'
 import { ref } from 'vue'
 import example from './example.sql?raw'
 import * as monaco from 'monaco-editor'
+import { LoaderCircleIcon } from 'lucide-vue-next'
 
 const database = new PGlite()
 
 const model = monaco.editor.createModel(example, 'sql')
 const result = ref<Array<object>>([])
+const isLoading = ref(false)
 
 function handleRun() {
+  isLoading.value = true
   const query = model.getValue()
   console.debug('PostgreSQL: Running query:', query)
   database.exec(query)
@@ -28,6 +31,9 @@ function handleRun() {
       result.value = [{
         'error_message': error.message ?? 'Unknown error'
       }]
+    })
+    .finally(() => {
+      isLoading.value = false
     })
 }
 
@@ -57,8 +63,11 @@ function handleClear() {
             </ResizablePanel>
             <ResizableHandle />
             <ResizablePanel :default-size="24">
-              <div class="h-full overflow-y-auto">
+              <div v-if="!isLoading" class="h-full overflow-y-auto">
                 <ResultTable :data="result" />
+              </div>
+              <div v-else class="h-full flex justify-center items-center">
+                <LoaderCircleIcon class="w-8 h-8 animate-spin text-muted-foreground" />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>

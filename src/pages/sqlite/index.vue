@@ -9,16 +9,20 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import ResultTable from '@/components/table/ResultTable.vue'
 import * as monaco from 'monaco-editor'
 import example from './example.sql?raw'
+import { LoaderCircleIcon } from 'lucide-vue-next'
 
 let database: SqliteDatabase | null = null
 
 const model = monaco.editor.createModel(example, 'sql')
 const result = ref<Array<object>>([])
+const isLoading = ref(false)
 
 function handleRun() {
   if (!database) {
     throw new Error('SQLite database is not initialized')
   }
+
+  isLoading.value = true
 
   const query = model.getValue()
   console.debug('SQLite: Running query:', query)
@@ -34,6 +38,8 @@ function handleRun() {
       'error_message': (error as Error).message ?? 'Unknown error',
     }]
   }
+
+  isLoading.value = false
 }
 
 function handleClear() {
@@ -42,6 +48,7 @@ function handleClear() {
 }
 
 onMounted(async () => {
+  isLoading.value = true
   console.debug('Initializing SQLite3')
   const sqlite3 = await sqlite3InitModule({
     print: console.log,
@@ -50,6 +57,7 @@ onMounted(async () => {
   console.debug('Running SQLite3 version', sqlite3.version.libVersion)
   database = new sqlite3.oo1.DB('/mydb.sqlite3', 'ct')
   console.debug('SQLite3 database initialized')
+  isLoading.value = false
 })
 </script>
 
@@ -73,8 +81,11 @@ onMounted(async () => {
             </ResizablePanel>
             <ResizableHandle />
             <ResizablePanel :default-size="24">
-              <div class="h-full overflow-y-auto">
+              <div v-if="!isLoading" class="h-full overflow-y-auto">
                 <ResultTable :data="result" />
+              </div>
+              <div v-else class="h-full flex justify-center items-center">
+                <LoaderCircleIcon class="w-8 h-8 animate-spin text-muted-foreground" />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
