@@ -7,34 +7,24 @@ import sqlite3InitModule, { type Database as SqliteDatabase } from '@sqlite.org/
 import { onMounted, ref } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import ResultTable from '@/components/table/ResultTable.vue'
+import * as monaco from 'monaco-editor'
+import example from './example.sql?raw'
 
 let database: SqliteDatabase | null = null
 
+const model = monaco.editor.createModel(example, 'sql')
 const result = ref<Array<object>>([])
-const query = ref<string>([
-  `-- Welcome to sql-zen`,
-  `-- You can run queries by clicking the "Run All" button`,
-  ``,
-  `create table if not exists users (id integer primary key, name text);`,
-  ``,
-  `insert into users (name) values ('Alice');`,
-  `insert into users (name) values ('Bob');`,
-  `insert into users (name) values ('Charlie');`,
-  ``,
-  `select * from users;`,
-].join('\n'))
-
 
 function handleRun() {
   if (!database) {
     throw new Error('SQLite database is not initialized')
   }
 
-  const queryValue = query.value
-  console.debug('SQLite: Running query:', queryValue)
+  const query = model.getValue()
+  console.debug('SQLite: Running query:', query)
 
   try {
-    result.value = database.exec(queryValue, {
+    result.value = database.exec(query, {
       rowMode: 'object',
       returnValue: 'resultRows',
     }) as Array<object>
@@ -47,7 +37,7 @@ function handleRun() {
 }
 
 function handleClear() {
-  query.value = ''
+  model.setValue('')
   result.value = []
 }
 
@@ -79,7 +69,7 @@ onMounted(async () => {
                 @run="handleRun"
                 @clear="handleClear"
               />
-              <Editor v-model="query" />
+              <Editor :model="model" />
             </ResizablePanel>
             <ResizableHandle />
             <ResizablePanel :default-size="24">

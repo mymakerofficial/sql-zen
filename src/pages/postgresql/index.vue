@@ -7,36 +7,18 @@ import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
 import ConsoleToolbar from '@/components/ConsoleToolbar.vue'
 import ResultTable from '@/components/table/ResultTable.vue'
 import { ref } from 'vue'
+import example from './example.sql?raw'
+import * as monaco from 'monaco-editor'
 
 const database = new PGlite()
 
+const model = monaco.editor.createModel(example, 'sql')
 const result = ref<Array<object>>([])
-const query = ref<string>([
-  `-- Welcome to sql-zen`,
-  `-- You can run queries by clicking the "Run All" button`,
-`
-CREATE TABLE IF NOT EXISTS products (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT,
-  data JSONB
-);
-
-INSERT INTO products (name, data)
-VALUES ('Quantum Leap Headphones', '{"price": 299.99, "description": "Immersive audio with noise cancellation that transports you."}'),
-       ('Office Chair', '{"price": 1499.99, "description": "Experience optimal comfort and support while working."}'),
-       ('Virtual Reality Headset', '{"price": 699.99, "description": "Your new favorite way to avoid chores."}');
-
-SELECT
-    name,
-    (data->>'price')::numeric AS price,
-    data->>'description' AS description
-FROM products
-ORDER BY price;`,
-].join('\n'))
 
 function handleRun() {
-  console.debug('PostgreSQL: Running query:', query.value)
-  database.exec(query.value)
+  const query = model.getValue()
+  console.debug('PostgreSQL: Running query:', query)
+  database.exec(query)
     .then((res) => {
       console.debug('PostgreSQL: Query result:', res)
       result.value = res[res.length - 1].rows
@@ -50,7 +32,7 @@ function handleRun() {
 }
 
 function handleClear() {
-  query.value = ''
+  model.setValue('')
   result.value = []
 }
 </script>
@@ -71,7 +53,7 @@ function handleClear() {
                 @run="handleRun"
                 @clear="handleClear"
               />
-              <Editor v-model="query" />
+              <Editor :model="model" />
             </ResizablePanel>
             <ResizableHandle />
             <ResizablePanel :default-size="24">

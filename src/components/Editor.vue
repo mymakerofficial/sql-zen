@@ -2,9 +2,11 @@
 import * as monaco from 'monaco-editor'
 import { createHighlighter, type HighlighterGeneric } from 'shiki'
 import { shikiToMonaco } from '@shikijs/monaco'
-import { onMounted, onScopeDispose, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onScopeDispose, ref } from 'vue'
 
-const model = defineModel<string>({ default: '' })
+const props = defineProps<{
+  model: monaco.editor.ITextModel
+}>()
 
 const container = ref<HTMLElement | null>(null)
 let editor: monaco.editor.IStandaloneCodeEditor | null = null
@@ -24,18 +26,9 @@ onMounted(async () => {
   shikiToMonaco(highlighter, monaco)
 
   editor = monaco.editor.create(container.value!, {
-    value: model.value,
-    language: 'sql',
+    model: props.model,
     theme: 'vitesse-dark',
   })
-
-  editor.onDidChangeModelContent(() => {
-    model.value = editor?.getValue() ?? ''
-  })
-})
-
-watch(model, (value) => {
-  editor?.setValue(value)
 })
 
 onScopeDispose(() => {
