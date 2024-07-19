@@ -28,10 +28,10 @@ VALUES ('Quantum Leap Headphones', '{"price": 299.99, "description": "Immersive 
 
 SELECT
     name,
-    data->>'price' AS price,
+    (data->>'price')::numeric AS price,
     data->>'description' AS description
 FROM products
-ORDER BY (data->>'price')::numeric DESC;`,
+ORDER BY price;`,
 ].join('\n'))
 
 function handleRun() {
