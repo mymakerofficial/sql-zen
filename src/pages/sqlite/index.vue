@@ -6,6 +6,7 @@ import ConsoleToolbar from '@/components/ConsoleToolbar.vue'
 import sqlite3InitModule, { type Database as SqliteDatabase } from '@sqlite.org/sqlite-wasm'
 import { onMounted, ref } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue'
+import ResultTable from '@/components/table/ResultTable.vue'
 
 let database: SqliteDatabase | null = null
 
@@ -67,7 +68,9 @@ onMounted(async () => {
             </ResizablePanel>
             <ResizableHandle />
             <ResizablePanel :default-size="24">
-              <pre class="m-6 text-muted-foreground">{{ result }}</pre>
+              <div class="h-full overflow-y-auto">
+                <ResultTable :data="result" />
+              </div>
             </ResizablePanel>
           </ResizablePanelGroup>
         </ResizablePanel>
