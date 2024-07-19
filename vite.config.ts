@@ -8,7 +8,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 // https://vitejs.dev/config/
 export default defineConfig({
   optimizeDeps: {
-    exclude: ['@sqlite.org/sqlite-wasm'],
+    exclude: ['@electric-sql/pglite', '@sqlite.org/sqlite-wasm'],
   },
   plugins: [
     vueRouter(),
