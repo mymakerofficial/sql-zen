@@ -2,7 +2,7 @@
 import * as monaco from 'monaco-editor'
 import { createHighlighter, type HighlighterGeneric } from 'shiki'
 import { shikiToMonaco } from '@shikijs/monaco'
-import { onMounted, onScopeDispose, ref } from 'vue'
+import { onMounted, onScopeDispose, onUnmounted, ref } from 'vue'
 
 const model = defineModel<string>({ default: '' })
 
@@ -15,7 +15,6 @@ onMounted(async () => {
     themes: [
       'vitesse-dark',
       'vitesse-light',
-      'dracula'
     ],
     langs: [
       'sql'
@@ -37,7 +36,7 @@ onMounted(async () => {
 
 onScopeDispose(() => {
   editor?.dispose()
-  highlighter?.dispose()
+  // highlighter?.dispose() // TODO: Fix this
 })
 </script>
 

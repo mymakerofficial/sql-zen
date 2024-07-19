@@ -19,5 +19,7 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
+    '/postgresql/': RouteRecordInfo<'/postgresql/', '/postgresql', Record<never, never>, Record<never, never>>,
+    '/sqlite/': RouteRecordInfo<'/sqlite/', '/sqlite', Record<never, never>, Record<never, never>>,
   }
 }

@@ -14,7 +14,7 @@ const model = defineModel<string>({ default: 'postgresql' })
         <SelectItem value="postgresql" class="px-3">
           <div class="my-1 flex flex-col gap-2 max-w-80">
             <div class="flex items-center gap-2">
-              <img src="@/assets/icons/postgresql.svg" alt="PostgreSQL" class="size-6" />
+              <img src="../../assets/icons/postgresql.svg" alt="PostgreSQL" class="size-6" />
               <span>PostgreSQL</span>
             </div>
             <p class="pl-8 pr-2 text-xs text-muted-foreground" data-description>PostgreSQL is a versatile database offering advanced features like JSON support, full-text search, and powerful analytics capabilities.</p>
@@ -23,7 +23,7 @@ const model = defineModel<string>({ default: 'postgresql' })
         <SelectItem value="sqlite" class="px-3">
           <div class="my-1 flex flex-col gap-2 max-w-80">
             <div class="flex items-center gap-2">
-              <img src="@/assets/icons/sqlite.svg" alt="SQLite" class="size-6" />
+              <img src="../../assets/icons/sqlite.svg" alt="SQLite" class="size-6" />
               <span>SQLite</span>
             </div>
             <p class="pl-8 pr-2 text-xs text-muted-foreground" data-description>SQLite is a lightweight, embedded database ideal for small-scale applications, offering simplicity, speed, and zero configuration.</p>
