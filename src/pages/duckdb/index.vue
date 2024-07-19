@@ -39,8 +39,16 @@ async function handleRun() {
   const query = model.getValue()
 
   isLoading.value = true
-  const arrowResult = await connection.query(query)
-  result.value = JSON.parse(arrowResult.toString()) // TODO: aaaaaaaaaaa
+  try {
+    const arrowResult = await connection.query(query)
+    result.value = JSON.parse(arrowResult.toString()) // TODO: aaaaaaaaaaa
+  } catch (error) {
+    console.error('DuckDB: Error running query:', error)
+    result.value = [{
+      'error_message': (error as Error).message ?? 'Unknown error',
+    }]
+  }
+
   isLoading.value = false
 }
 
