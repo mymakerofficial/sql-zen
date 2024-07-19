@@ -14,6 +14,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
     "@electric-sql/pglite": "^0.1.5",
     "@sqlite.org/sqlite-wasm": "^3.46.0-build2",
     "@tanstack/vue-table": "^8.19.3",
