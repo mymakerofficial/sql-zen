@@ -11,6 +11,8 @@ const gradientClass = computed(() => {
     return 'from-blue-500/20 to-blue-500/0'
   } else if (database.value === 'sqlite') {
     return 'from-sky-500/20 to-sky-500/0'
+  } else if (database.value === 'duckdb') {
+    return 'from-yellow-500/20 to-yellow-500/0'
   }
   return ''
 })
