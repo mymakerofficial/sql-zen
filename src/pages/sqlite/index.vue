@@ -33,10 +33,17 @@ function handleRun() {
   const queryValue = query.value
   console.debug('SQLite: Running query:', queryValue)
 
-  result.value = database.exec(queryValue, {
-    rowMode: 'object',
-    returnValue: 'resultRows',
-  }) as Array<object>
+  try {
+    result.value = database.exec(queryValue, {
+      rowMode: 'object',
+      returnValue: 'resultRows',
+    }) as Array<object>
+  } catch (error) {
+    console.error('SQLite: Error running query:', error)
+    result.value = [{
+      'error_message': (error as Error).message ?? 'Unknown error',
+    }]
+  }
 }
 
 onMounted(async () => {
