@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
-import { PlayIcon, Trash2Icon } from 'lucide-vue-next'
+import { PlayIcon, EraserIcon } from 'lucide-vue-next'
 
 const emit = defineEmits<{
   run: []
@@ -26,7 +26,7 @@ function handleClear() {
     </div>
     <div class="h-full flex items-center">
       <Button @click="handleClear" size="sm" variant="ghost" class="gap-2">
-        <Trash2Icon class="size-4" />
+        <EraserIcon class="size-4" />
       </Button>
     </div>
   </section>
