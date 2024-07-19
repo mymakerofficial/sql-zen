@@ -1,12 +1,23 @@
 <script setup lang="ts">
 import DatabaseSelect from '@/components/DatabaseSelect.vue'
+import { computed } from 'vue'
+import { twMerge } from 'tailwind-merge'
 
 const database = defineModel<string>('database', { default: 'postgresql' })
+
+const gradientClass = computed(() => {
+  if (database.value === 'postgresql') {
+    return 'from-blue-500/20 to-blue-500/0'
+  } else if (database.value === 'sqlite') {
+    return 'from-sky-500/20 to-sky-500/0'
+  }
+  return ''
+})
 </script>
 
 <template>
   <nav class="relative h-16 px-3 flex items-center border-b border-border">
-    <span class="w-96 h-full absolute left-0 -z-10 bg-gradient-to-r from-blue-500/20 to-blue-500/0" />
+    <span :class="twMerge('w-96 h-full absolute left-0 -z-10 bg-gradient-to-r', gradientClass)" />
     <DatabaseSelect v-model="database" />
   </nav>
 </template>
