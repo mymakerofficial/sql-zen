@@ -23,7 +23,7 @@ export const databaseSystems = {
     name: 'PostgeSQL',
     description: 'PostgreSQL is a versatile database offering advanced features like JSON support, full-text search, and powerful analytics capabilities.',
     icon: postgresqlIcon,
-    baseRoute: '/postgresql/',
+    baseRoute: '/pg/',
   },
   [DatabaseSystem.SQLite]: {
     name: 'SQLite',
