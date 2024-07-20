@@ -2,6 +2,10 @@
 import { Button } from '@/components/ui/button'
 import { PlayIcon, EraserIcon } from 'lucide-vue-next'
 
+defineProps<{
+  disableRun?: boolean
+}>()
+
 const emit = defineEmits<{
   run: []
   clear: []
@@ -19,7 +23,13 @@ function handleClear() {
 <template>
   <section class="h-12 px-3 flex justify-between border-b border-border">
     <div class="h-full flex items-center">
-      <Button @click="handleRun" size="sm" variant="ghost" class="gap-2">
+      <Button
+        @click="handleRun"
+        :disabled="disableRun"
+        size="sm"
+        variant="ghost"
+        class="gap-2"
+      >
         <PlayIcon class="size-4" />
         <span>Run All</span>
       </Button>

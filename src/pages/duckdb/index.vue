@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
-import * as duckdb from '@duckdb/duckdb-wasm'
-import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url'
-import mvp_worker from '@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url'
-import duckdb_wasm_eh from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url'
-import eh_worker from '@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url'
-import { onMounted, onScopeDispose, ref } from 'vue'
+import { onMounted, onScopeDispose } from 'vue'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -18,68 +13,32 @@ import ResultTable from '@/components/table/ResultTable.vue'
 import * as monaco from 'monaco-editor'
 import example from './example'
 import { LoaderCircleIcon } from 'lucide-vue-next'
-import { arrowToResultArray } from '@/lib/arrowToResultArray'
-
-const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
-  mvp: {
-    mainModule: duckdb_wasm,
-    mainWorker: mvp_worker,
-  },
-  eh: {
-    mainModule: duckdb_wasm_eh,
-    mainWorker: eh_worker,
-  },
-}
-let worker: Worker | null = null
-let database: duckdb.AsyncDuckDB | null = null
-let connection: duckdb.AsyncDuckDBConnection | null = null
+import { useDuckdb } from '@/composables/useDuckdb'
+import { useQuery } from '@/composables/useQuery'
+import { useInit } from '@/composables/useInit'
 
 const model = monaco.editor.createModel(example, 'sql')
-const result = ref<Array<object>>([])
-const isLoading = ref(false)
 
-async function handleRun() {
-  if (!connection) {
-    throw new Error('DuckDB connection is not initialized')
-  }
+const duckdb = useDuckdb()
+const { init, isInitializing } = useInit(duckdb)
+const { query, data, error, reset, isPending } = useQuery(duckdb)
 
-  const query = model.getValue()
-
-  isLoading.value = true
-  const arrowResult = await connection.query(query)
-  result.value = arrowToResultArray(arrowResult)
-  isLoading.value = false
+function handleRun() {
+  query(model.getValue())
 }
 
 function handleClear() {
   model.setValue('')
-  result.value = []
+  reset()
 }
 
-onMounted(async () => {
-  isLoading.value = true
-  // Select a bundle based on browser checks
-  const bundle = await duckdb.selectBundle(MANUAL_BUNDLES)
-  // Instantiate the asynchronus version of DuckDB-wasm
-  worker = new Worker(bundle.mainWorker!)
-  const logger = new duckdb.ConsoleLogger()
-  database = new duckdb.AsyncDuckDB(logger, worker)
-  await database.instantiate(bundle.mainModule, bundle.pthreadWorker)
-  console.debug('DuckDB version:', await database.getVersion())
-  connection = await database.connect()
-  isLoading.value = false
-})
-
-onScopeDispose(() => {
-  connection?.close()
-  database?.terminate()
-  worker?.terminate()
-})
+onMounted(init)
+onScopeDispose(duckdb.close)
 </script>
 
 <template>
   <AppLayout>
-    <main class="flex-1 flex flex-col">
+    <main v-if="!isInitializing" class="flex-1 flex flex-col">
       <ResizablePanelGroup direction="horizontal" class="flex-1">
         <ResizablePanel :default-size="0">
           <DatabaseExplorerPanel />
@@ -87,24 +46,37 @@ onScopeDispose(() => {
         <ResizableHandle />
         <ResizablePanel>
           <ResizablePanelGroup direction="vertical">
-            <!-- <Tabs /> -->
             <ResizablePanel>
-              <ConsoleToolbar @run="handleRun" @clear="handleClear" />
+              <ConsoleToolbar
+                @run="handleRun"
+                @clear="handleClear"
+                :disable-run="isPending"
+              />
               <Editor :model="model" />
             </ResizablePanel>
             <ResizableHandle />
             <ResizablePanel :default-size="24">
-              <div v-if="!isLoading" class="h-full overflow-y-auto">
-                <ResultTable :data="result" />
+              <div v-if="error" class="p-6 bg-red-500/10 text-red-500">
+                <p>{{ error.message }}</p>
+              </div>
+              <div v-else-if="!isPending" class="h-full overflow-y-auto">
+                <ResultTable :data="data" />
               </div>
               <div v-else class="h-full flex justify-center items-center">
                 <LoaderCircleIcon
-                  class="w-8 h-8 animate-spin text-muted-foreground" />
+                  class="size-8 animate-spin text-muted-foreground"
+                />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
         </ResizablePanel>
       </ResizablePanelGroup>
+    </main>
+    <main v-else class="flex-1 flex items-center justify-center">
+      <div class="flex gap-2 items-center text-muted-foreground">
+        <LoaderCircleIcon class="size-5 animate-spin" />
+        <p>Loading DuckDB</p>
+      </div>
     </main>
   </AppLayout>
 </template>

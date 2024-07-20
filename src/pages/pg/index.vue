@@ -10,49 +10,36 @@ import Editor from '@/components/Editor.vue'
 import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
 import ConsoleToolbar from '@/components/ConsoleToolbar.vue'
 import ResultTable from '@/components/table/ResultTable.vue'
-import { ref } from 'vue'
+import { onMounted, onScopeDispose, ref } from 'vue'
 import example from './example.sql?raw'
 import * as monaco from 'monaco-editor'
 import { LoaderCircleIcon } from 'lucide-vue-next'
-
-const database = new PGlite()
+import { usePostgresql } from '@/composables/usePostgresql'
+import { useInit } from '@/composables/useInit'
+import { useQuery } from '@/composables/useQuery'
 
 const model = monaco.editor.createModel(example, 'sql')
-const result = ref<Array<object>>([])
-const isLoading = ref(false)
+
+const pg = usePostgresql()
+const { init, isInitializing } = useInit(pg)
+const { query, data, error, reset, isPending } = useQuery(pg)
 
 function handleRun() {
-  isLoading.value = true
-  const query = model.getValue()
-  console.debug('PostgreSQL: Running query:', query)
-  database
-    .exec(query)
-    .then((res) => {
-      console.debug('PostgreSQL: Query result:', res)
-      result.value = res[res.length - 1].rows
-    })
-    .catch((error) => {
-      console.error('PostgreSQL: Error running query:', error)
-      result.value = [
-        {
-          error_message: error.message ?? 'Unknown error',
-        },
-      ]
-    })
-    .finally(() => {
-      isLoading.value = false
-    })
+  query(model.getValue())
 }
 
 function handleClear() {
   model.setValue('')
-  result.value = []
+  reset()
 }
+
+onMounted(init)
+onScopeDispose(pg.close)
 </script>
 
 <template>
   <AppLayout>
-    <main class="flex-1 flex flex-col">
+    <main v-if="!isInitializing" class="flex-1 flex flex-col">
       <ResizablePanelGroup direction="horizontal" class="flex-1">
         <ResizablePanel :default-size="0">
           <DatabaseExplorerPanel />
@@ -60,24 +47,37 @@ function handleClear() {
         <ResizableHandle />
         <ResizablePanel>
           <ResizablePanelGroup direction="vertical">
-            <!-- <Tabs /> -->
             <ResizablePanel>
-              <ConsoleToolbar @run="handleRun" @clear="handleClear" />
+              <ConsoleToolbar
+                @run="handleRun"
+                @clear="handleClear"
+                :disable-run="isPending"
+              />
               <Editor :model="model" />
             </ResizablePanel>
             <ResizableHandle />
             <ResizablePanel :default-size="24">
-              <div v-if="!isLoading" class="h-full overflow-y-auto">
-                <ResultTable :data="result" />
+              <div v-if="error" class="p-6 bg-red-500/10 text-red-500">
+                <p>{{ error.message }}</p>
+              </div>
+              <div v-else-if="!isPending" class="h-full overflow-y-auto">
+                <ResultTable :data="data" />
               </div>
               <div v-else class="h-full flex justify-center items-center">
                 <LoaderCircleIcon
-                  class="w-8 h-8 animate-spin text-muted-foreground" />
+                  class="size-8 animate-spin text-muted-foreground"
+                />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
         </ResizablePanel>
       </ResizablePanelGroup>
+    </main>
+    <main v-else class="flex-1 flex items-center justify-center">
+      <div class="flex gap-2 items-center text-muted-foreground">
+        <LoaderCircleIcon class="size-5 animate-spin" />
+        <p>Loading PostgreSQL</p>
+      </div>
     </main>
   </AppLayout>
 </template>

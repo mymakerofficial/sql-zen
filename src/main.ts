@@ -3,6 +3,7 @@ import './assets/main.css'
 import { createApp } from 'vue'
 import App from './App.vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import { VueQueryPlugin as vueQuery } from '@tanstack/vue-query'
 import { routes, handleHotUpdate } from 'vue-router/auto-routes'
 import '@/lib/monacoWorker'
 
@@ -24,5 +25,6 @@ if (import.meta.hot) {
 }
 
 app.use(router)
+app.use(vueQuery)
 
 app.mount('#app')

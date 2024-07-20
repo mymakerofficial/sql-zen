@@ -2,9 +2,10 @@
 import DataTable from '@/components/table/DataTable.vue'
 import { createColumnHelper } from '@tanstack/vue-table'
 import { computed } from 'vue'
+import type { QueryResult } from '@/lib/database'
 
 const props = defineProps<{
-  data: Array<object>
+  data: QueryResult
 }>()
 
 const columnHelper = createColumnHelper<object>()
