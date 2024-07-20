@@ -11,7 +11,7 @@ import { databaseSystemsList } from '@/lib/databaseSystems'
           <h1 class="text-4xl font-bold">
             Welcome to
             <span
-              class="bg-gradient-to-r from-blue-600 to-indigo-400 inline-block text-transparent bg-clip-text"
+              class="bg-gradient-to-br from-primary to-blue-600 inline-block text-transparent bg-clip-text font-black"
               >SqlZen</span
             >
           </h1>
@@ -28,7 +28,8 @@ import { databaseSystemsList } from '@/lib/databaseSystems'
               v-for="item in databaseSystemsList"
               :href="item.baseRoute"
               :key="item.key"
-              class="rounded-md p-3 hover:bg-accent text-left">
+              class="rounded-md p-3 hover:bg-accent text-left"
+            >
               <DatabaseSelectItemContent v-bind="item" />
             </a>
           </div>
