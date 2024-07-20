@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { type HTMLAttributes, computed } from 'vue'
+import { computed, type HTMLAttributes } from 'vue'
 import {
   SelectItem,
-  SelectItemIndicator,
   type SelectItemProps,
   SelectItemText,
   useForwardProps,
 } from 'radix-vue'
-import { Check } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 
 const props = defineProps<
@@ -31,7 +29,8 @@ const forwardedProps = useForwardProps(delegatedProps)
         'relative flex w-full cursor-default select-none items-center rounded-sm p-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         props.class,
       )
-    ">
+    "
+  >
     <SelectItemText>
       <slot />
     </SelectItemText>

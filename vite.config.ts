@@ -8,16 +8,16 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 // https://vitejs.dev/config/
 export default defineConfig({
   optimizeDeps: {
-    exclude: ['@electric-sql/pglite', '@sqlite.org/sqlite-wasm'],
+    exclude: [
+      '@electric-sql/pglite',
+      '@sqlite.org/sqlite-wasm',
+      '@duckdb/duckdb-wasm',
+    ],
   },
-  plugins: [
-    vueRouter(),
-    vue(),
-    vueDevTools(),
-  ],
+  plugins: [vueRouter(), vue(), vueDevTools()],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
-  }
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
 })
