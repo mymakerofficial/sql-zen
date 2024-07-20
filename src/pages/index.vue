@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import DatabaseSelectItemContent from '@/components/databaseSelect/DatabaseSelectItemContent.vue'
 import { databaseSystemsList } from '@/lib/databaseSystems'
+import ColorModeSelect from '@/components/ColorModeSelect.vue'
 </script>
 
 <template>
   <div class="h-screen flex flex-col">
+    <div
+      class="hidden h-16 px-3 md:flex justify-end items-center border-b border-border"
+    >
+      <ColorModeSelect />
+    </div>
     <main class="flex-1 p-6 md:flex md:items-center md:justify-center">
       <div class="flex flex-col gap-12 lg:w-[32rem]">
         <div class="flex flex-col gap-3">

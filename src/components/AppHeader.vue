@@ -3,6 +3,7 @@ import DatabaseSelect from '@/components/databaseSelect/DatabaseSelect.vue'
 import { computed } from 'vue'
 import { twMerge } from 'tailwind-merge'
 import { useDatabaseSystem } from '@/composables/useDatabaseSystem'
+import ColorModeSelect from '@/components/ColorModeSelect.vue'
 
 const database = useDatabaseSystem()
 
@@ -19,14 +20,20 @@ const gradientClass = computed(() => {
 </script>
 
 <template>
-  <nav class="relative h-16 px-3 flex items-center border-b border-border">
-    <span
-      :class="
-        twMerge(
-          'w-96 h-full absolute left-0 -z-10 bg-gradient-to-r',
-          gradientClass,
-        )
-      " />
-    <DatabaseSelect />
+  <nav class="relative h-16 px-3 flex justify-between border-b border-border">
+    <div class="h-full flex items-center">
+      <span
+        :class="
+          twMerge(
+            'w-96 h-full absolute left-0 -z-10 bg-gradient-to-r',
+            gradientClass,
+          )
+        "
+      />
+      <DatabaseSelect />
+    </div>
+    <div class="h-full flex items-center">
+      <ColorModeSelect />
+    </div>
   </nav>
 </template>

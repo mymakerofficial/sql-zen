@@ -3,6 +3,19 @@
 @tailwind utilities;
 
 @layer base {
+  @media (prefers-color-scheme: light) {
+    :root {
+      @apply light;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      @apply dark;
+    }
+  }
+
+
   .light {
     --background: 0 0% 100%;
     --foreground: 0, 0%, 9%;
