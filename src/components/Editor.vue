@@ -30,6 +30,9 @@ onMounted(async () => {
   editor = monaco.editor.create(container.value!, {
     model: props.model,
     automaticLayout: true,
+    minimap: {
+      enabled: false,
+    },
     theme: getTheme(),
   })
 })
