@@ -11,7 +11,7 @@ import { databaseSystemsList } from '@/lib/databaseSystems'
           <h1 class="text-4xl font-bold">Welcome to <span class="bg-gradient-to-r from-blue-600 to-indigo-400 inline-block text-transparent bg-clip-text">SqlZen</span></h1>
           <p class="text-lg">Play with your favourite databases right in your browser.</p>
         </div>
-        <div class="flex flex-col gap-3">
+        <div class="flex flex-col gap-7">
           <p class="text-sm font-medium text-muted-foreground">Select a database to get going.</p>
           <div class="flex flex-col gap-4">
             <a v-for="item in databaseSystemsList" :href="item.baseRoute" :key="item.key" class="rounded-md p-3 hover:bg-accent text-left">
