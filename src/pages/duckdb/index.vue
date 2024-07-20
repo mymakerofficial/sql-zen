@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
-import * as duckdb from '@duckdb/duckdb-wasm';
-import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url';
-import mvp_worker from '@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url';
-import duckdb_wasm_eh from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url';
-import eh_worker from '@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url';
+import * as duckdb from '@duckdb/duckdb-wasm'
+import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url'
+import mvp_worker from '@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url'
+import duckdb_wasm_eh from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url'
+import eh_worker from '@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url'
 import { onMounted, onScopeDispose, ref } from 'vue'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import Editor from '@/components/Editor.vue'
@@ -14,6 +14,7 @@ import ResultTable from '@/components/table/ResultTable.vue'
 import * as monaco from 'monaco-editor'
 import example from './example'
 import { LoaderCircleIcon } from 'lucide-vue-next'
+import { arrowToResultArray } from '@/lib/arrowToResultArray'
 
 const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
   mvp: {
@@ -25,6 +26,8 @@ const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
     mainWorker: eh_worker,
   },
 };
+let worker: Worker | null = null
+let database: duckdb.AsyncDuckDB | null = null
 let connection: duckdb.AsyncDuckDBConnection | null = null
 
 const model = monaco.editor.createModel(example, 'sql')
@@ -39,16 +42,8 @@ async function handleRun() {
   const query = model.getValue()
 
   isLoading.value = true
-  try {
-    const arrowResult = await connection.query(query)
-    result.value = JSON.parse(arrowResult.toString()) // TODO: aaaaaaaaaaa
-  } catch (error) {
-    console.error('DuckDB: Error running query:', error)
-    result.value = [{
-      'error_message': (error as Error).message ?? 'Unknown error',
-    }]
-  }
-
+  const arrowResult = await connection.query(query)
+  result.value = arrowToResultArray(arrowResult)
   isLoading.value = false
 }
 
@@ -58,21 +53,23 @@ function handleClear() {
 }
 
 onMounted(async () => {
-  isLoading.value = true;
+  isLoading.value = true
   // Select a bundle based on browser checks
-  const bundle = await duckdb.selectBundle(MANUAL_BUNDLES);
+  const bundle = await duckdb.selectBundle(MANUAL_BUNDLES)
   // Instantiate the asynchronus version of DuckDB-wasm
-  const worker = new Worker(bundle.mainWorker!);
-  const logger = new duckdb.ConsoleLogger();
-  const database = new duckdb.AsyncDuckDB(logger, worker);
-  await database.instantiate(bundle.mainModule, bundle.pthreadWorker);
-  console.debug('DuckDB version:', await database.getVersion());
-  connection = await database.connect();
-  isLoading.value = false;
+  worker = new Worker(bundle.mainWorker!)
+  const logger = new duckdb.ConsoleLogger()
+  database = new duckdb.AsyncDuckDB(logger, worker)
+  await database.instantiate(bundle.mainModule, bundle.pthreadWorker)
+  console.debug('DuckDB version:', await database.getVersion())
+  connection = await database.connect()
+  isLoading.value = false
 });
 
 onScopeDispose(() => {
-  connection?.close();
+  connection?.close()
+  database?.terminate()
+  worker?.terminate()
 });
 </script>
 
