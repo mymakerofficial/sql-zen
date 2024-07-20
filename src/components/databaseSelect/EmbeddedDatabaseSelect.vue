@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { databaseSystemsList } from '@/lib/databaseSystems'
+import DatabaseSelectItemContent from '@/components/databaseSelect/DatabaseSelectItemContent.vue'
 
 const model = defineModel<string>({ default: 'postgresql' })
 </script>
@@ -11,32 +13,8 @@ const model = defineModel<string>({ default: 'postgresql' })
     </SelectTrigger>
     <SelectContent>
       <SelectGroup>
-        <SelectItem value="postgresql" class="px-3">
-          <div class="my-1 flex flex-col gap-2 max-w-80">
-            <div class="flex items-center gap-2">
-              <img src="@/assets/icons/postgresql.svg" alt="PostgreSQL" class="size-6" />
-              <span>PostgreSQL</span>
-            </div>
-            <p class="pl-8 pr-2 text-xs text-muted-foreground" data-description>PostgreSQL is a versatile database offering advanced features like JSON support, full-text search, and powerful analytics capabilities.</p>
-          </div>
-        </SelectItem>
-        <SelectItem value="sqlite" class="px-3">
-          <div class="my-1 flex flex-col gap-2 max-w-80">
-            <div class="flex items-center gap-2">
-              <img src="@/assets/icons/sqlite.svg" alt="SQLite" class="size-6" />
-              <span>SQLite</span>
-            </div>
-            <p class="pl-8 pr-2 text-xs text-muted-foreground" data-description>SQLite is a lightweight, embedded database ideal for small-scale applications, offering simplicity, speed, and zero configuration.</p>
-          </div>
-        </SelectItem>
-        <SelectItem value="duckdb" class="px-3">
-          <div class="my-1 flex flex-col gap-2 max-w-80">
-            <div class="flex items-center gap-2">
-              <img src="@/assets/icons/duckdb.svg" alt="SQLite" class="size-6" />
-              <span>DuckDB</span>
-            </div>
-            <p class="pl-8 pr-2 text-xs text-muted-foreground" data-description>DuckDB is a fast in-process analytical database offering a feature-rich SQL dialect and compatibility with PostgreSQL and SQLite.</p>
-          </div>
+        <SelectItem v-for="item in databaseSystemsList" :value="item.key" class="px-3">
+          <DatabaseSelectItemContent v-bind="item" />
         </SelectItem>
       </SelectGroup>
     </SelectContent>
