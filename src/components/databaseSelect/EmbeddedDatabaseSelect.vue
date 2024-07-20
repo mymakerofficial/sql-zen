@@ -16,7 +16,8 @@ const model = defineModel<string>({ default: 'postgresql' })
 <template>
   <Select v-model="model">
     <SelectTrigger
-      class="w-fit bg-transparent border-transparent [&_[data-description]]:hidden">
+      class="w-fit bg-transparent border-transparent [&_[data-description]]:hidden"
+    >
       <SelectValue placeholder="Select database..." class="pr-3" />
     </SelectTrigger>
     <SelectContent>
@@ -24,7 +25,9 @@ const model = defineModel<string>({ default: 'postgresql' })
         <SelectItem
           v-for="item in databaseSystemsList"
           :value="item.key"
-          class="px-3">
+          :key="item.key"
+          class="px-3"
+        >
           <DatabaseSelectItemContent v-bind="item" />
         </SelectItem>
       </SelectGroup>
