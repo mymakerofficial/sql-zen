@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '@/components/ui/resizable'
 import Editor from '@/components/Editor.vue'
 import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
 import ConsoleToolbar from '@/components/ConsoleToolbar.vue'
-import sqlite3InitModule, { type Database as SqliteDatabase } from '@sqlite.org/sqlite-wasm'
+import sqlite3InitModule, {
+  type Database as SqliteDatabase,
+} from '@sqlite.org/sqlite-wasm'
 import { onMounted, ref } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import ResultTable from '@/components/table/ResultTable.vue'
@@ -34,9 +40,11 @@ function handleRun() {
     }) as Array<object>
   } catch (error) {
     console.error('SQLite: Error running query:', error)
-    result.value = [{
-      'error_message': (error as Error).message ?? 'Unknown error',
-    }]
+    result.value = [
+      {
+        error_message: (error as Error).message ?? 'Unknown error',
+      },
+    ]
   }
 
   isLoading.value = false
@@ -73,10 +81,7 @@ onMounted(async () => {
           <ResizablePanelGroup direction="vertical">
             <!-- <Tabs /> -->
             <ResizablePanel>
-              <ConsoleToolbar
-                @run="handleRun"
-                @clear="handleClear"
-              />
+              <ConsoleToolbar @run="handleRun" @clear="handleClear" />
               <Editor :model="model" />
             </ResizablePanel>
             <ResizableHandle />
@@ -85,7 +90,8 @@ onMounted(async () => {
                 <ResultTable :data="result" />
               </div>
               <div v-else class="h-full flex justify-center items-center">
-                <LoaderCircleIcon class="w-8 h-8 animate-spin text-muted-foreground" />
+                <LoaderCircleIcon
+                  class="w-8 h-8 animate-spin text-muted-foreground" />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>

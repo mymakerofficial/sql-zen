@@ -4,12 +4,15 @@ import TableRow from './TableRow.vue'
 import TableCell from './TableCell.vue'
 import { cn } from '@/lib/utils'
 
-const props = withDefaults(defineProps<{
-  class?: HTMLAttributes['class']
-  colspan?: number
-}>(), {
-  colspan: 1,
-})
+const props = withDefaults(
+  defineProps<{
+    class?: HTMLAttributes['class']
+    colspan?: number
+  }>(),
+  {
+    colspan: 1,
+  },
+)
 
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props
@@ -27,8 +30,7 @@ const delegatedProps = computed(() => {
           props.class,
         )
       "
-      v-bind="delegatedProps"
-    >
+      v-bind="delegatedProps">
       <div class="flex items-center justify-center py-10">
         <slot />
       </div>

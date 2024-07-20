@@ -15,7 +15,7 @@ const router = createRouter({
     {
       path: '/postgresql',
       redirect: () => '/pg',
-    }
+    },
   ],
 })
 

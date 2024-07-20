@@ -14,13 +14,8 @@ let highlighter: HighlighterGeneric<any, any> | null = null
 
 onMounted(async () => {
   highlighter = await createHighlighter({
-    themes: [
-      'vitesse-dark',
-      'vitesse-light',
-    ],
-    langs: [
-      'sql'
-    ],
+    themes: ['vitesse-dark', 'vitesse-light'],
+    langs: ['sql'],
   })
 
   shikiToMonaco(highlighter, monaco)

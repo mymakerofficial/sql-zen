@@ -1,4 +1,4 @@
-const origin = window.location.origin;
+const origin = window.location.origin
 
 export default `-- Welcome to sql-zen
 -- You can run queries by clicking the "Run All" button

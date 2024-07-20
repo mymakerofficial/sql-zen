@@ -10,6 +10,8 @@ defineProps<DatabaseSystemInfo>()
       <img :src="icon" :alt="`${name} Icon`" class="size-6" />
       <span>{{ name }}</span>
     </div>
-    <p class="pl-8 pr-2 text-xs text-muted-foreground" data-description>{{ description }}</p>
+    <p class="pl-8 pr-2 text-xs text-muted-foreground" data-description>
+      {{ description }}
+    </p>
   </div>
 </template>

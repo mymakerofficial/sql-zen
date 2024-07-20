@@ -11,7 +11,7 @@ const columnHelper = createColumnHelper<object>()
 const columns = computed(() => {
   return props.data.length
     ? Object.keys(props.data[0]).map((key) =>
-      // @ts-ignore // TODO: Fix this
+        // @ts-ignore // TODO: Fix this
         columnHelper.accessor(key, {
           header: key,
         }),

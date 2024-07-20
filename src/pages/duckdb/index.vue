@@ -6,7 +6,11 @@ import mvp_worker from '@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?ur
 import duckdb_wasm_eh from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url'
 import eh_worker from '@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url'
 import { onMounted, onScopeDispose, ref } from 'vue'
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '@/components/ui/resizable'
 import Editor from '@/components/Editor.vue'
 import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
 import ConsoleToolbar from '@/components/ConsoleToolbar.vue'
@@ -25,7 +29,7 @@ const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
     mainModule: duckdb_wasm_eh,
     mainWorker: eh_worker,
   },
-};
+}
 let worker: Worker | null = null
 let database: duckdb.AsyncDuckDB | null = null
 let connection: duckdb.AsyncDuckDBConnection | null = null
@@ -64,13 +68,13 @@ onMounted(async () => {
   console.debug('DuckDB version:', await database.getVersion())
   connection = await database.connect()
   isLoading.value = false
-});
+})
 
 onScopeDispose(() => {
   connection?.close()
   database?.terminate()
   worker?.terminate()
-});
+})
 </script>
 
 <template>
@@ -85,10 +89,7 @@ onScopeDispose(() => {
           <ResizablePanelGroup direction="vertical">
             <!-- <Tabs /> -->
             <ResizablePanel>
-              <ConsoleToolbar
-                @run="handleRun"
-                @clear="handleClear"
-              />
+              <ConsoleToolbar @run="handleRun" @clear="handleClear" />
               <Editor :model="model" />
             </ResizablePanel>
             <ResizableHandle />
@@ -97,7 +98,8 @@ onScopeDispose(() => {
                 <ResultTable :data="result" />
               </div>
               <div v-else class="h-full flex justify-center items-center">
-                <LoaderCircleIcon class="w-8 h-8 animate-spin text-muted-foreground" />
+                <LoaderCircleIcon
+                  class="w-8 h-8 animate-spin text-muted-foreground" />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>

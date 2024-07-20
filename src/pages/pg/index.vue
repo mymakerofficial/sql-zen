@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
 import { PGlite } from '@electric-sql/pglite'
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '@/components/ui/resizable'
 import Editor from '@/components/Editor.vue'
 import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
 import ConsoleToolbar from '@/components/ConsoleToolbar.vue'
@@ -21,16 +25,19 @@ function handleRun() {
   isLoading.value = true
   const query = model.getValue()
   console.debug('PostgreSQL: Running query:', query)
-  database.exec(query)
+  database
+    .exec(query)
     .then((res) => {
       console.debug('PostgreSQL: Query result:', res)
       result.value = res[res.length - 1].rows
     })
     .catch((error) => {
       console.error('PostgreSQL: Error running query:', error)
-      result.value = [{
-        'error_message': error.message ?? 'Unknown error'
-      }]
+      result.value = [
+        {
+          error_message: error.message ?? 'Unknown error',
+        },
+      ]
     })
     .finally(() => {
       isLoading.value = false
@@ -55,10 +62,7 @@ function handleClear() {
           <ResizablePanelGroup direction="vertical">
             <!-- <Tabs /> -->
             <ResizablePanel>
-              <ConsoleToolbar
-                @run="handleRun"
-                @clear="handleClear"
-              />
+              <ConsoleToolbar @run="handleRun" @clear="handleClear" />
               <Editor :model="model" />
             </ResizablePanel>
             <ResizableHandle />
@@ -67,7 +71,8 @@ function handleClear() {
                 <ResultTable :data="result" />
               </div>
               <div v-else class="h-full flex justify-center items-center">
-                <LoaderCircleIcon class="w-8 h-8 animate-spin text-muted-foreground" />
+                <LoaderCircleIcon
+                  class="w-8 h-8 animate-spin text-muted-foreground" />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
