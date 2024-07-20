@@ -13,6 +13,9 @@ export function usePostgresql() {
     const module = await import('@electric-sql/pglite')
     console.debug('Initializing PostgreSQL')
     database = new module.PGlite()
+    // pglite initializes on the first query
+    // we don't want this behaviour, so we run a dummy query
+    await database.exec(`select 1`)
     console.debug('PostgreSQL initialized')
   }
 
