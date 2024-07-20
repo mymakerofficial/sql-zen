@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import DatabaseSelectItemContent from '@/components/databaseSelect/DatabaseSelectItemContent.vue'
 import { databaseSystemsList } from '@/lib/databaseSystems'
-import { useDatabaseSystem } from '@/composables/useDatabaseSystem'
-
-const database = useDatabaseSystem()
 </script>
 
 <template>
@@ -17,9 +14,9 @@ const database = useDatabaseSystem()
         <div class="flex flex-col gap-3">
           <p class="text-sm font-medium text-muted-foreground">Select a database to get going.</p>
           <div class="flex flex-col gap-4">
-            <button v-for="item in databaseSystemsList" @click="database = item.key" :key="item.key" class="rounded-md p-3 hover:bg-accent text-left">
+            <a v-for="item in databaseSystemsList" :href="item.baseRoute" :key="item.key" class="rounded-md p-3 hover:bg-accent text-left">
               <DatabaseSelectItemContent v-bind="item" />
-            </button>
+            </a>
           </div>
         </div>
       </div>
