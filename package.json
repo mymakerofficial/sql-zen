@@ -17,6 +17,7 @@
     "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
     "@electric-sql/pglite": "^0.1.5",
     "@sqlite.org/sqlite-wasm": "^3.46.0-build2",
+    "@tanstack/vue-query": "^5.51.9",
     "@tanstack/vue-table": "^8.19.3",
     "@vueuse/core": "^10.11.0",
     "apache-arrow": "^17.0.0",
