@@ -14,10 +14,12 @@ export class PostgresqlFacade extends DatabaseFacade {
     const initStep = this.logger.step('Loading PostgreSQL')
     const module = await import('@electric-sql/pglite')
     this.database = new module.PGlite()
-    // pglite initializes on the first query
-    // we don't want this behaviour, so we run a dummy query
-    await this.database.exec(`select 1`)
+    await this.database.waitReady
     initStep.success()
+    const version = await this.database.query<{ version: string }>(
+      'SELECT version()',
+    )
+    this.logger.log(`Running PostgreSQL version: ${version.rows[0]?.version}`)
   }
 
   private parseRawResponse(rawResult: Results<unknown>): QueryResult {

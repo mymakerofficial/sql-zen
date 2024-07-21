@@ -1,6 +1,7 @@
 import type { QueryResult } from '@/lib/databases/database'
 
 export const LogEventType = {
+  Message: 'message',
   Query: 'query',
   Step: 'step',
 } as const
@@ -17,6 +18,11 @@ type LogEventBase = {
   type: LogEventType
   id: number
   key: string
+}
+
+export type MessageLogEvent = {
+  type: typeof LogEventType.Message
+  message: string
 }
 
 export type QueryLogEvent = {
@@ -51,7 +57,7 @@ export type StepLogEvent = {
     }
 )
 
-type AbstractLogEvent = QueryLogEvent | StepLogEvent
+type AbstractLogEvent = MessageLogEvent | QueryLogEvent | StepLogEvent
 
 export type LogEvent = LogEventBase & AbstractLogEvent
 
@@ -77,7 +83,15 @@ export class Logger {
   }
 
   private computeEventKey(event: Partial<LogEvent>) {
-    return [event.id, event.type, event.state].join('-')
+    return [
+      event.id,
+      event.type,
+      event.type === LogEventType.Query || event.type === LogEventType.Step
+        ? event.state
+        : undefined,
+    ]
+      .filter((it) => !!it)
+      .join('-')
   }
 
   private logEvent<TEvent extends AbstractLogEvent>(data: TEvent) {
@@ -90,6 +104,10 @@ export class Logger {
     this.events.push(event)
     this.notifyListeners(event)
     return event
+  }
+
+  log(message: string) {
+    this.logEvent({ type: LogEventType.Message, message })
   }
 
   query(sql: string) {

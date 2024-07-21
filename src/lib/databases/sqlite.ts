@@ -30,7 +30,7 @@ export class SqliteFacade extends DatabaseFacade {
       printErr: console.error,
     })
     initStep.success()
-    console.debug('Running SQLite3 version', sqlite3.version.libVersion)
+    this.logger.log(`Running SQLite3 version: ${sqlite3.version.libVersion}`)
     const openStep = this.logger.step('Creating Database')
     this.database = new sqlite3.oo1.DB('/mydb.sqlite3', 'ct')
     openStep.success()
