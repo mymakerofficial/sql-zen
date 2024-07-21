@@ -25,6 +25,8 @@ if (import.meta.hot) {
 }
 
 app.use(router)
-app.use(vueQuery)
+app.use(vueQuery, {
+  enableDevtoolsV6Plugin: true,
+})
 
 app.mount('#app')
