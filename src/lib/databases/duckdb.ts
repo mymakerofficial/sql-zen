@@ -1,14 +1,15 @@
-import type * as duckdb from '@duckdb/duckdb-wasm'
+import { DatabaseFacade } from '@/lib/databases/database'
 import { arrowToResultArray } from '@/lib/arrowToResultArray'
-import type { DatabaseFacade } from '@/lib/database'
+import type * as duckdb from '@duckdb/duckdb-wasm'
+import { DatabaseNotLoadedError } from '@/lib/errors'
 
-let worker: Worker | null = null
-let database: duckdb.AsyncDuckDB | null = null
-let connection: duckdb.AsyncDuckDBConnection | null = null
+export class DuckdbFacade extends DatabaseFacade {
+  private worker: Worker | null = null
+  private database: duckdb.AsyncDuckDB | null = null
+  private connection: duckdb.AsyncDuckDBConnection | null = null
 
-export function useDuckdb() {
-  async function init() {
-    if (connection) {
+  async init() {
+    if (this.connection) {
       return
     }
 
@@ -41,37 +42,32 @@ export function useDuckdb() {
     })
     // Instantiate the asynchronus version of DuckDB-wasm
     console.debug('Instantiating DuckDB')
-    worker = new Worker(bundle.mainWorker!)
+    this.worker = new Worker(bundle.mainWorker!)
     const logger = new duckdb.ConsoleLogger()
-    database = new duckdb.AsyncDuckDB(logger, worker)
-    await database.instantiate(bundle.mainModule, bundle.pthreadWorker)
-    console.debug('DuckDB version:', await database.getVersion())
-    connection = await database.connect()
+    this.database = new duckdb.AsyncDuckDB(logger, this.worker)
+    await this.database.instantiate(bundle.mainModule, bundle.pthreadWorker)
+    console.debug('DuckDB version:', await this.database.getVersion())
+    this.connection = await this.database.connect()
   }
 
-  async function query(sql: string) {
-    if (!connection) {
-      throw new Error('DuckDB not loaded')
+  async query(sql: string) {
+    if (!this.connection) {
+      throw new DatabaseNotLoadedError()
     }
 
-    const arrowResult = await connection.query(sql)
+    const arrowResult = await this.connection.query(sql)
     return arrowToResultArray(arrowResult)
   }
 
-  async function close() {
-    if (connection) {
-      await connection.close()
-      connection = null
+  async close() {
+    if (this.connection) {
+      await this.connection.close()
     }
-    if (database) {
-      await database.terminate()
-      database = null
+    if (this.database) {
+      await this.database.terminate()
     }
-    if (worker) {
-      worker.terminate()
-      worker = null
+    if (this.worker) {
+      this.worker.terminate()
     }
   }
-
-  return { init, query, close } satisfies DatabaseFacade
 }

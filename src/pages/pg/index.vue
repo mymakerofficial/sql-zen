@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
-import { PGlite } from '@electric-sql/pglite'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -10,22 +9,22 @@ import Editor from '@/components/Editor.vue'
 import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
 import ConsoleToolbar from '@/components/ConsoleToolbar.vue'
 import ResultTable from '@/components/table/ResultTable.vue'
-import { onMounted, onScopeDispose, ref } from 'vue'
+import { onMounted, onScopeDispose } from 'vue'
 import example from './example.sql?raw'
 import * as monaco from 'monaco-editor'
 import { LoaderCircleIcon } from 'lucide-vue-next'
-import { usePostgresql } from '@/composables/usePostgresql'
 import { useInit } from '@/composables/useInit'
-import { useQuery } from '@/composables/useQuery'
+import { useExec } from '@/composables/useExec'
+import { PostgresqlFacade } from '@/lib/databases/postgresql'
 
 const model = monaco.editor.createModel(example, 'sql')
+const pg = new PostgresqlFacade()
 
-const pg = usePostgresql()
 const { init, isInitializing } = useInit(pg)
-const { query, data, error, reset, isPending } = useQuery(pg)
+const { exec, data, error, reset, isPending } = useExec(pg)
 
 function handleRun() {
-  query(model.getValue())
+  exec(model.getValue())
 }
 
 function handleClear() {
@@ -74,7 +73,11 @@ onScopeDispose(pg.close)
                 <p>{{ error.message }}</p>
               </div>
               <div v-else class="h-full overflow-y-auto">
-                <ResultTable :data="data" />
+                <ResultTable
+                  v-for="(res, index) in data"
+                  :data="res"
+                  :key="index"
+                />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>

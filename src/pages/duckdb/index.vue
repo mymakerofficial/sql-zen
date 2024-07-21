@@ -13,18 +13,18 @@ import ResultTable from '@/components/table/ResultTable.vue'
 import * as monaco from 'monaco-editor'
 import example from './example'
 import { LoaderCircleIcon } from 'lucide-vue-next'
-import { useDuckdb } from '@/composables/useDuckdb'
-import { useQuery } from '@/composables/useQuery'
+import { useExec } from '@/composables/useExec'
 import { useInit } from '@/composables/useInit'
+import { DuckdbFacade } from '@/lib/databases/duckdb'
 
 const model = monaco.editor.createModel(example, 'sql')
+const duckdb = new DuckdbFacade()
 
-const duckdb = useDuckdb()
 const { init, isInitializing } = useInit(duckdb)
-const { query, data, error, reset, isPending } = useQuery(duckdb)
+const { exec, data, error, reset, isPending } = useExec(duckdb)
 
 function handleRun() {
-  query(model.getValue())
+  exec(model.getValue())
 }
 
 function handleClear() {
@@ -73,7 +73,11 @@ onScopeDispose(duckdb.close)
                 <p>{{ error.message }}</p>
               </div>
               <div v-else class="h-full overflow-y-auto">
-                <ResultTable :data="data" />
+                <ResultTable
+                  v-for="(res, index) in data"
+                  :data="res"
+                  :key="index"
+                />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>

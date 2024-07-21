@@ -7,27 +7,24 @@ import {
 import Editor from '@/components/Editor.vue'
 import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
 import ConsoleToolbar from '@/components/ConsoleToolbar.vue'
-import sqlite3InitModule, {
-  type Database as SqliteDatabase,
-} from '@sqlite.org/sqlite-wasm'
-import { onMounted, onScopeDispose, ref } from 'vue'
+import { onMounted, onScopeDispose } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import ResultTable from '@/components/table/ResultTable.vue'
 import * as monaco from 'monaco-editor'
 import example from './example.sql?raw'
 import { LoaderCircleIcon } from 'lucide-vue-next'
 import { useInit } from '@/composables/useInit'
-import { useQuery } from '@/composables/useQuery'
-import { useSqlite } from '@/composables/useSqlite'
+import { useExec } from '@/composables/useExec'
+import { SqliteFacade } from '@/lib/databases/sqlite'
 
 const model = monaco.editor.createModel(example, 'sql')
+const sqlite = new SqliteFacade()
 
-const sqlite = useSqlite()
 const { init, isInitializing } = useInit(sqlite)
-const { query, data, error, reset, isPending } = useQuery(sqlite)
+const { exec, data, error, reset, isPending } = useExec(sqlite)
 
 function handleRun() {
-  query(model.getValue())
+  exec(model.getValue())
 }
 
 function handleClear() {
@@ -76,7 +73,11 @@ onScopeDispose(sqlite.close)
                 <p>{{ error.message }}</p>
               </div>
               <div v-else class="h-full overflow-y-auto">
-                <ResultTable :data="data" />
+                <ResultTable
+                  v-for="(res, index) in data"
+                  :data="res"
+                  :key="index"
+                />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>

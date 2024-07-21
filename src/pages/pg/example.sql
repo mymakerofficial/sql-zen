@@ -1,4 +1,4 @@
--- Welcome to sql-zen`,
+-- Welcome to sql-zen`
 -- You can run queries by clicking the "Run All" button
 
 CREATE TABLE IF NOT EXISTS products (
