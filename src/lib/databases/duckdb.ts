@@ -55,8 +55,14 @@ export class DuckdbFacade extends DatabaseFacade {
       throw new DatabaseNotLoadedError()
     }
 
-    const arrowResult = await this.connection.query(sql)
-    return arrowToResultArray(arrowResult)
+    const { success, error } = this.logger.query(sql)
+    try {
+      const arrowResult = await this.connection.query(sql)
+      const result = arrowToResultArray(arrowResult)
+      return success(result)
+    } catch (e) {
+      throw error(e as Error)
+    }
   }
 
   async close() {

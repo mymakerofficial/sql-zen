@@ -1,5 +1,5 @@
-import { DatabaseFacade } from '@/lib/databases/database'
-import type { PGlite } from '@electric-sql/pglite'
+import { DatabaseFacade, type QueryResult } from '@/lib/databases/database'
+import type { PGlite, Results } from '@electric-sql/pglite'
 import { DatabaseNotLoadedError } from '@/lib/errors'
 
 export class PostgresqlFacade extends DatabaseFacade {
@@ -21,13 +21,23 @@ export class PostgresqlFacade extends DatabaseFacade {
     console.debug('PostgreSQL initialized')
   }
 
+  private parseRawResponse(rawResult: Results<unknown>): QueryResult {
+    return rawResult.rows as QueryResult
+  }
+
   async query(sql: string) {
     if (!this.database) {
       throw new DatabaseNotLoadedError()
     }
 
-    const res = await this.database.query(sql)
-    return res.rows as Array<Object>
+    const { success, error } = this.logger.query(sql)
+    try {
+      const rawResponse = await this.database.query(sql)
+      const result = this.parseRawResponse(rawResponse)
+      return success(result)
+    } catch (e) {
+      throw error(e as Error)
+    }
   }
 
   async close() {

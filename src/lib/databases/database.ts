@@ -1,9 +1,14 @@
 import { separateQueries } from '@/lib/separateQueries'
+import { Logger } from '@/lib/logger/logger'
 
 export type QueryResult = Array<Object>
 
 export abstract class DatabaseFacade {
-  constructor() {}
+  protected logger = new Logger()
+
+  getLogger() {
+    return this.logger
+  }
 
   abstract init(): Promise<void>
 

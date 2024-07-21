@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import type { QueryResult } from '@/lib/databases/database'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import ResultTable from '@/components/shared/table/ResultTable.vue'
-import { TableIcon } from 'lucide-vue-next'
+import { TableIcon, SquareTerminalIcon } from 'lucide-vue-next'
+import type { Logger } from '@/lib/logger/logger'
+import LoggerList from '@/components/logger/LoggerList.vue'
 
 const props = defineProps<{
+  logger: Logger
   data: Array<QueryResult>
 }>()
 
@@ -26,14 +29,25 @@ const contents = computed(() => {
     data,
   }))
 })
+
+const selected = ref('log')
+
+watch(
+  () => props.data,
+  () => {
+    selected.value = triggers.value[triggers.value.length - 1]?.value ?? 'log'
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
-  <Tabs
-    :default-value="triggers[triggers.length - 1]?.value"
-    class="h-full flex flex-col"
-  >
-    <TabsList v-if="triggers.length > 1" class="w-full border-b">
+  <Tabs v-model="selected" class="h-full flex flex-col">
+    <TabsList class="w-full border-b">
+      <TabsTrigger value="log" class="gap-2">
+        <SquareTerminalIcon class="size-4" />
+        <span>Output</span>
+      </TabsTrigger>
       <TabsTrigger
         v-for="trigger in triggers"
         :value="trigger.value"
@@ -44,6 +58,9 @@ const contents = computed(() => {
         <span>{{ trigger.label }}</span>
       </TabsTrigger>
     </TabsList>
+    <TabsContent value="log" class="flex-1 overflow-y-auto">
+      <LoggerList :logger="props.logger" />
+    </TabsContent>
     <TabsContent
       v-for="content in contents"
       :value="content.value"

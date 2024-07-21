@@ -39,10 +39,16 @@ export class SqliteFacade extends DatabaseFacade {
         throw new Error('SQLite3 not loaded')
       }
 
-      return this.database.exec(sql, {
-        rowMode: 'object',
-        returnValue: 'resultRows',
-      }) as QueryResult
+      const { success, error } = this.logger.query(sql)
+      try {
+        const res = this.database.exec(sql, {
+          rowMode: 'object',
+          returnValue: 'resultRows',
+        }) as QueryResult
+        return success(res)
+      } catch (e) {
+        throw error(e as Error)
+      }
     })
   }
 

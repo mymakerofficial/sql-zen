@@ -52,14 +52,8 @@ function handleClear() {
         <LoaderCircleIcon class="size-5 animate-spin" />
         <span>{{ loadingMessage }}</span>
       </div>
-      <div v-else-if="isPending" class="h-24 flex items-center justify-center">
-        <LoaderCircleIcon class="size-5 animate-spin" />
-      </div>
-      <div v-else-if="error" class="p-6 bg-red-500/10 text-red-500">
-        <p>{{ error.message }}</p>
-      </div>
       <div v-else class="h-full">
-        <ConsoleResultPanel :data="data" />
+        <ConsoleResultPanel :data="data" :logger="database.getLogger()" />
       </div>
     </ResizablePanel>
   </ResizablePanelGroup>
