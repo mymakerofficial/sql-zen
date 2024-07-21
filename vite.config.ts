@@ -20,4 +20,8 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  build: {
+    // we have one top-level await in src/lib/highlighter.ts
+    target: 'esnext',
+  },
 })
