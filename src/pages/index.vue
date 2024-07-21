@@ -30,14 +30,14 @@ import ColorModeSelect from '@/components/ColorModeSelect.vue'
             Select a database to get going.
           </p>
           <div class="flex flex-col gap-4">
-            <a
+            <RouterLink
               v-for="item in databaseSystemsList"
-              :href="item.baseRoute"
+              :to="item.baseRoute"
               :key="item.key"
               class="rounded-md p-3 hover:bg-accent text-left"
             >
               <DatabaseSelectItemContent v-bind="item" />
-            </a>
+            </RouterLink>
           </div>
         </div>
       </div>
