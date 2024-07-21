@@ -9,13 +9,13 @@ import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
 import ConsoleToolbar from '@/components/ConsoleToolbar.vue'
 import { onMounted, onScopeDispose } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue'
-import ResultTable from '@/components/table/ResultTable.vue'
 import * as monaco from 'monaco-editor'
 import example from './example.sql?raw'
 import { LoaderCircleIcon } from 'lucide-vue-next'
 import { useInit } from '@/composables/useInit'
 import { useExec } from '@/composables/useExec'
 import { SqliteFacade } from '@/lib/databases/sqlite'
+import ConsoleResultPanel from '@/components/ConsoleResultPanel.vue'
 
 const model = monaco.editor.createModel(example, 'sql')
 const sqlite = new SqliteFacade()
@@ -72,12 +72,8 @@ onScopeDispose(sqlite.close)
               <div v-else-if="error" class="p-6 bg-red-500/10 text-red-500">
                 <p>{{ error.message }}</p>
               </div>
-              <div v-else class="h-full overflow-y-auto">
-                <ResultTable
-                  v-for="(res, index) in data"
-                  :data="res"
-                  :key="index"
-                />
+              <div v-else class="h-full">
+                <ConsoleResultPanel :data="data" />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>

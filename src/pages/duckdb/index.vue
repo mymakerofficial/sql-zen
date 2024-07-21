@@ -9,13 +9,13 @@ import {
 import Editor from '@/components/Editor.vue'
 import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
 import ConsoleToolbar from '@/components/ConsoleToolbar.vue'
-import ResultTable from '@/components/table/ResultTable.vue'
 import * as monaco from 'monaco-editor'
 import example from './example'
 import { LoaderCircleIcon } from 'lucide-vue-next'
 import { useExec } from '@/composables/useExec'
 import { useInit } from '@/composables/useInit'
 import { DuckdbFacade } from '@/lib/databases/duckdb'
+import ConsoleResultPanel from '@/components/ConsoleResultPanel.vue'
 
 const model = monaco.editor.createModel(example, 'sql')
 const duckdb = new DuckdbFacade()
@@ -72,12 +72,8 @@ onScopeDispose(duckdb.close)
               <div v-else-if="error" class="p-6 bg-red-500/10 text-red-500">
                 <p>{{ error.message }}</p>
               </div>
-              <div v-else class="h-full overflow-y-auto">
-                <ResultTable
-                  v-for="(res, index) in data"
-                  :data="res"
-                  :key="index"
-                />
+              <div v-else class="h-full">
+                <ConsoleResultPanel :data="data" />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
