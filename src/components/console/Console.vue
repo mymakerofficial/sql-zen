@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Editor from '@/components/shared/editor/MonacoEditor.vue'
+import Editor from '@/components/shared/monaco/MonacoEditor.vue'
 import {
   ResizableHandle,
   ResizablePanel,
