@@ -41,7 +41,7 @@ onScopeDispose(sqlite.close)
 
 <template>
   <AppLayout>
-    <main v-if="!isInitializing" class="flex-1 flex flex-col">
+    <main class="flex-1 flex flex-col">
       <ResizablePanelGroup direction="horizontal" class="flex-1">
         <ResizablePanel :default-size="0">
           <DatabaseExplorerPanel />
@@ -53,33 +53,35 @@ onScopeDispose(sqlite.close)
               <ConsoleToolbar
                 @run="handleRun"
                 @clear="handleClear"
-                :disable-run="isPending"
+                :disable-run="isInitializing || isPending"
               />
               <Editor :model="model" />
             </ResizablePanel>
             <ResizableHandle />
             <ResizablePanel :default-size="24">
-              <div v-if="error" class="p-6 bg-red-500/10 text-red-500">
+              <div
+                v-if="isInitializing"
+                class="h-24 flex items-center justify-center gap-2"
+              >
+                <LoaderCircleIcon class="size-5 animate-spin" />
+                <span>Loading SQLite</span>
+              </div>
+              <div
+                v-else-if="isPending"
+                class="h-24 flex items-center justify-center"
+              >
+                <LoaderCircleIcon class="size-5 animate-spin" />
+              </div>
+              <div v-else-if="error" class="p-6 bg-red-500/10 text-red-500">
                 <p>{{ error.message }}</p>
               </div>
-              <div v-else-if="!isPending" class="h-full overflow-y-auto">
+              <div v-else class="h-full overflow-y-auto">
                 <ResultTable :data="data" />
-              </div>
-              <div v-else class="h-full flex justify-center items-center">
-                <LoaderCircleIcon
-                  class="size-8 animate-spin text-muted-foreground"
-                />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
         </ResizablePanel>
       </ResizablePanelGroup>
-    </main>
-    <main v-else class="flex-1 flex items-center justify-center">
-      <div class="flex gap-2 items-center text-muted-foreground">
-        <LoaderCircleIcon class="size-5 animate-spin" />
-        <p>Loading SQLite</p>
-      </div>
     </main>
   </AppLayout>
 </template>
