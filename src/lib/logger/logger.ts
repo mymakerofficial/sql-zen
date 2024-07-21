@@ -2,15 +2,16 @@ import type { QueryResult } from '@/lib/databases/database'
 
 export const LogEventType = {
   Query: 'query',
+  Step: 'step',
 } as const
 export type LogEventType = (typeof LogEventType)[keyof typeof LogEventType]
 
-export const QueryState = {
+export const PromiseState = {
   Pending: 'pending',
   Success: 'success',
   Error: 'error',
 } as const
-export type QueryState = (typeof QueryState)[keyof typeof QueryState]
+export type PromiseState = (typeof PromiseState)[keyof typeof PromiseState]
 
 type LogEventBase = {
   type: LogEventType
@@ -18,24 +19,41 @@ type LogEventBase = {
   key: string
 }
 
-export type QueryLogEvent = LogEventBase & {
+export type QueryLogEvent = {
   type: typeof LogEventType.Query
   sql: string
 } & (
-    | {
-        state: typeof QueryState.Pending
-      }
-    | {
-        state: typeof QueryState.Success
-        result: QueryResult
-      }
-    | {
-        state: typeof QueryState.Error
-        error: Error
-      }
-  )
+  | {
+      state: typeof PromiseState.Pending
+    }
+  | {
+      state: typeof PromiseState.Success
+      result: QueryResult
+    }
+  | {
+      state: typeof PromiseState.Error
+      error: Error
+    }
+)
 
-export type LogEvent = QueryLogEvent
+export type StepLogEvent = {
+  type: typeof LogEventType.Step
+} & (
+  | {
+      state: typeof PromiseState.Pending
+    }
+  | {
+      state: typeof PromiseState.Success
+    }
+  | {
+      state: typeof PromiseState.Error
+      error: Error
+    }
+)
+
+type AbstractLogEvent = QueryLogEvent | StepLogEvent
+
+export type LogEvent = LogEventBase & AbstractLogEvent
 
 export class Logger {
   private count = 0
@@ -62,33 +80,30 @@ export class Logger {
     return [event.id, event.type, event.state].join('-')
   }
 
-  private logEvent(
-    type: LogEventType,
-    info: Omit<LogEvent, keyof LogEventBase>,
-  ) {
+  private logEvent<TEvent extends AbstractLogEvent>(data: TEvent) {
     const id = this.count++
     const event = {
-      type,
       id,
-      key: this.computeEventKey({ type, id, ...info }),
-      ...info,
-    } as LogEvent
+      key: this.computeEventKey({ id, ...data }),
+      ...data,
+    } as TEvent & LogEventBase
     this.events.push(event)
     this.notifyListeners(event)
     return event
   }
 
   query(sql: string) {
-    const event = this.logEvent(LogEventType.Query, {
+    const event = this.logEvent({
+      type: LogEventType.Query,
       sql,
-      state: QueryState.Pending,
+      state: PromiseState.Pending,
     })
 
     const success = (result: QueryResult) => {
       Object.assign(event, {
-        state: QueryState.Success,
+        state: PromiseState.Success,
         result,
-        key: this.computeEventKey({ ...event, state: QueryState.Success }),
+        key: this.computeEventKey({ ...event, state: PromiseState.Success }),
       })
       this.notifyListeners(event)
       return result
@@ -96,9 +111,37 @@ export class Logger {
 
     const error = (error: Error) => {
       Object.assign(event, {
-        state: QueryState.Error,
+        state: PromiseState.Error,
         error,
-        key: this.computeEventKey({ ...event, state: QueryState.Error }),
+        key: this.computeEventKey({ ...event, state: PromiseState.Error }),
+      })
+      this.notifyListeners(event)
+      return error
+    }
+
+    return { success, error }
+  }
+
+  step(message: string) {
+    const event = this.logEvent({
+      type: LogEventType.Step,
+      message,
+      state: PromiseState.Pending,
+    })
+
+    const success = () => {
+      Object.assign(event, {
+        state: PromiseState.Success,
+        key: this.computeEventKey({ ...event, state: PromiseState.Success }),
+      })
+      this.notifyListeners(event)
+    }
+
+    const error = (error: Error) => {
+      Object.assign(event, {
+        state: PromiseState.Error,
+        error,
+        key: this.computeEventKey({ ...event, state: PromiseState.Error }),
       })
       this.notifyListeners(event)
       return error

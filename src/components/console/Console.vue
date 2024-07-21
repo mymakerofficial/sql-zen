@@ -45,14 +45,7 @@ function handleClear() {
     </ResizablePanel>
     <ResizableHandle />
     <ResizablePanel :default-size="24">
-      <div
-        v-if="isInitializing"
-        class="h-24 flex items-center justify-center gap-2"
-      >
-        <LoaderCircleIcon class="size-5 animate-spin" />
-        <span>{{ loadingMessage }}</span>
-      </div>
-      <div v-else class="h-full">
+      <div class="h-full">
         <ConsoleResultPanel :data="data" :logger="database.getLogger()" />
       </div>
     </ResizablePanel>

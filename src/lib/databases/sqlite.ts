@@ -19,18 +19,21 @@ export class SqliteFacade extends DatabaseFacade {
       return
     }
 
-    console.debug('Loading SQLite3')
+    const loadStep = this.logger.step('Loading SQLite3')
     const { default: sqlite3InitModule } = await import(
       '@sqlite.org/sqlite-wasm'
     )
-    console.debug('Initializing SQLite3')
+    loadStep.success()
+    const initStep = this.logger.step('Initializing SQLite3')
     const sqlite3 = await sqlite3InitModule({
       print: console.log,
       printErr: console.error,
     })
+    initStep.success()
     console.debug('Running SQLite3 version', sqlite3.version.libVersion)
+    const openStep = this.logger.step('Creating Database')
     this.database = new sqlite3.oo1.DB('/mydb.sqlite3', 'ct')
-    console.debug('SQLite3 database initialized')
+    openStep.success()
   }
 
   async query(sql: string): Promise<QueryResult> {

@@ -13,8 +13,7 @@ export class DuckdbFacade extends DatabaseFacade {
       return
     }
 
-    // load DuckDB bundles
-    console.debug('Loading DuckDB')
+    const loadBundlesStep = this.logger.step('Loading DuckDB bundles')
     const duckdb = await import('@duckdb/duckdb-wasm')
     const { default: duckdb_wasm } = await import(
       '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url'
@@ -28,8 +27,8 @@ export class DuckdbFacade extends DatabaseFacade {
     const { default: eh_worker } = await import(
       '@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url'
     )
-    // Select a bundle based on browser checks
-    console.debug('Selecting DuckDB bundle')
+    loadBundlesStep.success()
+    const selectingBundleStep = this.logger.step('Selecting DuckDB bundle')
     const bundle = await duckdb.selectBundle({
       mvp: {
         mainModule: duckdb_wasm,
@@ -40,14 +39,19 @@ export class DuckdbFacade extends DatabaseFacade {
         mainWorker: eh_worker,
       },
     })
-    // Instantiate the asynchronus version of DuckDB-wasm
-    console.debug('Instantiating DuckDB')
+    selectingBundleStep.success()
+    const instantiateWorkerStep = this.logger.step('Instantiating Worker')
     this.worker = new Worker(bundle.mainWorker!)
-    const logger = new duckdb.ConsoleLogger()
-    this.database = new duckdb.AsyncDuckDB(logger, this.worker)
+    instantiateWorkerStep.success()
+    const instantiateDatabaseStep = this.logger.step('Instantiating Database')
+    const duckDbLogger = new duckdb.ConsoleLogger()
+    this.database = new duckdb.AsyncDuckDB(duckDbLogger, this.worker)
     await this.database.instantiate(bundle.mainModule, bundle.pthreadWorker)
+    instantiateDatabaseStep.success()
     console.debug('DuckDB version:', await this.database.getVersion())
+    const connectStep = this.logger.step('Connecting to Database')
     this.connection = await this.database.connect()
+    connectStep.success()
   }
 
   async query(sql: string) {
