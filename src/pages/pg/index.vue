@@ -5,9 +5,9 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
-import Editor from '@/components/Editor.vue'
+import Editor from '@/components/shared/editor/MonacoEditor.vue'
 import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
-import ConsoleToolbar from '@/components/ConsoleToolbar.vue'
+import ConsoleToolbar from '@/components/console/ConsoleToolbar.vue'
 import { onMounted, onScopeDispose } from 'vue'
 import example from './example.sql?raw'
 import * as monaco from 'monaco-editor'
@@ -15,7 +15,7 @@ import { LoaderCircleIcon } from 'lucide-vue-next'
 import { useInit } from '@/composables/useInit'
 import { useExec } from '@/composables/useExec'
 import { PostgresqlFacade } from '@/lib/databases/postgresql'
-import ConsoleResultPanel from '@/components/ConsoleResultPanel.vue'
+import ConsoleResultPanel from '@/components/console/ConsoleResultPanel.vue'
 
 const model = monaco.editor.createModel(example, 'sql')
 const pg = new PostgresqlFacade()

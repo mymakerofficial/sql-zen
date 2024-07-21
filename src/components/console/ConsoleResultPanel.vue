@@ -2,7 +2,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import type { QueryResult } from '@/lib/databases/database'
 import { computed } from 'vue'
-import ResultTable from '@/components/table/ResultTable.vue'
+import ResultTable from '@/components/shared/table/ResultTable.vue'
 import { TableIcon } from 'lucide-vue-next'
 
 const props = defineProps<{

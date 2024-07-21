@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import DatabaseSelectItemContent from '@/components/databaseSelect/DatabaseSelectItemContent.vue'
+import DatabaseSelectItemContent from '@/components/shared/databaseSelect/DatabaseSelectItemContent.vue'
 import { databaseSystemsList } from '@/lib/databaseSystems'
-import ColorModeSelect from '@/components/ColorModeSelect.vue'
+import ColorModeSelect from '@/components/shared/ColorModeSelect.vue'
 </script>
 
 <template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DataTable from '@/components/table/DataTable.vue'
+import DataTable from '@/components/shared/table/DataTable.vue'
 import { createColumnHelper } from '@tanstack/vue-table'
 import { computed } from 'vue'
 import type { QueryResult } from '@/lib/databases/database'

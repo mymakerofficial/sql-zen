@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { databaseSystemsList } from '@/lib/databaseSystems'
-import DatabaseSelectItemContent from '@/components/databaseSelect/DatabaseSelectItemContent.vue'
+import DatabaseSelectItemContent from '@/components/shared/databaseSelect/DatabaseSelectItemContent.vue'
 
 const model = defineModel<string>({ default: 'postgresql' })
 </script>

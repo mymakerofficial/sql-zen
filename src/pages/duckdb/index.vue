@@ -6,16 +6,16 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
-import Editor from '@/components/Editor.vue'
+import Editor from '@/components/shared/editor/MonacoEditor.vue'
 import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
-import ConsoleToolbar from '@/components/ConsoleToolbar.vue'
+import ConsoleToolbar from '@/components/console/ConsoleToolbar.vue'
 import * as monaco from 'monaco-editor'
 import example from './example'
 import { LoaderCircleIcon } from 'lucide-vue-next'
 import { useExec } from '@/composables/useExec'
 import { useInit } from '@/composables/useInit'
 import { DuckdbFacade } from '@/lib/databases/duckdb'
-import ConsoleResultPanel from '@/components/ConsoleResultPanel.vue'
+import ConsoleResultPanel from '@/components/console/ConsoleResultPanel.vue'
 
 const model = monaco.editor.createModel(example, 'sql')
 const duckdb = new DuckdbFacade()

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import DatabaseSelect from '@/components/databaseSelect/DatabaseSelect.vue'
+import DatabaseSelect from '@/components/shared/databaseSelect/DatabaseSelect.vue'
 import { computed } from 'vue'
 import { twMerge } from 'tailwind-merge'
 import { useDatabaseSystem } from '@/composables/useDatabaseSystem'
-import ColorModeSelect from '@/components/ColorModeSelect.vue'
+import ColorModeSelect from '@/components/shared/ColorModeSelect.vue'
 
 const database = useDatabaseSystem()
 
