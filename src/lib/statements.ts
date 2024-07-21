@@ -1,3 +1,6 @@
+// i am currently not awake as i write this,
+//  thus i am very sorry for the code below
+
 export type FoundStatement = {
   startLineNumber: number
   startColumn: number
@@ -13,6 +16,8 @@ export type FoundStatement = {
  *  ignoring comments and whitespace
  */
 export function findStatements(sql: string): Array<FoundStatement> {
+  sql = sql.trimEnd()
+
   const statements: Array<FoundStatement> = []
 
   let currentLineNumber = 1
@@ -24,12 +29,28 @@ export function findStatements(sql: string): Array<FoundStatement> {
 
   let inStatement = false
 
-  for (let index = 0; index < sql.length; index++) {
+  let index = 0
+  while (index < sql.length) {
     const char = sql[index]
 
     if (char === '-' && sql[index + 1] === '-') {
       // skip to the end of the line
       while (sql[index] !== '\n' && sql[index] !== '\r' && index < sql.length) {
+        index++
+      }
+      currentColumn = 0
+      if (!inStatement) {
+        statementStartLineNumber = currentLineNumber + 1
+        statementStartColumn = currentColumn
+        statementStartIndex = index
+      }
+      continue
+    }
+
+    if (char === '\n' || char === '\r') {
+      index++
+      // skip windows newline
+      if (sql[index - 1] === '\r' && sql[index] === '\n') {
         index++
       }
       currentLineNumber++
@@ -42,21 +63,29 @@ export function findStatements(sql: string): Array<FoundStatement> {
       continue
     }
 
-    if (char === '\n' || char === '\r') {
+    if (char === ' ') {
       index++
-      if (sql[index] === '\n' || sql[index] === '\n') {
-        index++
+      currentColumn++
+      if (!inStatement) {
+        statementStartLineNumber = currentLineNumber
+        statementStartColumn = currentColumn + 1
+        statementStartIndex = index + 1
       }
-      currentLineNumber++
-      currentColumn = 0
       continue
     }
 
     inStatement = true
 
     if (char === ';' || index === sql.length - 1) {
-      const statement = sql.slice(statementStartIndex, index).trim()
-      if (statement.length > 0) {
+      if (char !== ';') {
+        // last statement doesnt have a semicolon so go forward one char
+        index++
+        currentColumn++
+      }
+      const subString = sql.slice(statementStartIndex, index).trim()
+      index++
+      currentColumn++
+      if (subString.length > 0) {
         statements.push({
           startLineNumber: statementStartLineNumber,
           startColumn: statementStartColumn,
@@ -64,13 +93,16 @@ export function findStatements(sql: string): Array<FoundStatement> {
           endLineNumber: currentLineNumber,
           endColumn: currentColumn,
           endIndex: index,
-          sql: statement,
+          sql: subString,
         })
       }
       statementStartLineNumber = currentLineNumber
       statementStartColumn = currentColumn + 1
       statementStartIndex = index + 1
       inStatement = false
+    } else {
+      index++
+      currentColumn++
     }
   }
 
