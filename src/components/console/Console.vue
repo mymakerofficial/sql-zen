@@ -33,8 +33,11 @@ function handleClear() {
 </script>
 
 <template>
-  <ResizablePanelGroup direction="vertical">
-    <ResizablePanel>
+  <ResizablePanelGroup
+    direction="vertical"
+    auto-save-id="console-editor-result"
+  >
+    <ResizablePanel collapsible :min-size="10">
       <ConsoleToolbar
         @run="handleRun"
         @clear="handleClear"
@@ -43,7 +46,7 @@ function handleClear() {
       <Editor :model="model" />
     </ResizablePanel>
     <ResizableHandle />
-    <ResizablePanel :default-size="24">
+    <ResizablePanel collapsible :default-size="24" :min-size="10">
       <div class="h-full">
         <ConsoleResultPanel :data="data" :logger="database.getLogger()" />
       </div>
