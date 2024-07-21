@@ -7,7 +7,6 @@ import {
 } from '@/components/ui/resizable'
 import ConsoleResultPanel from '@/components/console/ConsoleResultPanel.vue'
 import ConsoleToolbar from '@/components/console/ConsoleToolbar.vue'
-import { LoaderCircleIcon } from 'lucide-vue-next'
 import * as monaco from 'monaco-editor'
 import { useExec } from '@/composables/useExec'
 import type { DatabaseFacade } from '@/lib/databases/database'
@@ -21,7 +20,7 @@ const props = defineProps<{
 
 const model = monaco.editor.createModel(props.editorValue, 'sql')
 
-const { exec, data, error, reset, isPending } = useExec(props.database)
+const { exec, data, reset, isPending } = useExec(props.database)
 
 function handleRun() {
   exec(model.getValue())
