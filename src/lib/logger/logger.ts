@@ -44,6 +44,7 @@ export type QueryLogEvent = {
 
 export type StepLogEvent = {
   type: typeof LogEventType.Step
+  message: string
 } & (
   | {
       state: typeof PromiseState.Pending
