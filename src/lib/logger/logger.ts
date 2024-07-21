@@ -18,49 +18,50 @@ type LogEventBase = {
   type: LogEventType
   id: number
   key: string
+  date: Date
 }
 
-export type MessageLogEvent = {
+export type MessageLogEvent = LogEventBase & {
   type: typeof LogEventType.Message
   message: string
 }
 
-export type QueryLogEvent = {
+export type QueryLogEvent = LogEventBase & {
   type: typeof LogEventType.Query
   sql: string
 } & (
-  | {
-      state: typeof PromiseState.Pending
-    }
-  | {
-      state: typeof PromiseState.Success
-      result: QueryResult
-    }
-  | {
-      state: typeof PromiseState.Error
-      error: Error
-    }
-)
+    | {
+        state: typeof PromiseState.Pending
+      }
+    | {
+        state: typeof PromiseState.Success
+        result: QueryResult
+        finishDate: Date
+      }
+    | {
+        state: typeof PromiseState.Error
+        error: Error
+        finishDate: Date
+      }
+  )
 
-export type StepLogEvent = {
+export type StepLogEvent = LogEventBase & {
   type: typeof LogEventType.Step
   message: string
 } & (
-  | {
-      state: typeof PromiseState.Pending
-    }
-  | {
-      state: typeof PromiseState.Success
-    }
-  | {
-      state: typeof PromiseState.Error
-      error: Error
-    }
-)
+    | {
+        state: typeof PromiseState.Pending
+      }
+    | {
+        state: typeof PromiseState.Success
+      }
+    | {
+        state: typeof PromiseState.Error
+        error: Error
+      }
+  )
 
-type AbstractLogEvent = MessageLogEvent | QueryLogEvent | StepLogEvent
-
-export type LogEvent = LogEventBase & AbstractLogEvent
+export type LogEvent = MessageLogEvent | QueryLogEvent | StepLogEvent
 
 export class Logger {
   private count = 0
@@ -95,13 +96,16 @@ export class Logger {
       .join('-')
   }
 
-  private logEvent<TEvent extends AbstractLogEvent>(data: TEvent) {
+  private logEvent<TEvent extends Omit<LogEvent, keyof LogEventBase>>(
+    data: TEvent,
+  ) {
     const id = this.count++
     const event = {
       id,
       key: this.computeEventKey({ id, ...data }),
+      date: new Date(),
       ...data,
-    } as TEvent & LogEventBase
+    } as unknown as LogEvent
     this.events.push(event)
     this.notifyListeners()
     return event
@@ -127,6 +131,7 @@ export class Logger {
       Object.assign(event, {
         state: PromiseState.Success,
         result,
+        finishDate: new Date(),
         key: this.computeEventKey({ ...event, state: PromiseState.Success }),
       })
       this.notifyListeners()
@@ -137,6 +142,7 @@ export class Logger {
       Object.assign(event, {
         state: PromiseState.Error,
         error,
+        finishDate: new Date(),
         key: this.computeEventKey({ ...event, state: PromiseState.Error }),
       })
       this.notifyListeners()
