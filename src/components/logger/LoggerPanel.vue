@@ -3,7 +3,7 @@ import type { Logger } from '@/lib/logger/logger'
 import LogItem from '@/components/logger/LogItem.vue'
 import { useLoggerEvents } from '@/composables/useLoggerEvents'
 import { computed, nextTick, ref, watch } from 'vue'
-import { useScroll, whenever } from '@vueuse/core'
+import { syncRefs, useScroll, whenever } from '@vueuse/core'
 import LoggerToolbar from '@/components/logger/LoggerToolbar.vue'
 
 const props = defineProps<{
@@ -14,17 +14,28 @@ const container = ref<HTMLElement | null>(null)
 const events = useLoggerEvents(props.logger)
 const { arrivedState } = useScroll(container)
 
+const stickToBottom = ref(true)
+
 const isAtBottom = computed(() => {
   return arrivedState.bottom
 })
+
+syncRefs(isAtBottom, stickToBottom)
 
 async function scrollToBottom() {
   if (!container.value) {
     return
   }
+
+  if (!stickToBottom.value) {
+    return
+  }
+
+  // yes this needs be like this
   await nextTick()
   await nextTick()
   await nextTick()
+
   container.value.scrollTo({
     top: container.value.scrollHeight,
   })
@@ -32,6 +43,7 @@ async function scrollToBottom() {
 
 watch(events, scrollToBottom)
 whenever(container, scrollToBottom)
+whenever(stickToBottom, scrollToBottom)
 
 function handleClear() {
   props.logger.clear()
@@ -49,7 +61,7 @@ function handleDown() {
     </div>
     <LoggerToolbar
       :can-clear="events.length > 0"
-      :can-scroll-down="!isAtBottom"
+      v-model:stick-to-bottom="stickToBottom"
       @clear="handleClear"
       @down="handleDown"
     />

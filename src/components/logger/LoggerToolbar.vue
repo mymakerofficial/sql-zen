@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { Trash2Icon, ArrowDownAZIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
+import { Toggle } from '@/components/ui/toggle'
+
+const stickToBottom = defineModel<boolean>('stickToBottom')
 
 defineProps<{
   canClear: boolean
-  canScrollDown: boolean
 }>()
 
 const emit = defineEmits<{
@@ -31,13 +33,8 @@ function handleDown() {
     >
       <Trash2Icon class="size-4" />
     </Button>
-    <Button
-      @click="handleDown"
-      :disabled="!canScrollDown"
-      size="xs"
-      variant="ghost"
-    >
+    <Toggle v-model:pressed="stickToBottom" size="xs">
       <ArrowDownAZIcon class="size-4" />
-    </Button>
+    </Toggle>
   </section>
 </template>
