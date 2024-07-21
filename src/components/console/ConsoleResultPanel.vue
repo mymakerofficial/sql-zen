@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { QueryResult } from '@/lib/databases/database'
 import { computed, ref, watch } from 'vue'
 import ResultTable from '@/components/shared/table/ResultTable.vue'
-import { TableIcon, SquareTerminalIcon } from 'lucide-vue-next'
+import { SquareTerminalIcon, TableIcon } from 'lucide-vue-next'
 import type { Logger } from '@/lib/logger/logger'
-import LoggerList from '@/components/logger/LoggerList.vue'
 import LoggerPanel from '@/components/logger/LoggerPanel.vue'
 
 const props = defineProps<{
