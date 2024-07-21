@@ -5,32 +5,16 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
-import Editor from '@/components/shared/editor/MonacoEditor.vue'
 import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
-import ConsoleToolbar from '@/components/console/ConsoleToolbar.vue'
 import { onMounted, onScopeDispose } from 'vue'
-import example from './example.sql?raw'
-import * as monaco from 'monaco-editor'
-import { LoaderCircleIcon } from 'lucide-vue-next'
 import { useInit } from '@/composables/useInit'
-import { useExec } from '@/composables/useExec'
 import { PostgresqlFacade } from '@/lib/databases/postgresql'
-import ConsoleResultPanel from '@/components/console/ConsoleResultPanel.vue'
+import Console from '@/components/console/Console.vue'
+import example from './example.sql?raw'
 
-const model = monaco.editor.createModel(example, 'sql')
 const pg = new PostgresqlFacade()
 
 const { init, isInitializing } = useInit(pg)
-const { exec, data, error, reset, isPending } = useExec(pg)
-
-function handleRun() {
-  exec(model.getValue())
-}
-
-function handleClear() {
-  model.setValue('')
-  reset()
-}
 
 onMounted(init)
 onScopeDispose(pg.close)
@@ -45,38 +29,12 @@ onScopeDispose(pg.close)
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel>
-          <ResizablePanelGroup direction="vertical">
-            <ResizablePanel>
-              <ConsoleToolbar
-                @run="handleRun"
-                @clear="handleClear"
-                :disable-run="isInitializing || isPending"
-              />
-              <Editor :model="model" />
-            </ResizablePanel>
-            <ResizableHandle />
-            <ResizablePanel :default-size="24">
-              <div
-                v-if="isInitializing"
-                class="h-24 flex items-center justify-center gap-2"
-              >
-                <LoaderCircleIcon class="size-5 animate-spin" />
-                <span>Loading PostgreSQL</span>
-              </div>
-              <div
-                v-else-if="isPending"
-                class="h-24 flex items-center justify-center"
-              >
-                <LoaderCircleIcon class="size-5 animate-spin" />
-              </div>
-              <div v-else-if="error" class="p-6 bg-red-500/10 text-red-500">
-                <p>{{ error.message }}</p>
-              </div>
-              <div v-else class="h-full">
-                <ConsoleResultPanel :data="data" />
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+          <Console
+            :database="pg"
+            :editor-value="example"
+            :is-initializing="isInitializing"
+            loading-message="Loading PostgreSQL"
+          />
         </ResizablePanel>
       </ResizablePanelGroup>
     </main>
