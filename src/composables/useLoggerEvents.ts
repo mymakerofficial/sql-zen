@@ -7,7 +7,6 @@ export function useLoggerEvents(logger: Logger) {
   update()
 
   function update() {
-    console.log(logger.getEvents())
     // we need to create a new array to trigger reactivity
     events.value = [...logger.getEvents()]
   }
