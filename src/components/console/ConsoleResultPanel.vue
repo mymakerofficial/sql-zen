@@ -6,6 +6,7 @@ import ResultTable from '@/components/shared/table/ResultTable.vue'
 import { TableIcon, SquareTerminalIcon } from 'lucide-vue-next'
 import type { Logger } from '@/lib/logger/logger'
 import LoggerList from '@/components/logger/LoggerList.vue'
+import LoggerPanel from '@/components/logger/LoggerPanel.vue'
 
 const props = defineProps<{
   logger: Logger
@@ -59,7 +60,7 @@ watch(
       </TabsTrigger>
     </TabsList>
     <TabsContent value="log" class="flex-1 overflow-y-auto">
-      <LoggerList :logger="props.logger" />
+      <LoggerPanel :logger="props.logger" />
     </TabsContent>
     <TabsContent
       v-for="content in contents"

@@ -65,22 +65,22 @@ export type LogEvent = LogEventBase & AbstractLogEvent
 export class Logger {
   private count = 0
   private events: Array<LogEvent> = []
-  private listeners: Array<(event: LogEvent) => void> = []
+  private listeners: Array<() => void> = []
 
   getEvents() {
     return this.events
   }
 
-  on(callback: (event: LogEvent) => void) {
+  on(callback: () => void) {
     this.listeners.push(callback)
   }
 
-  off(callback: (event: LogEvent) => void) {
+  off(callback: () => void) {
     this.listeners = this.listeners.filter((listener) => listener !== callback)
   }
 
-  private notifyListeners(event: LogEvent) {
-    this.listeners.forEach((listener) => listener(event))
+  private notifyListeners() {
+    this.listeners.forEach((listener) => listener())
   }
 
   private computeEventKey(event: Partial<LogEvent>) {
@@ -103,8 +103,13 @@ export class Logger {
       ...data,
     } as TEvent & LogEventBase
     this.events.push(event)
-    this.notifyListeners(event)
+    this.notifyListeners()
     return event
+  }
+
+  clear() {
+    this.events = []
+    this.notifyListeners()
   }
 
   log(message: string) {
@@ -124,7 +129,7 @@ export class Logger {
         result,
         key: this.computeEventKey({ ...event, state: PromiseState.Success }),
       })
-      this.notifyListeners(event)
+      this.notifyListeners()
       return result
     }
 
@@ -134,7 +139,7 @@ export class Logger {
         error,
         key: this.computeEventKey({ ...event, state: PromiseState.Error }),
       })
-      this.notifyListeners(event)
+      this.notifyListeners()
       return error
     }
 
@@ -153,7 +158,7 @@ export class Logger {
         state: PromiseState.Success,
         key: this.computeEventKey({ ...event, state: PromiseState.Success }),
       })
-      this.notifyListeners(event)
+      this.notifyListeners()
     }
 
     const error = (error: Error) => {
@@ -162,7 +167,7 @@ export class Logger {
         error,
         key: this.computeEventKey({ ...event, state: PromiseState.Error }),
       })
-      this.notifyListeners(event)
+      this.notifyListeners()
       return error
     }
 
