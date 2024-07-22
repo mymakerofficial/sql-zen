@@ -37,25 +37,23 @@ function handleClear() {
 </script>
 
 <template>
-  <div class="h-full">
-    <ConsoleToolbar
-      @run="handleRunAll"
-      @clear="handleClear"
-      :disable-run="isInitializing || isPending"
-    />
-    <ResizablePanelGroup
-      direction="vertical"
-      auto-save-id="console-editor-result"
-    >
-      <ResizablePanel collapsible :min-size="10">
-        <Editor :model="model" @run-statement="handleRunStatement" />
-      </ResizablePanel>
-      <ResizableHandle />
-      <ResizablePanel collapsible :default-size="24" :min-size="10">
-        <div class="h-full">
-          <ConsoleResultPanel :data="data" :logger="database.getLogger()" />
-        </div>
-      </ResizablePanel>
-    </ResizablePanelGroup>
-  </div>
+  <ResizablePanelGroup
+    direction="vertical"
+    auto-save-id="console-editor-result"
+  >
+    <ResizablePanel collapsible :min-size="10">
+      <ConsoleToolbar
+        @run="handleRunAll"
+        @clear="handleClear"
+        :disable-run="isInitializing || isPending"
+      />
+      <Editor :model="model" @run-statement="handleRunStatement" />
+    </ResizablePanel>
+    <ResizableHandle />
+    <ResizablePanel collapsible :default-size="24" :min-size="10">
+      <div class="h-full">
+        <ConsoleResultPanel :data="data" :logger="database.getLogger()" />
+      </div>
+    </ResizablePanel>
+  </ResizablePanelGroup>
 </template>
