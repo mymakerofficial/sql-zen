@@ -7,27 +7,36 @@ import LoggerPanel from '@/components/logger/LoggerPanel.vue'
 import { isSuccessful, type Runner } from '@/lib/runner/runner'
 import { useRunnerQueries } from '@/composables/useRunnerQueries'
 
-const props = defineProps<{
-  runner: Runner
-}>()
+const props = withDefaults(
+  defineProps<{
+    runner: Runner
+    showResults?: boolean
+  }>(),
+  {
+    showResults: true,
+  },
+)
 
 const queries = useRunnerQueries(props.runner)
 const results = computed(() => {
-  return queries.value.filter(isSuccessful).map((query) => query.result)
+  if (!props.showResults) {
+    return []
+  }
+  return queries.value
+    .filter(isSuccessful)
+    .map((query) => query.result)
+    .filter((result) => result.length > 0)
 })
-const nonEmptyResults = computed(() =>
-  results.value.filter((result) => result.length > 0),
-)
 
 const triggers = computed(() => {
-  return nonEmptyResults.value.map((_, index) => ({
+  return results.value.map((_, index) => ({
     value: index.toString(),
     label: `Result ${index + 1}`,
   }))
 })
 
 const contents = computed(() => {
-  return nonEmptyResults.value.map((data, index) => ({
+  return results.value.map((data, index) => ({
     value: index.toString(),
     data,
   }))
@@ -36,7 +45,7 @@ const contents = computed(() => {
 const selected = ref('log')
 
 watch(
-  nonEmptyResults,
+  results,
   () => {
     selected.value = triggers.value[triggers.value.length - 1]?.value ?? 'log'
   },

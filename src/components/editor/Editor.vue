@@ -23,6 +23,8 @@ const props = defineProps<{
 const model = monaco.editor.createModel(props.initValue, 'sql')
 const container = ref<HTMLElement | null>(null)
 
+const enableInlineResults = ref(false)
+
 const runner = new Runner(props.database)
 const editor = useEditor({
   model,
@@ -30,7 +32,7 @@ const editor = useEditor({
   getStatements,
 })
 editor.use(inlineRun)
-editor.use(inlineResults)
+editor.use(inlineResults({ enabled: enableInlineResults }))
 editor.mount(container)
 
 function handleRunAll() {
@@ -53,14 +55,17 @@ function handleClear() {
         @run="handleRunAll"
         @clear="handleClear"
         :disable-run="isInitializing"
+        v-model:enable-inline-results="enableInlineResults"
       />
-      <!--      <MonacoEditor :model="model" :run-handler="execAsync" />-->
       <div ref="container" class="w-full h-full"></div>
     </ResizablePanel>
     <ResizableHandle />
     <ResizablePanel collapsible :default-size="24" :min-size="10">
       <div class="h-full">
-        <EditorResultPanel :runner="runner" />
+        <EditorResultPanel
+          :runner="runner"
+          :show-results="!enableInlineResults"
+        />
       </div>
     </ResizablePanel>
   </ResizablePanelGroup>
