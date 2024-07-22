@@ -9,11 +9,11 @@ import EditorToolbar from '@/components/editor/EditorToolbar.vue'
 import * as monaco from 'monaco-editor'
 import type { DatabaseFacade } from '@/lib/databases/database'
 import { getStatements, useEditor } from '@/composables/editor/useEditor'
-import { ref } from 'vue'
 import inlineRun from '@/composables/editor/inlineRun'
 import { Runner } from '@/lib/runner/runner'
 import inlineResults from '@/composables/editor/inlineResults'
 import MonacoEditor from '@/components/shared/monaco/MonacoEditor.vue'
+import { useStorage } from '@vueuse/core'
 
 const props = defineProps<{
   database: DatabaseFacade
@@ -23,7 +23,7 @@ const props = defineProps<{
 
 const model = monaco.editor.createModel(props.initValue, 'sql')
 
-const enableInlineResults = ref(false)
+const enableInlineResults = useStorage('enable-inline-results', false)
 
 const runner = new Runner(props.database)
 const editor = useEditor({
