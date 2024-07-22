@@ -9,7 +9,7 @@ import { onMounted, onScopeDispose } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useInit } from '@/composables/useInit'
 import { SqliteFacade } from '@/lib/databases/sqlite'
-import Console from '@/components/console/Console.vue'
+import Editor from '@/components/editor/Editor.vue'
 import example from './example.sql?raw'
 
 const sqlite = new SqliteFacade()
@@ -29,11 +29,10 @@ onScopeDispose(sqlite.close)
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel>
-          <Console
+          <Editor
             :database="sqlite"
-            :editor-value="example"
+            :init-value="example"
             :is-initializing="isInitializing"
-            loading-message="Loading SQLite"
           />
         </ResizablePanel>
       </ResizablePanelGroup>

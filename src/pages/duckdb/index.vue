@@ -9,7 +9,7 @@ import {
 import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
 import { useInit } from '@/composables/useInit'
 import { DuckdbFacade } from '@/lib/databases/duckdb'
-import Console from '@/components/console/Console.vue'
+import Editor from '@/components/editor/Editor.vue'
 import example from './example'
 
 const duckdb = new DuckdbFacade()
@@ -29,11 +29,10 @@ onScopeDispose(duckdb.close)
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel>
-          <Console
+          <Editor
             :database="duckdb"
-            :editor-value="example"
+            :init-value="example"
             :is-initializing="isInitializing"
-            loading-message="Loading DuckDB"
           />
         </ResizablePanel>
       </ResizablePanelGroup>

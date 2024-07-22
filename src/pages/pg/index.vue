@@ -9,7 +9,7 @@ import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
 import { onMounted, onScopeDispose } from 'vue'
 import { useInit } from '@/composables/useInit'
 import { PostgresqlFacade } from '@/lib/databases/postgresql'
-import Console from '@/components/console/Console.vue'
+import Editor from '@/components/editor/Editor.vue'
 import example from './example.sql?raw'
 
 const pg = new PostgresqlFacade()
@@ -29,11 +29,10 @@ onScopeDispose(pg.close)
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel>
-          <Console
+          <Editor
             :database="pg"
-            :editor-value="example"
+            :init-value="example"
             :is-initializing="isInitializing"
-            loading-message="Loading PostgreSQL"
           />
         </ResizablePanel>
       </ResizablePanelGroup>

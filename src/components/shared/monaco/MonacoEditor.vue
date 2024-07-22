@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import * as monaco from 'monaco-editor'
-import { shikiToMonaco } from '@shikijs/monaco'
-import { h, onMounted, onScopeDispose, ref, render, type VNode, watch } from 'vue'
+import {
+  h,
+  onMounted,
+  onScopeDispose,
+  ref,
+  render,
+  type VNode,
+  watch,
+} from 'vue'
 import { useActualColorMode } from '@/composables/useActualColorMode'
-import { getThemeFromMode, highlighter } from '@/lib/highlighter'
+import { getThemeFromMode } from '@/lib/highlighter'
 import { PlayIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { findStatements, type FoundStatement } from '@/lib/statements'
@@ -49,19 +56,19 @@ function runStatement(statement: FoundStatement) {
 
     editor?.changeViewZones((vzChanger) => {
       let domNode = createDomNode(
-        h(
-          ResultTable,
-          { class: 'relative z-10 w-fit border border-border my-2', data },
-        ),
+        h(ResultTable, {
+          class: 'relative z-10 w-fit border border-border my-2',
+          data,
+        }),
       )
 
       const id = vzChanger.addZone({
         afterLineNumber: statement.endLineNumber,
         heightInPx: 58 + 48 * (data.length + 1),
         domNode,
-      });
-      viewZones.push(id);
-    });
+      })
+      viewZones.push(id)
+    })
   })
 }
 
@@ -131,8 +138,6 @@ function clearDecorations() {
 }
 
 onMounted(async () => {
-  shikiToMonaco(highlighter, monaco)
-
   editor = monaco.editor.create(container.value!, {
     model: props.model,
     automaticLayout: true,
