@@ -6,6 +6,7 @@ export const QueryState = {
   Running: 'running',
   Success: 'success',
   Error: 'error',
+  Cancelled: 'cancelled',
 } as const
 export type QueryState = (typeof QueryState)[keyof typeof QueryState]
 
@@ -33,7 +34,16 @@ export type QueryError = QueryBase & {
   error: Error
 }
 
-export type Query = QueryIdle | QueryRunning | QuerySuccess | QueryError
+export type QueryCancelled = QueryBase & {
+  state: typeof QueryState.Cancelled
+}
+
+export type Query =
+  | QueryIdle
+  | QueryRunning
+  | QuerySuccess
+  | QueryError
+  | QueryCancelled
 
 export class Runner {
   private readonly queries: Array<Query> = []
@@ -85,7 +95,7 @@ export class Runner {
           state: QueryState.Error,
           error,
         })
-        this.removeAllAfter(query)
+        this.cancelAllAfter(query)
       },
     )
   }
@@ -120,9 +130,16 @@ export class Runner {
     this.notifyListeners()
   }
 
-  removeAllAfter(query: Query) {
+  cancelAllAfter(query: Query) {
     const index = this.queries.indexOf(query)
-    this.queries.splice(index + 1)
+    this.queries.slice(index + 1).forEach((query) => {
+      if (query.state !== QueryState.Idle) {
+        throw Error('All queries after a cancelled query should be idle')
+      }
+      Object.assign(query, {
+        state: QueryState.Cancelled,
+      })
+    })
     this.notifyListeners()
   }
 }
@@ -135,6 +152,12 @@ export function isSuccessful(query: Query): query is QuerySuccess {
   return query.state === QueryState.Success
 }
 
-export function hasSettled(query: Query): query is QuerySuccess | QueryError {
-  return query.state === QueryState.Success || query.state === QueryState.Error
+export function hasSettled(
+  query: Query,
+): query is QuerySuccess | QueryError | QueryCancelled {
+  return (
+    query.state === QueryState.Success ||
+    query.state === QueryState.Error ||
+    query.state === QueryState.Cancelled
+  )
 }
