@@ -69,28 +69,25 @@ export class Runner {
       state: QueryState.Running,
     })
     this.notifyListeners()
-    this.database
-      .query(query.sql)
-      .then(
-        (result) => {
-          // object.assign to avoid type errors
-          Object.assign(query, {
-            state: QueryState.Success,
-            result,
-          })
-        },
-        (error) => {
-          // object.assign to avoid type errors
-          Object.assign(query, {
-            state: QueryState.Error,
-            error,
-          })
-        },
-      )
-      .finally(() => {
+    this.database.query(query.sql).then(
+      (result) => {
+        // object.assign to avoid type errors
+        Object.assign(query, {
+          state: QueryState.Success,
+          result,
+        })
         this.notifyListeners()
         this.runNextQuery()
-      })
+      },
+      (error) => {
+        // object.assign to avoid type errors
+        Object.assign(query, {
+          state: QueryState.Error,
+          error,
+        })
+        this.removeAllAfter(query)
+      },
+    )
   }
 
   push(statements: Array<FoundStatement>) {
@@ -120,6 +117,12 @@ export class Runner {
       const index = this.queries.indexOf(query)
       this.queries.splice(index, 1)
     })
+    this.notifyListeners()
+  }
+
+  removeAllAfter(query: Query) {
+    const index = this.queries.indexOf(query)
+    this.queries.splice(index + 1)
     this.notifyListeners()
   }
 }
