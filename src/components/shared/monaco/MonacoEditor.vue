@@ -1,32 +1,27 @@
 <script setup lang="ts">
 import * as monaco from 'monaco-editor'
 import { shikiToMonaco } from '@shikijs/monaco'
-import {
-  h,
-  onMounted,
-  onScopeDispose,
-  ref,
-  render,
-  type VNode,
-  watch,
-} from 'vue'
+import { h, onMounted, onScopeDispose, ref, render, type VNode, watch } from 'vue'
 import { useActualColorMode } from '@/composables/useActualColorMode'
 import { getThemeFromMode, highlighter } from '@/lib/highlighter'
 import { PlayIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { findStatements, type FoundStatement } from '@/lib/statements'
 import { useDebounceFn } from '@vueuse/core'
+import ResultTable from '@/components/shared/table/ResultTable.vue'
+import type { QueryResult } from '@/lib/databases/database'
 
 const props = defineProps<{
   model: monaco.editor.ITextModel
-}>()
-
-const emit = defineEmits<{
-  runStatement: [sql: string]
+  runHandler: (sql: string) => Promise<Array<QueryResult>>
 }>()
 
 const container = ref<HTMLElement | null>(null)
 let editor: monaco.editor.IStandaloneCodeEditor | null = null
+
+let glyphs: Array<monaco.editor.IGlyphMarginWidget> = []
+let viewZones: Array<string> = []
+// let decorations: monaco.editor.IEditorDecorationsCollection | null = null
 
 const mode = useActualColorMode()
 
@@ -43,8 +38,31 @@ function decorateStatements() {
 
 const debounceDecorateStatements = useDebounceFn(decorateStatements, 100)
 
-function runStatement(sql: string) {
-  emit('runStatement', sql)
+function runStatement(statement: FoundStatement) {
+  const { sql } = statement
+  props.runHandler(sql).then((result) => {
+    const data = result[0]
+
+    if (!data || data.length === 0 || data.length > 10) {
+      return
+    }
+
+    editor?.changeViewZones((vzChanger) => {
+      let domNode = createDomNode(
+        h(
+          ResultTable,
+          { class: 'relative z-10 w-fit border border-border my-2', data },
+        ),
+      )
+
+      const id = vzChanger.addZone({
+        afterLineNumber: statement.endLineNumber,
+        heightInPx: 58 + 48 * (data.length + 1),
+        domNode,
+      });
+      viewZones.push(id);
+    });
+  })
 }
 
 function createDomNode(node: VNode) {
@@ -60,14 +78,11 @@ function createRunButton(statement: FoundStatement) {
       class: '-mt-1 ml-1 h-6',
       size: 'xs',
       variant: 'ghost',
-      onClick: () => runStatement(statement.sql),
+      onClick: () => runStatement(statement),
     },
     () => h(PlayIcon, { class: 'size-4 text-green-500' }),
   )
 }
-
-let glyphs: Array<monaco.editor.IGlyphMarginWidget> = []
-// let decorations: monaco.editor.IEditorDecorationsCollection | null = null
 
 function createDecorations(statements: Array<FoundStatement>) {
   if (!editor) {
@@ -104,6 +119,12 @@ function createDecorations(statements: Array<FoundStatement>) {
 function clearDecorations() {
   glyphs?.forEach((glyph) => {
     editor?.removeGlyphMarginWidget(glyph)
+  })
+
+  editor?.changeViewZones((vzChanger) => {
+    viewZones.forEach((id) => {
+      vzChanger.removeZone(id)
+    })
   })
 
   // decorations?.clear()

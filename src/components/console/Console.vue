@@ -20,14 +20,10 @@ const props = defineProps<{
 
 const model = monaco.editor.createModel(props.editorValue, 'sql')
 
-const { exec, data, reset, isPending } = useExec(props.database)
+const { exec, execAsync, data, reset, isPending } = useExec(props.database)
 
 function handleRunAll() {
   exec(model.getValue())
-}
-
-function handleRunStatement(sql: string) {
-  exec(sql)
 }
 
 function handleClear() {
@@ -47,7 +43,7 @@ function handleClear() {
         @clear="handleClear"
         :disable-run="isInitializing || isPending"
       />
-      <Editor :model="model" @run-statement="handleRunStatement" />
+      <Editor :model="model" :run-handler="execAsync" />
     </ResizablePanel>
     <ResizableHandle />
     <ResizablePanel collapsible :default-size="24" :min-size="10">
