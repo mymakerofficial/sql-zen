@@ -60,7 +60,6 @@ export default function inlineResultsPlugin({
 
     function handler(results: Array<QuerySuccess>) {
       clearResults()
-      console.log(toValue(enabled))
       if (!toValue(enabled)) {
         return
       }
