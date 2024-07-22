@@ -1,19 +1,18 @@
 import * as monaco from 'monaco-editor'
 import { type FoundStatement } from '@/lib/statements'
 import { toValue, useDebounceFn } from '@vueuse/core'
-import { h, type MaybeRefOrGetter, render, type VNode, watch } from 'vue'
+import { h, render, type VNode, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import { PlayIcon } from 'lucide-vue-next'
 import type { QueryResult } from '@/lib/databases/database'
+import type { UseEditor } from '@/composables/editor/useEditor'
 
 export default function inlineRunPlugin({
-  statements,
   runHandler,
 }: {
-  statements: MaybeRefOrGetter<Array<FoundStatement>>
   runHandler: (sql: string) => Promise<Array<QueryResult>>
 }) {
-  return (editor: monaco.editor.IStandaloneCodeEditor) => {
+  return ({ editor, statements }: UseEditor) => {
     let glyphs: Array<monaco.editor.IGlyphMarginWidget> = []
 
     function clearGlyphs() {

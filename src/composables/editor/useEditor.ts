@@ -1,45 +1,65 @@
 import * as monaco from 'monaco-editor'
-import { type MaybeRefOrGetter, onScopeDispose, watchEffect } from 'vue'
+import {
+  computed,
+  type ComputedRef,
+  type MaybeRefOrGetter,
+  onScopeDispose,
+  watchEffect,
+} from 'vue'
 import { toValue } from '@vueuse/core'
 import themePlugin from '@/composables/editor/theme'
+import type { FoundStatement } from '@/lib/statements'
+import { findStatements } from '@/lib/statements'
+import { useEditorValue } from '@/composables/editor/useEditorValue'
 
-type UseEditorPlugin = (editor: monaco.editor.IStandaloneCodeEditor) => void
+type UseEditorPlugin = (editor: UseEditor) => void
 
 type UseEditorProps = {
   model: monaco.editor.ITextModel
 }
 
-export function useEditor({ model }: UseEditorProps) {
-  const container = createContainer()
-  const editor = monaco.editor.create(container, {
-    model,
-    automaticLayout: true,
-    minimap: {
-      enabled: false,
-    },
-    glyphMargin: true,
-  })
+export class UseEditor {
+  private readonly container: HTMLElement
+  public editor: monaco.editor.IStandaloneCodeEditor
+  public statements: ComputedRef<Array<FoundStatement>>
 
-  function mount(el: MaybeRefOrGetter<HTMLElement | null>) {
+  constructor({ model }: UseEditorProps) {
+    this.container = createContainer()
+    this.editor = monaco.editor.create(this.container, {
+      model,
+      automaticLayout: true,
+      minimap: {
+        enabled: false,
+      },
+      glyphMargin: true,
+    })
+
+    onScopeDispose(() => {
+      this.editor.dispose()
+    })
+
+    // we always use the theme plugin
+    this.use(themePlugin)
+
+    const editorValue = useEditorValue(this.editor)
+    this.statements = computed(() => findStatements(editorValue.value))
+  }
+
+  mount(el: MaybeRefOrGetter<HTMLElement | null>) {
     watchEffect(() => {
       const _el = toValue(el)
       if (!_el) return
-      _el.appendChild(container)
+      _el.appendChild(this.container)
     })
   }
 
-  function use(plugin: UseEditorPlugin) {
-    plugin(editor)
+  use(plugin: UseEditorPlugin) {
+    plugin(this)
   }
+}
 
-  onScopeDispose(() => {
-    editor.dispose()
-  })
-
-  // we always use the theme plugin
-  use(themePlugin)
-
-  return { editor, mount, use }
+export function useEditor(props: UseEditorProps): UseEditor {
+  return new UseEditor(props)
 }
 
 function createContainer() {

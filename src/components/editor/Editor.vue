@@ -10,10 +10,8 @@ import * as monaco from 'monaco-editor'
 import { useExec } from '@/composables/useExec'
 import type { DatabaseFacade } from '@/lib/databases/database'
 import { useEditor } from '@/composables/editor/useEditor'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import inlineRun from '@/composables/editor/inlineRun'
-import { useEditorValue } from '@/composables/editor/useEditorValue'
-import { findStatements } from '@/lib/statements'
 
 const props = defineProps<{
   database: DatabaseFacade
@@ -22,18 +20,15 @@ const props = defineProps<{
 }>()
 
 const model = monaco.editor.createModel(props.initValue, 'sql')
+const container = ref<HTMLElement | null>(null)
 
 const { exec, execAsync, data, reset, isPending } = useExec(props.database)
 
 const editor = useEditor({
   model,
 })
-const editorValue = useEditorValue(editor.editor)
-const statements = computed(() => findStatements(editorValue.value))
-editor.use(inlineRun({ statements, runHandler: execAsync }))
 
-const container = ref<HTMLElement | null>(null)
-
+editor.use(inlineRun({ runHandler: execAsync }))
 editor.mount(container)
 
 function handleRunAll() {
