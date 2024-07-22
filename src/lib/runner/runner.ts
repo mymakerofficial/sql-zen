@@ -148,6 +148,10 @@ export function isIdle(query: Query): query is QueryIdle {
   return query.state === QueryState.Idle
 }
 
+export function isRunning(query: Query): query is QueryRunning {
+  return query.state === QueryState.Running
+}
+
 export function isSuccessful(query: Query): query is QuerySuccess {
   return query.state === QueryState.Success
 }

@@ -1,10 +1,17 @@
 import * as monaco from 'monaco-editor'
 import { type FoundStatement } from '@/lib/statements'
 import { toValue, useDebounceFn } from '@vueuse/core'
-import { h, render, type VNode, watch } from 'vue'
+import { computed, h, render, type VNode, watch } from 'vue'
 import { Button } from '@/components/ui/button'
-import { PlayIcon } from 'lucide-vue-next'
+import { CheckIcon, DotIcon, LoaderCircleIcon, PlayIcon } from 'lucide-vue-next'
 import type { UseEditor } from '@/composables/editor/useEditor'
+import { useRunnerQueries } from '@/composables/useRunnerQueries'
+import {
+  hasSettled,
+  isIdle,
+  isRunning,
+  isSuccessful,
+} from '@/lib/runner/runner'
 
 export default function inlineRunPlugin({
   editor,
@@ -17,6 +24,8 @@ export default function inlineRunPlugin({
 
   let glyphs: Array<monaco.editor.IGlyphMarginWidget> = []
 
+  const queries = useRunnerQueries(runner)
+
   function handleRun(statement: FoundStatement) {
     runner!.push([statement])
   }
@@ -27,10 +36,21 @@ export default function inlineRunPlugin({
   }
 
   function createGlyphs(statements: Array<FoundStatement>) {
-    glyphs = statements.map((statement, index) => ({
-      getId: () => `${index}`,
-      getDomNode: () =>
-        createDomNode(createRunButton(() => handleRun(statement))),
+    glyphs = statements.map((statement) => ({
+      getId: () => statement.key,
+      getDomNode: () => {
+        const query = queries.value.find((query) => query.key === statement.key)
+
+        if (query && isRunning(query)) {
+          return createDomNode(createSpinner())
+        }
+
+        if (query && isIdle(query)) {
+          return createDomNode(createDot())
+        }
+
+        return createDomNode(createRunButton(() => handleRun(statement)))
+      },
       getPosition: () => ({
         lane: monaco.editor.GlyphMarginLane.Center,
         zIndex: 10,
@@ -45,8 +65,9 @@ export default function inlineRunPlugin({
     createGlyphs(statements)
   }
 
-  const debouncedHandler = useDebounceFn(handler, 100)
-  watch(() => toValue(statements), debouncedHandler, { immediate: true })
+  watch([statements, queries], () => handler(statements.value), {
+    immediate: true,
+  })
 }
 
 function createDomNode(node: VNode) {
@@ -66,4 +87,12 @@ function createRunButton(onClick: () => void) {
     },
     () => h(PlayIcon, { class: 'size-4 text-green-500' }),
   )
+}
+
+function createSpinner() {
+  return h(LoaderCircleIcon, { class: 'ml-3 size-4 animate-spin' })
+}
+
+function createDot() {
+  return h(DotIcon, { class: 'ml-3 size-4 text-muted-foreground' })
 }
