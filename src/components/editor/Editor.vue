@@ -9,10 +9,10 @@ import EditorToolbar from '@/components/editor/EditorToolbar.vue'
 import * as monaco from 'monaco-editor'
 import type { DatabaseFacade } from '@/lib/databases/database'
 import { getStatements, useEditor } from '@/composables/editor/useEditor'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import inlineRun from '@/composables/editor/inlineRun'
-import { isSuccessful, Runner } from '@/lib/runner/runner'
-import { useRunnerQueries } from '@/composables/useRunnerQueries'
+import { Runner } from '@/lib/runner/runner'
+import inlineResults from '@/composables/editor/inlineResults'
 
 const props = defineProps<{
   database: DatabaseFacade
@@ -30,6 +30,7 @@ const editor = useEditor({
   getStatements,
 })
 editor.use(inlineRun)
+editor.use(inlineResults)
 editor.mount(container)
 
 function handleRunAll() {

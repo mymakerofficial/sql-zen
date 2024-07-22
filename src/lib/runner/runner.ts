@@ -1,5 +1,5 @@
 import type { DatabaseFacade, QueryResult } from '@/lib/databases/database'
-import type { FoundStatement } from '@/lib/statements'
+import type { FoundStatement, StatementRange } from '@/lib/statements'
 
 export const QueryState = {
   Idle: 'idle',
@@ -11,6 +11,7 @@ export type QueryState = (typeof QueryState)[keyof typeof QueryState]
 
 export type QueryBase = {
   sql: string
+  range?: StatementRange
   key: string
 }
 
@@ -94,9 +95,11 @@ export class Runner {
 
   push(statements: Array<FoundStatement>) {
     for (const statement of statements) {
+      const { sql, key, ...range } = statement
       this.queries.push({
-        sql: statement.sql,
-        key: statement.key,
+        sql,
+        range,
+        key,
         state: QueryState.Idle,
       })
     }

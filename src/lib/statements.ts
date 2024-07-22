@@ -3,13 +3,16 @@ import { djb2 } from '@/lib/hash'
 // i am currently not awake as i write this,
 //  thus i am very sorry for the code below
 
-export type FoundStatement = {
+export type StatementRange = {
   startLineNumber: number
   startColumn: number
   endLineNumber: number
   endColumn: number
   startIndex: number
   endIndex: number
+}
+
+export type FoundStatement = StatementRange & {
   sql: string
   key: string
 }
