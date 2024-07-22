@@ -7,11 +7,12 @@ import {
 import EditorResultPanel from '@/components/editor/EditorResultPanel.vue'
 import EditorToolbar from '@/components/editor/EditorToolbar.vue'
 import * as monaco from 'monaco-editor'
-import { useExec } from '@/composables/useExec'
 import type { DatabaseFacade } from '@/lib/databases/database'
-import { useEditor } from '@/composables/editor/useEditor'
-import { ref } from 'vue'
+import { getStatements, useEditor } from '@/composables/editor/useEditor'
+import { computed, ref } from 'vue'
 import inlineRun from '@/composables/editor/inlineRun'
+import { isSuccessful, Runner } from '@/lib/runner/runner'
+import { useRunnerQueries } from '@/composables/useRunnerQueries'
 
 const props = defineProps<{
   database: DatabaseFacade
@@ -22,22 +23,22 @@ const props = defineProps<{
 const model = monaco.editor.createModel(props.initValue, 'sql')
 const container = ref<HTMLElement | null>(null)
 
-const { exec, execAsync, data, reset, isPending } = useExec(props.database)
-
+const runner = new Runner(props.database)
 const editor = useEditor({
   model,
+  runner,
+  getStatements,
 })
-
-editor.use(inlineRun({ runHandler: execAsync }))
+editor.use(inlineRun)
 editor.mount(container)
 
 function handleRunAll() {
-  exec(model.getValue())
+  runner.push(editor.statements.value)
 }
 
 function handleClear() {
   model.setValue('')
-  reset()
+  runner.clear()
 }
 </script>
 
@@ -50,7 +51,7 @@ function handleClear() {
       <EditorToolbar
         @run="handleRunAll"
         @clear="handleClear"
-        :disable-run="isInitializing || isPending"
+        :disable-run="isInitializing"
       />
       <!--      <MonacoEditor :model="model" :run-handler="execAsync" />-->
       <div ref="container" class="w-full h-full"></div>
@@ -58,7 +59,7 @@ function handleClear() {
     <ResizableHandle />
     <ResizablePanel collapsible :default-size="24" :min-size="10">
       <div class="h-full">
-        <EditorResultPanel :data="data" :logger="database.getLogger()" />
+        <EditorResultPanel :runner="runner" />
       </div>
     </ResizablePanel>
   </ResizablePanelGroup>

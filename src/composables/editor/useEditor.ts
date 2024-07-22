@@ -10,20 +10,27 @@ import { toValue } from '@vueuse/core'
 import themePlugin from '@/composables/editor/theme'
 import type { FoundStatement } from '@/lib/statements'
 import { findStatements } from '@/lib/statements'
-import { useEditorValue } from '@/composables/editor/useEditorValue'
+import { useEditorContent } from '@/composables/editor/useEditorContent'
+import type { Runner } from '@/lib/runner/runner'
 
 type UseEditorPlugin = (editor: UseEditor) => void
 
 type UseEditorProps = {
   model: monaco.editor.ITextModel
+  runner?: Runner | null
+  getStatements?:
+    | ((editor: UseEditor) => ComputedRef<Array<FoundStatement>>)
+    | null
 }
 
 export class UseEditor {
   private readonly container: HTMLElement
-  public editor: monaco.editor.IStandaloneCodeEditor
-  public statements: ComputedRef<Array<FoundStatement>>
+  public readonly editor: monaco.editor.IStandaloneCodeEditor
+  public readonly runner: Runner | null = null
+  public readonly content: ComputedRef<string>
+  public readonly statements: ComputedRef<Array<FoundStatement>>
 
-  constructor({ model }: UseEditorProps) {
+  constructor({ model, runner, getStatements }: UseEditorProps) {
     this.container = createContainer()
     this.editor = monaco.editor.create(this.container, {
       model,
@@ -33,6 +40,7 @@ export class UseEditor {
       },
       glyphMargin: true,
     })
+    this.runner = runner ?? null
 
     onScopeDispose(() => {
       this.editor.dispose()
@@ -41,8 +49,8 @@ export class UseEditor {
     // we always use the theme plugin
     this.use(themePlugin)
 
-    const editorValue = useEditorValue(this.editor)
-    this.statements = computed(() => findStatements(editorValue.value))
+    this.content = useEditorContent(this.editor)
+    this.statements = getStatements ? getStatements(this) : computed(() => [])
   }
 
   mount(el: MaybeRefOrGetter<HTMLElement | null>) {
@@ -60,6 +68,12 @@ export class UseEditor {
 
 export function useEditor(props: UseEditorProps): UseEditor {
   return new UseEditor(props)
+}
+
+export function getStatements({
+  content,
+}: UseEditor): ComputedRef<Array<FoundStatement>> {
+  return computed(() => findStatements(content.value))
 }
 
 function createContainer() {

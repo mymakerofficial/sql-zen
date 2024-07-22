@@ -1,3 +1,5 @@
+import { djb2 } from '@/lib/hash'
+
 // i am currently not awake as i write this,
 //  thus i am very sorry for the code below
 
@@ -9,6 +11,7 @@ export type FoundStatement = {
   startIndex: number
   endIndex: number
   sql: string
+  key: string
 }
 
 /***
@@ -94,6 +97,7 @@ export function findStatements(sql: string): Array<FoundStatement> {
           endColumn: currentColumn,
           endIndex: index,
           sql: subString,
+          key: djb2(`${subString}${statements.length}`),
         })
       }
       statementStartLineNumber = currentLineNumber

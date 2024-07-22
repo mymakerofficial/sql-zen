@@ -1,19 +1,22 @@
 <script setup lang="ts">
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import type { QueryResult } from '@/lib/databases/database'
 import { computed, ref, watch } from 'vue'
 import ResultTable from '@/components/shared/table/ResultTable.vue'
 import { SquareTerminalIcon, TableIcon } from 'lucide-vue-next'
-import type { Logger } from '@/lib/logger/logger'
 import LoggerPanel from '@/components/logger/LoggerPanel.vue'
+import { isSuccessful, type Runner } from '@/lib/runner/runner'
+import { useRunnerQueries } from '@/composables/useRunnerQueries'
 
 const props = defineProps<{
-  logger: Logger
-  data: Array<QueryResult>
+  runner: Runner
 }>()
 
+const queries = useRunnerQueries(props.runner)
+const results = computed(() => {
+  return queries.value.filter(isSuccessful).map((query) => query.result)
+})
 const nonEmptyResults = computed(() =>
-  props.data.filter((result) => result.length > 0),
+  results.value.filter((result) => result.length > 0),
 )
 
 const triggers = computed(() => {
@@ -33,7 +36,7 @@ const contents = computed(() => {
 const selected = ref('log')
 
 watch(
-  () => props.data,
+  nonEmptyResults,
   () => {
     selected.value = triggers.value[triggers.value.length - 1]?.value ?? 'log'
   },
@@ -59,7 +62,7 @@ watch(
       </TabsTrigger>
     </TabsList>
     <TabsContent value="log" class="flex-1 overflow-y-auto">
-      <LoggerPanel :logger="props.logger" />
+      <LoggerPanel :logger="props.runner.getDatabase().getLogger()" />
     </TabsContent>
     <TabsContent
       v-for="content in contents"
