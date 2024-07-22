@@ -15,8 +15,12 @@ export abstract class DatabaseFacade {
   abstract query(sql: string): Promise<QueryResult>
 
   async exec(sql: string) {
-    const promises = separateQueries(sql).map((stmnt) => this.query(stmnt))
-    return await Promise.all(promises)
+    const queries = separateQueries(sql)
+    const results = []
+    for (const query of queries) {
+      results.push(await this.query(query))
+    }
+    return results
   }
 
   abstract close(): Promise<void>
