@@ -88,7 +88,7 @@ export class Registry {
   wake(key: string) {
     const entry = this.getDatabase(key)
     if (entry.state === DatabaseState.Ready) {
-      return
+      return entry as unknown as RegisteredReadyDatabase
     }
 
     const database = DatabaseFactory.createDatabase(entry)
@@ -100,6 +100,7 @@ export class Registry {
     })
 
     this.notifyListeners()
+    return entry as unknown as RegisteredReadyDatabase
   }
 
   async stop(key: string) {
