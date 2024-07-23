@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
-import { PlayIcon, EraserIcon, TableRowsSplitIcon } from 'lucide-vue-next'
+import { EraserIcon, PlayIcon, TableRowsSplitIcon } from 'lucide-vue-next'
 import { Toggle } from '@/components/ui/toggle'
+import type { DatabaseInfo } from '@/lib/databases/databaseFactory'
 
 const enableInlineResults = defineModel<boolean>('enableInlineResults')
 
 defineProps<{
+  info: DatabaseInfo
   disableRun?: boolean
 }>()
 
@@ -25,7 +27,7 @@ function handleClear() {
 
 <template>
   <section class="h-12 px-3 flex justify-between border-b border-border">
-    <div class="h-full flex items-center gap-2">
+    <div class="h-full flex items-center gap-3">
       <Button
         @click="handleRun"
         :disabled="disableRun"
@@ -40,6 +42,11 @@ function handleClear() {
         <TableRowsSplitIcon class="size-4" />
         <span>Inline Results</span>
       </Toggle>
+      <div class="p-3 text-sm text-muted-foreground">
+        <p>
+          {{ `${info.engine}:${info.mode}:${info.identifier}` }}
+        </p>
+      </div>
     </div>
     <div class="h-full flex items-center">
       <Button @click="handleClear" size="sm" variant="ghost">

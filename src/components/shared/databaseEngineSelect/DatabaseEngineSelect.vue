@@ -24,7 +24,7 @@ function handleSelect(value: DatabaseEngine) {
 </script>
 
 <template>
-  <Select v-model="model">
+  <Select v-model="model" @update:model-value="handleSelect">
     <SelectTrigger as-child>
       <slot>
         <Button
@@ -45,7 +45,6 @@ function handleSelect(value: DatabaseEngine) {
           :value="item.key"
           :key="item.key"
           class="px-3"
-          @select="() => handleSelect(item.key)"
         >
           <DatabaseSelectItemContent v-bind="item" />
         </SelectItem>
