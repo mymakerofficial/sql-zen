@@ -24,7 +24,7 @@ const props = defineProps<{
 const enableInlineResults = useStorage('enable-inline-results', false)
 
 const registry = useRegistry()
-const { database, runner, ...info } = registry.getDatabase(
+const { database, runner } = registry.getDatabase(
   props.databaseKey,
 ) as RegisteredReadyDatabase // let's just hope for the best
 const model = monaco.editor.createModel(getExampleSql(database.engine), 'sql')
@@ -52,7 +52,6 @@ onMounted(() => database.init())
   <ResizablePanelGroup direction="vertical">
     <ResizablePanel>
       <ConsoleToolbar
-        :info="info"
         @run="handleRunAll"
         @clear="handleClear"
         v-model:enable-inline-results="enableInlineResults"

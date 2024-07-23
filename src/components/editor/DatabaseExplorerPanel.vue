@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FolderIcon, PlusIcon } from 'lucide-vue-next'
+import { FolderIcon, PlusIcon, SquareTerminalIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import DatabaseEngineSelect from '@/components/shared/databaseEngineSelect/DatabaseEngineSelect.vue'
 import { type DatabaseEngine, databaseEngines } from '@/lib/databaseEngines'
@@ -73,7 +73,12 @@ function handleSelect(database: RegisteredDatabase) {
               `${database.mode}:${database.identifier ?? 'default'}`
             }}</span>
           </Button>
-          <div class="flex items-center"></div>
+          <div class="flex items-center mx-3">
+            <SquareTerminalIcon
+              v-if="selected === database.key"
+              class="size-4 text-muted-foreground"
+            />
+          </div>
         </div>
         <div class="ml-7 flex flex-col gap-4">
           <div class="flex flex-col gap-4">

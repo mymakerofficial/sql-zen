@@ -5,7 +5,6 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import DatabaseExplorerPanel from '@/components/editor/DatabaseExplorerPanel.vue'
-import { type RegisteredDatabase } from '@/lib/registry/registry'
 import Console from '@/components/console/Console.vue'
 import { ref } from 'vue'
 import { useRegisteredDatabases } from '@/composables/useRegisteredDatabases'

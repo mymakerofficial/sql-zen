@@ -2,12 +2,10 @@
 import { Button } from '@/components/ui/button'
 import { EraserIcon, PlayIcon, TableRowsSplitIcon } from 'lucide-vue-next'
 import { Toggle } from '@/components/ui/toggle'
-import type { DatabaseInfo } from '@/lib/databases/databaseFactory'
 
 const enableInlineResults = defineModel<boolean>('enableInlineResults')
 
 defineProps<{
-  info: DatabaseInfo
   disableRun?: boolean
 }>()
 
@@ -42,11 +40,6 @@ function handleClear() {
         <TableRowsSplitIcon class="size-4" />
         <span>Inline Results</span>
       </Toggle>
-      <div class="p-3 text-sm text-muted-foreground">
-        <p>
-          {{ `${info.engine}:${info.mode}:${info.identifier}` }}
-        </p>
-      </div>
     </div>
     <div class="h-full flex items-center">
       <Button @click="handleClear" size="sm" variant="ghost">
