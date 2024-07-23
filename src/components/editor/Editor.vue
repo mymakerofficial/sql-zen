@@ -38,6 +38,12 @@ whenever(
         :database-key="selected.key"
         :key="selected.key"
       />
+      <div
+        v-else
+        class="flex items-center justify-center h-full text-muted-foreground"
+      >
+        <p>Create a database to start querying</p>
+      </div>
     </ResizablePanel>
   </ResizablePanelGroup>
 </template>
