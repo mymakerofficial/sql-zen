@@ -22,8 +22,8 @@ const props = defineProps<{
   class?: HTMLAttributes['class']
 }>()
 
-function handleSelect(value: DatabaseEngine) {
-  emit('select', value)
+function handleSelect(value: string) {
+  emit('select', value as DatabaseEngine)
 }
 </script>
 

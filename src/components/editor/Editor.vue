@@ -12,7 +12,7 @@ import { useRegisteredDatabases } from '@/composables/useRegisteredDatabases'
 import { whenever } from '@vueuse/core'
 import { useRegistry } from '@/composables/useRegistry'
 
-const selected = ref<RegisteredDatabase | null>(null)
+const selected = ref<string | null>(null)
 
 const registry = useRegistry()
 const databases = useRegisteredDatabases()
@@ -20,7 +20,9 @@ const databases = useRegisteredDatabases()
 whenever(
   () => databases.value.length === 1,
   () => {
-    selected.value = registry.wake(databases.value[0].key)
+    const key = databases.value[0].key
+    registry.wake(key)
+    selected.value = key
   },
   { immediate: true },
 )
@@ -33,11 +35,7 @@ whenever(
     </ResizablePanel>
     <ResizableHandle />
     <ResizablePanel>
-      <Console
-        v-if="selected"
-        :database-key="selected.key"
-        :key="selected.key"
-      />
+      <Console v-if="selected" :database-key="selected" :key="selected" />
       <div
         v-else
         class="flex items-center justify-center h-full text-muted-foreground"

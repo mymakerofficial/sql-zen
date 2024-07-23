@@ -10,7 +10,7 @@ import { useRegistry } from '@/composables/useRegistry'
 import { useDialog } from '@/composables/useDialog'
 import CreateDatabaseDialog from '@/components/shared/dialogs/CreateDatabaseDialog.vue'
 
-const selected = defineModel<RegisteredDatabase | null>('selected', {
+const selected = defineModel<string | null>('selected', {
   required: true,
   default: null,
 })
@@ -31,7 +31,7 @@ function handleCreate(engine: DatabaseEngine) {
 
 function handleSelect(database: RegisteredDatabase) {
   registry.wake(database.key)
-  selected.value = database
+  selected.value = database.key
 }
 </script>
 
