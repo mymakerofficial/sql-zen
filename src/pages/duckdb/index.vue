@@ -8,11 +8,11 @@ import {
 } from '@/components/ui/resizable'
 import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
 import { useInit } from '@/composables/useInit'
-import { DuckdbFacade } from '@/lib/databases/duckdb'
+import { DuckDB } from '@/lib/databases/duckdb'
 import Editor from '@/components/editor/Editor.vue'
 import example from './example'
 
-const duckdb = new DuckdbFacade()
+const duckdb = new DuckDB()
 
 const { init, isInitializing } = useInit(duckdb)
 

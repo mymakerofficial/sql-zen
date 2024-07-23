@@ -1,5 +1,10 @@
-import { DatabaseFacade, type QueryResult } from '@/lib/databases/database'
-import type { Database as SqliteDatabase } from '@sqlite.org/sqlite-wasm'
+import {
+  DatabaseEngineMode,
+  DatabaseFacade,
+  type QueryResult,
+} from '@/lib/databases/database'
+import type { Database as SqliteWasmDatabase } from '@sqlite.org/sqlite-wasm'
+import { DatabaseEngine } from '@/lib/databaseEngines'
 
 function runPromised<TResult>(block: () => TResult): Promise<TResult> {
   return new Promise((resolve, reject) => {
@@ -11,12 +16,18 @@ function runPromised<TResult>(block: () => TResult): Promise<TResult> {
   })
 }
 
-export class SqliteFacade extends DatabaseFacade {
-  private database: SqliteDatabase | null = null
+export class SQLite extends DatabaseFacade {
+  private database: SqliteWasmDatabase | null = null
+
+  readonly engine = DatabaseEngine.SQLite
 
   async init() {
     if (this.database) {
       return
+    }
+
+    if (this.mode === DatabaseEngineMode.BrowserPersisted && this.identifier) {
+      throw new Error(`SQLite persisted databases do not support identifiers`)
     }
 
     const loadStep = this.logger.step('Loading SQLite3')
@@ -32,7 +43,11 @@ export class SqliteFacade extends DatabaseFacade {
     initStep.success()
     this.logger.log(`Running SQLite3 version: ${sqlite3.version.libVersion}`)
     const openStep = this.logger.step('Creating Database')
-    this.database = new sqlite3.oo1.DB('/mydb.sqlite3', 'ct')
+    if (this.mode === DatabaseEngineMode.Memory) {
+      this.database = new sqlite3.oo1.DB(`/${this.identifier}.sqlite3`, 'c')
+    } else if (this.mode === DatabaseEngineMode.BrowserPersisted) {
+      this.database = new sqlite3.oo1.JsStorageDb('local')
+    }
     openStep.success()
   }
 

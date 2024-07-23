@@ -2,11 +2,11 @@
 import { onMounted, onScopeDispose } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useInit } from '@/composables/useInit'
-import { SqliteFacade } from '@/lib/databases/sqlite'
+import { SQLite } from '@/lib/databases/sqlite'
 import Editor from '@/components/editor/Editor.vue'
 import example from './example.sql?raw'
 
-const sqlite = new SqliteFacade()
+const sqlite = new SQLite()
 
 const { init, isInitializing } = useInit(sqlite)
 

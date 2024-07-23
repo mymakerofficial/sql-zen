@@ -1,16 +1,27 @@
-import { DatabaseFacade } from '@/lib/databases/database'
+import { DatabaseEngineMode, DatabaseFacade } from '@/lib/databases/database'
 import { arrowToResultArray } from '@/lib/arrowToResultArray'
 import type * as duckdb from '@duckdb/duckdb-wasm'
 import { DatabaseNotLoadedError } from '@/lib/errors'
+import { DatabaseEngine } from '@/lib/databaseEngines'
 
-export class DuckdbFacade extends DatabaseFacade {
+export class DuckDB extends DatabaseFacade {
   private worker: Worker | null = null
   private database: duckdb.AsyncDuckDB | null = null
   private connection: duckdb.AsyncDuckDBConnection | null = null
 
+  readonly engine = DatabaseEngine.DuckDB
+
   async init() {
     if (this.connection) {
       return
+    }
+
+    if (this.mode !== DatabaseEngineMode.Memory) {
+      throw new Error(`Unsupported mode for DuckDB: ${this.mode}`)
+    }
+
+    if (this.identifier) {
+      throw new Error(`DuckDB does not support identifiers`)
     }
 
     const loadBundlesStep = this.logger.step('Loading DuckDB bundles')

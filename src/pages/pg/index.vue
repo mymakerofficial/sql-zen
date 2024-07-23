@@ -2,11 +2,11 @@
 import AppLayout from '@/layouts/AppLayout.vue'
 import { onMounted, onScopeDispose } from 'vue'
 import { useInit } from '@/composables/useInit'
-import { PostgresqlFacade } from '@/lib/databases/postgresql'
+import { PostgreSQL } from '@/lib/databases/postgresql'
 import Editor from '@/components/editor/Editor.vue'
 import example from './example.sql?raw'
 
-const pg = new PostgresqlFacade()
+const pg = new PostgreSQL()
 
 const { init, isInitializing } = useInit(pg)
 

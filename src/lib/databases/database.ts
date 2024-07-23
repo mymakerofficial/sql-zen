@@ -1,10 +1,25 @@
 import { separateQueries } from '@/lib/separateQueries'
 import { Logger } from '@/lib/logger/logger'
+import type { DatabaseEngine } from '@/lib/databaseEngines'
+import type { DatabaseInfo } from '@/lib/databases/databaseFactory'
+
+export const DatabaseEngineMode = {
+  Memory: 'memory',
+  BrowserPersisted: 'browserPersisted',
+} as const
+export type DatabaseEngineMode =
+  (typeof DatabaseEngineMode)[keyof typeof DatabaseEngineMode]
 
 export type QueryResult = Array<Object>
 
-export abstract class DatabaseFacade {
+export abstract class DatabaseFacade implements DatabaseInfo {
   protected logger = new Logger()
+  abstract readonly engine: DatabaseEngine
+
+  constructor(
+    readonly mode: DatabaseEngineMode,
+    readonly identifier: string | null,
+  ) {}
 
   getLogger() {
     return this.logger

@@ -1,26 +1,25 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
 import { onMounted, onScopeDispose } from 'vue'
-import { useInit } from '@/composables/useInit'
-import { DuckdbFacade } from '@/lib/databases/duckdb'
 import Editor from '@/components/editor/Editor.vue'
+import { DatabaseFactory } from '@/lib/databases/databaseFactory'
+import { DatabaseEngine } from '@/lib/databaseEngines'
+import { DatabaseEngineMode } from '@/lib/databases/database'
 
-const duckdb = new DuckdbFacade()
+const database = DatabaseFactory.createDatabase({
+  engine: DatabaseEngine.SQLite,
+  mode: DatabaseEngineMode.Memory,
+  identifier: null,
+})
 
-const { init, isInitializing } = useInit(duckdb)
-
-onMounted(init)
-onScopeDispose(duckdb.close)
+onMounted(() => database.init())
+onScopeDispose(() => database.close())
 </script>
 
 <template>
   <AppLayout>
     <main class="flex-1 flex flex-col">
-      <Editor
-        :database="duckdb"
-        :init-value="'SELECT 1;'"
-        :is-initializing="isInitializing"
-      />
+      <Editor :database="database" :init-value="'SELECT 1;'" />
     </main>
   </AppLayout>
 </template>

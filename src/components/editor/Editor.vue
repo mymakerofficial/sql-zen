@@ -19,7 +19,6 @@ import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
 const props = defineProps<{
   database: DatabaseFacade
   initValue: string
-  isInitializing: boolean
 }>()
 
 const model = monaco.editor.createModel(props.initValue, 'sql')
@@ -57,7 +56,6 @@ function handleClear() {
           <EditorToolbar
             @run="handleRunAll"
             @clear="handleClear"
-            :disable-run="isInitializing"
             v-model:enable-inline-results="enableInlineResults"
           />
           <MonacoEditor :editor="editor" />
