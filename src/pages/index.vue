@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import DatabaseSelectItemContent from '@/components/shared/databaseSelect/DatabaseSelectItemContent.vue'
-import { databaseSystemsList } from '@/lib/databaseSystems'
+import DatabaseSelectItemContent from '@/components/shared/databaseEngineSelect/DatabaseSelectItemContent.vue'
+import { databaseEnginesList } from '@/lib/databaseEngines'
 import ColorModeSelect from '@/components/shared/ColorModeSelect.vue'
 </script>
 
@@ -28,8 +28,8 @@ import ColorModeSelect from '@/components/shared/ColorModeSelect.vue'
           </p>
           <div class="flex flex-col gap-4">
             <RouterLink
-              v-for="item in databaseSystemsList"
-              :to="item.baseRoute"
+              v-for="item in databaseEnginesList"
+              to="/app"
               :key="item.key"
               class="rounded-md p-3 hover:bg-accent text-left"
             >

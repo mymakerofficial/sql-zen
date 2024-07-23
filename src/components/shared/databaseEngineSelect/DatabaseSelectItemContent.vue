@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { DatabaseSystemInfo } from '@/lib/databaseSystems'
+import type { DatabaseEngineInfo } from '@/lib/databaseEngines'
 
-defineProps<DatabaseSystemInfo>()
+defineProps<DatabaseEngineInfo>()
 </script>
 
 <template>

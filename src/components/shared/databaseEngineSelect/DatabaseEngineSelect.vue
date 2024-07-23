@@ -6,19 +6,19 @@ import {
   SelectItem,
   SelectValue,
 } from '@/components/ui/select'
-import { type DatabaseSystem, databaseSystemsList } from '@/lib/databaseSystems'
-import DatabaseSelectItemContent from '@/components/shared/databaseSelect/DatabaseSelectItemContent.vue'
+import { type DatabaseEngine, databaseEnginesList } from '@/lib/databaseEngines'
+import DatabaseSelectItemContent from '@/components/shared/databaseEngineSelect/DatabaseSelectItemContent.vue'
 import { SelectIcon, SelectTrigger } from 'radix-vue'
 import { ChevronDown } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 
-const model = defineModel<DatabaseSystem>({ default: 'postgresql' })
+const model = defineModel<DatabaseEngine>({ default: 'postgresql' })
 
 const emit = defineEmits<{
-  select: [DatabaseSystem]
+  select: [DatabaseEngine]
 }>()
 
-function handleSelect(value: DatabaseSystem) {
+function handleSelect(value: DatabaseEngine) {
   emit('select', value)
 }
 </script>
@@ -32,7 +32,7 @@ function handleSelect(value: DatabaseSystem) {
           class="w-fit !bg-transparent [&_[data-description]]:hidden"
         >
           <SelectValue placeholder="Select database..." class="pr-3" />
-          <SelectIcon as-child v-if="!hideChevron">
+          <SelectIcon as-child>
             <ChevronDown class="w-4 h-4 opacity-50" />
           </SelectIcon>
         </Button>
@@ -41,7 +41,7 @@ function handleSelect(value: DatabaseSystem) {
     <SelectContent>
       <SelectGroup>
         <SelectItem
-          v-for="item in databaseSystemsList"
+          v-for="item in databaseEnginesList"
           :value="item.key"
           :key="item.key"
           class="px-3"
