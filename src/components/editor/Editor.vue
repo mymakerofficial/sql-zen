@@ -14,6 +14,7 @@ import { Runner } from '@/lib/runner/runner'
 import inlineResults from '@/composables/editor/inlineResults'
 import MonacoEditor from '@/components/shared/monaco/MonacoEditor.vue'
 import { useStorage } from '@vueuse/core'
+import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
 
 const props = defineProps<{
   database: DatabaseFacade
@@ -45,27 +46,30 @@ function handleClear() {
 </script>
 
 <template>
-  <ResizablePanelGroup
-    direction="vertical"
-    auto-save-id="console-editor-result"
-  >
-    <ResizablePanel collapsible :min-size="10">
-      <EditorToolbar
-        @run="handleRunAll"
-        @clear="handleClear"
-        :disable-run="isInitializing"
-        v-model:enable-inline-results="enableInlineResults"
-      />
-      <MonacoEditor :editor="editor" />
+  <ResizablePanelGroup direction="horizontal">
+    <ResizablePanel :default-size="18">
+      <DatabaseExplorerPanel />
     </ResizablePanel>
     <ResizableHandle />
-    <ResizablePanel collapsible :default-size="24" :min-size="10">
-      <div class="h-full">
-        <EditorResultPanel
-          :runner="runner"
-          :show-results="!enableInlineResults"
-        />
-      </div>
+    <ResizablePanel>
+      <ResizablePanelGroup direction="vertical">
+        <ResizablePanel>
+          <EditorToolbar
+            @run="handleRunAll"
+            @clear="handleClear"
+            :disable-run="isInitializing"
+            v-model:enable-inline-results="enableInlineResults"
+          />
+          <MonacoEditor :editor="editor" />
+        </ResizablePanel>
+        <ResizableHandle />
+        <ResizablePanel :default-size="33">
+          <EditorResultPanel
+            :runner="runner"
+            :show-results="!enableInlineResults"
+          />
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </ResizablePanel>
   </ResizablePanelGroup>
 </template>

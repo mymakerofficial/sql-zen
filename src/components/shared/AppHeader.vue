@@ -1,36 +1,22 @@
 <script setup lang="ts">
-import DatabaseSelect from '@/components/shared/databaseSelect/DatabaseSelect.vue'
-import { computed } from 'vue'
-import { twMerge } from 'tailwind-merge'
-import { useDatabaseSystem } from '@/composables/useDatabaseSystem'
 import ColorModeSelect from '@/components/shared/ColorModeSelect.vue'
-
-const database = useDatabaseSystem()
-
-const gradientClass = computed(() => {
-  if (database.value === 'postgresql') {
-    return 'from-blue-500/20 to-blue-500/0'
-  } else if (database.value === 'sqlite') {
-    return 'from-sky-500/20 to-sky-500/0'
-  } else if (database.value === 'duckdb') {
-    return 'from-yellow-500/20 to-yellow-500/0'
-  }
-  return ''
-})
+import { Button } from '@/components/ui/button'
 </script>
 
 <template>
   <nav class="relative h-16 px-3 flex justify-between border-b border-border">
     <div class="h-full flex items-center">
       <span
-        :class="
-          twMerge(
-            'w-96 h-full absolute left-0 -z-10 bg-gradient-to-r',
-            gradientClass,
-          )
-        "
+        class="w-96 h-full absolute left-0 -z-10 bg-gradient-to-r from-blue-500/20 to-blue-500/0"
       />
-      <DatabaseSelect />
+      <Button as-child variant="ghost" class="hover:bg-primary/5">
+        <RouterLink to="/">
+          <span
+            class="text-xl font-black bg-gradient-to-br from-primary to-blue-600 inline-block text-transparent bg-clip-text"
+            >SqlZen</span
+          >
+        </RouterLink>
+      </Button>
     </div>
     <div class="h-full flex items-center">
       <ColorModeSelect />

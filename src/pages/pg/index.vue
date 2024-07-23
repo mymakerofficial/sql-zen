@@ -1,11 +1,5 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from '@/components/ui/resizable'
-import DatabaseExplorerPanel from '@/components/DatabaseExplorerPanel.vue'
 import { onMounted, onScopeDispose } from 'vue'
 import { useInit } from '@/composables/useInit'
 import { PostgresqlFacade } from '@/lib/databases/postgresql'
@@ -23,19 +17,11 @@ onScopeDispose(pg.close)
 <template>
   <AppLayout>
     <main class="flex-1 flex flex-col">
-      <ResizablePanelGroup direction="horizontal" class="flex-1">
-        <ResizablePanel :default-size="0">
-          <DatabaseExplorerPanel />
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel>
-          <Editor
-            :database="pg"
-            :init-value="example"
-            :is-initializing="isInitializing"
-          />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+      <Editor
+        :database="pg"
+        :init-value="example"
+        :is-initializing="isInitializing"
+      />
     </main>
   </AppLayout>
 </template>

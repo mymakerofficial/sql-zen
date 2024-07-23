@@ -23,19 +23,11 @@ onScopeDispose(duckdb.close)
 <template>
   <AppLayout>
     <main class="flex-1 flex flex-col">
-      <ResizablePanelGroup direction="horizontal" class="flex-1">
-        <ResizablePanel :default-size="0">
-          <DatabaseExplorerPanel />
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel>
-          <Editor
-            :database="duckdb"
-            :init-value="example"
-            :is-initializing="isInitializing"
-          />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+      <Editor
+        :database="duckdb"
+        :init-value="example"
+        :is-initializing="isInitializing"
+      />
     </main>
   </AppLayout>
 </template>

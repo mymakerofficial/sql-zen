@@ -4,21 +4,39 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { databaseSystemsList } from '@/lib/databaseSystems'
+import { type DatabaseSystem, databaseSystemsList } from '@/lib/databaseSystems'
 import DatabaseSelectItemContent from '@/components/shared/databaseSelect/DatabaseSelectItemContent.vue'
+import { SelectIcon, SelectTrigger } from 'radix-vue'
+import { ChevronDown } from 'lucide-vue-next'
+import { Button } from '@/components/ui/button'
 
-const model = defineModel<string>({ default: 'postgresql' })
+const model = defineModel<DatabaseSystem>({ default: 'postgresql' })
+
+const emit = defineEmits<{
+  select: [DatabaseSystem]
+}>()
+
+function handleSelect(value: DatabaseSystem) {
+  emit('select', value)
+}
 </script>
 
 <template>
   <Select v-model="model">
-    <SelectTrigger
-      class="w-fit bg-transparent border-transparent [&_[data-description]]:hidden"
-    >
-      <SelectValue placeholder="Select database..." class="pr-3" />
+    <SelectTrigger as-child>
+      <slot>
+        <Button
+          variant="ghost"
+          class="w-fit !bg-transparent [&_[data-description]]:hidden"
+        >
+          <SelectValue placeholder="Select database..." class="pr-3" />
+          <SelectIcon as-child v-if="!hideChevron">
+            <ChevronDown class="w-4 h-4 opacity-50" />
+          </SelectIcon>
+        </Button>
+      </slot>
     </SelectTrigger>
     <SelectContent>
       <SelectGroup>
@@ -27,6 +45,7 @@ const model = defineModel<string>({ default: 'postgresql' })
           :value="item.key"
           :key="item.key"
           class="px-3"
+          @select="() => handleSelect(item.key)"
         >
           <DatabaseSelectItemContent v-bind="item" />
         </SelectItem>

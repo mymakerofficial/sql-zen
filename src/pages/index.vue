@@ -15,15 +15,12 @@ import ColorModeSelect from '@/components/shared/ColorModeSelect.vue'
       <div class="flex flex-col gap-12 lg:w-[32rem]">
         <div class="flex flex-col gap-3">
           <h1 class="text-4xl font-bold">
-            Welcome to
             <span
               class="bg-gradient-to-br from-primary to-blue-600 inline-block text-transparent bg-clip-text font-black"
               >SqlZen</span
             >
+            lets you play with your favourite databases in the browser.
           </h1>
-          <p class="text-lg">
-            Play with your favourite databases right in your browser.
-          </p>
         </div>
         <div class="flex flex-col gap-7">
           <p class="text-sm font-medium text-muted-foreground">

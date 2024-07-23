@@ -31,18 +31,18 @@ function handleClear() {
         :disabled="disableRun"
         size="sm"
         variant="ghost"
-        class="gap-2"
+        class="gap-3"
       >
         <PlayIcon class="size-4" />
         <span>Run All</span>
       </Button>
-      <Toggle v-model:pressed="enableInlineResults" class="gap-2 h-9">
+      <Toggle v-model:pressed="enableInlineResults" class="gap-3 h-9">
         <TableRowsSplitIcon class="size-4" />
         <span>Inline Results</span>
       </Toggle>
     </div>
     <div class="h-full flex items-center">
-      <Button @click="handleClear" size="sm" variant="ghost" class="gap-2">
+      <Button @click="handleClear" size="sm" variant="ghost">
         <EraserIcon class="size-4" />
       </Button>
     </div>
