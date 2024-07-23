@@ -6,14 +6,16 @@ import { type DatabaseEngine, databaseEngines } from '@/lib/databaseEngines'
 import { type RegisteredDatabase } from '@/lib/registry/registry'
 import { useRegisteredDatabases } from '@/composables/useRegisteredDatabases'
 import type { DatabaseInfo } from '@/lib/databases/databaseFactory'
-import { DatabaseEngineMode } from '@/lib/databases/database'
 import { useRegistry } from '@/composables/useRegistry'
+import { useDialog } from '@/composables/useDialog'
+import CreateDatabaseDialog from '@/components/shared/dialogs/CreateDatabaseDialog.vue'
 
 const selected = defineModel<RegisteredDatabase | null>('selected', {
   required: true,
   default: null,
 })
 
+const { open: openCreate } = useDialog(CreateDatabaseDialog)
 const registry = useRegistry()
 const databases = useRegisteredDatabases()
 
@@ -22,10 +24,8 @@ function getEngine(database: DatabaseInfo) {
 }
 
 function handleCreate(engine: DatabaseEngine) {
-  registry.register({
+  openCreate({
     engine,
-    mode: DatabaseEngineMode.Memory,
-    identifier: null,
   })
 }
 

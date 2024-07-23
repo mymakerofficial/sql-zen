@@ -4,18 +4,22 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
+  SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
 import { type DatabaseEngine, databaseEnginesList } from '@/lib/databaseEngines'
 import DatabaseSelectItemContent from '@/components/shared/databaseEngineSelect/DatabaseSelectItemContent.vue'
-import { SelectIcon, SelectTrigger } from 'radix-vue'
-import { ChevronDown } from 'lucide-vue-next'
-import { Button } from '@/components/ui/button'
+import { SelectTrigger as RadixSelectTrigger } from 'radix-vue'
+import type { HTMLAttributes } from 'vue'
 
 const model = defineModel<DatabaseEngine>({ default: 'postgresql' })
 
 const emit = defineEmits<{
   select: [DatabaseEngine]
+}>()
+
+const props = defineProps<{
+  class?: HTMLAttributes['class']
 }>()
 
 function handleSelect(value: DatabaseEngine) {
@@ -25,18 +29,14 @@ function handleSelect(value: DatabaseEngine) {
 
 <template>
   <Select v-model="model" @update:model-value="handleSelect">
-    <SelectTrigger as-child>
-      <slot>
-        <Button
-          variant="ghost"
-          class="w-fit !bg-transparent [&_[data-description]]:hidden"
-        >
-          <SelectValue placeholder="Select database..." class="pr-3" />
-          <SelectIcon as-child>
-            <ChevronDown class="w-4 h-4 opacity-50" />
-          </SelectIcon>
-        </Button>
-      </slot>
+    <RadixSelectTrigger v-if="$slots.default" as-child>
+      <slot />
+    </RadixSelectTrigger>
+    <SelectTrigger v-else :class="props.class">
+      <SelectValue
+        placeholder="Select database..."
+        class="pr-3 [&_[data-description]]:hidden"
+      />
     </SelectTrigger>
     <SelectContent>
       <SelectGroup>
