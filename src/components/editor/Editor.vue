@@ -22,6 +22,7 @@ whenever(
   () => {
     selected.value = registry.wake(databases.value[0].key)
   },
+  { immediate: true },
 )
 </script>
 

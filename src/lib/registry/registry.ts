@@ -73,6 +73,14 @@ export class Registry {
     return database
   }
 
+  registerIfNotExists(info: DatabaseInfo) {
+    const key = generateKey(info)
+    if (this.databases[key]) {
+      return this.databases[key]
+    }
+    return this.register(info)
+  }
+
   getDatabases() {
     return Object.values(this.databases)
   }

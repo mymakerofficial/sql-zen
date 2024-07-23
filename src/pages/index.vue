@@ -1,7 +1,23 @@
 <script setup lang="ts">
 import DatabaseSelectItemContent from '@/components/shared/databaseEngineSelect/DatabaseSelectItemContent.vue'
-import { databaseEnginesList } from '@/lib/databaseEngines'
+import { type DatabaseEngine, databaseEnginesList } from '@/lib/databaseEngines'
 import ColorModeSelect from '@/components/shared/ColorModeSelect.vue'
+import { useRouter } from 'vue-router'
+import { useRegistry } from '@/composables/useRegistry'
+import { DatabaseEngineMode } from '@/lib/databases/database'
+import { Button } from '@/components/ui/button'
+
+const router = useRouter()
+const registry = useRegistry()
+
+function handleSelect(engine: DatabaseEngine) {
+  registry.registerIfNotExists({
+    engine,
+    mode: DatabaseEngineMode.Memory,
+    identifier: null,
+  })
+  router.push('/app')
+}
 </script>
 
 <template>
@@ -27,14 +43,18 @@ import ColorModeSelect from '@/components/shared/ColorModeSelect.vue'
             Select a database to get going.
           </p>
           <div class="flex flex-col gap-4">
-            <RouterLink
+            <Button
               v-for="item in databaseEnginesList"
-              to="/app"
+              @click="() => handleSelect(item.key)"
               :key="item.key"
-              class="rounded-md p-3 hover:bg-accent text-left"
+              variant="ghost"
+              class="block h-fit text-wrap p-3 hover:bg-accent text-left"
             >
-              <DatabaseSelectItemContent v-bind="item" />
-            </RouterLink>
+              <DatabaseSelectItemContent
+                v-bind="item"
+                class="max-w-full md:w-3/4"
+              />
+            </Button>
           </div>
         </div>
       </div>
