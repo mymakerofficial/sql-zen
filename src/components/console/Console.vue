@@ -15,6 +15,7 @@ import * as monaco from 'monaco-editor'
 import { useStorage } from '@vueuse/core'
 import { type RegisteredReadyDatabase } from '@/lib/registry/registry'
 import { useRegistry } from '@/composables/useRegistry'
+import { getExampleSql } from '@/lib/examples/getExampleSql'
 
 const props = defineProps<{
   databaseKey: string
@@ -26,7 +27,7 @@ const registry = useRegistry()
 const { database, runner, ...info } = registry.getDatabase(
   props.databaseKey,
 ) as RegisteredReadyDatabase // let's just hope for the best
-const model = monaco.editor.createModel('SELECT random();', 'sql')
+const model = monaco.editor.createModel(getExampleSql(database.engine), 'sql')
 const editor = useEditor({
   model,
   runner,
