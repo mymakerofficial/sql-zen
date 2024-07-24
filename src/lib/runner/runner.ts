@@ -100,7 +100,7 @@ export class Runner {
     )
   }
 
-  push(statements: Array<FoundStatement>) {
+  run(statements: Array<FoundStatement>) {
     // the user has pushed new queries after all previous queries have settled
     //  we probably want to clear the previous queries at this point
     const allSettled = this.queries.every(hasSettled)

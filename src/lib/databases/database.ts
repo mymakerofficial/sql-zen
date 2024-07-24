@@ -12,6 +12,11 @@ export type DatabaseEngineMode =
 
 export type QueryResult = Array<Object>
 
+export type DatabaseDump = {
+  blob: Blob
+  filename: string
+}
+
 export abstract class DatabaseFacade implements DatabaseInfo {
   protected logger = new Logger()
   abstract readonly engine: DatabaseEngine
@@ -37,6 +42,8 @@ export abstract class DatabaseFacade implements DatabaseInfo {
     }
     return results
   }
+
+  abstract dump(): Promise<DatabaseDump>
 
   abstract close(): Promise<void>
 }

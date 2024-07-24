@@ -55,6 +55,16 @@ export class PostgreSQL extends DatabaseFacade {
     }
   }
 
+  async dump() {
+    if (!this.database) {
+      throw new DatabaseNotLoadedError()
+    }
+
+    const data = await this.database.dumpDataDir();
+    const blob = new Blob([data], { type: 'application/x-gzip' })
+    return { blob, filename: `${this.identifier}.tar.gz` }
+  }
+
   async close() {
     if (this.database) {
       await this.database.close()

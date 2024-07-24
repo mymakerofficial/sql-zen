@@ -1,25 +1,35 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
-import { EraserIcon, PlayIcon, TableRowsSplitIcon } from 'lucide-vue-next'
+import { EraserIcon, PlayIcon, TableRowsSplitIcon, DownloadIcon } from 'lucide-vue-next'
 import { Toggle } from '@/components/ui/toggle'
+import type { Runner } from '@/lib/runner/runner'
+import type { UseEditor } from '@/composables/editor/useEditor'
+import { downloadDump } from '@/lib/downloadBlob'
+import { DatabaseEngine } from '@/lib/databaseEngines'
+import { computed } from 'vue'
+import { Separator } from '@/components/ui/separator'
 
 const enableInlineResults = defineModel<boolean>('enableInlineResults')
 
-defineProps<{
-  disableRun?: boolean
+const props = defineProps<{
+  runner: Runner,
+  editor: UseEditor,
 }>()
 
-const emit = defineEmits<{
-  run: []
-  clear: []
-}>()
+const canDump = computed(() => props.runner.getDatabase().engine !== DatabaseEngine.DuckDB)
 
 function handleRun() {
-  emit('run')
+  props.runner.run(props.editor.statements.value)
+}
+
+async function handleDump() {
+  const dump = await props.runner.getDatabase().dump()
+  downloadDump(dump)
 }
 
 function handleClear() {
-  emit('clear')
+  props.editor.editor.getModel()?.setValue('')
+  props.runner.clear()
 }
 </script>
 
@@ -28,7 +38,6 @@ function handleClear() {
     <div class="h-full flex items-center gap-3">
       <Button
         @click="handleRun"
-        :disabled="disableRun"
         size="sm"
         variant="ghost"
         class="gap-3"
@@ -36,6 +45,17 @@ function handleClear() {
         <PlayIcon class="size-4" />
         <span>Run All</span>
       </Button>
+      <Button
+        v-if="canDump"
+        @click="handleDump"
+        size="sm"
+        variant="ghost"
+        class="gap-3"
+      >
+        <DownloadIcon class="size-4" />
+        <span>Download Dump</span>
+      </Button>
+      <Separator orientation="vertical" />
       <Toggle v-model:pressed="enableInlineResults" class="gap-3 h-9">
         <TableRowsSplitIcon class="size-4" />
         <span>Inline Results</span>

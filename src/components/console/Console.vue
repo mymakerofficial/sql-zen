@@ -16,6 +16,7 @@ import { useStorage } from '@vueuse/core'
 import { type RegisteredReadyDatabase } from '@/lib/registry/registry'
 import { useRegistry } from '@/composables/useRegistry'
 import { getExampleSql } from '@/lib/examples/getExampleSql'
+import { downloadDump } from '@/lib/downloadBlob'
 
 const props = defineProps<{
   databaseKey: string
@@ -36,15 +37,6 @@ const editor = useEditor({
 editor.use(inlineRun)
 editor.use(inlineResults({ enabled: enableInlineResults }))
 
-function handleRunAll() {
-  runner.push(editor.statements.value)
-}
-
-function handleClear() {
-  model.setValue('')
-  runner.clear()
-}
-
 onMounted(() => database.init())
 </script>
 
@@ -52,8 +44,8 @@ onMounted(() => database.init())
   <ResizablePanelGroup direction="vertical">
     <ResizablePanel>
       <ConsoleToolbar
-        @run="handleRunAll"
-        @clear="handleClear"
+        :runner="runner"
+        :editor="editor"
         v-model:enable-inline-results="enableInlineResults"
       />
       <MonacoEditor :editor="editor" />

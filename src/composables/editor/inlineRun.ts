@@ -1,17 +1,11 @@
 import * as monaco from 'monaco-editor'
 import { type FoundStatement } from '@/lib/statements'
-import { toValue, useDebounceFn } from '@vueuse/core'
-import { computed, h, render, type VNode, watch } from 'vue'
+import { h, render, type VNode, watch } from 'vue'
 import { Button } from '@/components/ui/button'
-import { CheckIcon, DotIcon, LoaderCircleIcon, PlayIcon } from 'lucide-vue-next'
+import { DotIcon, LoaderCircleIcon, PlayIcon } from 'lucide-vue-next'
 import type { UseEditor } from '@/composables/editor/useEditor'
 import { useRunnerQueries } from '@/composables/useRunnerQueries'
-import {
-  hasSettled,
-  isIdle,
-  isRunning,
-  isSuccessful,
-} from '@/lib/runner/runner'
+import { isIdle, isRunning } from '@/lib/runner/runner'
 
 export default function inlineRunPlugin({
   editor,
@@ -27,7 +21,7 @@ export default function inlineRunPlugin({
   const queries = useRunnerQueries(runner)
 
   function handleRun(statement: FoundStatement) {
-    runner!.push([statement])
+    runner!.run([statement])
   }
 
   function clearGlyphs() {

@@ -81,6 +81,12 @@ export class DuckDB extends DatabaseFacade {
     }
   }
 
+  async dump() {
+    throw new Error(`DuckDB does not support dumping`)
+    // just to satisfy the interface
+    return { blob: new Blob(), filename: '' }
+  }
+
   async close() {
     if (this.connection) {
       await this.connection.close()
