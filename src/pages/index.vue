@@ -35,7 +35,7 @@ function handleSelect(engine: DatabaseEngine) {
               class="bg-gradient-to-br from-primary to-blue-600 inline-block text-transparent bg-clip-text font-black"
               >SqlZen</span
             >
-            lets you play with your favourite databases in the browser.
+            lets you play with your favourite databases right in the browser.
           </h1>
         </div>
         <div class="flex flex-col gap-7">
