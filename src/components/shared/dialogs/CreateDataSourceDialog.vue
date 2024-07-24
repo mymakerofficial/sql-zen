@@ -16,6 +16,7 @@ import DatabaseEngineSelect from '@/components/shared/databaseEngineSelect/Datab
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { Separator } from '@/components/ui/separator'
 import { whenever } from '@vueuse/core'
+import { simplifyIdentifier } from '@/lib/simplifyIdentifier'
 
 const props = defineProps<{
   engine: DatabaseEngine
@@ -47,8 +48,8 @@ const disableIdentifier = computed(() => {
   )
 })
 
-const showFile = computed(() => {
-  return (
+const disableFile = computed(() => {
+  return !(
     engine.value === DatabaseEngine.SQLite ||
     engine.value === DatabaseEngine.PostgreSQL
   )
@@ -66,7 +67,7 @@ const { mutate: create, error } = useMutation({
       engine: engine.value,
       mode: mode.value,
       identifier: simplifyIdentifier(identifier.value),
-      fileAccessor: null,
+      fileAccessor: fileAccessor.value,
     }
 
     if (disableMode.value) {
@@ -77,8 +78,8 @@ const { mutate: create, error } = useMutation({
       info.identifier = null
     }
 
-    if (showFile.value) {
-      info.fileAccessor = fileAccessor.value
+    if (disableFile.value) {
+      info.fileAccessor = null
     }
 
     registry.register(info)
@@ -119,6 +120,7 @@ const { mutate: create, error } = useMutation({
         <Input
           v-model="identifier"
           :disabled="disableIdentifier"
+          placeholder="my-awesome-database"
           id="identifier"
           class="col-span-3"
         />
@@ -129,17 +131,24 @@ const { mutate: create, error } = useMutation({
           Only one database can be crate with this configuration.
         </p>
       </div>
-      <Separator v-if="showFile" />
-      <div v-if="showFile" class="grid grid-cols-4 items-center gap-4">
+      <Separator />
+      <div class="grid grid-cols-4 items-center gap-4">
         <Label for="file" class="text-right">Import Dump</Label>
         <Button
           @click="handleSelectFile"
+          :disabled="disableFile"
           id="file"
           variant="outline"
           class="col-span-3"
         >
           {{ fileAccessor?.getName() ?? 'Select File' }}
         </Button>
+        <p
+          v-if="disableIdentifier"
+          class="col-span-full text-sm text-muted-foreground"
+        >
+          Only SQLite and PostgreSQL databases can be imported.
+        </p>
       </div>
     </div>
     <div v-if="error" class="text-red-500 text-sm mt-2">

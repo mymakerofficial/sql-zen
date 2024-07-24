@@ -11,6 +11,10 @@ export function simplifyIdentifier(identifier: string | null) {
     return null
   }
 
+  if (identifier === 'identifier') {
+    return null
+  }
+
   if (identifier === 'default') {
     return null
   }
