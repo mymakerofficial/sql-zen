@@ -60,32 +60,12 @@ async function handleSelectFile() {
   fileAccessor.value = FileAccessor.fromFileSystemFileHandle(fileHandle)
 }
 
-function resolveIdentifier(identifier: string | null) {
-  if (!identifier) {
-    return null
-  }
-
-  if (identifier === 'null') {
-    return null
-  }
-
-  if (identifier === 'database') {
-    return null
-  }
-
-  if (identifier === 'default') {
-    return null
-  }
-
-  return identifier
-}
-
 const { mutate: create, error } = useMutation({
   mutationFn: () => {
     const info: DataSourceInfo = {
       engine: engine.value,
       mode: mode.value,
-      identifier: resolveIdentifier(identifier.value),
+      identifier: simplifyIdentifier(identifier.value),
       fileAccessor: null,
     }
 

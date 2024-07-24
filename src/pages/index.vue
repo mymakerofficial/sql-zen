@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import DatabaseSelectItemContent from '@/components/shared/databaseEngineSelect/DatabaseSelectItemContent.vue'
-import { type DatabaseEngine, databaseEnginesList } from '@/lib/databaseEngines'
+import { DatabaseEngine, databaseEnginesList } from '@/lib/databaseEngines'
 import ColorModeSelect from '@/components/shared/ColorModeSelect.vue'
 import { useRouter } from 'vue-router'
 import { useRegistry } from '@/composables/useRegistry'
 import { DatabaseEngineMode } from '@/lib/databases/database'
 import { Button } from '@/components/ui/button'
+import { FileAccessor } from '@/lib/files/fileAccessor'
+import { simplifyIdentifier } from '@/lib/simplifyIdentifier'
 
 const router = useRouter()
 const registry = useRegistry()
@@ -18,6 +20,29 @@ function handleSelect(engine: DatabaseEngine) {
     fileAccessor: null,
   })
   router.push('/app')
+}
+
+async function handleSelectFile() {
+  // @ts-ignore experimental
+  const [fileHandle] = await window.showOpenFilePicker()
+  const fileAccessor = FileAccessor.fromFileSystemFileHandle(fileHandle)
+  const fileName = fileAccessor.getName()
+  console.log(fileName)
+  let engine: DatabaseEngine
+  if (fileName.endsWith('.sqlite') || fileName.endsWith('.sqlite3')) {
+    engine = DatabaseEngine.SQLite
+  } else if (fileName.endsWith('.tar.gz')) {
+    engine = DatabaseEngine.PostgreSQL
+  } else {
+    throw new Error('Unsupported file type')
+  }
+  registry.registerIfNotExists({
+    engine,
+    mode: DatabaseEngineMode.Memory,
+    identifier: simplifyIdentifier(fileName.split('.')[0]),
+    fileAccessor,
+  })
+  await router.push('/app')
 }
 </script>
 
@@ -41,7 +66,7 @@ function handleSelect(engine: DatabaseEngine) {
         </div>
         <div class="flex flex-col gap-7">
           <p class="text-sm font-medium text-muted-foreground">
-            Select a database to get going.
+            Select a database to get going
           </p>
           <div class="flex flex-col gap-4">
             <Button
@@ -57,6 +82,12 @@ function handleSelect(engine: DatabaseEngine) {
               />
             </Button>
           </div>
+          <p class="text-sm font-medium text-muted-foreground">
+            or
+            <Button @click="handleSelectFile" variant="link"
+              >open database file.</Button
+            >
+          </p>
         </div>
       </div>
     </main>
