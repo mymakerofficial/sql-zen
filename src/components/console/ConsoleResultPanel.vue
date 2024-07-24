@@ -57,7 +57,7 @@ watch(
   <Tabs v-model="selected" class="h-full flex flex-col">
     <TabsList class="w-full border-b">
       <TabsTrigger value="log" class="gap-2">
-        <SquareTerminalIcon class="size-4" />
+        <SquareTerminalIcon class="size-4 min-w-max" />
         <span>Output</span>
       </TabsTrigger>
       <TabsTrigger
@@ -66,7 +66,7 @@ watch(
         :key="trigger.value"
         class="gap-2"
       >
-        <TableIcon class="size-4" />
+        <TableIcon class="size-4 min-w-max" />
         <span>{{ trigger.label }}</span>
       </TabsTrigger>
     </TabsList>

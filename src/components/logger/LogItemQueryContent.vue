@@ -20,7 +20,7 @@ const duration = computed(() => {
 
 <template>
   <div class="flex gap-2">
-    <ChevronRightIcon class="size-5 text-muted-foreground" />
+    <ChevronRightIcon class="size-5 min-w-max text-muted-foreground" />
     <div class="flex flex-col gap-2">
       <CodeBlock
         :code="event.sql"

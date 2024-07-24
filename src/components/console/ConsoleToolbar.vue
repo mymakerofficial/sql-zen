@@ -45,7 +45,7 @@ function handleClear() {
   <section class="h-12 px-3 flex justify-between border-b border-border">
     <div class="h-full flex items-center gap-3">
       <Button @click="handleRun" size="sm" variant="ghost" class="gap-3">
-        <PlayIcon class="size-4" />
+        <PlayIcon class="size-4 min-w-max" />
         <span>Run All</span>
       </Button>
       <Button
@@ -55,18 +55,18 @@ function handleClear() {
         variant="ghost"
         class="gap-3"
       >
-        <DownloadIcon class="size-4" />
+        <DownloadIcon class="size-4 min-w-max" />
         <span>Download Dump</span>
       </Button>
       <Separator orientation="vertical" />
       <Toggle v-model:pressed="enableInlineResults" class="gap-3 h-9">
-        <TableRowsSplitIcon class="size-4" />
+        <TableRowsSplitIcon class="size-4 min-w-max" />
         <span>Inline Results</span>
       </Toggle>
     </div>
     <div class="h-full flex items-center">
       <Button @click="handleClear" size="sm" variant="ghost">
-        <EraserIcon class="size-4" />
+        <EraserIcon class="size-4 min-w-max" />
       </Button>
     </div>
   </section>

@@ -79,12 +79,12 @@ function createRunButton(onClick: () => void) {
       variant: 'ghost',
       onClick,
     },
-    () => h(PlayIcon, { class: 'size-4 text-green-500' }),
+    () => h(PlayIcon, { class: 'size-4 min-w-max text-green-500' }),
   )
 }
 
 function createSpinner() {
-  return h(LoaderCircleIcon, { class: 'ml-3 size-4 animate-spin' })
+  return h(LoaderCircleIcon, { class: 'ml-3 size-4 min-w-max animate-spin' })
 }
 
 function createDot() {

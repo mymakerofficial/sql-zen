@@ -31,19 +31,19 @@ defineProps<{
     >
       <DatabaseIcon
         v-if="item.value.type === SchemaTreeItemType.Catalog"
-        class="size-4 text-blue-500"
+        class="size-4 min-w-max text-blue-500"
       />
       <BlocksIcon
         v-else-if="item.value.type === SchemaTreeItemType.Schema"
-        class="size-4 text-muted-foreground"
+        class="size-4 min-w-max text-muted-foreground"
       />
       <TableIcon
         v-else-if="item.value.type === SchemaTreeItemType.Table"
-        class="size-4 text-muted-foreground"
+        class="size-4 min-w-max text-muted-foreground"
       />
       <TablePropertiesIcon
         v-else-if="item.value.type === SchemaTreeItemType.Column"
-        class="size-4 text-muted-foreground"
+        class="size-4 min-w-max text-muted-foreground"
       />
       <div>
         {{ item.value.name }}

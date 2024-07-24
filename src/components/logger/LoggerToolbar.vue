@@ -31,10 +31,10 @@ function handleDown() {
       size="xs"
       variant="ghost"
     >
-      <Trash2Icon class="size-4" />
+      <Trash2Icon class="size-4 min-w-max" />
     </Button>
     <Toggle v-model:pressed="stickToBottom" size="xs">
-      <ArrowDownAZIcon class="size-4" />
+      <ArrowDownAZIcon class="size-4 min-w-max" />
     </Toggle>
   </section>
 </template>

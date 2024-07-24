@@ -25,19 +25,19 @@ const mode = useColorMode()
       <SelectGroup>
         <SelectItem value="system">
           <div class="flex items-center gap-3">
-            <SunMoonIcon class="size-4" />
+            <SunMoonIcon class="size-4 min-w-max" />
             <span data-description>System</span>
           </div>
         </SelectItem>
         <SelectItem value="dark">
           <div class="flex items-center gap-3">
-            <MoonIcon class="size-4" />
+            <MoonIcon class="size-4 min-w-max" />
             <span data-description>Dark</span>
           </div>
         </SelectItem>
         <SelectItem value="light">
           <div class="flex items-center gap-3">
-            <SunIcon class="size-4" />
+            <SunIcon class="size-4 min-w-max" />
             <span data-description>Light</span>
           </div>
         </SelectItem>

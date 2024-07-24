@@ -58,12 +58,12 @@ function handleRefresh() {
     >
       <DatabaseEngineSelect @select="handleCreate">
         <Button size="sm" variant="ghost" class="gap-3">
-          <PlusIcon class="size-4" />
+          <PlusIcon class="size-4 min-w-max" />
           <span>Add Data Source</span>
         </Button>
       </DatabaseEngineSelect>
       <Button @click="handleRefresh" size="sm" variant="ghost">
-        <RefreshCwIcon class="size-4" />
+        <RefreshCwIcon class="size-4 min-w-max" />
       </Button>
     </div>
     <div
@@ -78,11 +78,11 @@ function handleRefresh() {
           variant="ghost"
           class="-ml-3 gap-3 items-center"
         >
-          <span class="relative">
+          <span class="relative min-w-max">
             <img
               :src="getEngine(dataSource).icon"
               :alt="`${getEngine(dataSource).name} icon`"
-              class="size-4 text-muted-foreground"
+              class="size-4 min-w-max text-muted-foreground"
             />
             <span
               :data-state="dataSource.state"
@@ -98,7 +98,7 @@ function handleRefresh() {
         <div class="flex items-center mx-3">
           <SquareTerminalIcon
             v-if="selected === dataSource.key"
-            class="size-4 text-muted-foreground"
+            class="size-4 min-w-max text-muted-foreground"
           />
         </div>
       </div>
