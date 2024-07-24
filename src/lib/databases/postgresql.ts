@@ -27,7 +27,10 @@ export class PostgreSQL extends DataSourceFacade {
 
     const initStep = this.logger.step('Loading PostgreSQL')
     const module = await import('@electric-sql/pglite')
-    this.database = new module.PGlite(this.getDataDir())
+    const file = await this.fileAccessor?.read()
+    this.database = new module.PGlite(this.getDataDir(), {
+      loadDataDir: file,
+    })
     await this.database.waitReady
     initStep.success()
     const version = await this.database.query<{ version: string }>(

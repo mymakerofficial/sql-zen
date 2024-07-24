@@ -24,7 +24,7 @@ const { close, open } = useDialogContext()
 const registry = useRegistry()
 
 const engine = ref<DatabaseEngine>(props.engine)
-const identifier = ref<string>('identifier')
+const identifier = ref<string>('')
 const mode = ref<DatabaseEngineMode>(DatabaseEngineMode.Memory)
 const fileAccessor = ref<FileAccessor | null>(null)
 
@@ -41,7 +41,10 @@ const disableIdentifier = computed(() => {
 })
 
 const showFile = computed(() => {
-  return engine.value === DatabaseEngine.SQLite
+  return (
+    engine.value === DatabaseEngine.SQLite ||
+    engine.value === DatabaseEngine.PostgreSQL
+  )
 })
 
 async function handleSelectFile() {
@@ -50,12 +53,28 @@ async function handleSelectFile() {
   fileAccessor.value = FileAccessor.fromFileSystemFileHandle(fileHandle)
 }
 
+function resolveIdentifier(identifier: string | null) {
+  if (!identifier) {
+    return null
+  }
+
+  if (identifier === 'null') {
+    return null
+  }
+
+  if (identifier === 'default') {
+    return null
+  }
+
+  return identifier
+}
+
 const { mutate: create, error } = useMutation({
   mutationFn: () => {
     const info: DataSourceInfo = {
       engine: engine.value,
       mode: mode.value,
-      identifier: identifier.value,
+      identifier: resolveIdentifier(identifier.value),
       fileAccessor: null,
     }
 
