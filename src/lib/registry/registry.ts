@@ -10,7 +10,8 @@ export const DataSourceState = {
   Stopped: 'stopped',
   Ready: 'ready',
 } as const
-export type DatabaseState = (typeof DataSourceState)[keyof typeof DataSourceState]
+export type DatabaseState =
+  (typeof DataSourceState)[keyof typeof DataSourceState]
 
 type DataSourceBase = {
   key: string
@@ -30,9 +31,7 @@ export type DataSourceStopped = DataSourceInfo &
     runner: null
   }
 
-export type DataSource =
-  | DataSourceReady
-  | DataSourceStopped
+export type DataSource = DataSourceReady | DataSourceStopped
 
 export type RegistryPlugin = (registry: Registry) => void
 
@@ -147,6 +146,6 @@ export class Registry {
   }
 }
 
-function generateKey(info: DataSourceInfo): string {
+export function generateKey(info: DataSourceInfo): string {
   return djb2(`${info.engine}-${info.mode}-${info.identifier}`)
 }

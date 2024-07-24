@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
-import { EraserIcon, PlayIcon, TableRowsSplitIcon, DownloadIcon } from 'lucide-vue-next'
+import {
+  EraserIcon,
+  PlayIcon,
+  TableRowsSplitIcon,
+  DownloadIcon,
+} from 'lucide-vue-next'
 import { Toggle } from '@/components/ui/toggle'
 import type { Runner } from '@/lib/runner/runner'
 import type { UseEditor } from '@/composables/editor/useEditor'
@@ -8,15 +13,18 @@ import { downloadDump } from '@/lib/downloadBlob'
 import { DatabaseEngine } from '@/lib/databaseEngines'
 import { computed } from 'vue'
 import { Separator } from '@/components/ui/separator'
+import { SqlDialectFactory } from '@/lib/dialect/factory'
 
 const enableInlineResults = defineModel<boolean>('enableInlineResults')
 
 const props = defineProps<{
-  runner: Runner,
-  editor: UseEditor,
+  runner: Runner
+  editor: UseEditor
 }>()
 
-const canDump = computed(() => props.runner.getDataSource().engine !== DatabaseEngine.DuckDB)
+const canDump = computed(
+  () => props.runner.getDataSource().engine !== DatabaseEngine.DuckDB,
+)
 
 function handleRun() {
   props.runner.run(props.editor.statements.value)
@@ -36,12 +44,7 @@ function handleClear() {
 <template>
   <section class="h-12 px-3 flex justify-between border-b border-border">
     <div class="h-full flex items-center gap-3">
-      <Button
-        @click="handleRun"
-        size="sm"
-        variant="ghost"
-        class="gap-3"
-      >
+      <Button @click="handleRun" size="sm" variant="ghost" class="gap-3">
         <PlayIcon class="size-4" />
         <span>Run All</span>
       </Button>

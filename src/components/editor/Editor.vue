@@ -39,7 +39,9 @@ whenever(
         v-else
         class="flex items-center justify-center h-full text-muted-foreground"
       >
-        <p v-if="databases.length">Select a data source from the list to start querying</p>
+        <p v-if="databases.length">
+          Select a data source from the list to start querying
+        </p>
         <p v-else>Create a data source to start querying</p>
       </div>
     </ResizablePanel>

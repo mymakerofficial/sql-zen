@@ -1,7 +1,7 @@
-import { separateQueries } from '@/lib/separateQueries'
 import { Logger } from '@/lib/logger/logger'
 import type { DatabaseEngine } from '@/lib/databaseEngines'
 import type { DataSourceInfo } from '@/lib/databases/dataSourceFactory'
+import { generateKey } from '@/lib/registry/registry'
 
 export const DatabaseEngineMode = {
   Memory: 'memory',
@@ -10,7 +10,7 @@ export const DatabaseEngineMode = {
 export type DatabaseEngineMode =
   (typeof DatabaseEngineMode)[keyof typeof DatabaseEngineMode]
 
-export type QueryResult = Array<Object>
+export type QueryResult<T = Object> = Array<T>
 
 export type DatabaseDump = {
   blob: Blob
@@ -30,9 +30,13 @@ export abstract class DataSourceFacade implements DataSourceInfo {
     return this.logger
   }
 
+  getKey() {
+    return generateKey(this)
+  }
+
   abstract init(): Promise<void>
 
-  abstract query(sql: string): Promise<QueryResult>
+  abstract query<T = Object>(sql: string): Promise<QueryResult<T>>
 
   abstract dump(): Promise<DatabaseDump>
 
