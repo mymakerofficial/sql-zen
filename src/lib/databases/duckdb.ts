@@ -1,4 +1,8 @@
-import { DatabaseEngineMode, DataSourceFacade } from '@/lib/databases/database'
+import {
+  DatabaseEngineMode,
+  DataSourceFacade,
+  type QueryResult,
+} from '@/lib/databases/database'
 import { arrowToResultArray } from '@/lib/arrowToResultArray'
 import type * as duckdb from '@duckdb/duckdb-wasm'
 import { DatabaseNotLoadedError } from '@/lib/errors'
@@ -66,7 +70,7 @@ export class DuckDB extends DataSourceFacade {
     connectStep.success()
   }
 
-  async query(sql: string) {
+  async query<T = Object>(sql: string): Promise<QueryResult<T>> {
     if (!this.connection) {
       throw new DatabaseNotLoadedError()
     }
@@ -74,7 +78,7 @@ export class DuckDB extends DataSourceFacade {
     const { success, error } = this.logger.query(sql)
     try {
       const arrowResult = await this.connection.query(sql)
-      const result = arrowToResultArray(arrowResult)
+      const result = arrowToResultArray(arrowResult) as QueryResult<T>
       return success(result)
     } catch (e) {
       throw error(e as Error)

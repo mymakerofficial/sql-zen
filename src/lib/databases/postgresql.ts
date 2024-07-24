@@ -36,11 +36,11 @@ export class PostgreSQL extends DataSourceFacade {
     this.logger.log(`Running PostgreSQL version: ${version.rows[0]?.version}`)
   }
 
-  private parseRawResponse(rawResult: Results<unknown>): QueryResult {
-    return rawResult.rows as QueryResult
+  private parseRawResponse<T>(rawResult: Results<unknown>): QueryResult<T> {
+    return rawResult.rows as QueryResult<T>
   }
 
-  async query(sql: string) {
+  async query<T = Object>(sql: string): Promise<QueryResult<T>> {
     if (!this.database) {
       throw new DatabaseNotLoadedError()
     }
@@ -48,7 +48,7 @@ export class PostgreSQL extends DataSourceFacade {
     const { success, error } = this.logger.query(sql)
     try {
       const rawResponse = await this.database.query(sql)
-      const result = this.parseRawResponse(rawResponse)
+      const result = this.parseRawResponse<T>(rawResponse)
       return success(result)
     } catch (e) {
       throw error(e as Error)
@@ -60,7 +60,7 @@ export class PostgreSQL extends DataSourceFacade {
       throw new DatabaseNotLoadedError()
     }
 
-    const data = await this.database.dumpDataDir();
+    const data = await this.database.dumpDataDir()
     const blob = new Blob([data], { type: 'application/x-gzip' })
     return { blob, filename: `${this.identifier}.tar.gz` }
   }

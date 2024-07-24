@@ -127,7 +127,7 @@ export class Logger {
       state: PromiseState.Pending,
     })
 
-    const success = (result: QueryResult) => {
+    const success = <T = Object>(result: QueryResult<T>) => {
       Object.assign(event, {
         state: PromiseState.Success,
         result,

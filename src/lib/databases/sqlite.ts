@@ -3,7 +3,10 @@ import {
   DataSourceFacade,
   type QueryResult,
 } from '@/lib/databases/database'
-import type { Database as SqliteWasmDatabase, Sqlite3Static } from '@sqlite.org/sqlite-wasm'
+import type {
+  Database as SqliteWasmDatabase,
+  Sqlite3Static,
+} from '@sqlite.org/sqlite-wasm'
 import { DatabaseEngine } from '@/lib/databaseEngines'
 import { DatabaseNotLoadedError } from '@/lib/errors'
 
@@ -43,17 +46,22 @@ export class SQLite extends DataSourceFacade {
       printErr: console.error,
     })
     initStep.success()
-    this.logger.log(`Running SQLite3 version: ${this.sqlite3.version.libVersion}`)
+    this.logger.log(
+      `Running SQLite3 version: ${this.sqlite3.version.libVersion}`,
+    )
     const openStep = this.logger.step('Creating Database')
     if (this.mode === DatabaseEngineMode.Memory) {
-      this.database = new this.sqlite3.oo1.DB(`/${this.identifier}.sqlite3`, 'c')
+      this.database = new this.sqlite3.oo1.DB(
+        `/${this.identifier}.sqlite3`,
+        'c',
+      )
     } else if (this.mode === DatabaseEngineMode.BrowserPersisted) {
       this.database = new this.sqlite3.oo1.JsStorageDb('local')
     }
     openStep.success()
   }
 
-  async query(sql: string): Promise<QueryResult> {
+  async query<T = Object>(sql: string): Promise<QueryResult<T>> {
     return runPromised(() => {
       if (!this.database) {
         throw new DatabaseNotLoadedError()
@@ -64,7 +72,7 @@ export class SQLite extends DataSourceFacade {
         const res = this.database.exec(sql, {
           rowMode: 'object',
           returnValue: 'resultRows',
-        }) as QueryResult
+        }) as QueryResult<T>
         return success(res)
       } catch (e) {
         throw error(e as Error)
