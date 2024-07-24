@@ -5,8 +5,6 @@ import Editor from '@/components/editor/Editor.vue'
 
 <template>
   <AppLayout>
-    <main class="flex-1 flex flex-col">
-      <Editor />
-    </main>
+    <Editor />
   </AppLayout>
 </template>

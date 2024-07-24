@@ -52,7 +52,7 @@ function handleRefresh() {
 </script>
 
 <template>
-  <section class="flex flex-col">
+  <section class="flex-1 flex flex-col h-full">
     <div
       class="px-3 h-12 flex items-center justify-between border-b border-border"
     >
@@ -66,47 +66,49 @@ function handleRefresh() {
         <RefreshCwIcon class="size-4 min-w-max" />
       </Button>
     </div>
-    <div
-      v-for="dataSource in dataSources"
-      :key="dataSource.key"
-      class="py-4 pl-6 pr-3 flex flex-col"
-    >
-      <div class="flex items-center justify-between text-sm">
-        <Button
-          @click="() => handleSelect(dataSource)"
-          size="sm"
-          variant="ghost"
-          class="-ml-3 gap-3 items-center"
-        >
-          <span class="relative min-w-max">
-            <img
-              :src="getEngine(dataSource).icon"
-              :alt="`${getEngine(dataSource).name} icon`"
+    <div class="flex-1 flex flex-col overflow-auto">
+      <article
+        v-for="dataSource in dataSources"
+        :key="dataSource.key"
+        class="py-4 pl-6 pr-3 flex flex-col"
+      >
+        <div class="flex items-center justify-between text-sm">
+          <Button
+            @click="() => handleSelect(dataSource)"
+            size="sm"
+            variant="ghost"
+            class="-ml-3 gap-3 items-center"
+          >
+            <span class="relative min-w-max">
+              <img
+                :src="getEngine(dataSource).icon"
+                :alt="`${getEngine(dataSource).name} icon`"
+                class="size-4 min-w-max text-muted-foreground"
+              />
+              <span
+                :data-state="dataSource.state"
+                class="block absolute -top-1 -right-1 size-1.5 rounded-full data-[state=ready]:bg-green-500 data-[state=stopped]:bg-red-500"
+              />
+            </span>
+            <span class="font-medium">{{
+              !dataSource.identifier
+                ? `${getEngine(dataSource).name}`
+                : `${dataSource.identifier}`
+            }}</span>
+          </Button>
+          <div class="flex items-center mx-3">
+            <SquareTerminalIcon
+              v-if="selected === dataSource.key"
               class="size-4 min-w-max text-muted-foreground"
             />
-            <span
-              :data-state="dataSource.state"
-              class="block absolute -top-1 -right-1 size-1.5 rounded-full data-[state=ready]:bg-green-500 data-[state=stopped]:bg-red-500"
-            />
-          </span>
-          <span class="font-medium">{{
-            !dataSource.identifier
-              ? `${getEngine(dataSource).name}`
-              : `${dataSource.identifier}`
-          }}</span>
-        </Button>
-        <div class="flex items-center mx-3">
-          <SquareTerminalIcon
-            v-if="selected === dataSource.key"
-            class="size-4 min-w-max text-muted-foreground"
-          />
+          </div>
         </div>
-      </div>
-      <SchemaTree
-        v-if="dataSource.state === DataSourceState.Ready"
-        :data-source-key="dataSource.key"
-        class="ml-1"
-      />
+        <SchemaTree
+          v-if="dataSource.state === DataSourceState.Ready"
+          :data-source-key="dataSource.key"
+          class="ml-1"
+        />
+      </article>
     </div>
   </section>
 </template>
