@@ -144,7 +144,7 @@ const { mutate: create, error } = useMutation({
           {{ fileAccessor?.getName() ?? 'Select File' }}
         </Button>
         <p
-          v-if="disableIdentifier"
+          v-if="disableFile"
           class="col-span-full text-sm text-muted-foreground"
         >
           Only SQLite and PostgreSQL databases can be imported.
