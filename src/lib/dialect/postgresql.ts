@@ -70,7 +70,7 @@ function genTables(schema: string, tables: Table[], columns: Column[]) {
       const tableItem: SchemaTreeTableItem = {
         name: table.tablename,
         type: SchemaTreeItemType.Table,
-        children: genColumns(table.tablename, columns),
+        children: genColumns(schema, table.tablename, columns),
       }
 
       tree.push(tableItem)
@@ -79,11 +79,11 @@ function genTables(schema: string, tables: Table[], columns: Column[]) {
   return tree
 }
 
-function genColumns(table: string, columns: Column[]) {
+function genColumns(schema: string, table: string, columns: Column[]) {
   const tree: Array<SchemaTreeColumnItem> = []
 
   columns
-    .filter((it) => it.table_name === table)
+    .filter((it) => it.table_schema === schema && it.table_name === table)
     .forEach((column) => {
       const columnItem: SchemaTreeColumnItem = {
         name: column.column_name,

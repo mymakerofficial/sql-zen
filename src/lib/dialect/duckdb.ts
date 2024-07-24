@@ -90,7 +90,7 @@ function genSchemas(
       const schemaItem: SchemaTreeSchemaItem = {
         name: schema.schema_name,
         type: SchemaTreeItemType.Schema,
-        children: genTables(schema.schema_name, tables, columns),
+        children: genTables(catalog, schema.schema_name, tables, columns),
       }
 
       tree.push(schemaItem)
@@ -99,16 +99,21 @@ function genSchemas(
   return tree
 }
 
-function genTables(schema: string, tables: Table[], columns: Column[]) {
+function genTables(
+  catalog: string,
+  schema: string,
+  tables: Table[],
+  columns: Column[],
+) {
   const tree: Array<SchemaTreeTableItem> = []
 
   tables
-    .filter((it) => it.table_schema === schema)
+    .filter((it) => it.table_catalog === catalog && it.table_schema === schema)
     .forEach((table) => {
       const tableItem: SchemaTreeTableItem = {
         name: table.table_name,
         type: SchemaTreeItemType.Table,
-        children: genColumns(table.table_name, columns),
+        children: genColumns(catalog, schema, table.table_name, columns),
       }
 
       tree.push(tableItem)
@@ -117,11 +122,21 @@ function genTables(schema: string, tables: Table[], columns: Column[]) {
   return tree
 }
 
-function genColumns(table: string, columns: Column[]) {
+function genColumns(
+  catalog: string,
+  schema: string,
+  table: string,
+  columns: Column[],
+) {
   const tree: Array<SchemaTreeColumnItem> = []
 
   columns
-    .filter((it) => it.table_name === table)
+    .filter(
+      (it) =>
+        it.table_catalog === catalog &&
+        it.table_schema === schema &&
+        it.table_name === table,
+    )
     .forEach((column) => {
       const columnItem: SchemaTreeColumnItem = {
         name: column.column_name,
