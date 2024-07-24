@@ -104,7 +104,7 @@ function handleRefresh() {
       </div>
       <SchemaTree
         v-if="dataSource.state === DataSourceState.Ready"
-        :data-source="dataSource.dataSource"
+        :data-source-key="dataSource.key"
         class="ml-1"
       />
     </div>

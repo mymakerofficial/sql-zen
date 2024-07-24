@@ -4,15 +4,22 @@ import { useQuery } from '@tanstack/vue-query'
 import { SqlDialectFactory } from '@/lib/dialect/factory'
 import EmbeddedSchemaTree from '@/components/editor/EmbeddedSchemaTree.vue'
 import { LoaderCircleIcon } from 'lucide-vue-next'
+import { useRegistry } from '@/composables/useRegistry'
 
 const props = defineProps<{
-  dataSource: DataSourceFacade
+  dataSourceKey: string
 }>()
 
+const registry = useRegistry()
+const { dataSource } = registry.getDataSource(props.dataSourceKey)
+
 const { data, isFetching } = useQuery({
-  queryKey: ['schemaTree', props.dataSource.getKey()],
+  queryKey: ['schemaTree', dataSource?.getKey()],
   queryFn: async () => {
-    const sqlDialect = SqlDialectFactory.create(props.dataSource)
+    if (!dataSource) {
+      throw new Error('Data source not found')
+    }
+    const sqlDialect = SqlDialectFactory.create(dataSource)
     return await sqlDialect.getSchemaTree()
   },
   initialData: [],
