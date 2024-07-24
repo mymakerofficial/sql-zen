@@ -34,6 +34,8 @@ export type RegisteredDatabase =
   | RegisteredReadyDatabase
   | RegisteredStoppedDatabase
 
+export type RegistryPlugin = (registry: Registry) => void
+
 /***
  * Manages the registration of active and inactive databases.
  */
@@ -51,6 +53,10 @@ export class Registry {
 
   private notifyListeners() {
     this.listeners.forEach((listener) => listener())
+  }
+
+  use(plugin: RegistryPlugin) {
+    plugin(this)
   }
 
   /**
