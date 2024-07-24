@@ -2,6 +2,7 @@ import { Logger } from '@/lib/logger/logger'
 import type { DatabaseEngine } from '@/lib/databaseEngines'
 import type { DataSourceInfo } from '@/lib/databases/dataSourceFactory'
 import { generateKey } from '@/lib/registry/registry'
+import type { FileAccessor } from '@/lib/files/fileAccessor'
 
 export const DatabaseEngineMode = {
   Memory: 'memory',
@@ -24,6 +25,7 @@ export abstract class DataSourceFacade implements DataSourceInfo {
   constructor(
     readonly mode: DatabaseEngineMode,
     readonly identifier: string | null,
+    readonly fileAccessor: FileAccessor | null = null,
   ) {}
 
   getLogger() {

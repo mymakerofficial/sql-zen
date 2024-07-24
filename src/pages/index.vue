@@ -15,6 +15,7 @@ function handleSelect(engine: DatabaseEngine) {
     engine,
     mode: DatabaseEngineMode.Memory,
     identifier: null,
+    fileAccessor: null,
   })
   router.push('/app')
 }

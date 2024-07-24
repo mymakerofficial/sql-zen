@@ -3,12 +3,13 @@ import { DatabaseEngine } from '@/lib/databaseEngines'
 import { DatabaseEngineMode } from '@/lib/databases/database'
 
 export default function findSqliteDatabases(registry: Registry) {
-  const keys = Object.keys({ ...localStorage });
+  const keys = Object.keys({ ...localStorage })
   if (keys.some(isSqliteKey)) {
     registry.register({
       engine: DatabaseEngine.SQLite,
       mode: DatabaseEngineMode.BrowserPersisted,
       identifier: null,
+      fileAccessor: null,
     })
   }
 }

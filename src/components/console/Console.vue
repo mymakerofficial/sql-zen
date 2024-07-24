@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import MonacoEditor from '@/components/shared/monaco/MonacoEditor.vue'
 import ConsoleToolbar from '@/components/console/ConsoleToolbar.vue'
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '@/components/ui/resizable'
 import ConsoleResultPanel from '@/components/console/ConsoleResultPanel.vue'
 import { getStatements, useEditor } from '@/composables/editor/useEditor'
 import inlineRun from '@/composables/editor/inlineRun'
 import inlineResults from '@/composables/editor/inlineResults'
-import { onMounted } from 'vue'
 import * as monaco from 'monaco-editor'
 import { useStorage } from '@vueuse/core'
 import { type DataSourceReady } from '@/lib/registry/registry'
@@ -31,8 +34,6 @@ const editor = useEditor({
 })
 editor.use(inlineRun)
 editor.use(inlineResults({ enabled: enableInlineResults }))
-
-onMounted(() => dataSource.init())
 </script>
 
 <template>

@@ -13,6 +13,8 @@ import { useRegistry } from '@/composables/useRegistry'
 import { useMutation } from '@tanstack/vue-query'
 import type { DataSourceInfo } from '@/lib/databases/dataSourceFactory'
 import DatabaseEngineSelect from '@/components/shared/databaseEngineSelect/DatabaseEngineSelect.vue'
+import { FileAccessor } from '@/lib/files/fileAccessor'
+import { Separator } from '@/components/ui/separator'
 
 const props = defineProps<{
   engine: DatabaseEngine
@@ -24,8 +26,9 @@ const registry = useRegistry()
 const engine = ref<DatabaseEngine>(props.engine)
 const identifier = ref<string>('identifier')
 const mode = ref<DatabaseEngineMode>(DatabaseEngineMode.Memory)
+const fileAccessor = ref<FileAccessor | null>(null)
 
-const diableMode = computed(() => {
+const disableMode = computed(() => {
   return engine.value === DatabaseEngine.DuckDB
 })
 
@@ -37,23 +40,35 @@ const disableIdentifier = computed(() => {
   )
 })
 
+const showFile = computed(() => {
+  return engine.value === DatabaseEngine.SQLite
+})
+
+async function handleSelectFile() {
+  // @ts-ignore experimental
+  const [fileHandle] = await window.showOpenFilePicker()
+  fileAccessor.value = FileAccessor.fromFileSystemFileHandle(fileHandle)
+}
+
 const { mutate: create, error } = useMutation({
   mutationFn: () => {
     const info: DataSourceInfo = {
       engine: engine.value,
       mode: mode.value,
       identifier: identifier.value,
+      fileAccessor: null,
     }
 
-    if (info.engine === DatabaseEngine.DuckDB) {
+    if (disableMode.value) {
+      info.mode = DatabaseEngineMode.Memory
+    }
+
+    if (disableIdentifier.value) {
       info.identifier = null
     }
 
-    if (
-      info.engine === DatabaseEngine.SQLite &&
-      info.mode === DatabaseEngineMode.BrowserPersisted
-    ) {
-      info.identifier = null
+    if (showFile.value) {
+      info.fileAccessor = fileAccessor.value
     }
 
     registry.register(info)
@@ -78,12 +93,12 @@ const { mutate: create, error } = useMutation({
         <Label for="mode" class="text-right">Storage Mode</Label>
         <DatabaseEngineModeSelect
           v-model="mode"
-          :disabled="diableMode"
+          :disabled="disableMode"
           id="mode"
           class="col-span-3"
         />
         <p
-          v-if="diableMode"
+          v-if="disableMode"
           class="col-span-full text-sm text-muted-foreground"
         >
           This database engine only supports in memory storage.
@@ -104,11 +119,24 @@ const { mutate: create, error } = useMutation({
           Only one database can be crate with this configuration.
         </p>
       </div>
+      <Separator v-if="showFile" />
+      <div v-if="showFile" class="grid grid-cols-4 items-center gap-4">
+        <Label for="file" class="text-right">Import Dump</Label>
+        <Button
+          @click="handleSelectFile"
+          id="file"
+          variant="outline"
+          class="col-span-3"
+        >
+          {{ fileAccessor?.getName() ?? 'Select File' }}
+        </Button>
+      </div>
     </div>
     <div v-if="error" class="text-red-500 text-sm mt-2">
       {{ error.message }}
     </div>
     <DialogFooter>
+      <Button @click="close" variant="ghost">Cancel</Button>
       <Button @click="create" type="submit">Create</Button>
     </DialogFooter>
   </BaseDialog>

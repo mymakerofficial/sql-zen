@@ -9,6 +9,7 @@ import type {
 } from '@sqlite.org/sqlite-wasm'
 import { DatabaseEngine } from '@/lib/databaseEngines'
 import { DatabaseNotLoadedError } from '@/lib/errors'
+import type { FileAccessor } from '@/lib/files/fileAccessor'
 
 function runPromised<TResult>(block: () => TResult): Promise<TResult> {
   return new Promise((resolve, reject) => {
@@ -59,6 +60,21 @@ export class SQLite extends DataSourceFacade {
       this.database = new this.sqlite3.oo1.JsStorageDb('local')
     }
     openStep.success()
+    if (this.fileAccessor) {
+      const importStep = this.logger.step('Importing Database File')
+      const blob = await this.fileAccessor.read()
+      const arrayBuffer = await blob.arrayBuffer()
+      const bufferPointer = this.sqlite3.wasm.allocFromTypedArray(arrayBuffer)
+      this.sqlite3.capi.sqlite3_deserialize(
+        this.database!,
+        'main',
+        bufferPointer,
+        arrayBuffer.byteLength,
+        arrayBuffer.byteLength,
+        this.sqlite3.capi.SQLITE_DESERIALIZE_FREEONCLOSE,
+      )
+      importStep.success()
+    }
   }
 
   async query<T = Object>(sql: string): Promise<QueryResult<T>> {

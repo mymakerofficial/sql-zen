@@ -10,26 +10,25 @@ export const DataSourceState = {
   Stopped: 'stopped',
   Ready: 'ready',
 } as const
-export type DatabaseState =
+export type DataSourceState =
   (typeof DataSourceState)[keyof typeof DataSourceState]
 
-type DataSourceBase = {
+type DataSourceBase = DataSourceInfo & {
+  state: DataSourceState
   key: string
 }
 
-export type DataSourceReady = DataSourceInfo &
-  DataSourceBase & {
-    state: typeof DataSourceState.Ready
-    dataSource: DataSourceFacade
-    runner: Runner
-  }
+export type DataSourceReady = DataSourceBase & {
+  state: typeof DataSourceState.Ready
+  dataSource: DataSourceFacade
+  runner: Runner
+}
 
-export type DataSourceStopped = DataSourceInfo &
-  DataSourceBase & {
-    state: typeof DataSourceState.Stopped
-    dataSource: null
-    runner: null
-  }
+export type DataSourceStopped = DataSourceBase & {
+  state: typeof DataSourceState.Stopped
+  dataSource: null
+  runner: null
+}
 
 export type DataSource = DataSourceReady | DataSourceStopped
 
@@ -111,6 +110,9 @@ export class Registry {
       dataSource,
       runner,
     })
+
+    // Initialize the database
+    dataSource.init().then()
 
     this.notifyListeners()
     return entry as unknown as DataSourceReady

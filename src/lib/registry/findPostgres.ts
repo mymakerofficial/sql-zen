@@ -4,15 +4,14 @@ import { DatabaseEngineMode } from '@/lib/databases/database'
 
 export default function findPostgresDatabases(registry: Registry) {
   indexedDB.databases().then((databases) => {
-    databases
-      .filter(isPostgresDatabase)
-      .forEach((database) => {
-        registry.register({
-          engine: DatabaseEngine.PostgreSQL,
-          mode: DatabaseEngineMode.BrowserPersisted,
-          identifier: extractIdentifier(database),
-        })
+    databases.filter(isPostgresDatabase).forEach((database) => {
+      registry.register({
+        engine: DatabaseEngine.PostgreSQL,
+        mode: DatabaseEngineMode.BrowserPersisted,
+        identifier: extractIdentifier(database),
+        fileAccessor: null,
       })
+    })
   })
 }
 
