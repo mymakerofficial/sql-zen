@@ -104,7 +104,7 @@ export class SQLite extends DataSourceFacade {
 
       const data = this.sqlite3.capi.sqlite3_js_db_export(this.database)
       const blob = new Blob([data], { type: 'application/x-sqlite3' })
-      return { blob, filename: `${this.identifier}.sqlite3` }
+      return { blob, filename: `${this.identifier ?? 'database'}.sqlite3` }
     })
   }
 

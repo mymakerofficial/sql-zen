@@ -15,6 +15,7 @@ import type { DataSourceInfo } from '@/lib/databases/dataSourceFactory'
 import DatabaseEngineSelect from '@/components/shared/databaseEngineSelect/DatabaseEngineSelect.vue'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { Separator } from '@/components/ui/separator'
+import { whenever } from '@vueuse/core'
 
 const props = defineProps<{
   engine: DatabaseEngine
@@ -27,6 +28,12 @@ const engine = ref<DatabaseEngine>(props.engine)
 const identifier = ref<string>('')
 const mode = ref<DatabaseEngineMode>(DatabaseEngineMode.Memory)
 const fileAccessor = ref<FileAccessor | null>(null)
+
+whenever(fileAccessor, () => {
+  if (fileAccessor.value) {
+    identifier.value = fileAccessor.value.getName().split('.')[0]
+  }
+})
 
 const disableMode = computed(() => {
   return engine.value === DatabaseEngine.DuckDB
@@ -59,6 +66,10 @@ function resolveIdentifier(identifier: string | null) {
   }
 
   if (identifier === 'null') {
+    return null
+  }
+
+  if (identifier === 'database') {
     return null
   }
 

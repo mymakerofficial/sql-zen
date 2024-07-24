@@ -65,7 +65,7 @@ export class PostgreSQL extends DataSourceFacade {
 
     const data = await this.database.dumpDataDir()
     const blob = new Blob([data], { type: 'application/x-gzip' })
-    return { blob, filename: `${this.identifier}.tar.gz` }
+    return { blob, filename: `${this.identifier ?? 'database'}.tar.gz` }
   }
 
   async close() {

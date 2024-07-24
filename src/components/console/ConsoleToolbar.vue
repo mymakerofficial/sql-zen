@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
 import {
+  DownloadIcon,
   EraserIcon,
   PlayIcon,
   TableRowsSplitIcon,
-  DownloadIcon,
 } from 'lucide-vue-next'
 import { Toggle } from '@/components/ui/toggle'
 import type { Runner } from '@/lib/runner/runner'
@@ -13,7 +13,6 @@ import { downloadDump } from '@/lib/downloadBlob'
 import { DatabaseEngine } from '@/lib/databaseEngines'
 import { computed } from 'vue'
 import { Separator } from '@/components/ui/separator'
-import { SqlDialectFactory } from '@/lib/dialect/factory'
 
 const enableInlineResults = defineModel<boolean>('enableInlineResults')
 
