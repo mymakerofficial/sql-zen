@@ -91,8 +91,8 @@ function handleRefresh() {
           </span>
           <span class="font-medium">{{
             !dataSource.identifier
-              ? `${getEngine(dataSource).name} (${dataSource.mode})`
-              : `${dataSource.mode}:${dataSource.identifier}`
+              ? `${getEngine(dataSource).name}`
+              : `${dataSource.identifier}`
           }}</span>
         </Button>
         <div class="flex items-center mx-3">
