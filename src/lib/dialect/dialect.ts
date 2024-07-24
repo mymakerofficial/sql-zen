@@ -3,6 +3,7 @@ import type { DataSourceFacade } from '@/lib/databases/database'
 export const SchemaTreeItemType = {
   Catalog: 'catalog',
   Schema: 'schema',
+  Tables: 'tables',
   Table: 'table',
   Column: 'column',
 } as const
@@ -21,7 +22,12 @@ export type SchemaTreeCatalogItem = SchemaTreeBaseItem & {
 
 export type SchemaTreeSchemaItem = SchemaTreeBaseItem & {
   type: typeof SchemaTreeItemType.Schema
-  children: SchemaTreeTableItem[]
+  children: SchemaTreeItem[]
+}
+
+export type SchemaTreeTablesItem = SchemaTreeBaseItem & {
+  type: typeof SchemaTreeItemType.Tables
+  children: SchemaTreeColumnItem[]
 }
 
 export type SchemaTreeTableItem = SchemaTreeBaseItem & {
@@ -38,6 +44,7 @@ export type SchemaTreeColumnItem = SchemaTreeBaseItem & {
 export type SchemaTreeItem =
   | SchemaTreeCatalogItem
   | SchemaTreeSchemaItem
+  | SchemaTreeTablesItem
   | SchemaTreeTableItem
   | SchemaTreeColumnItem
 
@@ -49,6 +56,6 @@ export abstract class SqlDialect {
 
 export class DummyDialect extends SqlDialect {
   async getSchemaTree() {
-    return []
+    return [] as SchemaTreeItem[]
   }
 }

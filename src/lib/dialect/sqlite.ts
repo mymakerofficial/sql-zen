@@ -1,8 +1,8 @@
 import {
   type SchemaTreeColumnItem,
   SchemaTreeItemType,
-  type SchemaTreeSchemaItem,
   type SchemaTreeTableItem,
+  type SchemaTreeTablesItem,
   SqlDialect,
 } from '@/lib/dialect/dialect'
 
@@ -26,7 +26,13 @@ export class SQLiteDialect extends SqlDialect {
       }),
     ).then((results) => results.flat())
 
-    return genTables(tables, columns)
+    return [
+      {
+        name: 'tables',
+        type: SchemaTreeItemType.Tables,
+        children: genTables(tables, columns),
+      },
+    ] as unknown as SchemaTreeTablesItem[]
   }
 }
 

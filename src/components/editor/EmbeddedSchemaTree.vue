@@ -3,6 +3,7 @@ import { TreeItem, TreeRoot } from 'radix-vue'
 import {
   BlocksIcon,
   DatabaseIcon,
+  FolderIcon,
   TableIcon,
   TablePropertiesIcon,
 } from 'lucide-vue-next'
@@ -36,6 +37,10 @@ defineProps<{
       <BlocksIcon
         v-else-if="item.value.type === SchemaTreeItemType.Schema"
         class="size-4 min-w-max text-muted-foreground"
+      />
+      <FolderIcon
+        v-else-if="item.value.type === SchemaTreeItemType.Tables"
+        class="size-4 min-w-max text-blue-500"
       />
       <TableIcon
         v-else-if="item.value.type === SchemaTreeItemType.Table"

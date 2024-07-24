@@ -4,6 +4,7 @@ import {
   SchemaTreeItemType,
   type SchemaTreeSchemaItem,
   type SchemaTreeTableItem,
+  type SchemaTreeTablesItem,
   SqlDialect,
 } from '@/lib/dialect/dialect'
 
@@ -90,7 +91,13 @@ function genSchemas(
       const schemaItem: SchemaTreeSchemaItem = {
         name: schema.schema_name,
         type: SchemaTreeItemType.Schema,
-        children: genTables(catalog, schema.schema_name, tables, columns),
+        children: [
+          {
+            name: 'tables',
+            type: SchemaTreeItemType.Tables,
+            children: genTables(catalog, schema.schema_name, tables, columns),
+          },
+        ] as unknown as SchemaTreeTablesItem[],
       }
 
       tree.push(schemaItem)
