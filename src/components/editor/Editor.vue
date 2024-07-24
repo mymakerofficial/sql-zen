@@ -34,7 +34,9 @@ whenever(
     </ResizablePanel>
     <ResizableHandle />
     <ResizablePanel>
-      <Console v-if="selected" :data-source-key="selected" :key="selected" />
+      <KeepAlive v-if="selected">
+        <Console :data-source-key="selected" :key="selected" />
+      </KeepAlive>
       <div
         v-else
         class="flex items-center justify-center h-full text-muted-foreground"
