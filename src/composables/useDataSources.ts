@@ -1,17 +1,17 @@
 import { onMounted, onUnmounted, type Ref, ref } from 'vue'
-import type { RegisteredDatabase } from '@/lib/registry/registry'
+import type { DataSource } from '@/lib/registry/registry'
 import { useRegistry } from '@/composables/useRegistry'
 
-export function useRegisteredDatabases() {
+export function useDataSources() {
   const registry = useRegistry()
 
-  const databases = ref([]) as Ref<Array<RegisteredDatabase>>
+  const dataSources = ref([]) as Ref<Array<DataSource>>
 
   update()
 
   function update() {
     // we need to create a new array to trigger reactivity
-    databases.value = [...registry.getDatabases()]
+    dataSources.value = [...registry.getDataSources()]
   }
 
   onMounted(() => {
@@ -22,5 +22,5 @@ export function useRegisteredDatabases() {
     registry.off(() => update())
   })
 
-  return databases
+  return dataSources
 }

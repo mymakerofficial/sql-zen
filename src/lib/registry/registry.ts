@@ -1,46 +1,46 @@
 import {
-  DatabaseFactory,
-  type DatabaseInfo,
-} from '@/lib/databases/databaseFactory'
-import type { DatabaseFacade } from '@/lib/databases/database'
+  DataSourceFactory,
+  type DataSourceInfo,
+} from '@/lib/databases/dataSourceFactory'
+import type { DataSourceFacade } from '@/lib/databases/database'
 import { Runner } from '@/lib/runner/runner'
 import { djb2 } from '@/lib/hash'
 
-export const DatabaseState = {
+export const DataSourceState = {
   Stopped: 'stopped',
   Ready: 'ready',
 } as const
-export type DatabaseState = (typeof DatabaseState)[keyof typeof DatabaseState]
+export type DatabaseState = (typeof DataSourceState)[keyof typeof DataSourceState]
 
-type RegisteredDatabaseBase = {
+type DataSourceBase = {
   key: string
 }
 
-export type RegisteredReadyDatabase = DatabaseInfo &
-  RegisteredDatabaseBase & {
-    state: typeof DatabaseState.Ready
-    database: DatabaseFacade
+export type DataSourceReady = DataSourceInfo &
+  DataSourceBase & {
+    state: typeof DataSourceState.Ready
+    dataSource: DataSourceFacade
     runner: Runner
   }
 
-export type RegisteredStoppedDatabase = DatabaseInfo &
-  RegisteredDatabaseBase & {
-    state: typeof DatabaseState.Stopped
-    database: null
+export type DataSourceStopped = DataSourceInfo &
+  DataSourceBase & {
+    state: typeof DataSourceState.Stopped
+    dataSource: null
     runner: null
   }
 
-export type RegisteredDatabase =
-  | RegisteredReadyDatabase
-  | RegisteredStoppedDatabase
+export type DataSource =
+  | DataSourceReady
+  | DataSourceStopped
 
 export type RegistryPlugin = (registry: Registry) => void
 
 /***
- * Manages the registration of active and inactive databases.
+ * Manages the registration of active and inactive data sources.
  */
 export class Registry {
-  private databases: Record<string, RegisteredDatabase> = {}
+  private dataSources: Record<string, DataSource> = {}
   protected listeners: Array<() => void> = []
 
   on(callback: () => void) {
@@ -62,91 +62,91 @@ export class Registry {
   /**
    * Register a database with the registry.
    */
-  register(info: DatabaseInfo) {
+  register(info: DataSourceInfo) {
     const key = generateKey(info)
-    if (this.databases[key]) {
+    if (this.dataSources[key]) {
       throw new Error(`Database already registered: ${key}`)
     }
-    const database = {
+    const dataSource: DataSource = {
       ...info,
       key,
-      state: DatabaseState.Stopped,
-      database: null,
+      state: DataSourceState.Stopped,
+      dataSource: null,
       runner: null,
     }
-    this.databases[key] = database
+    this.dataSources[key] = dataSource
     this.notifyListeners()
-    return database
+    return dataSource
   }
 
-  registerIfNotExists(info: DatabaseInfo) {
+  registerIfNotExists(info: DataSourceInfo) {
     const key = generateKey(info)
-    if (this.databases[key]) {
-      return this.databases[key]
+    if (this.dataSources[key]) {
+      return this.dataSources[key]
     }
     return this.register(info)
   }
 
-  getDatabases() {
-    return Object.values(this.databases)
+  getDataSources() {
+    return Object.values(this.dataSources)
   }
 
-  getDatabase(key: string) {
-    const database = this.databases[key]
+  getDataSource(key: string) {
+    const database = this.dataSources[key]
     if (!database) {
-      throw new Error(`Database not registered: ${key}`)
+      throw new Error(`Data Source not registered: ${key}`)
     }
     return database
   }
 
   wake(key: string) {
-    const entry = this.getDatabase(key)
-    if (entry.state === DatabaseState.Ready) {
-      return entry as unknown as RegisteredReadyDatabase
+    const entry = this.getDataSource(key)
+    if (entry.state === DataSourceState.Ready) {
+      return entry as unknown as DataSourceReady
     }
 
-    const database = DatabaseFactory.createDatabase(entry)
-    const runner = new Runner(database)
+    const dataSource = DataSourceFactory.createDataSource(entry)
+    const runner = new Runner(dataSource)
     Object.assign(entry, {
-      state: DatabaseState.Ready,
-      database,
+      state: DataSourceState.Ready,
+      dataSource,
       runner,
     })
 
     this.notifyListeners()
-    return entry as unknown as RegisteredReadyDatabase
+    return entry as unknown as DataSourceReady
   }
 
   async stop(key: string) {
-    const entry = this.getDatabase(key)
-    if (entry.state === DatabaseState.Stopped) {
+    const entry = this.getDataSource(key)
+    if (entry.state === DataSourceState.Stopped) {
       throw new Error(`Database already stopped: ${key}`)
     }
 
-    await entry.database.close()
+    await entry.dataSource.close()
     Object.assign(entry, {
-      state: DatabaseState.Stopped,
-      database: null,
+      state: DataSourceState.Stopped,
+      dataSource: null,
       runner: null,
     })
 
     this.notifyListeners()
-    return entry as unknown as RegisteredStoppedDatabase
+    return entry as unknown as DataSourceStopped
   }
 
   async unregister(key: string) {
     await this.stop(key)
-    delete this.databases[key]
+    delete this.dataSources[key]
     this.notifyListeners()
   }
 
   async dispose() {
-    for (const key in this.databases) {
+    for (const key in this.dataSources) {
       await this.unregister(key)
     }
   }
 }
 
-function generateKey(info: DatabaseInfo): string {
+function generateKey(info: DataSourceInfo): string {
   return djb2(`${info.engine}-${info.mode}-${info.identifier}`)
 }

@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import MonacoEditor from '@/components/shared/monaco/MonacoEditor.vue'
 import ConsoleToolbar from '@/components/console/ConsoleToolbar.vue'
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from '@/components/ui/resizable'
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import ConsoleResultPanel from '@/components/console/ConsoleResultPanel.vue'
 import { getStatements, useEditor } from '@/composables/editor/useEditor'
 import inlineRun from '@/composables/editor/inlineRun'
@@ -13,22 +9,21 @@ import inlineResults from '@/composables/editor/inlineResults'
 import { onMounted } from 'vue'
 import * as monaco from 'monaco-editor'
 import { useStorage } from '@vueuse/core'
-import { type RegisteredReadyDatabase } from '@/lib/registry/registry'
+import { type DataSourceReady } from '@/lib/registry/registry'
 import { useRegistry } from '@/composables/useRegistry'
 import { getExampleSql } from '@/lib/examples/getExampleSql'
-import { downloadDump } from '@/lib/downloadBlob'
 
 const props = defineProps<{
-  databaseKey: string
+  dataSourceKey: string
 }>()
 
 const enableInlineResults = useStorage('enable-inline-results', false)
 
 const registry = useRegistry()
-const { database, runner } = registry.getDatabase(
-  props.databaseKey,
-) as RegisteredReadyDatabase // let's just hope for the best
-const model = monaco.editor.createModel(getExampleSql(database.engine), 'sql')
+const { dataSource, runner } = registry.getDataSource(
+  props.dataSourceKey,
+) as DataSourceReady // let's just hope for the best
+const model = monaco.editor.createModel(getExampleSql(dataSource.engine), 'sql')
 const editor = useEditor({
   model,
   runner,
@@ -37,7 +32,7 @@ const editor = useEditor({
 editor.use(inlineRun)
 editor.use(inlineResults({ enabled: enableInlineResults }))
 
-onMounted(() => database.init())
+onMounted(() => dataSource.init())
 </script>
 
 <template>

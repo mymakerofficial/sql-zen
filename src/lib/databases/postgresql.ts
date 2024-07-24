@@ -1,13 +1,13 @@
 import {
   DatabaseEngineMode,
-  DatabaseFacade,
+  DataSourceFacade,
   type QueryResult,
 } from '@/lib/databases/database'
 import type { PGlite, Results } from '@electric-sql/pglite'
 import { DatabaseNotLoadedError } from '@/lib/errors'
 import { DatabaseEngine } from '@/lib/databaseEngines'
 
-export class PostgreSQL extends DatabaseFacade {
+export class PostgreSQL extends DataSourceFacade {
   private database: PGlite | null = null
 
   readonly engine = DatabaseEngine.PostgreSQL

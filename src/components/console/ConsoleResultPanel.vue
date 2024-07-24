@@ -71,7 +71,7 @@ watch(
       </TabsTrigger>
     </TabsList>
     <TabsContent value="log" class="flex-1 overflow-y-auto">
-      <LoggerPanel :logger="props.runner.getDatabase().getLogger()" />
+      <LoggerPanel :logger="props.runner.getDataSource().getLogger()" />
     </TabsContent>
     <TabsContent
       v-for="content in contents"

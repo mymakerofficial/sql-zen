@@ -1,6 +1,6 @@
 import {
   DatabaseEngineMode,
-  DatabaseFacade,
+  DataSourceFacade,
   type QueryResult,
 } from '@/lib/databases/database'
 import type { Database as SqliteWasmDatabase, Sqlite3Static } from '@sqlite.org/sqlite-wasm'
@@ -17,7 +17,7 @@ function runPromised<TResult>(block: () => TResult): Promise<TResult> {
   })
 }
 
-export class SQLite extends DatabaseFacade {
+export class SQLite extends DataSourceFacade {
   private sqlite3: Sqlite3Static | null = null
   private database: SqliteWasmDatabase | null = null
 

@@ -11,7 +11,7 @@ import DatabaseEngineModeSelect from '@/components/shared/DatabaseEngineModeSele
 import { DatabaseEngineMode } from '@/lib/databases/database'
 import { useRegistry } from '@/composables/useRegistry'
 import { useMutation } from '@tanstack/vue-query'
-import type { DatabaseInfo } from '@/lib/databases/databaseFactory'
+import type { DataSourceInfo } from '@/lib/databases/dataSourceFactory'
 import DatabaseEngineSelect from '@/components/shared/databaseEngineSelect/DatabaseEngineSelect.vue'
 
 const props = defineProps<{
@@ -39,7 +39,7 @@ const disableIdentifier = computed(() => {
 
 const { mutate: create, error } = useMutation({
   mutationFn: () => {
-    const info: DatabaseInfo = {
+    const info: DataSourceInfo = {
       engine: engine.value,
       mode: mode.value,
       identifier: identifier.value,
@@ -66,7 +66,7 @@ const { mutate: create, error } = useMutation({
 <template>
   <BaseDialog
     v-model:open="open"
-    title="Create new database connection."
+    title="Create new Data Source."
     description="Different databases may support different configurations."
   >
     <div class="grid gap-4 py-4">

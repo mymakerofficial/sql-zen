@@ -4,17 +4,17 @@ import { SQLite } from '@/lib/databases/sqlite'
 import { DuckDB } from '@/lib/databases/duckdb'
 import type {
   DatabaseEngineMode,
-  DatabaseFacade,
+  DataSourceFacade,
 } from '@/lib/databases/database'
 
-export type DatabaseInfo = {
+export type DataSourceInfo = {
   engine: DatabaseEngine
   mode: DatabaseEngineMode
   identifier: string | null
 }
 
-export class DatabaseFactory {
-  static createDatabase(info: DatabaseInfo): DatabaseFacade {
+export class DataSourceFactory {
+  static createDataSource(info: DataSourceInfo): DataSourceFacade {
     const { engine, mode, identifier } = info
     switch (engine) {
       case DatabaseEngine.PostgreSQL:

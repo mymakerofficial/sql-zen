@@ -1,7 +1,7 @@
 import { separateQueries } from '@/lib/separateQueries'
 import { Logger } from '@/lib/logger/logger'
 import type { DatabaseEngine } from '@/lib/databaseEngines'
-import type { DatabaseInfo } from '@/lib/databases/databaseFactory'
+import type { DataSourceInfo } from '@/lib/databases/dataSourceFactory'
 
 export const DatabaseEngineMode = {
   Memory: 'memory',
@@ -17,7 +17,7 @@ export type DatabaseDump = {
   filename: string
 }
 
-export abstract class DatabaseFacade implements DatabaseInfo {
+export abstract class DataSourceFacade implements DataSourceInfo {
   protected logger = new Logger()
   abstract readonly engine: DatabaseEngine
 
@@ -33,15 +33,6 @@ export abstract class DatabaseFacade implements DatabaseInfo {
   abstract init(): Promise<void>
 
   abstract query(sql: string): Promise<QueryResult>
-
-  async exec(sql: string) {
-    const queries = separateQueries(sql)
-    const results = []
-    for (const query of queries) {
-      results.push(await this.query(query))
-    }
-    return results
-  }
 
   abstract dump(): Promise<DatabaseDump>
 

@@ -1,10 +1,10 @@
-import { DatabaseEngineMode, DatabaseFacade } from '@/lib/databases/database'
+import { DatabaseEngineMode, DataSourceFacade } from '@/lib/databases/database'
 import { arrowToResultArray } from '@/lib/arrowToResultArray'
 import type * as duckdb from '@duckdb/duckdb-wasm'
 import { DatabaseNotLoadedError } from '@/lib/errors'
 import { DatabaseEngine } from '@/lib/databaseEngines'
 
-export class DuckDB extends DatabaseFacade {
+export class DuckDB extends DataSourceFacade {
   private worker: Worker | null = null
   private database: duckdb.AsyncDuckDB | null = null
   private connection: duckdb.AsyncDuckDBConnection | null = null
@@ -54,7 +54,7 @@ export class DuckDB extends DatabaseFacade {
     const instantiateWorkerStep = this.logger.step('Instantiating Worker')
     this.worker = new Worker(bundle.mainWorker!)
     instantiateWorkerStep.success()
-    const instantiateDatabaseStep = this.logger.step('Instantiating Database')
+    const instantiateDatabaseStep = this.logger.step('Instantiating DuckDB')
     const duckDbLogger = new duckdb.ConsoleLogger()
     this.database = new duckdb.AsyncDuckDB(duckDbLogger, this.worker)
     await this.database.instantiate(bundle.mainModule, bundle.pthreadWorker)

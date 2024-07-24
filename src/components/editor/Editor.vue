@@ -7,14 +7,14 @@ import {
 import DatabaseExplorerPanel from '@/components/editor/DatabaseExplorerPanel.vue'
 import Console from '@/components/console/Console.vue'
 import { ref } from 'vue'
-import { useRegisteredDatabases } from '@/composables/useRegisteredDatabases'
+import { useDataSources } from '@/composables/useDataSources'
 import { whenever } from '@vueuse/core'
 import { useRegistry } from '@/composables/useRegistry'
 
 const selected = ref<string | null>(null)
 
 const registry = useRegistry()
-const databases = useRegisteredDatabases()
+const databases = useDataSources()
 
 whenever(
   () => databases.value.length === 1,
@@ -34,13 +34,13 @@ whenever(
     </ResizablePanel>
     <ResizableHandle />
     <ResizablePanel>
-      <Console v-if="selected" :database-key="selected" :key="selected" />
+      <Console v-if="selected" :data-source-key="selected" :key="selected" />
       <div
         v-else
         class="flex items-center justify-center h-full text-muted-foreground"
       >
-        <p v-if="databases.length">Select a database from the list to start querying</p>
-        <p v-else>Create a database to start querying</p>
+        <p v-if="databases.length">Select a data source from the list to start querying</p>
+        <p v-else>Create a data source to start querying</p>
       </div>
     </ResizablePanel>
   </ResizablePanelGroup>

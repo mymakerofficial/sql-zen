@@ -1,4 +1,4 @@
-import type { DatabaseFacade, QueryResult } from '@/lib/databases/database'
+import type { DataSourceFacade, QueryResult } from '@/lib/databases/database'
 import type { FoundStatement, StatementRange } from '@/lib/statements'
 
 export const QueryState = {
@@ -49,10 +49,10 @@ export class Runner {
   private readonly queries: Array<Query> = []
   protected listeners: Array<() => void> = []
 
-  constructor(protected readonly database: DatabaseFacade) {}
+  constructor(protected readonly dataSource: DataSourceFacade) {}
 
-  getDatabase() {
-    return this.database
+  getDataSource() {
+    return this.dataSource
   }
 
   getQueries() {
@@ -79,7 +79,7 @@ export class Runner {
       state: QueryState.Running,
     })
     this.notifyListeners()
-    this.database.query(query.sql).then(
+    this.dataSource.query(query.sql).then(
       (result) => {
         // object.assign to avoid type errors
         Object.assign(query, {

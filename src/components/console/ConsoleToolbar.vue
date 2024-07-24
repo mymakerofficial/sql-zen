@@ -16,14 +16,14 @@ const props = defineProps<{
   editor: UseEditor,
 }>()
 
-const canDump = computed(() => props.runner.getDatabase().engine !== DatabaseEngine.DuckDB)
+const canDump = computed(() => props.runner.getDataSource().engine !== DatabaseEngine.DuckDB)
 
 function handleRun() {
   props.runner.run(props.editor.statements.value)
 }
 
 async function handleDump() {
-  const dump = await props.runner.getDatabase().dump()
+  const dump = await props.runner.getDataSource().dump()
   downloadDump(dump)
 }
 
