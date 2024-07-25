@@ -55,12 +55,12 @@ function handleClear() {
         class="gap-3"
       >
         <DownloadIcon class="size-4 min-w-max" />
-        <span>Download Dump</span>
+        <span class="hidden md:block">Download Dump</span>
       </Button>
       <Separator orientation="vertical" />
       <Toggle v-model:pressed="enableInlineResults" class="gap-3 h-9">
         <TableRowsSplitIcon class="size-4 min-w-max" />
-        <span>Inline Results</span>
+        <span class="hidden md:block">Inline Results</span>
       </Toggle>
     </div>
     <div class="h-full flex items-center">
