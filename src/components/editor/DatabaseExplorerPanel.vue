@@ -40,7 +40,7 @@ function handleCreate(engine: DatabaseEngine) {
 }
 
 function handleSelect(database: DataSource) {
-  registry.wake(database.key)
+  registry.start(database.key)
   selected.value = database.key
 }
 
@@ -87,7 +87,7 @@ function handleRefresh() {
               />
               <span
                 :data-state="dataSource.state"
-                class="block absolute -top-1 -right-1 size-1.5 rounded-full data-[state=ready]:bg-green-500 data-[state=stopped]:bg-red-500"
+                class="block absolute -top-1 -right-1 size-1.5 rounded-full data-[state=running]:bg-green-500 data-[state=starting]:bg-orange-500 data-[state=stopped]:bg-red-500"
               />
             </span>
             <span class="font-medium">{{
@@ -104,7 +104,7 @@ function handleRefresh() {
           </div>
         </div>
         <SchemaTree
-          v-if="dataSource.state === DataSourceState.Ready"
+          v-if="dataSource.state === DataSourceState.Running"
           :data-source-key="dataSource.key"
           class="ml-1"
         />

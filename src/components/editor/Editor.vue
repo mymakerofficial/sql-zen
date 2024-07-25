@@ -20,7 +20,7 @@ whenever(
   () => databases.value.length === 1,
   () => {
     const key = databases.value[0].key
-    registry.wake(key)
+    registry.start(key)
     selected.value = key
   },
   { immediate: true },

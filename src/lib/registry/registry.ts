@@ -5,10 +5,12 @@ import {
 import type { DataSourceFacade } from '@/lib/databases/database'
 import { Runner } from '@/lib/runner/runner'
 import { djb2 } from '@/lib/hash'
+import { EventPublisher } from '@/lib/events/publisher'
 
 export const DataSourceState = {
   Stopped: 'stopped',
-  Ready: 'ready',
+  Starting: 'starting',
+  Running: 'running',
 } as const
 export type DataSourceState =
   (typeof DataSourceState)[keyof typeof DataSourceState]
@@ -19,7 +21,7 @@ type DataSourceBase = DataSourceInfo & {
 }
 
 export type DataSourceReady = DataSourceBase & {
-  state: typeof DataSourceState.Ready
+  state: typeof DataSourceState.Starting | typeof DataSourceState.Running
   dataSource: DataSourceFacade
   runner: Runner
 }
@@ -32,29 +34,33 @@ export type DataSourceStopped = DataSourceBase & {
 
 export type DataSource = DataSourceReady | DataSourceStopped
 
-export type RegistryPlugin = (registry: Registry) => void
+export type RegistryPlugin<T> = (registry: Registry) => T
+
+export const RegistryEvent = {
+  Registered: 'registered',
+  Unregistered: 'unregistered',
+  Starting: 'starting',
+  Running: 'running',
+  Stopped: 'stopped',
+} as const
+export type RegistryEvent = (typeof RegistryEvent)[keyof typeof RegistryEvent]
+
+type RegistryEvents = {
+  [RegistryEvent.Registered]: [DataSourceStopped]
+  [RegistryEvent.Unregistered]: [string]
+  [RegistryEvent.Starting]: [DataSourceReady]
+  [RegistryEvent.Running]: [DataSourceReady]
+  [RegistryEvent.Stopped]: [DataSourceStopped]
+}
 
 /***
  * Manages the registration of active and inactive data sources.
  */
-export class Registry {
+export class Registry extends EventPublisher<RegistryEvents> {
   private dataSources: Record<string, DataSource> = {}
-  protected listeners: Array<() => void> = []
 
-  on(callback: () => void) {
-    this.listeners.push(callback)
-  }
-
-  off(callback: () => void) {
-    this.listeners = this.listeners.filter((listener) => listener !== callback)
-  }
-
-  private notifyListeners() {
-    this.listeners.forEach((listener) => listener())
-  }
-
-  use(plugin: RegistryPlugin) {
-    plugin(this)
+  use<T>(plugin: RegistryPlugin<T>) {
+    return plugin(this)
   }
 
   /**
@@ -63,9 +69,9 @@ export class Registry {
   register(info: DataSourceInfo) {
     const key = generateKey(info)
     if (this.dataSources[key]) {
-      throw new Error(`Database already registered: ${key}`)
+      throw new Error(`Data Source already registered: ${key}`)
     }
-    const dataSource: DataSource = {
+    const dataSource: DataSourceStopped = {
       ...info,
       key,
       state: DataSourceState.Stopped,
@@ -73,7 +79,7 @@ export class Registry {
       runner: null,
     }
     this.dataSources[key] = dataSource
-    this.notifyListeners()
+    this.emit(RegistryEvent.Registered, dataSource)
     return dataSource
   }
 
@@ -97,31 +103,36 @@ export class Registry {
     return database
   }
 
-  wake(key: string) {
-    const entry = this.getDataSource(key)
-    if (entry.state === DataSourceState.Ready) {
-      return entry as unknown as DataSourceReady
+  start(key: string) {
+    const entry = this.getDataSource(key) as DataSourceReady
+    if (entry.dataSource) {
+      return entry
     }
 
     const dataSource = DataSourceFactory.createDataSource(entry)
     const runner = new Runner(dataSource)
     Object.assign(entry, {
-      state: DataSourceState.Ready,
+      state: DataSourceState.Starting,
       dataSource,
       runner,
     })
 
     // Initialize the database
-    dataSource.init().then()
+    dataSource.init().then(() => {
+      Object.assign(entry, {
+        state: DataSourceState.Running,
+      })
+      this.emit(RegistryEvent.Running, entry)
+    })
 
-    this.notifyListeners()
-    return entry as unknown as DataSourceReady
+    this.emit(RegistryEvent.Starting, entry)
+    return entry
   }
 
   async stop(key: string) {
     const entry = this.getDataSource(key)
     if (entry.state === DataSourceState.Stopped) {
-      throw new Error(`Database already stopped: ${key}`)
+      throw new Error(`Data Source already stopped: ${key}`)
     }
 
     await entry.dataSource.close()
@@ -131,14 +142,17 @@ export class Registry {
       runner: null,
     })
 
-    this.notifyListeners()
+    this.emit(RegistryEvent.Stopped, entry as unknown as DataSourceStopped)
     return entry as unknown as DataSourceStopped
   }
 
   async unregister(key: string) {
+    if (!this.dataSources[key]) {
+      throw new Error(`Data Source not registered: ${key}`)
+    }
     await this.stop(key)
     delete this.dataSources[key]
-    this.notifyListeners()
+    this.emit(RegistryEvent.Unregistered, key)
   }
 
   async dispose() {

@@ -1,6 +1,7 @@
 import { onMounted, onUnmounted, type Ref, ref } from 'vue'
 import type { DataSource } from '@/lib/registry/registry'
 import { useRegistry } from '@/composables/useRegistry'
+import { EventType } from '@/lib/events/publisher'
 
 export function useDataSources() {
   const registry = useRegistry()
@@ -15,11 +16,11 @@ export function useDataSources() {
   }
 
   onMounted(() => {
-    registry.on(() => update())
+    registry.on(EventType.Any, () => update())
   })
 
   onUnmounted(() => {
-    registry.off(() => update())
+    registry.off(EventType.Any, () => update())
   })
 
   return dataSources

@@ -38,3 +38,6 @@ const registry = useRegistry()
 
 registry.use(findPostgresDatabases)
 registry.use(findSqliteDatabases)
+
+// @ts-ignore
+globalThis.registry = registry
