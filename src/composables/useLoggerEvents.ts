@@ -1,4 +1,4 @@
-import type { LogEvent, Logger } from '@/lib/logger/logger'
+import { type LogEvent, type Logger, LoggerEvent } from '@/lib/logger/logger'
 import { onMounted, onUnmounted, ref } from 'vue'
 
 export function useLoggerEvents(logger: Logger) {
@@ -11,12 +11,14 @@ export function useLoggerEvents(logger: Logger) {
     events.value = [...logger.getEvents()]
   }
 
+  const handler = () => update()
+
   onMounted(() => {
-    logger.on(() => update())
+    logger.on(LoggerEvent.Logged, handler)
   })
 
   onUnmounted(() => {
-    logger.off(() => update())
+    logger.off(LoggerEvent.Logged, handler)
   })
 
   return events

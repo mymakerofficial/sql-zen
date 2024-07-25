@@ -1,4 +1,6 @@
 import type { QueryResult } from '@/lib/databases/database'
+import { EventPublisher } from '@/lib/events/publisher'
+import { djb2 } from '@/lib/hash'
 
 export const LogEventType = {
   Message: 'message',
@@ -15,7 +17,6 @@ export const PromiseState = {
 export type PromiseState = (typeof PromiseState)[keyof typeof PromiseState]
 
 type LogEventBase = {
-  type: LogEventType
   id: number
   key: string
   date: Date
@@ -63,37 +64,35 @@ export type StepLogEvent = LogEventBase & {
 
 export type LogEvent = MessageLogEvent | QueryLogEvent | StepLogEvent
 
-export class Logger {
+export const LoggerEvent = {
+  Logged: 'logged',
+  Updated: 'updated',
+  ClearAll: 'clear-all',
+} as const
+export type LoggerEvent = (typeof LoggerEvent)[keyof typeof LoggerEvent]
+
+type LoggerEvents = {
+  [LoggerEvent.Logged]: [LogEvent]
+  [LoggerEvent.Updated]: [LogEvent]
+  [LoggerEvent.ClearAll]: []
+}
+
+export class Logger extends EventPublisher<LoggerEvents> {
   private count = 0
   private events: Array<LogEvent> = []
-  private listeners: Array<() => void> = []
 
   getEvents() {
     return this.events
   }
 
-  on(callback: () => void) {
-    this.listeners.push(callback)
-  }
-
-  off(callback: () => void) {
-    this.listeners = this.listeners.filter((listener) => listener !== callback)
-  }
-
-  private notifyListeners() {
-    this.listeners.forEach((listener) => listener())
-  }
-
   private computeEventKey(event: Partial<LogEvent>) {
-    return [
-      event.id,
-      event.type,
-      event.type === LogEventType.Query || event.type === LogEventType.Step
-        ? event.state
-        : undefined,
-    ]
-      .filter((it) => !!it)
-      .join('-')
+    return djb2(
+      JSON.stringify({
+        id: event.id,
+        type: event.type,
+        state: 'state' in event && event.state,
+      }),
+    )
   }
 
   private logEvent<TEvent extends Omit<LogEvent, keyof LogEventBase>>(
@@ -107,34 +106,32 @@ export class Logger {
       ...data,
     } as unknown as LogEvent
     this.events.push(event)
-    this.notifyListeners()
+    this.emit(LoggerEvent.Logged, event)
     return event
   }
 
   clear() {
     this.events = []
-    this.notifyListeners()
+    this.emit(LoggerEvent.ClearAll)
   }
 
   log(message: string) {
     this.logEvent({ type: LogEventType.Message, message })
   }
 
-  query(sql: string) {
-    const event = this.logEvent({
-      type: LogEventType.Query,
-      sql,
-      state: PromiseState.Pending,
-    })
+  private promiselikeEvent<TResult extends unknown, TEvent extends LogEvent>(
+    initialEvent: Omit<TEvent, keyof LogEventBase>,
+  ) {
+    const event = this.logEvent(initialEvent)
 
-    const success = <T = Object>(result: QueryResult<T>) => {
+    const success = (result: TResult) => {
       Object.assign(event, {
         state: PromiseState.Success,
         result,
         finishDate: new Date(),
         key: this.computeEventKey({ ...event, state: PromiseState.Success }),
       })
-      this.notifyListeners()
+      this.emit(LoggerEvent.Updated, event)
       return result
     }
 
@@ -145,38 +142,26 @@ export class Logger {
         finishDate: new Date(),
         key: this.computeEventKey({ ...event, state: PromiseState.Error }),
       })
-      this.notifyListeners()
+      this.emit(LoggerEvent.Updated, event)
       return error
     }
 
     return { success, error }
   }
 
-  step(message: string) {
-    const event = this.logEvent({
+  query<T = Object>(sql: string) {
+    return this.promiselikeEvent<QueryResult<T>, QueryLogEvent>({
+      type: LogEventType.Query,
+      sql,
+      state: PromiseState.Pending,
+    })
+  }
+
+  step<T = void>(message: string) {
+    return this.promiselikeEvent<T, StepLogEvent>({
       type: LogEventType.Step,
       message,
       state: PromiseState.Pending,
     })
-
-    const success = () => {
-      Object.assign(event, {
-        state: PromiseState.Success,
-        key: this.computeEventKey({ ...event, state: PromiseState.Success }),
-      })
-      this.notifyListeners()
-    }
-
-    const error = (error: Error) => {
-      Object.assign(event, {
-        state: PromiseState.Error,
-        error,
-        key: this.computeEventKey({ ...event, state: PromiseState.Error }),
-      })
-      this.notifyListeners()
-      return error
-    }
-
-    return { success, error }
   }
 }

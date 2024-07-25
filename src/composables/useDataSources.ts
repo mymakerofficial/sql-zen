@@ -15,12 +15,14 @@ export function useDataSources() {
     dataSources.value = [...registry.getDataSources()]
   }
 
+  const handler = () => update()
+
   onMounted(() => {
-    registry.on(EventType.Any, () => update())
+    registry.on(EventType.Any, handler)
   })
 
   onUnmounted(() => {
-    registry.off(EventType.Any, () => update())
+    registry.off(EventType.Any, handler)
   })
 
   return dataSources

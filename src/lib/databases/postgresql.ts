@@ -48,9 +48,9 @@ export class PostgreSQL extends DataSourceFacade {
       throw new DatabaseNotLoadedError()
     }
 
-    const { success, error } = this.logger.query(sql)
+    const { success, error } = this.logger.query<T>(sql)
     try {
-      const rawResponse = await this.database.query(sql)
+      const rawResponse = await this.database.query<T>(sql)
       const result = this.parseRawResponse<T>(rawResponse)
       return success(result)
     } catch (e) {

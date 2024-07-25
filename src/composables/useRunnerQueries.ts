@@ -12,12 +12,14 @@ export function useRunnerQueries(runner: Runner) {
     queries.value = [...runner.getQueries()]
   }
 
+  const handler = () => update()
+
   onMounted(() => {
-    runner.on(EventType.Any, () => update())
+    runner.on(EventType.Any, handler)
   })
 
   onUnmounted(() => {
-    runner.off(EventType.Any, () => update())
+    runner.off(EventType.Any, handler)
   })
 
   return queries

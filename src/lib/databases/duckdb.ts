@@ -75,7 +75,7 @@ export class DuckDB extends DataSourceFacade {
       throw new DatabaseNotLoadedError()
     }
 
-    const { success, error } = this.logger.query(sql)
+    const { success, error } = this.logger.query<T>(sql)
     try {
       const arrowResult = await this.connection.query(sql)
       const result = arrowToResultArray(arrowResult) as QueryResult<T>

@@ -9,7 +9,6 @@ import type {
 } from '@sqlite.org/sqlite-wasm'
 import { DatabaseEngine } from '@/lib/databaseEngines'
 import { DatabaseNotLoadedError } from '@/lib/errors'
-import type { FileAccessor } from '@/lib/files/fileAccessor'
 
 function runPromised<TResult>(block: () => TResult): Promise<TResult> {
   return new Promise((resolve, reject) => {
@@ -83,7 +82,7 @@ export class SQLite extends DataSourceFacade {
         throw new DatabaseNotLoadedError()
       }
 
-      const { success, error } = this.logger.query(sql)
+      const { success, error } = this.logger.query<T>(sql)
       try {
         const res = this.database.exec(sql, {
           rowMode: 'object',
