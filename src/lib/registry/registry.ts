@@ -103,6 +103,14 @@ export class Registry extends EventPublisher<RegistryEvents> {
     return database
   }
 
+  getReadyDataSource(key: string) {
+    const database = this.getDataSource(key)
+    if (database.state === DataSourceState.Stopped) {
+      throw new Error(`Data Source not running: ${key}`)
+    }
+    return database as DataSourceReady
+  }
+
   start(key: string) {
     const entry = this.getDataSource(key) as DataSourceReady
     if (entry.dataSource) {

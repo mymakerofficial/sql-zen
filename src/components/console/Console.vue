@@ -12,7 +12,6 @@ import inlineRun from '@/composables/editor/inlineRun'
 import inlineResults from '@/composables/editor/inlineResults'
 import * as monaco from 'monaco-editor'
 import { useMediaQuery, useStorage } from '@vueuse/core'
-import { type DataSourceReady } from '@/lib/registry/registry'
 import { useRegistry } from '@/composables/useRegistry'
 import { getExampleSql } from '@/lib/examples/getExampleSql'
 import highlightSelected from '@/composables/editor/highlightSelected'
@@ -25,9 +24,7 @@ const showGlyphMargin = useMediaQuery('(min-width: 768px)') // md
 const enableInlineResults = useStorage('enable-inline-results', false)
 
 const registry = useRegistry()
-const { dataSource, runner } = registry.getDataSource(
-  props.dataSourceKey,
-) as DataSourceReady // let's just hope for the best
+const { dataSource, runner } = registry.getReadyDataSource(props.dataSourceKey)
 const model = monaco.editor.createModel(getExampleSql(dataSource.engine), 'sql')
 const editor = useEditor({
   model,
