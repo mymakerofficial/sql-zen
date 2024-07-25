@@ -1,5 +1,6 @@
 import type { DataSourceFacade, QueryResult } from '@/lib/databases/database'
 import type { FoundStatement, StatementRange } from '@/lib/statements'
+import { EventPublisher } from '@/lib/events/publisher'
 
 export const QueryState = {
   Idle: 'idle',
@@ -45,11 +46,25 @@ export type Query =
   | QueryError
   | QueryCancelled
 
-export class Runner {
-  private readonly queries: Array<Query> = []
-  protected listeners: Array<() => void> = []
+export const RunnerEvent = {
+  ClearAll: 'clear-all',
+  QueryAdded: 'query-added',
+  QueryUpdated: 'query-updated',
+} as const
+export type RunnerEvent = (typeof RunnerEvent)[keyof typeof RunnerEvent]
 
-  constructor(protected readonly dataSource: DataSourceFacade) {}
+type RunnerEvents = {
+  [RunnerEvent.ClearAll]: []
+  [RunnerEvent.QueryAdded]: [QueryIdle]
+  [RunnerEvent.QueryUpdated]: [Query]
+}
+
+export class Runner extends EventPublisher<RunnerEvents> {
+  private readonly queries: Array<Query> = []
+
+  constructor(protected readonly dataSource: DataSourceFacade) {
+    super()
+  }
 
   getDataSource() {
     return this.dataSource
@@ -59,18 +74,6 @@ export class Runner {
     return this.queries
   }
 
-  on(callback: () => void) {
-    this.listeners.push(callback)
-  }
-
-  off(callback: () => void) {
-    this.listeners = this.listeners.filter((listener) => listener !== callback)
-  }
-
-  private notifyListeners() {
-    this.listeners.forEach((listener) => listener())
-  }
-
   private runNextQuery() {
     const query = this.queries.find(isIdle)
     if (!query) return
@@ -78,7 +81,7 @@ export class Runner {
     Object.assign(query, {
       state: QueryState.Running,
     })
-    this.notifyListeners()
+    this.emit(RunnerEvent.QueryUpdated, query)
     this.dataSource.query(query.sql).then(
       (result) => {
         // object.assign to avoid type errors
@@ -86,7 +89,7 @@ export class Runner {
           state: QueryState.Success,
           result,
         })
-        this.notifyListeners()
+        this.emit(RunnerEvent.QueryUpdated, query)
         this.runNextQuery()
       },
       (error) => {
@@ -95,6 +98,7 @@ export class Runner {
           state: QueryState.Error,
           error,
         })
+        this.emit(RunnerEvent.QueryUpdated, query)
         this.cancelAllAfter(query)
       },
     )
@@ -127,7 +131,7 @@ export class Runner {
       const index = this.queries.indexOf(query)
       this.queries.splice(index, 1)
     })
-    this.notifyListeners()
+    this.emit(RunnerEvent.ClearAll)
   }
 
   cancelAllAfter(query: Query) {
@@ -139,8 +143,8 @@ export class Runner {
       Object.assign(query, {
         state: QueryState.Cancelled,
       })
+      this.emit(RunnerEvent.QueryUpdated, query)
     })
-    this.notifyListeners()
   }
 }
 

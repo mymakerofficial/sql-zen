@@ -1,5 +1,6 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import type { Query, Runner } from '@/lib/runner/runner'
+import { EventType } from '@/lib/events/publisher'
 
 export function useRunnerQueries(runner: Runner) {
   const queries = ref<Array<Query>>([])
@@ -12,11 +13,11 @@ export function useRunnerQueries(runner: Runner) {
   }
 
   onMounted(() => {
-    runner.on(() => update())
+    runner.on(EventType.Any, () => update())
   })
 
   onUnmounted(() => {
-    runner.off(() => update())
+    runner.off(EventType.Any, () => update())
   })
 
   return queries
