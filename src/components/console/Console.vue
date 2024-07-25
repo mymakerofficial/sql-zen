@@ -15,6 +15,7 @@ import { useMediaQuery, useStorage } from '@vueuse/core'
 import { type DataSourceReady } from '@/lib/registry/registry'
 import { useRegistry } from '@/composables/useRegistry'
 import { getExampleSql } from '@/lib/examples/getExampleSql'
+import highlightSelected from '@/composables/editor/highlightSelected'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -36,6 +37,7 @@ const editor = useEditor({
 })
 editor.use(inlineRun({ enabled: true }))
 editor.use(inlineResults({ enabled: enableInlineResults }))
+editor.use(highlightSelected)
 </script>
 
 <template>
