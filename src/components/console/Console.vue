@@ -11,7 +11,7 @@ import { getStatements, useEditor } from '@/composables/editor/useEditor'
 import inlineRun from '@/composables/editor/inlineRun'
 import inlineResults from '@/composables/editor/inlineResults'
 import * as monaco from 'monaco-editor'
-import { useStorage } from '@vueuse/core'
+import { useMediaQuery, useStorage } from '@vueuse/core'
 import { type DataSourceReady } from '@/lib/registry/registry'
 import { useRegistry } from '@/composables/useRegistry'
 import { getExampleSql } from '@/lib/examples/getExampleSql'
@@ -20,6 +20,7 @@ const props = defineProps<{
   dataSourceKey: string
 }>()
 
+const showGlyphMargin = useMediaQuery('(min-width: 768px)') // md
 const enableInlineResults = useStorage('enable-inline-results', false)
 
 const registry = useRegistry()
@@ -30,9 +31,10 @@ const model = monaco.editor.createModel(getExampleSql(dataSource.engine), 'sql')
 const editor = useEditor({
   model,
   runner,
+  glyphMargin: showGlyphMargin,
   getStatements,
 })
-editor.use(inlineRun)
+editor.use(inlineRun({ enabled: true }))
 editor.use(inlineResults({ enabled: enableInlineResults }))
 </script>
 

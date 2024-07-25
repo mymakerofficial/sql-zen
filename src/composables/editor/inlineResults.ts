@@ -6,7 +6,7 @@ import {
   type MaybeRefOrGetter,
   render,
   type VNode,
-  watch,
+  watchEffect,
 } from 'vue'
 import { isSuccessful, type QuerySuccess } from '@/lib/runner/runner'
 import ResultTable from '@/components/shared/table/ResultTable.vue'
@@ -58,19 +58,12 @@ export default function inlineResultsPlugin({
       })
     }
 
-    function handler(results: Array<QuerySuccess>) {
+    watchEffect(() => {
       clearResults()
-      if (!toValue(enabled)) {
-        return
+      if (toValue(enabled)) {
+        toValue(successQueries).forEach(addResult)
       }
-      results.forEach(addResult)
-    }
-
-    watch(
-      [() => successQueries.value, () => toValue(enabled)],
-      () => handler(successQueries.value),
-      { immediate: true },
-    )
+    })
   }
 }
 

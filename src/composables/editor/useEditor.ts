@@ -18,6 +18,7 @@ type UseEditorPlugin = (editor: UseEditor) => void
 type UseEditorProps = {
   model: monaco.editor.ITextModel
   runner?: Runner | null
+  glyphMargin?: MaybeRefOrGetter<boolean>
   getStatements?:
     | ((editor: UseEditor) => ComputedRef<Array<FoundStatement>>)
     | null
@@ -27,10 +28,18 @@ export class UseEditor {
   private readonly container: HTMLElement
   public readonly editor: monaco.editor.IStandaloneCodeEditor
   public readonly runner: Runner | null = null
+  public readonly glyphMargin: MaybeRefOrGetter<boolean>
   public readonly content: ComputedRef<string>
   public readonly statements: ComputedRef<Array<FoundStatement>>
 
-  constructor({ model, runner, getStatements }: UseEditorProps) {
+  constructor({
+    model,
+    runner,
+    glyphMargin = true,
+    getStatements,
+  }: UseEditorProps) {
+    this.runner = runner ?? null
+    this.glyphMargin = glyphMargin
     this.container = createContainer()
     this.editor = monaco.editor.create(this.container, {
       model,
@@ -38,12 +47,16 @@ export class UseEditor {
       minimap: {
         enabled: false,
       },
-      glyphMargin: true,
     })
-    this.runner = runner ?? null
 
     onScopeDispose(() => {
       this.editor.dispose()
+    })
+
+    watchEffect(() => {
+      this.editor.updateOptions({
+        glyphMargin: toValue(glyphMargin),
+      })
     })
 
     // we always use the theme plugin
