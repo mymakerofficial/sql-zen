@@ -1,4 +1,5 @@
 import {
+  type DataSourceBaseInfo,
   DataSourceFactory,
   type DataSourceInfo,
 } from '@/lib/databases/dataSourceFactory'
@@ -6,6 +7,7 @@ import type { DataSourceFacade } from '@/lib/databases/database'
 import { Runner } from '@/lib/runner/runner'
 import { djb2 } from '@/lib/hash'
 import { EventPublisher } from '@/lib/events/publisher'
+import { simplifyIdentifier } from '@/lib/simplifyIdentifier'
 
 export const DataSourceState = {
   Stopped: 'stopped',

@@ -9,6 +9,7 @@ import '@/lib/monaco/setup'
 import { useRegistry } from '@/composables/useRegistry'
 import findPostgresDatabases from '@/lib/registry/findPostgres'
 import findSqliteDatabases from '@/lib/registry/findSqlite'
+import { storeInMemorySources } from '@/lib/registry/storeInMemorySources'
 
 const app = createApp(App)
 
@@ -38,6 +39,7 @@ const registry = useRegistry()
 
 registry.use(findPostgresDatabases)
 registry.use(findSqliteDatabases)
+registry.use(storeInMemorySources)
 
 // @ts-ignore
 globalThis.registry = registry
