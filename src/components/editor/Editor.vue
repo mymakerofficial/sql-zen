@@ -37,10 +37,12 @@ whenever(
   <EditorLayout>
     <template #header v-if="useSheet">
       <Sheet>
-        <SheetTrigger
-          ><Button variant="ghost"><MenuIcon class="size-4 min-w-max" /></Button
-        ></SheetTrigger>
-        <SheetContent side="left" class="p-0 pt-14">
+        <SheetTrigger>
+          <Button size="sm" variant="ghost">
+            <MenuIcon class="size-4 min-w-max" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="right" class="p-0 pt-14">
           <DatabaseExplorerPanel v-model:selected="selected" />
         </SheetContent>
       </Sheet>
