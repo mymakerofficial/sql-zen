@@ -8,6 +8,7 @@ import { DatabaseEngineMode } from '@/lib/databases/database'
 import { Button } from '@/components/ui/button'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { simplifyIdentifier } from '@/lib/simplifyIdentifier'
+import FileInput from '@/components/shared/FileInput.vue'
 
 const router = useRouter()
 const registry = useRegistry()
@@ -22,12 +23,8 @@ function handleSelect(engine: DatabaseEngine) {
   router.push('/app')
 }
 
-async function handleSelectFile() {
-  // @ts-ignore experimental
-  const [fileHandle] = await window.showOpenFilePicker()
-  const fileAccessor = FileAccessor.fromFileSystemFileHandle(fileHandle)
+async function handleSelectFile(fileAccessor: FileAccessor) {
   const fileName = fileAccessor.getName()
-  console.log(fileName)
   let engine: DatabaseEngine
   if (fileName.endsWith('.sqlite') || fileName.endsWith('.sqlite3')) {
     engine = DatabaseEngine.SQLite
@@ -84,9 +81,9 @@ async function handleSelectFile() {
           </div>
           <p class="text-sm font-medium text-muted-foreground">
             or
-            <Button @click="handleSelectFile" variant="link"
-              >open database file.</Button
-            >
+            <FileInput @selected="handleSelectFile">
+              <Button variant="link">open database file.</Button>
+            </FileInput>
           </p>
         </div>
       </div>

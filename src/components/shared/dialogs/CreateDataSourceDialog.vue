@@ -17,6 +17,7 @@ import { FileAccessor } from '@/lib/files/fileAccessor'
 import { Separator } from '@/components/ui/separator'
 import { whenever } from '@vueuse/core'
 import { simplifyIdentifier } from '@/lib/simplifyIdentifier'
+import FileInput from '@/components/shared/FileInput.vue'
 
 const props = defineProps<{
   engine: DatabaseEngine
@@ -55,10 +56,8 @@ const disableFile = computed(() => {
   )
 })
 
-async function handleSelectFile() {
-  // @ts-ignore experimental
-  const [fileHandle] = await window.showOpenFilePicker()
-  fileAccessor.value = FileAccessor.fromFileSystemFileHandle(fileHandle)
+async function handleFileSelected(value: FileAccessor) {
+  fileAccessor.value = value
 }
 
 const { mutate: create, error } = useMutation({
@@ -134,15 +133,15 @@ const { mutate: create, error } = useMutation({
       <Separator />
       <div class="grid grid-cols-4 items-center gap-4">
         <Label for="file" class="text-right">Import Dump</Label>
-        <Button
-          @click="handleSelectFile"
-          :disabled="disableFile"
-          id="file"
-          variant="outline"
-          class="col-span-3"
-        >
-          {{ fileAccessor?.getName() ?? 'Select File' }}
-        </Button>
+        <FileInput @selected="handleFileSelected" :disabled="disableFile">
+          <Button
+            id="file"
+            variant="outline"
+            class="col-span-3"
+          >
+            {{ fileAccessor?.getName() ?? 'Select File' }}
+          </Button>
+        </FileInput>
         <p
           v-if="disableFile"
           class="col-span-full text-sm text-muted-foreground"
