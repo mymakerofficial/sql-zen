@@ -13,6 +13,7 @@ import { downloadDump } from '@/lib/downloadBlob'
 import { DatabaseEngine } from '@/lib/databaseEngines'
 import { computed } from 'vue'
 import { Separator } from '@/components/ui/separator'
+import { useRunSelected } from '@/composables/editor/useRunSelected'
 
 const enableInlineResults = defineModel<boolean>('enableInlineResults')
 
@@ -21,11 +22,13 @@ const props = defineProps<{
   editor: UseEditor
 }>()
 
+const { runSelected, canRunSelected } = useRunSelected(props.editor)
+
 const canDump = computed(
   () => props.runner.getDataSource().engine !== DatabaseEngine.DuckDB,
 )
 
-function handleRun() {
+function handleRunAll() {
   props.runner.run(props.editor.statements.value)
 }
 
@@ -43,9 +46,19 @@ function handleClear() {
 <template>
   <section class="h-12 px-3 flex justify-between border-b border-border">
     <div class="h-full flex items-center gap-3">
-      <Button @click="handleRun" size="sm" variant="ghost" class="gap-3">
+      <Button @click="handleRunAll" size="sm" variant="ghost" class="gap-3">
         <PlayIcon class="size-4 min-w-max" />
-        <span>Run All</span>
+        <span>All</span>
+      </Button>
+      <Button
+        @click="runSelected"
+        :disabled="!canRunSelected"
+        size="sm"
+        variant="ghost"
+        class="gap-3"
+      >
+        <PlayIcon class="size-4 min-w-max" />
+        <span>Selected</span>
       </Button>
       <Button
         v-if="canDump"

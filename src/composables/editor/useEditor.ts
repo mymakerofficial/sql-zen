@@ -13,7 +13,7 @@ import { findStatements } from '@/lib/statements'
 import { useEditorContent } from '@/composables/editor/useEditorContent'
 import type { Runner } from '@/lib/runner/runner'
 
-type UseEditorPlugin = (editor: UseEditor) => void
+type UseEditorPlugin<T> = (editor: UseEditor) => T
 
 type UseEditorProps = {
   model: monaco.editor.ITextModel
@@ -74,8 +74,8 @@ export class UseEditor {
     })
   }
 
-  use(plugin: UseEditorPlugin) {
-    plugin(this)
+  use<T>(plugin: UseEditorPlugin<T>) {
+    return plugin(this)
   }
 }
 
