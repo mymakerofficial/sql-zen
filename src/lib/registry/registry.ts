@@ -1,5 +1,4 @@
 import {
-  type DataSourceBaseInfo,
   DataSourceFactory,
   type DataSourceInfo,
 } from '@/lib/databases/dataSourceFactory'
@@ -7,7 +6,6 @@ import type { DataSourceFacade } from '@/lib/databases/database'
 import { Runner } from '@/lib/runner/runner'
 import { djb2 } from '@/lib/hash'
 import { EventPublisher } from '@/lib/events/publisher'
-import { simplifyIdentifier } from '@/lib/simplifyIdentifier'
 
 export const DataSourceState = {
   Stopped: 'stopped',
@@ -134,7 +132,7 @@ export class Registry extends EventPublisher<RegistryEvents> {
   async stop(key: string) {
     const entry = this.getDataSource(key)
     if (entry.state === DataSourceState.Stopped) {
-      throw new Error(`Data Source already stopped: ${key}`)
+      return
     }
 
     await entry.dataSource.close()

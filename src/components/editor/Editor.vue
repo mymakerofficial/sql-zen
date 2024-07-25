@@ -15,7 +15,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { MenuIcon } from 'lucide-vue-next'
 
-const useSheet = useMediaQuery('(max-width: 768px)') // md
+const useSheet = useMediaQuery('(max-width: 640px)') // sm
 
 const selected = ref<string | null>(null)
 

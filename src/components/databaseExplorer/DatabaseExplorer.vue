@@ -2,9 +2,7 @@
 import {
   PlusIcon,
   SquareTerminalIcon,
-  BlocksIcon,
-  DatabaseIcon,
-  TableIcon,
+  Trash2Icon,
   RefreshCwIcon,
 } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
@@ -37,6 +35,10 @@ function handleCreate(engine: DatabaseEngine) {
   openCreate({
     engine,
   })
+}
+
+function handleDelete(key: string) {
+  registry.unregister(key)
 }
 
 function handleSelect(database: DataSource) {
@@ -96,11 +98,27 @@ function handleRefresh() {
                 : `${dataSource.identifier}`
             }}</span>
           </Button>
-          <div class="flex items-center mx-3">
+          <div class="flex items-center">
             <SquareTerminalIcon
               v-if="selected === dataSource.key"
-              class="size-4 min-w-max text-muted-foreground"
+              class="size-4 min-w-max text-muted-foreground mx-2"
             />
+            <Button
+              v-else
+              @click="() => handleDelete(dataSource.key)"
+              size="xs"
+              variant="ghost"
+            >
+              <Trash2Icon class="size-4 min-w-max" />
+            </Button>
+            <Button
+              v-else
+              @click="() => handleDelete(dataSource.key)"
+              size="xs"
+              variant="ghost"
+            >
+              <Trash2Icon class="size-4 min-w-max" />
+            </Button>
           </div>
         </div>
         <SchemaTree
