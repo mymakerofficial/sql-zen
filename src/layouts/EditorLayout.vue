@@ -4,7 +4,9 @@ import AppHeader from '@/components/shared/AppHeader.vue'
 
 <template>
   <div class="h-screen flex flex-col">
-    <AppHeader />
+    <AppHeader>
+      <slot name="header" />
+    </AppHeader>
     <slot />
   </div>
 </template>
