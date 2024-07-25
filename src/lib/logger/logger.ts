@@ -121,47 +121,58 @@ export class Logger extends EventPublisher<LoggerEvents> {
 
   private promiselikeEvent<TResult extends unknown, TEvent extends LogEvent>(
     initialEvent: Omit<TEvent, keyof LogEventBase>,
+    block: () => Promise<TResult>,
   ) {
     const event = this.logEvent(initialEvent)
 
-    const success = (result: TResult) => {
-      Object.assign(event, {
-        state: PromiseState.Success,
-        result,
-        finishDate: new Date(),
-        key: this.computeEventKey({ ...event, state: PromiseState.Success }),
+    return block()
+      .then(
+        (result: TResult) => {
+          Object.assign(event, {
+            state: PromiseState.Success,
+            result,
+            finishDate: new Date(),
+            key: this.computeEventKey({
+              ...event,
+              state: PromiseState.Success,
+            }),
+          })
+          return result
+        },
+        (error: Error) => {
+          Object.assign(event, {
+            state: PromiseState.Error,
+            error,
+            finishDate: new Date(),
+            key: this.computeEventKey({ ...event, state: PromiseState.Error }),
+          })
+          throw error
+        },
+      )
+      .finally(() => {
+        this.emit(LoggerEvent.Updated, event)
       })
-      this.emit(LoggerEvent.Updated, event)
-      return result
-    }
-
-    const error = (error: Error) => {
-      Object.assign(event, {
-        state: PromiseState.Error,
-        error,
-        finishDate: new Date(),
-        key: this.computeEventKey({ ...event, state: PromiseState.Error }),
-      })
-      this.emit(LoggerEvent.Updated, event)
-      return error
-    }
-
-    return { success, error }
   }
 
-  query<T = Object>(sql: string) {
-    return this.promiselikeEvent<QueryResult<T>, QueryLogEvent>({
-      type: LogEventType.Query,
-      sql,
-      state: PromiseState.Pending,
-    })
+  query<T = Object>(sql: string, block: () => Promise<QueryResult<T>>) {
+    return this.promiselikeEvent<QueryResult<T>, QueryLogEvent>(
+      {
+        type: LogEventType.Query,
+        sql,
+        state: PromiseState.Pending,
+      },
+      block,
+    )
   }
 
-  step<T = void>(message: string) {
-    return this.promiselikeEvent<T, StepLogEvent>({
-      type: LogEventType.Step,
-      message,
-      state: PromiseState.Pending,
-    })
+  step<T = void>(message: string, block: () => Promise<T>) {
+    return this.promiselikeEvent<T, StepLogEvent>(
+      {
+        type: LogEventType.Step,
+        message,
+        state: PromiseState.Pending,
+      },
+      block,
+    )
   }
 }

@@ -35,63 +35,58 @@ export class SQLite extends DataSourceFacade {
       throw new Error(`SQLite persisted databases do not support identifiers`)
     }
 
-    const loadStep = this.logger.step('Loading SQLite3')
-    const { default: sqlite3InitModule } = await import(
-      '@sqlite.org/sqlite-wasm'
+    const sqlite3InitModule = await this.logger.step(
+      'Loading SQLite3',
+      async () => {
+        return (await import('@sqlite.org/sqlite-wasm')).default
+      },
     )
-    loadStep.success()
-    const initStep = this.logger.step('Initializing SQLite3')
-    this.sqlite3 = await sqlite3InitModule({
-      print: console.log,
-      printErr: console.error,
+
+    this.sqlite3 = await this.logger.step('Initializing SQLite3', async () => {
+      return sqlite3InitModule({
+        print: console.log,
+        printErr: console.error,
+      })
     })
-    initStep.success()
-    this.logger.log(
-      `Running SQLite3 version: ${this.sqlite3.version.libVersion}`,
-    )
-    const openStep = this.logger.step('Creating Database')
-    if (this.mode === DatabaseEngineMode.Memory) {
-      this.database = new this.sqlite3.oo1.DB(
-        `/${this.identifier}.sqlite3`,
-        'c',
-      )
-    } else if (this.mode === DatabaseEngineMode.BrowserPersisted) {
-      this.database = new this.sqlite3.oo1.JsStorageDb('local')
+
+    const version = this.sqlite3.version.libVersion
+    this.logger.log(`Running SQLite3 version: ${version}`)
+
+    this.database = await this.logger.step('Creating Database', async () => {
+      if (this.mode === DatabaseEngineMode.BrowserPersisted) {
+        return new this.sqlite3!.oo1.JsStorageDb('local')
+      }
+      return new this.sqlite3!.oo1.DB(`/${this.identifier}.sqlite3`, 'c')
+    })
+
+    if (!this.fileAccessor) {
+      return
     }
-    openStep.success()
-    if (this.fileAccessor) {
-      const importStep = this.logger.step('Importing Database File')
-      const blob = await this.fileAccessor.read()
+    await this.logger.step('Importing Database File', async () => {
+      const blob = await this.fileAccessor!.read()
       const arrayBuffer = await blob.arrayBuffer()
-      const bufferPointer = this.sqlite3.wasm.allocFromTypedArray(arrayBuffer)
-      this.sqlite3.capi.sqlite3_deserialize(
+      const bufferPointer = this.sqlite3!.wasm.allocFromTypedArray(arrayBuffer)
+      this.sqlite3!.capi.sqlite3_deserialize(
         this.database!,
         'main',
         bufferPointer,
         arrayBuffer.byteLength,
         arrayBuffer.byteLength,
-        this.sqlite3.capi.SQLITE_DESERIALIZE_FREEONCLOSE,
+        this.sqlite3!.capi.SQLITE_DESERIALIZE_FREEONCLOSE,
       )
-      importStep.success()
-    }
+    })
   }
 
-  async query<T = Object>(sql: string): Promise<QueryResult<T>> {
-    return runPromised(() => {
+  query<T = Object>(sql: string): Promise<QueryResult<T>> {
+    return this.logger.query<T>(sql, async () => {
       if (!this.database) {
         throw new DatabaseNotLoadedError()
       }
 
-      const { success, error } = this.logger.query<T>(sql)
-      try {
-        const res = this.database.exec(sql, {
-          rowMode: 'object',
-          returnValue: 'resultRows',
-        }) as QueryResult<T>
-        return success(res)
-      } catch (e) {
-        throw error(e as Error)
-      }
+      return this.database.exec(sql, {
+        rowMode: 'object',
+        returnValue: 'resultRows',
+      }) as QueryResult<T>
     })
   }
 
@@ -103,6 +98,7 @@ export class SQLite extends DataSourceFacade {
 
       const data = this.sqlite3.capi.sqlite3_js_db_export(this.database)
       const blob = new Blob([data], { type: 'application/x-sqlite3' })
+      this.logger.log(`Created database dump: ${blob.size} bytes`)
       return { blob, filename: `${this.identifier ?? 'database'}.sqlite3` }
     })
   }
