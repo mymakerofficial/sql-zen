@@ -1,18 +1,18 @@
-import { onMounted, onUnmounted, ref } from 'vue'
-import type { Query, Runner } from '@/lib/runner/runner'
+import { onMounted, onUnmounted } from 'vue'
+import type { Runner } from '@/lib/runner/runner'
 import { EventType } from '@/lib/events/publisher'
+import { useQuery } from '@tanstack/vue-query'
 
 export function useRunnerQueries(runner: Runner) {
-  const queries = ref<Array<Query>>([])
+  const queryKey = ['runnerQueries', runner.getDataSource().getKey()]
 
-  update()
+  const { data, refetch } = useQuery({
+    queryKey,
+    queryFn: () => runner.getQueries(),
+    initialData: [],
+  })
 
-  function update() {
-    // we need to create a new array to trigger reactivity
-    queries.value = [...runner.getQueries()]
-  }
-
-  const handler = () => update()
+  const handler = () => refetch().then()
 
   onMounted(() => {
     runner.on(EventType.Any, handler)
@@ -22,5 +22,5 @@ export function useRunnerQueries(runner: Runner) {
     runner.off(EventType.Any, handler)
   })
 
-  return queries
+  return data
 }
