@@ -53,10 +53,11 @@ async function handleSelectFile(fileAccessor: FileAccessor) {
     <main class="flex-1 p-6 md:flex md:items-center md:justify-center">
       <div class="flex flex-col gap-12 lg:w-[32rem]">
         <div class="flex flex-col gap-3">
-          <h1 class="text-4xl font-bold">
+          <h1 class="text-4xl font-bold leading-10">
+            <img src="@/assets/sql-zen-logo.svg" alt="SqlZen" class="inline size-9 mr-3 -mt-1" />
             <span
-              class="bg-gradient-to-br from-primary to-blue-600 inline-block text-transparent bg-clip-text font-black"
-              >SqlZen</span
+              class="bg-gradient-to-br from-blue-200 to-blue-600 inline-block text-transparent bg-clip-text font-black"
+            >SqlZen</span
             >
             lets you play with your favourite databases right in the browser.
           </h1>
