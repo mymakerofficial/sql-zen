@@ -14,7 +14,7 @@ export class EventPublisher<
     [key: string]: unknown[]
   } = {},
 > {
-  private listeners: {
+  #listeners: {
     [K in keyof EventMap<T>]?: Array<(...args: EventMap<T>[K]) => void>
   } = {}
 
@@ -22,42 +22,42 @@ export class EventPublisher<
     event: K,
     callback: (...args: EventMap<T>[K]) => void,
   ) {
-    if (!this.listeners[event]) {
-      this.listeners[event] = []
+    if (!this.#listeners[event]) {
+      this.#listeners[event] = []
     }
-    this.listeners[event]!.push(callback)
+    this.#listeners[event]!.push(callback)
   }
 
   off<K extends keyof EventMap<T>>(
     event: K,
     callback: (...args: EventMap<T>[K]) => void,
   ) {
-    if (!this.listeners[event]) {
+    if (!this.#listeners[event]) {
       return
     }
 
-    const index = this.listeners[event]!.findIndex(
+    const index = this.#listeners[event]!.findIndex(
       (listener) => listener === callback,
     )
     if (index === -1) {
       return
     }
 
-    this.listeners[event]!.splice(index, 1)
+    this.#listeners[event]!.splice(index, 1)
   }
 
   protected emit<K extends keyof EventMap<T>>(
     event: K,
     ...args: EventMap<T>[K]
   ) {
-    if (this.listeners[EventType.Any]) {
-      this.listeners[EventType.Any]!.forEach((listener) =>
+    if (this.#listeners[EventType.Any]) {
+      this.#listeners[EventType.Any]!.forEach((listener) =>
         listener(...(args as any)),
       )
     }
-    if (!this.listeners[event]) {
+    if (!this.#listeners[event]) {
       return
     }
-    this.listeners[event]!.forEach((listener) => listener(...args))
+    this.#listeners[event]!.forEach((listener) => listener(...args))
   }
 }

@@ -7,6 +7,14 @@ export abstract class FileAccessor {
     return new NativeFileAccessor(file)
   }
 
+  static fromBlob(blob: Blob, name: string) {
+    return new BlobFileAccessor(blob, name)
+  }
+
+  static get Dummy() {
+    return new DummyFileAccessor('dummy')
+  }
+
   abstract read(): Promise<Blob>
 
   abstract getName(): string
@@ -37,5 +45,36 @@ export class NativeFileAccessor extends FileAccessor {
 
   getName() {
     return this.file.name
+  }
+}
+
+export class BlobFileAccessor extends FileAccessor {
+  constructor(
+    private blob: Blob,
+    private name: string,
+  ) {
+    super()
+  }
+
+  async read() {
+    return this.blob
+  }
+
+  getName() {
+    return this.name
+  }
+}
+
+export class DummyFileAccessor extends FileAccessor {
+  constructor(private name: string) {
+    super()
+  }
+
+  async read() {
+    return new Blob()
+  }
+
+  getName() {
+    return this.name
   }
 }

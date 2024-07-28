@@ -15,6 +15,9 @@ import { useMediaQuery, useStorage } from '@vueuse/core'
 import { useRegistry } from '@/composables/useRegistry'
 import { getExampleSql } from '@/lib/examples/getExampleSql'
 import highlightSelected from '@/composables/editor/highlightSelected'
+import { useDataSourceStatus } from '@/composables/useDataSourceStatus'
+import { DataSourceStatus } from '@/lib/registry/enums'
+import { useIsRunning } from '@/composables/useIsRunning'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -24,15 +27,19 @@ const showGlyphMargin = useMediaQuery('(min-width: 768px)') // md
 const enableInlineResults = useStorage('enable-inline-results', false)
 
 const registry = useRegistry()
-const { dataSource, runner } = registry.getReadyDataSource(props.dataSourceKey)
-const model = monaco.editor.createModel(getExampleSql(dataSource.engine), 'sql')
+const runner = registry.getRunner(props.dataSourceKey)
+const isRunning = useIsRunning(props.dataSourceKey)
+const model = monaco.editor.createModel(
+  getExampleSql(runner.getDataSource().getEngine()),
+  'sql',
+)
 const editor = useEditor({
   model,
   runner,
   glyphMargin: showGlyphMargin,
   getStatements,
 })
-editor.use(inlineRun({ enabled: true }))
+editor.use(inlineRun({ enabled: isRunning }))
 editor.use(inlineResults({ enabled: enableInlineResults }))
 editor.use(highlightSelected)
 </script>

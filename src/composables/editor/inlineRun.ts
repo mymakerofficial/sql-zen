@@ -1,12 +1,12 @@
 import * as monaco from 'monaco-editor'
-import { type FoundStatement } from '@/lib/statements'
 import { h, type MaybeRefOrGetter, render, type VNode, watchEffect } from 'vue'
 import { Button } from '@/components/ui/button'
 import { DotIcon, LoaderCircleIcon, PlayIcon } from 'lucide-vue-next'
 import type { UseEditor } from '@/composables/editor/useEditor'
 import { useRunnerQueries } from '@/composables/useRunnerQueries'
-import { isIdle, isRunning } from '@/lib/runner/runner'
 import { toValue } from '@vueuse/core'
+import { isIdleQuery, isExecutingQuery } from '@/lib/queries/helpers'
+import type { Statement } from '@/lib/statements/interface'
 
 export default function inlineRunPlugin({
   enabled = true,
@@ -22,8 +22,8 @@ export default function inlineRunPlugin({
 
     const queries = useRunnerQueries(runner)
 
-    function handleRun(statement: FoundStatement) {
-      runner!.run([statement])
+    function handleRun(statement: Statement) {
+      runner!.batch([statement])
     }
 
     function clearGlyphs() {
@@ -31,19 +31,19 @@ export default function inlineRunPlugin({
       glyphs = []
     }
 
-    function createGlyphs(statements: Array<FoundStatement>) {
+    function createGlyphs(statements: Array<Statement>) {
       glyphs = statements.map((statement) => ({
         getId: () => statement.key,
         getDomNode: () => {
           const query = queries.value.find(
-            (query) => query.key === statement.key,
+            (query) => query.statement?.key === statement.key,
           )
 
-          if (query && isRunning(query)) {
+          if (query && isExecutingQuery(query)) {
             return createDomNode(createSpinner())
           }
 
-          if (query && isIdle(query)) {
+          if (query && isIdleQuery(query)) {
             return createDomNode(createDot())
           }
 
@@ -52,7 +52,7 @@ export default function inlineRunPlugin({
         getPosition: () => ({
           lane: monaco.editor.GlyphMarginLane.Center,
           zIndex: 10,
-          range: statement,
+          range: statement.range!,
         }),
       }))
       glyphs.forEach((glyph) => editor.addGlyphMarginWidget(glyph))

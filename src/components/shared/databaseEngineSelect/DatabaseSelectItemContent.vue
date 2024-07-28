@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DatabaseEngineInfo } from '@/lib/databaseEngines'
+import type { DatabaseEngineInfo } from '@/lib/engines/interface'
 
 defineProps<DatabaseEngineInfo>()
 </script>

@@ -21,7 +21,7 @@ export default function highlightSelectedPlugin(editor: UseEditor) {
     }
     decorations = editor.editor.createDecorationsCollection([
       {
-        range: statement.value,
+        range: statement.value.range!,
         options: {
           className: 'selected-statement',
         },

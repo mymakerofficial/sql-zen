@@ -7,7 +7,8 @@ import {
   TableIcon,
   TablePropertiesIcon,
 } from 'lucide-vue-next'
-import { type SchemaTreeItem, SchemaTreeItemType } from '@/lib/dialect/dialect'
+import type { SchemaTreeItem } from '@/lib/dialect/interface'
+import { SchemaTreeItemType } from '@/lib/dialect/enums'
 
 defineProps<{
   items: SchemaTreeItem[]

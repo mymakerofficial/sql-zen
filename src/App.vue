@@ -8,6 +8,7 @@ const queryClient = useQueryClient()
 queryClient.setDefaultOptions({
   queries: {
     refetchOnWindowFocus: false,
+    retry: false,
   },
 })
 </script>

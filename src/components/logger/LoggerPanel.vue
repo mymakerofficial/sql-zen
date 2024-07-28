@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { Logger } from '@/lib/logger/logger'
 import LogItem from '@/components/logger/LogItem.vue'
 import { useLoggerEvents } from '@/composables/useLoggerEvents'
 import { computed, nextTick, ref, watch } from 'vue'
 import { syncRefs, useScroll, whenever } from '@vueuse/core'
 import LoggerToolbar from '@/components/logger/LoggerToolbar.vue'
+import type { ILogger } from '@/lib/logger/interface'
 
 const props = defineProps<{
-  logger: Logger
+  logger: ILogger
 }>()
 
 const container = ref<HTMLElement | null>(null)
@@ -46,7 +46,7 @@ whenever(container, scrollToBottom)
 whenever(stickToBottom, scrollToBottom)
 
 function handleClear() {
-  props.logger.clear()
+  // props.logger.clear()
 }
 
 function handleDown() {
@@ -57,7 +57,7 @@ function handleDown() {
 <template>
   <div class="h-full flex flex-row">
     <div ref="container" class="flex-1 h-full flex flex-col overflow-y-auto">
-      <LogItem v-for="event in events" :key="event.key" :event="event" />
+      <LogItem v-for="event in events" :key="event.id" :event="event" />
       <div
         v-if="events.length === 0"
         class="h-24 flex justify-center items-center"

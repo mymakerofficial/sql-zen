@@ -1,4 +1,4 @@
-import { Registry } from '@/lib/registry/registry'
+import { Registry } from '@/lib/registry/impl/registry'
 
 const registry = new Registry()
 

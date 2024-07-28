@@ -11,7 +11,7 @@ import {
   type VNodeProps,
 } from 'vue'
 import { createGlobalState, whenever } from '@vueuse/core'
-import { id } from '@/lib/id'
+import { getId } from '@/lib/getId'
 
 export const useDialogState = createGlobalState(() => {
   const dialogs = reactive<Record<string, VNode>>({})
@@ -44,7 +44,7 @@ export function useDialog<TComponent extends Component>(component: TComponent) {
   const { addDialog } = useDialogState()
 
   function open(props?: ComponentProps<TComponent>) {
-    addDialog(id(), h(component, props))
+    addDialog(getId(), h(component, props))
   }
 
   return {

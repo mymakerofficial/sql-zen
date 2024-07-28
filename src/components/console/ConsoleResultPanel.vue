@@ -4,12 +4,13 @@ import { computed, ref, watch } from 'vue'
 import ResultTable from '@/components/shared/table/ResultTable.vue'
 import { SquareTerminalIcon, TableIcon } from 'lucide-vue-next'
 import LoggerPanel from '@/components/logger/LoggerPanel.vue'
-import { isSuccessful, type Runner } from '@/lib/runner/runner'
 import { useRunnerQueries } from '@/composables/useRunnerQueries'
+import type { IRunner } from '@/lib/runner/interface'
+import { isSuccessQuery } from '@/lib/queries/helpers'
 
 const props = withDefaults(
   defineProps<{
-    runner: Runner
+    runner: IRunner
     showResults?: boolean
   }>(),
   {
@@ -23,22 +24,22 @@ const results = computed(() => {
     return []
   }
   return queries.value
-    .filter(isSuccessful)
+    .filter(isSuccessQuery)
     .map((query) => query.result)
-    .filter((result) => result.length > 0)
+    .filter((result) => result.rows.length > 0)
 })
 
 const triggers = computed(() => {
-  return results.value.map((_, index) => ({
-    value: index.toString(),
+  return results.value.map((result, index) => ({
+    value: result.id,
     label: `Result ${index + 1}`,
   }))
 })
 
 const contents = computed(() => {
-  return results.value.map((data, index) => ({
-    value: index.toString(),
-    data,
+  return results.value.map((result) => ({
+    value: result.id,
+    data: result,
   }))
 })
 

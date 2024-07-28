@@ -1,21 +1,20 @@
-import { onMounted, onUnmounted, type Ref, ref } from 'vue'
-import type { DataSource } from '@/lib/registry/registry'
+import { onMounted, onUnmounted } from 'vue'
 import { useRegistry } from '@/composables/useRegistry'
 import { EventType } from '@/lib/events/publisher'
+import { useQuery } from '@tanstack/vue-query'
 
 export function useDataSources() {
   const registry = useRegistry()
 
-  const dataSources = ref([]) as Ref<Array<DataSource>>
+  const queryKey = ['dataSourceKeys']
 
-  update()
+  const { data, refetch } = useQuery({
+    queryKey,
+    queryFn: () => registry.getDataSourceKeys(),
+    initialData: [],
+  })
 
-  function update() {
-    // we need to create a new array to trigger reactivity
-    dataSources.value = [...registry.getDataSources()]
-  }
-
-  const handler = () => update()
+  const handler = () => refetch().then()
 
   onMounted(() => {
     registry.on(EventType.Any, handler)
@@ -25,5 +24,5 @@ export function useDataSources() {
     registry.off(EventType.Any, handler)
   })
 
-  return dataSources
+  return data
 }

@@ -1,10 +1,10 @@
-import { onMounted, onUnmounted } from 'vue'
-import type { Runner } from '@/lib/runner/runner'
+import { onMounted, onUnmounted, triggerRef } from 'vue'
 import { EventType } from '@/lib/events/publisher'
 import { useQuery } from '@tanstack/vue-query'
+import type { IRunner } from '@/lib/runner/interface'
 
-export function useRunnerQueries(runner: Runner) {
-  const queryKey = ['runnerQueries', runner.getDataSource().getKey()]
+export function useRunnerQueries(runner: IRunner) {
+  const queryKey = ['runnerQueries', runner.getKey()]
 
   const { data, refetch } = useQuery({
     queryKey,
@@ -12,7 +12,12 @@ export function useRunnerQueries(runner: Runner) {
     initialData: [],
   })
 
-  const handler = () => refetch().then()
+  const handler = () => {
+    refetch().then(() => {
+      // idk why
+      triggerRef(data)
+    })
+  }
 
   onMounted(() => {
     runner.on(EventType.Any, handler)

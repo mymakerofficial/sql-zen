@@ -7,9 +7,9 @@ import { VueQueryPlugin as vueQuery } from '@tanstack/vue-query'
 import { routes, handleHotUpdate } from 'vue-router/auto-routes'
 import '@/lib/monaco/setup'
 import { useRegistry } from '@/composables/useRegistry'
-import findPostgresDatabases from '@/lib/registry/findPostgres'
-import findSqliteDatabases from '@/lib/registry/findSqlite'
-import { storeInMemorySources } from '@/lib/registry/storeInMemorySources'
+import findPostgresDatabases from '@/lib/registry/plugins/findPostgres'
+import findSqliteDatabases from '@/lib/registry/plugins/findSqlite'
+import { storeInMemorySources } from '@/lib/registry/plugins/storeInMemorySources'
 
 const app = createApp(App)
 

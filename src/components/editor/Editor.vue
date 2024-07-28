@@ -25,7 +25,7 @@ const databases = useDataSources()
 whenever(
   () => databases.value.length === 1,
   () => {
-    const key = databases.value[0].key
+    const key = databases.value[0]
     registry.start(key)
     selected.value = key
   },

@@ -8,9 +8,10 @@ import {
   type VNode,
   watchEffect,
 } from 'vue'
-import { isSuccessful, type QuerySuccess } from '@/lib/runner/runner'
 import ResultTable from '@/components/shared/table/ResultTable.vue'
 import { toValue } from '@vueuse/core'
+import { isSuccessQuery } from '@/lib/queries/helpers'
+import type { SuccessQuery } from '@/lib/queries/interface'
 
 export default function inlineResultsPlugin({
   enabled = true,
@@ -25,15 +26,17 @@ export default function inlineResultsPlugin({
     const queries = useRunnerQueries(runner)
     const successQueries = computed(() => {
       return queries.value
-        .filter(isSuccessful)
-        .filter((query) => query.range && query.result.length > 0)
+        .filter(isSuccessQuery)
+        .filter(
+          (query) => query.statement.range && query.result.rows.length > 0,
+        )
     })
 
     const viewZones: Array<string> = []
 
-    function addResult(query: QuerySuccess) {
+    function addResult(query: SuccessQuery) {
       editor.changeViewZones((vzChanger) => {
-        const { result, range } = query
+        const { result, statement } = query
 
         const domNode = createDomNode(
           h(ResultTable, {
@@ -43,8 +46,8 @@ export default function inlineResultsPlugin({
         )
 
         const id = vzChanger.addZone({
-          afterLineNumber: range!.endLineNumber,
-          heightInPx: 58 + 48 * (result.length + 1),
+          afterLineNumber: statement.range!.endLineNumber,
+          heightInPx: 58 + 48 * (result.rows.length + 1),
           domNode,
         })
         viewZones.push(id)

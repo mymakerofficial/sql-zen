@@ -1,7 +1,7 @@
-import { DatabaseEngine } from '@/lib/databaseEngines'
 import postgresExample from './postgres.sql?raw'
 import sqliteExample from './sqlite.sql?raw'
 import duckdbExample from './duckdb'
+import { DatabaseEngine } from '@/lib/engines/enums'
 
 export function getExampleSql(engine: DatabaseEngine) {
   if (engine === DatabaseEngine.PostgreSQL) {
@@ -11,6 +11,6 @@ export function getExampleSql(engine: DatabaseEngine) {
   } else if (engine === DatabaseEngine.DuckDB) {
     return duckdbExample
   } else {
-    throw new Error(`Unknown database engine: ${engine}`)
+    return 'SELECT 1;'
   }
 }

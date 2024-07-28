@@ -8,29 +8,27 @@ import {
 } from 'vue'
 import { toValue } from '@vueuse/core'
 import themePlugin from '@/composables/editor/theme'
-import type { FoundStatement } from '@/lib/statements'
-import { findStatements } from '@/lib/statements'
 import { useEditorContent } from '@/composables/editor/useEditorContent'
-import type { Runner } from '@/lib/runner/runner'
+import type { IRunner } from '@/lib/runner/interface'
+import { findStatements } from '@/lib/statements/findStatements'
+import type { Statement } from '@/lib/statements/interface'
 
 type UseEditorPlugin<T> = (editor: UseEditor) => T
 
 type UseEditorProps = {
   model: monaco.editor.ITextModel
-  runner?: Runner | null
+  runner?: IRunner | null
   glyphMargin?: MaybeRefOrGetter<boolean>
-  getStatements?:
-    | ((editor: UseEditor) => ComputedRef<Array<FoundStatement>>)
-    | null
+  getStatements?: ((editor: UseEditor) => ComputedRef<Array<Statement>>) | null
 }
 
 export class UseEditor {
   private readonly container: HTMLElement
   public readonly editor: monaco.editor.IStandaloneCodeEditor
-  public readonly runner: Runner | null = null
+  public readonly runner: IRunner | null = null
   public readonly glyphMargin: MaybeRefOrGetter<boolean>
   public readonly content: ComputedRef<string>
-  public readonly statements: ComputedRef<Array<FoundStatement>>
+  public readonly statements: ComputedRef<Array<Statement>>
 
   constructor({
     model,
@@ -85,7 +83,7 @@ export function useEditor(props: UseEditorProps): UseEditor {
 
 export function getStatements({
   content,
-}: UseEditor): ComputedRef<Array<FoundStatement>> {
+}: UseEditor): ComputedRef<Array<Statement>> {
   return computed(() => findStatements(content.value))
 }
 

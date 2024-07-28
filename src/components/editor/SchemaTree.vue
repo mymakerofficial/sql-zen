@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { DataSourceFacade } from '@/lib/databases/database'
 import { useQuery } from '@tanstack/vue-query'
 import { SqlDialectFactory } from '@/lib/dialect/factory'
 import EmbeddedSchemaTree from '@/components/editor/EmbeddedSchemaTree.vue'
@@ -11,15 +10,15 @@ const props = defineProps<{
 }>()
 
 const registry = useRegistry()
-const { dataSource } = registry.getDataSource(props.dataSourceKey)
+const dataSource = registry.getDataSource(props.dataSourceKey)
 
 const { data, isFetching } = useQuery({
-  queryKey: ['schemaTree', dataSource?.getKey()],
+  queryKey: ['schemaTree', dataSource.getKey()],
   queryFn: async () => {
     if (!dataSource) {
       throw new Error('Data source not found')
     }
-    const sqlDialect = SqlDialectFactory.create(dataSource)
+    const sqlDialect = dataSource.getDialect()
     return await sqlDialect.getSchemaTree()
   },
   initialData: [],

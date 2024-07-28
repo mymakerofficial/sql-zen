@@ -7,46 +7,50 @@ import {
   TableRowsSplitIcon,
 } from 'lucide-vue-next'
 import { Toggle } from '@/components/ui/toggle'
-import type { Runner } from '@/lib/runner/runner'
 import type { UseEditor } from '@/composables/editor/useEditor'
-import { downloadDump } from '@/lib/downloadBlob'
-import { DatabaseEngine } from '@/lib/databaseEngines'
+import { downloadFile } from '@/lib/downloadFile'
 import { computed } from 'vue'
 import { Separator } from '@/components/ui/separator'
 import { useRunSelected } from '@/composables/editor/useRunSelected'
+import type { IRunner } from '@/lib/runner/interface'
+import { DatabaseEngine } from '@/lib/engines/enums'
+import { useRunAll } from '@/composables/editor/useRunAll'
 
 const enableInlineResults = defineModel<boolean>('enableInlineResults')
 
 const props = defineProps<{
-  runner: Runner
+  runner: IRunner
   editor: UseEditor
 }>()
 
 const { runSelected, canRunSelected } = useRunSelected(props.editor)
+const { runAll, canRunAll } = useRunAll(props.editor)
 
 const canDump = computed(
-  () => props.runner.getDataSource().engine !== DatabaseEngine.DuckDB,
+  () => props.runner.getDataSource().getEngine() !== DatabaseEngine.DuckDB,
 )
-
-function handleRunAll() {
-  props.runner.run(props.editor.statements.value)
-}
 
 async function handleDump() {
   const dump = await props.runner.getDataSource().dump()
-  downloadDump(dump)
+  downloadFile(dump)
 }
 
 function handleClear() {
   props.editor.editor.getModel()?.setValue('')
-  props.runner.clear()
+  // props.runner.clear()
 }
 </script>
 
 <template>
   <section class="h-12 px-3 flex justify-between border-b border-border">
     <div class="h-full flex items-center gap-3">
-      <Button @click="handleRunAll" size="sm" variant="ghost" class="gap-3">
+      <Button
+        @click="runAll"
+        :disabled="!canRunAll"
+        size="sm"
+        variant="ghost"
+        class="gap-3"
+      >
         <PlayIcon class="size-4 min-w-max" />
         <span>All</span>
       </Button>

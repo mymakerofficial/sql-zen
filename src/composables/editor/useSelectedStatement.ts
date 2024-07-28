@@ -6,26 +6,30 @@ export function useSelectedStatement({ editor, statements }: UseEditor) {
   const position = useEditorCursorPosition(editor)
   return computed(() => {
     return (
-      statements.value.find((s) => {
+      statements.value.find((statement) => {
         if (!position.value) {
           return false
         }
-        if (s.startLineNumber === s.endLineNumber) {
+        const range = statement.range
+        if (!range) {
+          return false
+        }
+        if (range.startLineNumber === range.endLineNumber) {
           return (
-            s.startLineNumber === position.value.lineNumber &&
-            s.startColumn <= position.value.column &&
-            s.endColumn >= position.value.column
+            range.startLineNumber === position.value.lineNumber &&
+            range.startColumn <= position.value.column &&
+            range.endColumn >= position.value.column
           )
         } else {
-          if (s.startLineNumber === position.value.lineNumber) {
-            return s.startColumn <= position.value.column
+          if (range.startLineNumber === position.value.lineNumber) {
+            return range.startColumn <= position.value.column
           }
-          if (s.endLineNumber === position.value.lineNumber) {
-            return s.endColumn >= position.value.column
+          if (range.endLineNumber === position.value.lineNumber) {
+            return range.endColumn >= position.value.column
           }
           return (
-            s.startLineNumber < position.value.lineNumber &&
-            s.endLineNumber > position.value.lineNumber
+            range.startLineNumber < position.value.lineNumber &&
+            range.endLineNumber > position.value.lineNumber
           )
         }
       }) ?? null

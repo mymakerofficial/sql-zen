@@ -1,17 +1,17 @@
-import { DuckDBDialect } from '@/lib/dialect/duckdb'
-import type { DataSourceFacade } from '@/lib/databases/database'
-import { DatabaseEngine } from '@/lib/databaseEngines'
-import { DummyDialect } from '@/lib/dialect/dialect'
-import { PostgreSQLDialect } from '@/lib/dialect/postgresql'
-import { SQLiteDialect } from '@/lib/dialect/sqlite'
+import { DuckDBDialect } from '@/lib/dialect/impl/duckdb'
+import { PostgreSQLDialect } from '@/lib/dialect/impl/postgresql'
+import { SQLiteDialect } from '@/lib/dialect/impl/sqlite'
+import { DatabaseEngine } from '@/lib/engines/enums'
+import type { IDataSource } from '@/lib/dataSources/interface'
+import { DummyDialect } from '@/lib/dialect/impl/dummy'
 
 export class SqlDialectFactory {
-  static create(dataSource: DataSourceFacade) {
-    if (dataSource.engine === DatabaseEngine.DuckDB) {
+  static create(dataSource: IDataSource) {
+    if (dataSource.getEngine() === DatabaseEngine.DuckDB) {
       return new DuckDBDialect(dataSource)
-    } else if (dataSource.engine === DatabaseEngine.PostgreSQL) {
+    } else if (dataSource.getEngine() === DatabaseEngine.PostgreSQL) {
       return new PostgreSQLDialect(dataSource)
-    } else if (dataSource.engine === DatabaseEngine.SQLite) {
+    } else if (dataSource.getEngine() === DatabaseEngine.SQLite) {
       return new SQLiteDialect(dataSource)
     } else {
       return new DummyDialect(dataSource)

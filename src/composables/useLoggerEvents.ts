@@ -1,18 +1,18 @@
-import { type LogEvent, type Logger } from '@/lib/logger/logger'
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { EventType } from '@/lib/events/publisher'
+import type { ILogger } from '@/lib/logger/interface'
+import { useQuery } from '@tanstack/vue-query'
 
-export function useLoggerEvents(logger: Logger) {
-  const events = ref<Array<LogEvent>>([])
+export function useLoggerEvents(logger: ILogger) {
+  const queryKey = ['loggerEvents', logger.getKey()]
 
-  update()
+  const { data, refetch } = useQuery({
+    queryKey,
+    queryFn: () => logger.getEvents(),
+    initialData: [],
+  })
 
-  function update() {
-    // we need to create a new array to trigger reactivity
-    events.value = [...logger.getEvents()]
-  }
-
-  const handler = () => update()
+  const handler = () => refetch().then()
 
   onMounted(() => {
     logger.on(EventType.Any, handler)
@@ -22,5 +22,5 @@ export function useLoggerEvents(logger: Logger) {
     logger.off(EventType.Any, handler)
   })
 
-  return events
+  return data
 }

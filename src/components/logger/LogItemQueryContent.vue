@@ -1,20 +1,30 @@
 <script setup lang="ts">
-import { PromiseState, type QueryLogEvent } from '@/lib/logger/logger'
 import CodeBlock from '@/components/shared/CodeBlock.vue'
-import ResultTable from '@/components/shared/table/ResultTable.vue'
 import { ChevronRightIcon } from 'lucide-vue-next'
+import type { LogQueryEvent } from '@/lib/logger/interface'
+import { PromiseState } from '@/lib/logger/enums'
 import { computed } from 'vue'
 
 const props = defineProps<{
-  event: QueryLogEvent
+  event: LogQueryEvent
 }>()
 
-const duration = computed(() => {
-  if (props.event.state === PromiseState.Pending) {
-    return 0
+const successLabel = computed(() => {
+  if (props.event.data.state !== PromiseState.Success) {
+    return ''
   }
 
-  return props.event.finishDate.getTime() - props.event.date.getTime()
+  const duration = Math.round(props.event.data.duration * 100) / 100
+
+  if (props.event.data.affectedRows) {
+    return `${props.event.data.affectedRows} rows affected in ${duration} ms`
+  }
+
+  if (props.event.data.rowCount) {
+    return `${props.event.data.rowCount} rows retrieved in ${duration} ms`
+  }
+
+  return `Completed in ${duration} ms`
 })
 </script>
 
@@ -23,24 +33,24 @@ const duration = computed(() => {
     <ChevronRightIcon class="size-5 min-w-max text-muted-foreground" />
     <div class="flex flex-col gap-2">
       <CodeBlock
-        :code="event.sql"
+        :code="event.data.sql"
         class="flex-1 [&_pre]:!bg-transparent text-sm"
       />
-      <template v-if="event.state === PromiseState.Success">
+      <template v-if="event.data.state === PromiseState.Success">
         <i class="text-muted-foreground text-sm">
-          Finished in {{ duration }} ms
+          {{ successLabel }}
         </i>
-        <ResultTable
-          v-if="event.result.length > 0"
-          :data="event.result"
-          class="w-fit border border-border"
-        />
+        <!--        <ResultTable-->
+        <!--          v-if="event.data.result.length > 0 && event.data.result.length < 10"-->
+        <!--          :data="event.data.result"-->
+        <!--          class="w-fit border border-border"-->
+        <!--        />-->
       </template>
-      <template v-else-if="event.state === PromiseState.Pending">
+      <template v-else-if="event.data.state === PromiseState.Pending">
         <p class="text-muted-foreground text-sm">Executing...</p>
       </template>
-      <template v-else-if="event.state === PromiseState.Error">
-        <p class="text-red-500 text-sm">{{ event.error.message }}</p>
+      <template v-else-if="event.data.state === PromiseState.Error">
+        <p class="text-red-500 text-sm">Error: {{ event.data.errorMessage }}</p>
       </template>
     </div>
   </div>

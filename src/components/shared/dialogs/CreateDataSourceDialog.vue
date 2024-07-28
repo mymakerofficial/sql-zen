@@ -5,19 +5,19 @@ import { DialogFooter } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { DatabaseEngine } from '@/lib/databaseEngines'
 import { computed, ref } from 'vue'
-import DatabaseEngineModeSelect from '@/components/shared/DatabaseEngineModeSelect.vue'
-import { DatabaseEngineMode } from '@/lib/databases/database'
+import DataSourceModeSelect from '@/components/shared/DataSourceModeSelect.vue'
 import { useRegistry } from '@/composables/useRegistry'
 import { useMutation } from '@tanstack/vue-query'
-import type { DataSourceInfo } from '@/lib/databases/dataSourceFactory'
 import DatabaseEngineSelect from '@/components/shared/databaseEngineSelect/DatabaseEngineSelect.vue'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { Separator } from '@/components/ui/separator'
 import { whenever } from '@vueuse/core'
 import { simplifyIdentifier } from '@/lib/simplifyIdentifier'
 import FileInput from '@/components/shared/FileInput.vue'
+import { DatabaseEngine } from '@/lib/engines/enums'
+import { DataSourceMode } from '@/lib/dataSources/enums'
+import type { DataSourceCompleteDescriptor } from '@/lib/dataSources/interface'
 
 const props = defineProps<{
   engine: DatabaseEngine
@@ -28,12 +28,12 @@ const registry = useRegistry()
 
 const engine = ref<DatabaseEngine>(props.engine)
 const identifier = ref<string>('')
-const mode = ref<DatabaseEngineMode>(DatabaseEngineMode.Memory)
-const fileAccessor = ref<FileAccessor | null>(null)
+const mode = ref<DataSourceMode>(DataSourceMode.Memory)
+const dump = ref<FileAccessor | null>(null)
 
-whenever(fileAccessor, () => {
-  if (fileAccessor.value) {
-    identifier.value = fileAccessor.value.getName().split('.')[0]
+whenever(dump, () => {
+  if (dump.value) {
+    identifier.value = dump.value.getName().split('.')[0]
   }
 })
 
@@ -45,11 +45,11 @@ const disableIdentifier = computed(() => {
   return (
     engine.value === DatabaseEngine.DuckDB ||
     (engine.value === DatabaseEngine.SQLite &&
-      mode.value === DatabaseEngineMode.BrowserPersisted)
+      mode.value === DataSourceMode.BrowserPersisted)
   )
 })
 
-const disableFile = computed(() => {
+const disableDump = computed(() => {
   return !(
     engine.value === DatabaseEngine.SQLite ||
     engine.value === DatabaseEngine.PostgreSQL
@@ -57,28 +57,28 @@ const disableFile = computed(() => {
 })
 
 async function handleFileSelected(value: FileAccessor) {
-  fileAccessor.value = value
+  dump.value = value
 }
 
 const { mutate: create, error } = useMutation({
   mutationFn: () => {
-    const info: DataSourceInfo = {
+    const info: DataSourceCompleteDescriptor = {
       engine: engine.value,
       mode: mode.value,
       identifier: simplifyIdentifier(identifier.value),
-      fileAccessor: fileAccessor.value,
+      dump: dump.value,
     }
 
     if (disableMode.value) {
-      info.mode = DatabaseEngineMode.Memory
+      info.mode = DataSourceMode.Memory
     }
 
     if (disableIdentifier.value) {
       info.identifier = null
     }
 
-    if (disableFile.value) {
-      info.fileAccessor = null
+    if (disableDump.value) {
+      info.dump = null
     }
 
     registry.register(info)
@@ -101,7 +101,7 @@ const { mutate: create, error } = useMutation({
       </div>
       <div class="grid grid-cols-4 items-center gap-4">
         <Label for="mode" class="text-right">Storage Mode</Label>
-        <DatabaseEngineModeSelect
+        <DataSourceModeSelect
           v-model="mode"
           :disabled="disableMode"
           id="mode"
@@ -133,17 +133,13 @@ const { mutate: create, error } = useMutation({
       <Separator />
       <div class="grid grid-cols-4 items-center gap-4">
         <Label for="file" class="text-right">Import Dump</Label>
-        <FileInput @selected="handleFileSelected" :disabled="disableFile">
-          <Button
-            id="file"
-            variant="outline"
-            class="col-span-3"
-          >
-            {{ fileAccessor?.getName() ?? 'Select File' }}
+        <FileInput @selected="handleFileSelected" :disabled="disableDump">
+          <Button id="file" variant="outline" class="col-span-3">
+            {{ dump?.getName() ?? 'Select File' }}
           </Button>
         </FileInput>
         <p
-          v-if="disableFile"
+          v-if="disableDump"
           class="col-span-full text-sm text-muted-foreground"
         >
           Only SQLite and PostgreSQL databases can be imported.
