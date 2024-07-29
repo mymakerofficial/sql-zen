@@ -11,6 +11,10 @@ export abstract class FileAccessor {
     return new BlobFileAccessor(blob, name)
   }
 
+  static fromUint8Array(array: Uint8Array, name: string) {
+    return new BlobFileAccessor(new Blob([array]), name)
+  }
+
   static get Dummy() {
     return new DummyFileAccessor('dummy')
   }

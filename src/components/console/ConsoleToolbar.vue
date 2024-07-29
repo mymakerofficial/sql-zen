@@ -5,6 +5,7 @@ import {
   EraserIcon,
   PlayIcon,
   TableRowsSplitIcon,
+  FolderIcon,
 } from 'lucide-vue-next'
 import { Toggle } from '@/components/ui/toggle'
 import type { UseEditor } from '@/composables/editor/useEditor'
@@ -15,6 +16,8 @@ import { useRunSelected } from '@/composables/editor/useRunSelected'
 import type { IRunner } from '@/lib/runner/interface'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { useRunAll } from '@/composables/editor/useRunAll'
+import { useDialog } from '@/composables/useDialog'
+import DuckDbExplorer from '@/components/shared/dialogs/duckDbExplorer/DuckDbExplorer.vue'
 
 const enableInlineResults = defineModel<boolean>('enableInlineResults')
 
@@ -25,10 +28,19 @@ const props = defineProps<{
 
 const { runSelected, canRunSelected } = useRunSelected(props.editor)
 const { runAll, canRunAll } = useRunAll(props.editor)
+const { open: openFileExplorer } = useDialog(DuckDbExplorer)
+
+const canOpenFileExplorer = computed(
+  () => props.runner.getDataSource().getEngine() === DatabaseEngine.DuckDB,
+)
 
 const canDump = computed(
   () => props.runner.getDataSource().getEngine() !== DatabaseEngine.DuckDB,
 )
+
+function handleOpenFileExplorer() {
+  openFileExplorer({ dataSourceKey: props.runner.getDataSource().getKey() })
+}
 
 async function handleDump() {
   const dump = await props.runner.getDataSource().dump()
@@ -63,6 +75,17 @@ function handleClear() {
       >
         <PlayIcon class="size-4 min-w-max" />
         <span>Selected</span>
+      </Button>
+      <Separator orientation="vertical" />
+      <Button
+        v-if="canOpenFileExplorer"
+        @click="handleOpenFileExplorer"
+        size="sm"
+        variant="ghost"
+        class="gap-3"
+      >
+        <FolderIcon class="size-4 min-w-max" />
+        <span class="hidden md:block">Explore Files</span>
       </Button>
       <Button
         v-if="canDump"

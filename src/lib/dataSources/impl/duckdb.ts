@@ -6,6 +6,8 @@ import { DataSourceMode } from '@/lib/dataSources/enums'
 import type { QueryResult } from '@/lib/queries/interface'
 import { getId } from '@/lib/getId'
 import { DataSource } from '@/lib/dataSources/impl/base'
+import type { IDataSource } from '../interface'
+import { DuckDBDataProtocol, DuckDBAccessMode } from '@duckdb/duckdb-wasm'
 
 export class DuckDB extends DataSource {
   #worker: Worker | null = null
@@ -72,9 +74,23 @@ export class DuckDB extends DataSource {
       this.logger.log(`Running DuckDB version: ${version}`)
     })
 
-    this.#connection = await this.logger.step('Connecting to Database', () => {
-      return this.#database!.connect()
-    })
+    await this.openDatabase('mydb.db')
+  }
+
+  async openDatabase(path: string) {
+    if (this.#connection) {
+      await this.#connection.close()
+    }
+    this.#connection = await this.logger.step(
+      `Connecting to Database: ${path}`,
+      async () => {
+        await this.#database!.open({
+          path,
+          accessMode: DuckDBAccessMode.READ_WRITE,
+        })
+        return this.#database!.connect()
+      },
+    )
   }
 
   #unwrapRawResponse<T>(raw: Table): Array<T> {
@@ -101,6 +117,71 @@ export class DuckDB extends DataSource {
     })
   }
 
+  async getRegisteredFiles() {
+    if (!this.#database) {
+      throw new DatabaseNotLoadedError()
+    }
+
+    return await this.#database.globFiles('*')
+  }
+
+  async registerFile(file: FileAccessor) {
+    if (!this.#database) {
+      throw new DatabaseNotLoadedError()
+    }
+
+    const blob = await file.read()
+    const buffer = new Uint8Array(await blob.arrayBuffer())
+    return await this.#database.registerFileBuffer(file.getName(), buffer)
+  }
+
+  async registerEmptyFile(name: string) {
+    if (!this.#database) {
+      throw new DatabaseNotLoadedError()
+    }
+
+    return await this.#database.registerEmptyFileBuffer(name)
+  }
+
+  async registerFileUrl(name: string, url: string) {
+    if (!this.#database) {
+      throw new DatabaseNotLoadedError()
+    }
+
+    return await this.#database.registerFileURL(
+      name,
+      url,
+      DuckDBDataProtocol.HTTP,
+      false,
+    )
+  }
+
+  async renameFile(oldName: string, newName: string) {
+    if (!this.#database) {
+      throw new DatabaseNotLoadedError()
+    }
+
+    await this.#database.copyFileToPath(oldName, newName)
+    await this.#database.dropFile(oldName)
+  }
+
+  async exportFile(name: string) {
+    if (!this.#database) {
+      throw new DatabaseNotLoadedError()
+    }
+
+    const buffer = await this.#database.copyFileToBuffer(name)
+    return FileAccessor.fromUint8Array(buffer, name)
+  }
+
+  async dropFile(name: string) {
+    if (!this.#database) {
+      throw new DatabaseNotLoadedError()
+    }
+
+    await this.#database.dropFile(name)
+  }
+
   async dump() {
     throw new Error(`DuckDB does not support dumping`)
     // just to satisfy the interface
@@ -118,4 +199,8 @@ export class DuckDB extends DataSource {
       this.#worker.terminate()
     }
   }
+}
+
+export function isDuckDb(dataSource: IDataSource): dataSource is DuckDB {
+  return dataSource instanceof DuckDB
 }
