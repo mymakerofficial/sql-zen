@@ -18,6 +18,7 @@ import { DatabaseEngine } from '@/lib/engines/enums'
 import { useRunAll } from '@/composables/editor/useRunAll'
 import { useDialog } from '@/composables/useDialog'
 import DuckDbExplorer from '@/components/shared/dialogs/duckDbExplorer/DuckDbExplorer.vue'
+import { useQueryClient } from '@tanstack/vue-query'
 
 const enableInlineResults = defineModel<boolean>('enableInlineResults')
 
@@ -26,6 +27,7 @@ const props = defineProps<{
   editor: UseEditor
 }>()
 
+const queryClient = useQueryClient()
 const { runSelected, canRunSelected } = useRunSelected(props.editor)
 const { runAll, canRunAll } = useRunAll(props.editor)
 const { open: openFileExplorer } = useDialog(DuckDbExplorer)
@@ -39,7 +41,7 @@ const canDump = computed(
 )
 
 function handleOpenFileExplorer() {
-  openFileExplorer({ dataSourceKey: props.runner.getDataSource().getKey() })
+  openFileExplorer({ dataSourceKey: props.runner.getKey() })
 }
 
 async function handleDump() {
@@ -49,7 +51,10 @@ async function handleDump() {
 
 function handleClear() {
   props.editor.editor.getModel()?.setValue('')
-  // props.runner.clear()
+  props.runner.clear()
+  queryClient.invalidateQueries({
+    queryKey: ['runnerQueries', props.runner.getKey()],
+  })
 }
 </script>
 

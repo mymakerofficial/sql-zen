@@ -11,4 +11,5 @@ export interface IRunner extends EventPublisher<RunnerEventMap> {
   batch(statements: Array<Statement>): void
   // returns a list of active query keys
   getQueries(): Array<Query>
+  clear(): void
 }
