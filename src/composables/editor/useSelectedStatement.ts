@@ -18,14 +18,16 @@ export function useSelectedStatement({ editor, statements }: UseEditor) {
           return (
             range.startLineNumber === position.value.lineNumber &&
             range.startColumn <= position.value.column &&
-            range.endColumn >= position.value.column
+            // +1 to include the semicolon
+            range.endColumn + 1 >= position.value.column
           )
         } else {
           if (range.startLineNumber === position.value.lineNumber) {
             return range.startColumn <= position.value.column
           }
           if (range.endLineNumber === position.value.lineNumber) {
-            return range.endColumn >= position.value.column
+            // +1 to include the semicolon
+            return range.endColumn + 1 >= position.value.column
           }
           return (
             range.startLineNumber < position.value.lineNumber &&
