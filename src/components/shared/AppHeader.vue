@@ -13,8 +13,13 @@ import { Button } from '@/components/ui/button'
     <div class="h-full flex items-center gap-3">
       <Button as-child variant="ghost" class="hover:bg-primary/5 sm:mr-auto">
         <RouterLink to="/">
+          <img
+            src="@/assets/sql-zen-logo.svg"
+            alt="SqlZen"
+            class="inline size-6 mr-3"
+          />
           <span
-            class="text-xl font-black bg-gradient-to-br from-primary to-blue-600 inline-block text-transparent bg-clip-text"
+            class="text-xl font-black bg-gradient-to-br from-blue-200 to-blue-600 inline-block text-transparent bg-clip-text font-black"
             >SqlZen</span
           >
         </RouterLink>
