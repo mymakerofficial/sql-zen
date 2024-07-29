@@ -17,7 +17,7 @@ import type { WebFile } from '@duckdb/duckdb-wasm'
 import { createColumnHelper } from '@tanstack/vue-table'
 import { UploadIcon } from 'lucide-vue-next'
 import DuckDbExplorerItemActions from '@/components/shared/dialogs/duckDbExplorer/DuckDbExplorerItemActions.vue'
-import { computed, h } from 'vue'
+import { computed, h, ref } from 'vue'
 import { downloadFile } from '@/lib/downloadFile'
 
 const props = defineProps<{
@@ -61,13 +61,14 @@ const { mutate: handleOpenDatabase, error: openDatabaseError } = useMutation({
   onSuccess: close,
 })
 
-const error = computed(
-  () =>
-    fetchError.value ??
-    registerError.value ??
-    deleteError.value ??
-    downloadError.value ??
+const errors = computed(() =>
+  [
+    fetchError.value,
+    registerError.value,
+    deleteError.value,
+    downloadError.value,
     openDatabaseError.value,
+  ].filter((e) => e),
 )
 
 const columnHelper = createColumnHelper<WebFile>()
@@ -115,7 +116,7 @@ const columns = [
     <div class="max-h-72 overflow-auto">
       <DataTable :data="data" :columns="columns" />
     </div>
-    <p class="text-red-500">{{ error }}</p>
+    <p v-for="error in errors" class="text-red-500">{{ error }}</p>
     <DialogFooter>
       <FileInput @selected="handleRegisterFile">
         <Button class="gap-3">
