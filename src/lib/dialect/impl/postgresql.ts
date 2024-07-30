@@ -1,17 +1,16 @@
 import type {
+  DSTreeColumnItem,
+  DSTreeSchemaItem,
+  DSTreeTableItem,
   ISqlDialect,
-  SchemaTreeColumnItem,
-  SchemaTreeSchemaItem,
-  SchemaTreeTableItem,
-  SchemaTreeTablesItem,
 } from '@/lib/dialect/interface'
-import { SchemaTreeItemType } from '@/lib/dialect/enums'
+import { DSTreeItemType } from '@/lib/dialect/enums'
 import { SqlDialect } from '@/lib/dialect/impl/base'
 
 export class PostgreSQLDialect extends SqlDialect implements ISqlDialect {
-  async getSchemaTree() {
+  async getDataSourceTree() {
     const { rows: schemas } = await this.dataSource.query<Schema>(
-      `SELECT DISTINCT schemaname FROM pg_catalog.pg_tables`,
+      `SELECT nspname, oid FROM pg_namespace ORDER BY oid DESC`,
     )
 
     const { rows: tables } = await this.dataSource.query<Table>(
@@ -22,14 +21,21 @@ export class PostgreSQLDialect extends SqlDialect implements ISqlDialect {
       `SELECT table_schema, table_name, column_name, data_type, is_nullable FROM information_schema.columns WHERE table_schema = 'public'`,
     )
 
-    return genSchemas(schemas, tables, columns)
+    return [
+      {
+        key: '__schemas__',
+        name: 'schemas',
+        type: DSTreeItemType.Collection,
+        for: DSTreeItemType.Schema,
+        children: genSchemas(schemas, tables, columns),
+      },
+    ]
   }
 }
 
 type Schema = {
-  schemaname: string
-  tablename: string
-  tableowner: string
+  nspname: string
+  oid: number
 }
 
 type Table = {
@@ -47,61 +53,54 @@ type Column = {
   is_nullable: 'YES' | 'NO'
 }
 
-function genSchemas(schemas: Schema[], tables: Table[], columns: Column[]) {
-  const tree: Array<SchemaTreeSchemaItem> = []
-
-  schemas.forEach((schema) => {
-    const schemaItem: SchemaTreeSchemaItem = {
-      name: schema.schemaname,
-      type: SchemaTreeItemType.Schema,
-      children: [
-        {
-          name: 'tables',
-          type: SchemaTreeItemType.Tables,
-          children: genTables(schema.schemaname, tables, columns),
-        },
-      ] as unknown as SchemaTreeTablesItem[],
-    }
-
-    tree.push(schemaItem)
-  })
-
-  return tree
+function genSchemas(
+  schemas: Schema[],
+  tables: Table[],
+  columns: Column[],
+): DSTreeSchemaItem[] {
+  return schemas.map((schema) => ({
+    key: `__schemas__-${schema.nspname}`,
+    name: schema.nspname,
+    type: DSTreeItemType.Schema,
+    children: [
+      {
+        key: `${schema.nspname}__tables__`,
+        name: 'tables',
+        type: DSTreeItemType.Collection,
+        for: DSTreeItemType.Table,
+        children: genTables(schema.nspname, tables, columns),
+      },
+    ],
+  }))
 }
 
-function genTables(schema: string, tables: Table[], columns: Column[]) {
-  const tree: Array<SchemaTreeTableItem> = []
-
-  tables
+function genTables(
+  schema: string,
+  tables: Table[],
+  columns: Column[],
+): DSTreeTableItem[] {
+  return tables
     .filter((it) => it.schemaname === schema)
-    .forEach((table) => {
-      const tableItem: SchemaTreeTableItem = {
-        name: table.tablename,
-        type: SchemaTreeItemType.Table,
-        children: genColumns(schema, table.tablename, columns),
-      }
-
-      tree.push(tableItem)
-    })
-
-  return tree
+    .map((table) => ({
+      key: `${schema}-${table.tablename}`,
+      name: table.tablename,
+      type: DSTreeItemType.Table,
+      children: genColumns(schema, table.tablename, columns),
+    }))
 }
 
-function genColumns(schema: string, table: string, columns: Column[]) {
-  const tree: Array<SchemaTreeColumnItem> = []
-
-  columns
+function genColumns(
+  schema: string,
+  table: string,
+  columns: Column[],
+): DSTreeColumnItem[] {
+  return columns
     .filter((it) => it.table_schema === schema && it.table_name === table)
-    .forEach((column) => {
-      const columnItem: SchemaTreeColumnItem = {
-        name: column.column_name,
-        type: SchemaTreeItemType.Column,
-        dataType: column.data_type,
-        isNullable: column.is_nullable === 'YES',
-      }
-
-      tree.push(columnItem)
-    })
-
-  return tree
+    .map((column) => ({
+      key: `${schema}-${table}-${column.column_name}`,
+      name: column.column_name,
+      type: DSTreeItemType.Column,
+      dataType: column.data_type,
+      isNullable: column.is_nullable === 'YES',
+    }))
 }

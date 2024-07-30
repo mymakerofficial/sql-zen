@@ -1,43 +1,66 @@
-import type { SchemaTreeItemType } from '@/lib/dialect/enums'
+import type { DSTreeItemType } from '@/lib/dialect/enums'
 
-export type SchemaTreeBaseItem = {
+export type DSTreeBaseItem = {
+  key: string
   name: string
-  type: SchemaTreeItemType
+  type: DSTreeItemType
 }
 
-export type SchemaTreeCatalogItem = SchemaTreeBaseItem & {
-  type: typeof SchemaTreeItemType.Catalog
-  children: SchemaTreeSchemaItem[]
+export type DSTreeCollectionItem = DSTreeBaseItem & {
+  type: typeof DSTreeItemType.Collection
+  for: DSTreeItemType
+  children: DSTreeItem[]
 }
 
-export type SchemaTreeSchemaItem = SchemaTreeBaseItem & {
-  type: typeof SchemaTreeItemType.Schema
-  children: SchemaTreeItem[]
+export type DSTreeExtensionItem = DSTreeBaseItem & {
+  type: typeof DSTreeItemType.Extension
+  loaded: boolean
+  installed: boolean
+  description: string
 }
 
-export type SchemaTreeTablesItem = SchemaTreeBaseItem & {
-  type: typeof SchemaTreeItemType.Tables
-  children: SchemaTreeColumnItem[]
+export type DSTreeDatabaseItem = DSTreeBaseItem & {
+  type: typeof DSTreeItemType.Database
+  children: DSTreeItem[]
+  path: string
 }
 
-export type SchemaTreeTableItem = SchemaTreeBaseItem & {
-  type: typeof SchemaTreeItemType.Table
-  children: SchemaTreeColumnItem[]
+export type DSTreeSchemaItem = DSTreeBaseItem & {
+  type: typeof DSTreeItemType.Schema
+  children: DSTreeItem[]
 }
 
-export type SchemaTreeColumnItem = SchemaTreeBaseItem & {
-  type: typeof SchemaTreeItemType.Column
+export type DSTreeTableItem = DSTreeBaseItem & {
+  type: typeof DSTreeItemType.Table
+  children: DSTreeItem[]
+}
+
+export type DSTreeViewItem = DSTreeBaseItem & {
+  type: typeof DSTreeItemType.View
+  children: DSTreeItem[]
+}
+
+export type DSTreeFunctionItem = DSTreeBaseItem & {
+  type: typeof DSTreeItemType.Function
+  description: string
+}
+
+export type DSTreeColumnItem = DSTreeBaseItem & {
+  type: typeof DSTreeItemType.Column
   dataType: string
   isNullable: boolean
 }
 
-export type SchemaTreeItem =
-  | SchemaTreeCatalogItem
-  | SchemaTreeSchemaItem
-  | SchemaTreeTablesItem
-  | SchemaTreeTableItem
-  | SchemaTreeColumnItem
+export type DSTreeItem =
+  | DSTreeExtensionItem
+  | DSTreeDatabaseItem
+  | DSTreeSchemaItem
+  | DSTreeCollectionItem
+  | DSTreeTableItem
+  | DSTreeViewItem
+  | DSTreeFunctionItem
+  | DSTreeColumnItem
 
 export interface ISqlDialect {
-  getSchemaTree(): Promise<SchemaTreeItem[]>
+  getDataSourceTree(): Promise<DSTreeItem[]>
 }

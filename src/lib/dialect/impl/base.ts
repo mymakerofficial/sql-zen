@@ -1,4 +1,4 @@
-import type { ISqlDialect, SchemaTreeItem } from '@/lib/dialect/interface'
+import type { ISqlDialect, DSTreeItem } from '@/lib/dialect/interface'
 import type { IDataSource } from '@/lib/dataSources/interface'
 
 export abstract class SqlDialect implements ISqlDialect {
@@ -8,5 +8,5 @@ export abstract class SqlDialect implements ISqlDialect {
     this.dataSource = dataSource
   }
 
-  abstract getSchemaTree(): Promise<SchemaTreeItem[]>
+  abstract getDataSourceTree(): Promise<DSTreeItem[]>
 }

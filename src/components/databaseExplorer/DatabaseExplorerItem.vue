@@ -4,7 +4,7 @@ import { getEngineInfo } from '@/lib/engines/helpers'
 import { computed } from 'vue'
 import { useRegistry } from '@/composables/useRegistry'
 import { SquareTerminalIcon, Trash2Icon } from 'lucide-vue-next'
-import SchemaTree from '@/components/editor/SchemaTree.vue'
+import DSTree from '@/components/databaseExplorer/DSTree.vue'
 import { useDataSourceStatus } from '@/composables/useDataSourceStatus'
 import { DataSourceStatus } from '@/lib/registry/enums'
 
@@ -39,7 +39,7 @@ function handleDelete() {
         @click="handleSelect"
         size="sm"
         variant="ghost"
-        class="-ml-3 gap-3 items-center"
+        class="-ml-3 gap-3 items-center flex-1 justify-start"
       >
         <span class="relative min-w-max">
           <img
@@ -68,10 +68,9 @@ function handleDelete() {
         </Button>
       </div>
     </div>
-    <SchemaTree
+    <DSTree
       v-if="isActive && status === DataSourceStatus.Running"
       :data-source-key="dataSourceKey"
-      class="ml-1"
     />
   </article>
 </template>

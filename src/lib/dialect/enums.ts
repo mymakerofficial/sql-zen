@@ -1,9 +1,12 @@
-export const SchemaTreeItemType = {
-  Catalog: 'catalog',
+export const DSTreeItemType = {
+  Collection: 'collection',
+  Extension: 'extension',
+  Database: 'database',
   Schema: 'schema',
-  Tables: 'tables',
   Table: 'table',
+  View: 'view',
+  Function: 'function',
   Column: 'column',
 } as const
-export type SchemaTreeItemType =
-  (typeof SchemaTreeItemType)[keyof typeof SchemaTreeItemType]
+export type DSTreeItemType =
+  (typeof DSTreeItemType)[keyof typeof DSTreeItemType]

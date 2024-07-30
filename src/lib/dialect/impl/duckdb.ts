@@ -1,160 +1,302 @@
 import type {
   ISqlDialect,
-  SchemaTreeCatalogItem,
-  SchemaTreeColumnItem,
-  SchemaTreeSchemaItem,
-  SchemaTreeTableItem,
-  SchemaTreeTablesItem,
+  DSTreeDatabaseItem,
+  DSTreeColumnItem,
+  DSTreeSchemaItem,
+  DSTreeTableItem,
+  DSTreeCollectionItem,
+  DSTreeViewItem,
+  DSTreeFunctionItem,
+  DSTreeExtensionItem,
 } from '@/lib/dialect/interface'
-import { SchemaTreeItemType } from '@/lib/dialect/enums'
+import { DSTreeItemType } from '@/lib/dialect/enums'
 import { SqlDialect } from '@/lib/dialect/impl/base'
 
 export class DuckDBDialect extends SqlDialect implements ISqlDialect {
-  async getSchemaTree() {
-    const { rows: catalogs } = await this.dataSource.query<Catalog>(
-      `SELECT DISTINCT catalog_name FROM information_schema.schemata`,
+  async getDataSourceTree() {
+    const { rows: extensions } = await this.dataSource.query<Extension>(
+      `SELECT extension_name, loaded, installed, description FROM duckdb_extensions()`,
+    )
+
+    const { rows: databases } = await this.dataSource.query<Database>(
+      `SELECT database_name, path FROM duckdb_databases()`,
     )
 
     const { rows: schemas } = await this.dataSource.query<Schema>(
-      `SELECT catalog_name, schema_name, schema_owner FROM information_schema.schemata`,
+      `SELECT database_name, schema_name FROM duckdb_schemas()`,
     )
 
     const { rows: tables } = await this.dataSource.query<Table>(
-      `SELECT table_catalog, table_schema, table_name, table_type FROM information_schema.tables`,
+      `SELECT database_name, schema_name, table_name FROM duckdb_tables()`,
+    )
+
+    const { rows: views } = await this.dataSource.query<View>(
+      `SELECT database_name, schema_name, view_name FROM duckdb_views()`,
+    )
+
+    const { rows: functions } = await this.dataSource.query<Function>(
+      `SELECT database_name, schema_name, function_name, description FROM duckdb_functions()`,
     )
 
     const { rows: columns } = await this.dataSource.query<Column>(
-      `SELECT table_catalog, table_schema, table_name, column_name, data_type, is_nullable FROM information_schema.columns`,
+      `SELECT database_name, schema_name, table_name, column_name, data_type, is_nullable FROM duckdb_columns()`,
     )
 
-    return genCatalogs(catalogs, schemas, tables, columns)
+    return genBase(
+      extensions,
+      databases,
+      schemas,
+      tables,
+      views,
+      functions,
+      columns,
+    )
   }
 }
 
-type Catalog = {
-  catalog_name: string
+type Extension = {
+  extension_name: string
+  loaded: boolean
+  installed: boolean
+  description: string
+}
+
+type Database = {
+  database_name: string
+  path: string
 }
 
 type Schema = {
-  catalog_name: string
+  database_name: string
   schema_name: string
-  schema_owner: string
 }
 
 type Table = {
-  table_catalog: string
-  table_schema: string
+  database_name: string
+  schema_name: string
   table_name: string
-  table_type: string
+}
+
+type View = {
+  database_name: string
+  schema_name: string
+  view_name: string
+}
+
+type Function = {
+  database_name: string
+  schema_name: string
+  function_name: string
+  description: string
 }
 
 type Column = {
-  table_catalog: string
-  table_schema: string
+  database_name: string
+  schema_name: string
   table_name: string
   column_name: string
   data_type: string
   is_nullable: 'YES' | 'NO'
 }
 
-function genCatalogs(
-  catalogs: Catalog[],
+function genBase(
+  extensions: Extension[],
+  databases: Database[],
   schemas: Schema[],
   tables: Table[],
+  views: View[],
+  functions: Function[],
   columns: Column[],
 ) {
-  const tree: Array<SchemaTreeCatalogItem> = []
+  return [
+    {
+      key: `__databases__`,
+      name: 'databases',
+      type: DSTreeItemType.Collection,
+      for: DSTreeItemType.Database,
+      children: genDatabases(
+        databases,
+        schemas,
+        tables,
+        views,
+        functions,
+        columns,
+      ),
+    },
+    {
+      key: `__extensions__`,
+      name: 'extensions',
+      type: DSTreeItemType.Collection,
+      for: DSTreeItemType.Extension,
+      children: genExtensions(extensions),
+    },
+  ] as DSTreeCollectionItem[]
+}
 
-  catalogs.forEach((catalog) => {
-    const catalogItem: SchemaTreeCatalogItem = {
-      name: catalog.catalog_name,
-      type: SchemaTreeItemType.Catalog,
-      children: genSchemas(catalog.catalog_name, schemas, tables, columns),
-    }
+function genExtensions(extensions: Extension[]): DSTreeExtensionItem[] {
+  return extensions.map((extension) => ({
+    key: `__extensions__-${extension.extension_name}`,
+    name: extension.extension_name,
+    type: DSTreeItemType.Extension,
+    description: extension.description,
+    loaded: extension.loaded,
+    installed: extension.installed,
+  }))
+}
 
-    tree.push(catalogItem)
-  })
-
-  return tree
+function genDatabases(
+  databases: Database[],
+  schemas: Schema[],
+  tables: Table[],
+  views: View[],
+  functions: Function[],
+  columns: Column[],
+): DSTreeDatabaseItem[] {
+  return databases.map((database) => ({
+    key: `${database.database_name}`,
+    name: database.database_name,
+    type: DSTreeItemType.Database,
+    path: database.path,
+    children: [
+      {
+        key: '__schemas__',
+        name: 'schemas',
+        type: DSTreeItemType.Collection,
+        for: DSTreeItemType.Schema,
+        children: genSchemas(
+          database.database_name,
+          schemas,
+          tables,
+          views,
+          functions,
+          columns,
+        ),
+      },
+    ],
+  }))
 }
 
 function genSchemas(
-  catalog: string,
+  database: string,
   schemas: Schema[],
   tables: Table[],
+  views: View[],
+  functions: Function[],
   columns: Column[],
-) {
-  const tree: Array<SchemaTreeSchemaItem> = []
-
-  schemas
-    .filter((it) => it.catalog_name === catalog)
-    .forEach((schema) => {
-      const schemaItem: SchemaTreeSchemaItem = {
-        name: schema.schema_name,
-        type: SchemaTreeItemType.Schema,
-        children: [
-          {
-            name: 'tables',
-            type: SchemaTreeItemType.Tables,
-            children: genTables(catalog, schema.schema_name, tables, columns),
-          },
-        ] as unknown as SchemaTreeTablesItem[],
-      }
-
-      tree.push(schemaItem)
-    })
-
-  return tree
+): DSTreeSchemaItem[] {
+  return schemas
+    .filter((it) => it.database_name === database)
+    .map((schema) => ({
+      key: `${database}-${schema.schema_name}`,
+      name: schema.schema_name,
+      type: DSTreeItemType.Schema,
+      children: [
+        {
+          key: `${database}-${schema.schema_name}-__tables__`,
+          name: 'tables',
+          type: DSTreeItemType.Collection,
+          for: DSTreeItemType.Table,
+          children: genTables(database, schema.schema_name, tables, columns),
+        },
+        {
+          key: `${database}-${schema.schema_name}-__views__`,
+          name: 'views',
+          type: DSTreeItemType.Collection,
+          for: DSTreeItemType.View,
+          children: genViews(database, schema.schema_name, views, columns),
+        },
+        {
+          key: `${database}-${schema.schema_name}-__functions__`,
+          name: 'functions',
+          type: DSTreeItemType.Collection,
+          for: DSTreeItemType.Function,
+          children: genFunctions(database, schema.schema_name, functions),
+        },
+      ] as DSTreeCollectionItem[],
+    }))
 }
 
 function genTables(
-  catalog: string,
+  database: string,
   schema: string,
   tables: Table[],
   columns: Column[],
-) {
-  const tree: Array<SchemaTreeTableItem> = []
+): DSTreeTableItem[] {
+  return tables
+    .filter((it) => it.database_name === database && it.schema_name === schema)
+    .map((table) => ({
+      key: `${database}-${schema}-${table.table_name}`,
+      name: table.table_name,
+      type: DSTreeItemType.Table,
+      children: [
+        {
+          key: `${database}-${schema}-${table.table_name}-__columns__`,
+          name: 'columns',
+          type: DSTreeItemType.Collection,
+          for: DSTreeItemType.Column,
+          children: genColumns(database, schema, table.table_name, columns),
+        },
+      ],
+    }))
+}
 
-  tables
-    .filter((it) => it.table_catalog === catalog && it.table_schema === schema)
-    .forEach((table) => {
-      const tableItem: SchemaTreeTableItem = {
-        name: table.table_name,
-        type: SchemaTreeItemType.Table,
-        children: genColumns(catalog, schema, table.table_name, columns),
-      }
-
-      tree.push(tableItem)
-    })
-
-  return tree
+function genViews(
+  database: string,
+  schema: string,
+  views: View[],
+  columns: Column[],
+): DSTreeViewItem[] {
+  return views
+    .filter((it) => it.database_name === database && it.schema_name === schema)
+    .map((view) => ({
+      key: `${database}-${schema}-${view.view_name}`,
+      name: view.view_name,
+      type: DSTreeItemType.View,
+      children: [
+        {
+          key: `${database}-${schema}-${view.view_name}-__columns__`,
+          name: 'columns',
+          type: DSTreeItemType.Collection,
+          for: DSTreeItemType.Column,
+          children: genColumns(database, schema, view.view_name, columns),
+        },
+      ],
+    }))
 }
 
 function genColumns(
-  catalog: string,
+  database: string,
   schema: string,
   table: string,
   columns: Column[],
-) {
-  const tree: Array<SchemaTreeColumnItem> = []
-
-  columns
+): DSTreeColumnItem[] {
+  return columns
     .filter(
       (it) =>
-        it.table_catalog === catalog &&
-        it.table_schema === schema &&
+        it.database_name === database &&
+        it.schema_name === schema &&
         it.table_name === table,
     )
-    .forEach((column) => {
-      const columnItem: SchemaTreeColumnItem = {
-        name: column.column_name,
-        type: SchemaTreeItemType.Column,
-        dataType: column.data_type,
-        isNullable: column.is_nullable === 'YES',
-      }
+    .map((column) => ({
+      key: `${database}-${schema}-${table}-${column.column_name}`,
+      name: column.column_name,
+      type: DSTreeItemType.Column,
+      dataType: column.data_type,
+      isNullable: column.is_nullable === 'YES',
+    }))
+}
 
-      tree.push(columnItem)
-    })
-
-  return tree
+function genFunctions(
+  database: string,
+  schema: string,
+  functions: Function[],
+): DSTreeFunctionItem[] {
+  return functions
+    .filter((it) => it.database_name === database && it.schema_name === schema)
+    .map((func) => ({
+      key: `${database}-${schema}-${func.function_name}`,
+      name: func.function_name,
+      type: DSTreeItemType.Function,
+      description: func.description,
+    }))
 }
