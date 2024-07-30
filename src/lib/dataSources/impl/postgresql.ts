@@ -5,6 +5,7 @@ import type { QueryResult } from '@/lib/queries/interface'
 import { getId } from '@/lib/getId'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { DataSource } from '@/lib/dataSources/impl/base'
+import { vector } from '@electric-sql/pglite/vector'
 
 export class PostgreSQL extends DataSource {
   #database: PGlite | null = null
@@ -42,6 +43,9 @@ export class PostgreSQL extends DataSource {
       const loadDataDir = await this.initDump?.read()
       const database = new module.PGlite(this.#getDataDir(), {
         loadDataDir,
+        extensions: {
+          vector,
+        },
       })
       await database.waitReady
       return database
