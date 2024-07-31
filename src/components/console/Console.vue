@@ -40,6 +40,16 @@ const editor = useEditor({
 editor.use(inlineRun({ enabled: isRunning }))
 editor.use(inlineResults({ enabled: enableInlineResults }))
 editor.use(highlightSelected)
+
+// temporary store the model content in local storage
+const modelStorage = useStorage(
+  `editor-model-${props.dataSourceKey}-sql`,
+  model.getValue(),
+)
+model.setValue(modelStorage.value)
+model.onDidChangeContent(() => {
+  modelStorage.value = model.getValue()
+})
 </script>
 
 <template>
