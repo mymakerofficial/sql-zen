@@ -109,20 +109,7 @@ function genBase(
   columns: Column[],
 ) {
   return [
-    {
-      key: `__databases__`,
-      name: 'databases',
-      type: DSTreeItemType.Collection,
-      for: DSTreeItemType.Database,
-      children: genDatabases(
-        databases,
-        schemas,
-        tables,
-        views,
-        functions,
-        columns,
-      ),
-    },
+    ...genDatabases(databases, schemas, tables, views, functions, columns),
     {
       key: `__extensions__`,
       name: 'extensions',

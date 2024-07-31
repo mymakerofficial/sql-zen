@@ -61,7 +61,7 @@ defineProps<{
           />
           <DatabaseIcon
             v-else-if="item.value.type === DSTreeItemType.Database"
-            class="size-4 min-w-max text-muted-foreground"
+            class="size-4 min-w-max text-blue-500"
           />
           <BlocksIcon
             v-else-if="item.value.type === DSTreeItemType.Schema"
