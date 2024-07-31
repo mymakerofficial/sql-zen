@@ -133,8 +133,13 @@ const { mutate: create, error } = useMutation({
       <Separator />
       <div class="grid grid-cols-4 items-center gap-4">
         <Label for="file" class="text-right">Import Dump</Label>
-        <FileInput @selected="handleFileSelected" :disabled="disableDump">
-          <Button id="file" variant="outline" class="col-span-3">
+        <FileInput @selected="handleFileSelected">
+          <Button
+            :disabled="disableDump"
+            id="file"
+            variant="outline"
+            class="col-span-3"
+          >
             {{ dump?.getName() ?? 'Select File' }}
           </Button>
         </FileInput>
