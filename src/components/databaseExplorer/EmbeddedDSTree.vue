@@ -104,12 +104,6 @@ defineProps<{
         >
           {{ item.value.dataType }}
         </span>
-        <span
-          v-if="item.value.type === DSTreeItemType.Database"
-          class="font-normal text-muted-foreground truncate"
-        >
-          {{ item.value.path }}
-        </span>
       </span>
       <span
         v-if="'description' in item.value && item.value.description"
