@@ -12,11 +12,13 @@ import { ref } from 'vue'
 import highlightStatements from '@/composables/editor/highlightStatements'
 import { useRunSuggestions } from '@/composables/editor/useRunSuggestions'
 import type { Statement } from '@/lib/statements/interface'
+import { useIsRunning } from '@/composables/useIsRunning'
 
 const props = defineProps<{
   editor: UseEditor
 }>()
 
+const isRunning = useIsRunning(props.editor.runner?.getKey() ?? '')
 const suggestions = useRunSuggestions(props.editor)
 
 const hovered = ref<Statement[]>([])
@@ -48,6 +50,7 @@ function handleRun(statements: Statement[]) {
   <Popover v-model:open="isOpen">
     <PopoverTrigger>
       <Button
+        :disabled="!isRunning"
         size="sm"
         variant="success"
         class="gap-3"
