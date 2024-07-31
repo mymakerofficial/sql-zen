@@ -1,7 +1,3 @@
--- Welcome to sql-zen
--- You can run queries by clicking the play button next to the query,
---  or run all with the 'Run All' button at the top of the page
-
 -- Load pgvector extension
 CREATE EXTENSION IF NOT EXISTS vector;
 

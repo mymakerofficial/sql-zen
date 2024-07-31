@@ -1,10 +1,6 @@
 const origin = window.location.origin
 
-export default `-- Welcome to sql-zen
--- You can run queries by clicking the play button next to the query,
---  or run all with the 'Run All' button at the top of the page
-
--- Try running the following queries from the DuckDB documentation:
+export default `-- Try running the following queries from the DuckDB documentation:
 
 -- Load Parquet file, find the top-10 stations with the most services
 SELECT station_name, count(*) AS num_services
