@@ -1,40 +1,49 @@
-import { useEditorCursorPosition } from '@/composables/editor/useEditorCursorPosition'
+import {
+  useEditorCursorSelection,
+  useEditorSelectionStart,
+} from '@/composables/editor/useEditorCursorPosition'
 import { computed } from 'vue'
 import type { UseEditor } from '@/composables/editor/useEditor'
+import {
+  positionInsideRange,
+  rangeIsAfterPosition,
+  rangesTouch,
+} from '@/lib/statements/rangeHelpers'
 
 export function useSelectedStatement({ editor, statements }: UseEditor) {
-  const position = useEditorCursorPosition(editor)
+  const position = useEditorSelectionStart(editor)
   return computed(() => {
+    if (!position.value) {
+      return null
+    }
     return (
-      statements.value.find((statement) => {
-        if (!position.value) {
-          return false
-        }
-        const range = statement.range
-        if (!range) {
-          return false
-        }
-        if (range.startLineNumber === range.endLineNumber) {
-          return (
-            range.startLineNumber === position.value.lineNumber &&
-            range.startColumn <= position.value.column &&
-            // +1 to include the semicolon
-            range.endColumn + 1 >= position.value.column
-          )
-        } else {
-          if (range.startLineNumber === position.value.lineNumber) {
-            return range.startColumn <= position.value.column
-          }
-          if (range.endLineNumber === position.value.lineNumber) {
-            // +1 to include the semicolon
-            return range.endColumn + 1 >= position.value.column
-          }
-          return (
-            range.startLineNumber < position.value.lineNumber &&
-            range.endLineNumber > position.value.lineNumber
-          )
-        }
-      }) ?? null
+      statements.value
+        .filter((it) => it.range)
+        .find((it) => positionInsideRange(position.value!, it.range!)) ?? null
     )
+  })
+}
+
+export function useStatementsInSelection({ editor, statements }: UseEditor) {
+  const selection = useEditorCursorSelection(editor)
+  return computed(() => {
+    if (!selection.value) {
+      return []
+    }
+    return statements.value
+      .filter((it) => it.range)
+      .filter((it) => rangesTouch(selection.value!, it.range!))
+  })
+}
+
+export function useStatementsAfterSelected({ editor, statements }: UseEditor) {
+  const position = useEditorSelectionStart(editor)
+  return computed(() => {
+    if (!position.value) {
+      return []
+    }
+    return statements.value
+      .filter((it) => it.range)
+      .filter((it) => rangeIsAfterPosition(it.range!, position.value!))
   })
 }

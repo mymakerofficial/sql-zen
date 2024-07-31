@@ -1,10 +1,16 @@
-export type StatementRange = {
-  // 1-indexed
+export type Position = {
+  lineNumber: number
+  column: number
+}
+
+export type Range = {
   startLineNumber: number
   startColumn: number
-  // 1-indexed
   endLineNumber: number
   endColumn: number
+}
+
+export type StatementRange = Range & {
   startIndex: number
   endIndex: number
 }

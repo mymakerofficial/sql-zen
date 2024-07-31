@@ -3,22 +3,20 @@ import { Button } from '@/components/ui/button'
 import {
   DownloadIcon,
   EraserIcon,
-  PlayIcon,
-  TableRowsSplitIcon,
   FolderIcon,
+  TableRowsSplitIcon,
 } from 'lucide-vue-next'
 import { Toggle } from '@/components/ui/toggle'
 import type { UseEditor } from '@/composables/editor/useEditor'
 import { downloadFile } from '@/lib/downloadFile'
 import { computed } from 'vue'
 import { Separator } from '@/components/ui/separator'
-import { useRunSelected } from '@/composables/editor/useRunSelected'
 import type { IRunner } from '@/lib/runner/interface'
 import { DatabaseEngine } from '@/lib/engines/enums'
-import { useRunAll } from '@/composables/editor/useRunAll'
 import { useDialog } from '@/composables/useDialog'
 import DuckDbExplorer from '@/components/shared/dialogs/duckDbExplorer/DuckDbExplorer.vue'
 import { useQueryClient } from '@tanstack/vue-query'
+import RunButton from '@/components/console/RunButton.vue'
 
 const enableInlineResults = defineModel<boolean>('enableInlineResults')
 
@@ -28,8 +26,6 @@ const props = defineProps<{
 }>()
 
 const queryClient = useQueryClient()
-const { runSelected, canRunSelected } = useRunSelected(props.editor)
-const { runAll, canRunAll } = useRunAll(props.editor)
 const { open: openFileExplorer } = useDialog(DuckDbExplorer)
 
 const canOpenFileExplorer = computed(
@@ -61,26 +57,7 @@ function handleClear() {
 <template>
   <section class="h-12 px-3 flex justify-between border-b border-border">
     <div class="h-full flex items-center gap-3">
-      <Button
-        @click="runAll"
-        :disabled="!canRunAll"
-        size="sm"
-        variant="ghost"
-        class="gap-3"
-      >
-        <PlayIcon class="size-4 min-w-max" />
-        <span>All</span>
-      </Button>
-      <Button
-        @click="runSelected"
-        :disabled="!canRunSelected"
-        size="sm"
-        variant="ghost"
-        class="gap-3"
-      >
-        <PlayIcon class="size-4 min-w-max" />
-        <span>Selected</span>
-      </Button>
+      <RunButton :editor="editor" />
       <Separator orientation="vertical" />
       <Button
         v-if="canOpenFileExplorer"

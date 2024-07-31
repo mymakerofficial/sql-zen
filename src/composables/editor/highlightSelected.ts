@@ -1,36 +1,11 @@
 import type { UseEditor } from '@/composables/editor/useEditor'
-import { useSelectedStatement } from '@/composables/editor/useSelectedStatement'
-import type * as monaco from 'monaco-editor'
-import { watchEffect } from 'vue'
+import {
+  useSelectedStatement,
+  useStatementsInSelection,
+} from '@/composables/editor/useSelectedStatement'
+import highlightStatements from '@/composables/editor/highlightStatements'
 
 export default function highlightSelectedPlugin(editor: UseEditor) {
-  const statement = useSelectedStatement(editor)
-
-  let decorations: monaco.editor.IEditorDecorationsCollection | null = null
-
-  function clear() {
-    if (decorations) {
-      decorations.clear()
-      decorations = null
-    }
-  }
-
-  function highlight() {
-    if (!statement.value) {
-      return
-    }
-    decorations = editor.editor.createDecorationsCollection([
-      {
-        range: statement.value.range!,
-        options: {
-          className: 'selected-statement',
-        },
-      },
-    ])
-  }
-
-  watchEffect(() => {
-    clear()
-    highlight()
-  })
+  const statements = useStatementsInSelection(editor)
+  editor.use(highlightStatements(statements))
 }

@@ -38,15 +38,18 @@ const table = useVueTable({
     <TableHeader>
       <TableRow
         v-for="headerGroup in table.getHeaderGroups()"
-        :key="headerGroup.id">
+        :key="headerGroup.id"
+      >
         <TableHead
           v-for="header in headerGroup.headers"
           :key="header.id"
-          :class="(header.column.columnDef.meta as any)?.className">
+          :class="(header.column.columnDef.meta as any)?.className"
+        >
           <FlexRender
             v-if="!header.isPlaceholder"
             :render="header.column.columnDef.header"
-            :props="header.getContext()" />
+            :props="header.getContext()"
+          />
         </TableHead>
       </TableRow>
     </TableHeader>
@@ -55,14 +58,17 @@ const table = useVueTable({
         <TableRow
           v-for="row in table.getRowModel().rows"
           :key="row.id"
-          :data-state="row.getIsSelected() && 'selected'">
+          :data-state="row.getIsSelected() && 'selected'"
+        >
           <TableCell
             v-for="cell in row.getVisibleCells()"
             :key="cell.id"
-            :class="(cell.column.columnDef.meta as any)?.className">
+            :class="(cell.column.columnDef.meta as any)?.className"
+          >
             <FlexRender
               :render="cell.column.columnDef.cell"
-              :props="cell.getContext()" />
+              :props="cell.getContext()"
+            />
           </TableCell>
         </TableRow>
       </template>

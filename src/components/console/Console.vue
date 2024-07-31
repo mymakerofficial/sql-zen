@@ -15,8 +15,6 @@ import { useMediaQuery, useStorage } from '@vueuse/core'
 import { useRegistry } from '@/composables/useRegistry'
 import { getExampleSql } from '@/lib/examples/getExampleSql'
 import highlightSelected from '@/composables/editor/highlightSelected'
-import { useDataSourceStatus } from '@/composables/useDataSourceStatus'
-import { DataSourceStatus } from '@/lib/registry/enums'
 import { useIsRunning } from '@/composables/useIsRunning'
 
 const props = defineProps<{

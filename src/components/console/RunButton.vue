@@ -20,7 +20,7 @@ const props = defineProps<{
 const suggestions = useRunSuggestions(props.editor)
 
 const hovered = ref<Statement[]>([])
-const open = ref(false)
+const isOpen = ref(false)
 
 props.editor.use(
   highlightStatements(hovered, {
@@ -29,21 +29,30 @@ props.editor.use(
   }),
 )
 
+function close() {
+  hovered.value = []
+  isOpen.value = false
+}
+
 function handleHover(statements: Statement[]) {
   hovered.value = statements
 }
 
 function handleRun(statements: Statement[]) {
-  open.value = false
-  hovered.value = []
+  close()
   props.editor.runner?.batch(statements)
 }
 </script>
 
 <template>
-  <Popover v-model:open="open">
+  <Popover v-model:open="isOpen">
     <PopoverTrigger>
-      <Button size="sm" variant="success" class="gap-3">
+      <Button
+        size="sm"
+        variant="success"
+        class="gap-3"
+        aria-label="Select statement to run"
+      >
         <PlayIcon class="size-4 min-w-max" />
         <span class="hidden md:block">Run</span>
       </Button>
@@ -51,6 +60,7 @@ function handleRun(statements: Statement[]) {
     <PopoverContent
       align="start"
       class="p-1 relative -top-10 w-96 flex flex-col gap-1"
+      @mouseleave="close"
     >
       <Button
         v-for="suggestion in suggestions"
@@ -61,6 +71,7 @@ function handleRun(statements: Statement[]) {
         size="sm"
         variant="ghost"
         class="w-full py-2 h-fit max-h-16 justify-start items-start overflow-hidden"
+        :aria-label="`Run Statement: ${suggestion.short.substring(0, 10)}`"
       >
         <CodeBlock
           :code="suggestion.short"

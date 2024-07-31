@@ -59,7 +59,7 @@ whenever(
           <Console :data-source-key="selected" :key="selected" />
         </KeepAlive>
         <div
-          v-else
+          v-if="!selected"
           class="flex items-center justify-center h-full text-muted-foreground"
         >
           <p v-if="databases.length">

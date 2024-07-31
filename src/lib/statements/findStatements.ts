@@ -76,7 +76,7 @@ export function findStatements(sql: string): Array<Statement> {
         index++
         currentColumn++
       }
-      const subString = sql.slice(statementStartIndex, index).trim()
+      const subString = sql.slice(statementStartIndex - 1, index).trim()
       index++
       currentColumn++
       if (subString.length > 0) {
@@ -85,8 +85,9 @@ export function findStatements(sql: string): Array<Statement> {
           startColumn: statementStartColumn,
           startIndex: statementStartIndex,
           endLineNumber: currentLineNumber,
-          endColumn: currentColumn,
-          endIndex: index,
+          // +1 to include the semicolon
+          endColumn: currentColumn + 1,
+          endIndex: index + 1,
         }
         statements.push({
           range,
