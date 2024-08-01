@@ -57,7 +57,7 @@ function handleRun(statements: Statement[]) {
         aria-label="Select statement to run"
       >
         <PlayIcon class="size-4 min-w-max" />
-        <span class="hidden md:block">Run</span>
+        <span>Run</span>
       </Button>
     </PopoverTrigger>
     <PopoverContent

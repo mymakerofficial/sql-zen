@@ -55,7 +55,9 @@ function handleClear() {
 </script>
 
 <template>
-  <section class="h-12 px-3 flex justify-between border-b border-border">
+  <section
+    class="min-h-12 h-12 px-3 flex justify-between border-b border-border"
+  >
     <div class="h-full flex items-center gap-3">
       <RunButton :editor="editor" />
       <Separator orientation="vertical" />
@@ -67,7 +69,7 @@ function handleClear() {
         class="gap-3"
       >
         <FolderIcon class="size-4 min-w-max" />
-        <span class="hidden md:block">Explore Files</span>
+        <span>Explore Files</span>
       </Button>
       <Button
         v-if="canDump"
