@@ -1,14 +1,8 @@
 <script setup lang="ts">
 import { useRegistry } from '@/composables/useRegistry'
 import type { DuckDB } from '@/lib/dataSources/impl/duckdb'
-import BaseDialog from '@/components/shared/dialog/BaseDialog.vue'
 import { useDialog, useDialogContext } from '@/composables/useDialog'
 import { useMutation, useQuery } from '@tanstack/vue-query'
-import {
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import FileInput from '@/components/shared/FileInput.vue'
 import type { FileAccessor } from '@/lib/files/fileAccessor'
@@ -20,6 +14,12 @@ import DuckDbExplorerItemActions from '@/components/shared/dialogs/duckDbExplore
 import { computed, h } from 'vue'
 import { downloadFile } from '@/lib/downloadFile'
 import FileViewerDialog from '@/components/shared/dialogs/fileViewer/FileViewerDialog.vue'
+import ResponsiveDialog from '@/components/shared/responsiveDialog/ResponsiveDialog.vue'
+import ResponsiveDialogContent from '@/components/shared/responsiveDialog/ResponsiveDialogContent.vue'
+import ResponsiveDialogHeader from '@/components/shared/responsiveDialog/ResponsiveDialogHeader.vue'
+import ResponsiveDialogTitle from '@/components/shared/responsiveDialog/ResponsiveDialogTitle.vue'
+import ResponsiveDialogDescription from '@/components/shared/responsiveDialog/ResponsiveDialogDescription.vue'
+import ResponsiveDialogFooter from '@/components/shared/responsiveDialog/ResponsiveDialogFooter.vue'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -115,31 +115,33 @@ const columns = [
 </script>
 
 <template>
-  <BaseDialog v-model:open="open">
-    <DialogHeader>
-      <DialogHeader>DuckDB Local File System</DialogHeader>
-      <DialogDescription>
-        <p>
-          DuckDB local file system is a virtual file system that allows you to
-          register files to be used in your queries.
-        </p>
-        <p>
-          DuckDB can load table data from CSV, JSON, and Parquet files. You can
-          also upload and open databases from here.
-        </p>
-      </DialogDescription>
-    </DialogHeader>
-    <div class="max-h-72 overflow-auto">
-      <DataTable :data="data" :columns="columns" />
-    </div>
-    <p v-for="error in errors" class="text-red-500">{{ error }}</p>
-    <DialogFooter>
-      <FileInput @selected="handleRegisterFile">
-        <Button class="gap-3">
-          <UploadIcon class="size-4 min-w-max" />
-          <span>Upload</span>
-        </Button>
-      </FileInput>
-    </DialogFooter>
-  </BaseDialog>
+  <ResponsiveDialog v-model:open="open">
+    <ResponsiveDialogContent>
+      <ResponsiveDialogHeader>
+        <ResponsiveDialogTitle>DuckDB Local File System</ResponsiveDialogTitle>
+        <ResponsiveDialogDescription>
+          <p>
+            DuckDB local file system is a virtual file system that allows you to
+            register files to be used in your queries.
+          </p>
+          <p>
+            DuckDB can load table data from CSV, JSON, and Parquet files. You
+            can also upload and open databases from here.
+          </p>
+        </ResponsiveDialogDescription>
+      </ResponsiveDialogHeader>
+      <div class="max-h-72 overflow-auto">
+        <DataTable :data="data" :columns="columns" />
+      </div>
+      <p v-for="error in errors" class="text-red-500">{{ error }}</p>
+      <ResponsiveDialogFooter>
+        <FileInput @selected="handleRegisterFile">
+          <Button class="gap-3">
+            <UploadIcon class="size-4 min-w-max" />
+            <span>Upload</span>
+          </Button>
+        </FileInput>
+      </ResponsiveDialogFooter>
+    </ResponsiveDialogContent>
+  </ResponsiveDialog>
 </template>

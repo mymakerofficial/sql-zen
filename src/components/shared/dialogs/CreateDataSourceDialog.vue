@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import BaseDialog from '@/components/shared/dialog/BaseDialog.vue'
 import { useDialogContext } from '@/composables/useDialog'
 import { DialogFooter } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
@@ -18,6 +17,12 @@ import FileInput from '@/components/shared/FileInput.vue'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceMode } from '@/lib/dataSources/enums'
 import type { DataSourceCompleteDescriptor } from '@/lib/dataSources/interface'
+import ResponsiveDialog from '@/components/shared/responsiveDialog/ResponsiveDialog.vue'
+import ResponsiveDialogContent from '@/components/shared/responsiveDialog/ResponsiveDialogContent.vue'
+import ResponsiveDialogFooter from '@/components/shared/responsiveDialog/ResponsiveDialogFooter.vue'
+import ResponsiveDialogHeader from '@/components/shared/responsiveDialog/ResponsiveDialogHeader.vue'
+import ResponsiveDialogTitle from '@/components/shared/responsiveDialog/ResponsiveDialogTitle.vue'
+import ResponsiveDialogDescription from '@/components/shared/responsiveDialog/ResponsiveDialogDescription.vue'
 
 const props = defineProps<{
   engine: DatabaseEngine
@@ -89,74 +94,82 @@ const { mutate: create, error } = useMutation({
 </script>
 
 <template>
-  <BaseDialog
-    v-model:open="open"
-    title="Create new Data Source."
-    description="Different databases may support different configurations."
-  >
-    <div class="grid gap-4 py-4">
-      <div class="grid grid-cols-4 items-center gap-4">
-        <Label for="engine" class="text-right">Engine</Label>
-        <DatabaseEngineSelect v-model="engine" id="engine" class="col-span-3" />
-      </div>
-      <div class="grid grid-cols-4 items-center gap-4">
-        <Label for="mode" class="text-right">Storage Mode</Label>
-        <DataSourceModeSelect
-          v-model="mode"
-          :disabled="disableMode"
-          id="mode"
-          class="col-span-3"
-        />
-        <p
-          v-if="disableMode"
-          class="col-span-full text-sm text-muted-foreground"
-        >
-          This database engine only supports in memory storage.
-        </p>
-      </div>
-      <div class="grid grid-cols-4 items-center gap-4">
-        <Label for="identifier" class="text-right">Identifier</Label>
-        <Input
-          v-model="identifier"
-          :disabled="disableIdentifier"
-          placeholder="my-awesome-database"
-          id="identifier"
-          class="col-span-3"
-        />
-        <p
-          v-if="disableIdentifier"
-          class="col-span-full text-sm text-muted-foreground"
-        >
-          Only one database can be crate with this configuration.
-        </p>
-      </div>
-      <Separator />
-      <div class="grid grid-cols-4 items-center gap-4">
-        <Label for="file" class="text-right">Import Dump</Label>
-        <FileInput @selected="handleFileSelected">
-          <Button
-            :disabled="disableDump"
-            id="file"
-            variant="outline"
+  <ResponsiveDialog v-model:open="open">
+    <ResponsiveDialogContent>
+      <ResponsiveDialogHeader>
+        <ResponsiveDialogTitle>Create new Data Source.</ResponsiveDialogTitle>
+        <ResponsiveDialogDescription>
+          Different databases may support different configurations.
+        </ResponsiveDialogDescription>
+      </ResponsiveDialogHeader>
+      <div class="grid gap-4 py-4 mx-4 md:mx-0">
+        <div class="grid grid-cols-4 items-center gap-4">
+          <Label for="engine" class="text-right">Engine</Label>
+          <DatabaseEngineSelect
+            v-model="engine"
+            id="engine"
             class="col-span-3"
+          />
+        </div>
+        <div class="grid grid-cols-4 items-center gap-4">
+          <Label for="mode" class="text-right">Storage Mode</Label>
+          <DataSourceModeSelect
+            v-model="mode"
+            :disabled="disableMode"
+            id="mode"
+            class="col-span-3"
+          />
+          <p
+            v-if="disableMode"
+            class="col-span-full text-sm text-muted-foreground"
           >
-            {{ dump?.getName() ?? 'Select File' }}
-          </Button>
-        </FileInput>
-        <p
-          v-if="disableDump"
-          class="col-span-full text-sm text-muted-foreground"
-        >
-          Only SQLite and PostgreSQL databases can be imported.
-        </p>
+            This database engine only supports in memory storage.
+          </p>
+        </div>
+        <div class="grid grid-cols-4 items-center gap-4">
+          <Label for="identifier" class="text-right">Identifier</Label>
+          <Input
+            v-model="identifier"
+            :disabled="disableIdentifier"
+            placeholder="my-awesome-database"
+            id="identifier"
+            class="col-span-3"
+          />
+          <p
+            v-if="disableIdentifier"
+            class="col-span-full text-sm text-muted-foreground"
+          >
+            Only one database can be crate with this configuration.
+          </p>
+        </div>
+        <Separator />
+        <div class="grid grid-cols-4 items-center gap-4">
+          <Label for="file" class="text-right">Import Dump</Label>
+          <FileInput @selected="handleFileSelected">
+            <Button
+              :disabled="disableDump"
+              id="file"
+              variant="outline"
+              class="col-span-3"
+            >
+              {{ dump?.getName() ?? 'Select File' }}
+            </Button>
+          </FileInput>
+          <p
+            v-if="disableDump"
+            class="col-span-full text-sm text-muted-foreground"
+          >
+            Only SQLite and PostgreSQL databases can be imported.
+          </p>
+        </div>
       </div>
-    </div>
-    <div v-if="error" class="text-red-500 text-sm mt-2">
-      {{ error.message }}
-    </div>
-    <DialogFooter>
-      <Button @click="close" variant="ghost">Cancel</Button>
-      <Button @click="create" type="submit">Create</Button>
-    </DialogFooter>
-  </BaseDialog>
+      <div v-if="error" class="text-red-500 text-sm mt-2">
+        {{ error.message }}
+      </div>
+      <ResponsiveDialogFooter>
+        <Button @click="close" variant="ghost">Cancel</Button>
+        <Button @click="create" type="submit">Create</Button>
+      </ResponsiveDialogFooter>
+    </ResponsiveDialogContent>
+  </ResponsiveDialog>
 </template>

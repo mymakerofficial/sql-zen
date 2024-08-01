@@ -15,5 +15,7 @@ queryClient.setDefaultOptions({
 
 <template>
   <DialogProvider />
-  <RouterView />
+  <main vaul-drawer-wrapper class="bg-background">
+    <RouterView />
+  </main>
 </template>
