@@ -130,9 +130,35 @@ export class DuckDB extends DataSource {
       throw new DatabaseNotLoadedError()
     }
 
-    const blob = await file.readBlob()
-    const buffer = new Uint8Array(await blob.arrayBuffer())
+    const buffer = await file.readUint8Array()
     return await this.#database.registerFileBuffer(file.getName(), buffer)
+  }
+
+  async exportFile(name: string) {
+    if (!this.#database) {
+      throw new DatabaseNotLoadedError()
+    }
+
+    const [info] = await this.#database.globFiles(name)
+
+    if (!info) {
+      throw new Error(`File not found: ${name}`)
+    }
+
+    return FileAccessor.fromLazy(
+      async () => {
+        if (!this.#database) {
+          throw new DatabaseNotLoadedError()
+        }
+
+        const buffer = await this.#database.copyFileToBuffer(name)
+        return new Blob([buffer])
+      },
+      {
+        name,
+        size: info.fileSize,
+      },
+    )
   }
 
   async registerEmptyFile(name: string) {
@@ -163,15 +189,6 @@ export class DuckDB extends DataSource {
 
     await this.#database.copyFileToPath(oldName, newName)
     await this.#database.dropFile(oldName)
-  }
-
-  async exportFile(name: string) {
-    if (!this.#database) {
-      throw new DatabaseNotLoadedError()
-    }
-
-    const buffer = await this.#database.copyFileToBuffer(name)
-    return FileAccessor.fromUint8Array(buffer, name)
   }
 
   async dropFile(name: string) {

@@ -38,6 +38,11 @@ export abstract class FileAccessor {
     return await blob.arrayBuffer()
   }
 
+  async readUint8Array(): Promise<Uint8Array> {
+    const buffer = await this.readArrayBuffer()
+    return new Uint8Array(buffer)
+  }
+
   abstract getName(): string
 
   abstract getSize(): Promise<number | undefined>

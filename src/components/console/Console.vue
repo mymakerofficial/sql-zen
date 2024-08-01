@@ -21,7 +21,6 @@ const props = defineProps<{
   dataSourceKey: string
 }>()
 
-const showGlyphMargin = useMediaQuery('(min-width: 768px)') // md
 const enableInlineResults = useStorage('enable-inline-results', false)
 
 const registry = useRegistry()
@@ -34,7 +33,6 @@ const model = monaco.editor.createModel(
 const editor = useEditor({
   model,
   runner,
-  glyphMargin: showGlyphMargin,
   getStatements,
 })
 editor.use(inlineRun({ enabled: isRunning }))

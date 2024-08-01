@@ -2,7 +2,7 @@
 import { useRegistry } from '@/composables/useRegistry'
 import type { DuckDB } from '@/lib/dataSources/impl/duckdb'
 import BaseDialog from '@/components/shared/dialog/BaseDialog.vue'
-import { useDialogContext } from '@/composables/useDialog'
+import { useDialog, useDialogContext } from '@/composables/useDialog'
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import {
   DialogDescription,
@@ -17,14 +17,16 @@ import type { WebFile } from '@duckdb/duckdb-wasm'
 import { createColumnHelper } from '@tanstack/vue-table'
 import { UploadIcon } from 'lucide-vue-next'
 import DuckDbExplorerItemActions from '@/components/shared/dialogs/duckDbExplorer/DuckDbExplorerItemActions.vue'
-import { computed, h, ref } from 'vue'
+import { computed, h } from 'vue'
 import { downloadFile } from '@/lib/downloadFile'
+import FileViewerDialog from '@/components/shared/dialogs/fileViewer/FileViewerDialog.vue'
 
 const props = defineProps<{
   dataSourceKey: string
 }>()
 
 const { open, close } = useDialogContext()
+const { open: openFileViewer } = useDialog(FileViewerDialog)
 
 const registry = useRegistry()
 const dataSource = registry.getDataSource(props.dataSourceKey) as DuckDB
@@ -61,6 +63,10 @@ const { mutate: handleOpenDatabase, error: openDatabaseError } = useMutation({
   onSuccess: close,
 })
 
+async function handleOpenFileViewer(item: WebFile) {
+  openFileViewer({ fileAccessor: await dataSource.exportFile(item.fileName) })
+}
+
 const errors = computed(() =>
   [
     fetchError.value,
@@ -75,6 +81,15 @@ const columnHelper = createColumnHelper<WebFile>()
 const columns = [
   columnHelper.accessor('fileName', {
     header: 'Name',
+    cell: (ctx) =>
+      h(
+        Button,
+        {
+          onClick: () => handleOpenFileViewer(ctx.row.original),
+          variant: 'ghost',
+        },
+        ctx.getValue(),
+      ),
   }),
   columnHelper.accessor('fileSize', {
     header: 'Size',
@@ -87,6 +102,7 @@ const columns = [
     cell: (ctx) =>
       h(DuckDbExplorerItemActions, {
         item: ctx.row.original,
+        onOpenFile: handleOpenFileViewer,
         onDeleteFile: handleDeleteFile,
         onDownloadFile: handleDownloadFile,
         onOpenDatabase: handleOpenDatabase,

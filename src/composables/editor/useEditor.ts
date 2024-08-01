@@ -6,7 +6,7 @@ import {
   onScopeDispose,
   watchEffect,
 } from 'vue'
-import { toValue } from '@vueuse/core'
+import { toValue, useMediaQuery } from '@vueuse/core'
 import themePlugin from '@/composables/editor/theme'
 import { useEditorContent } from '@/composables/editor/useEditorContent'
 import type { IRunner } from '@/lib/runner/interface'
@@ -18,26 +18,25 @@ type UseEditorPlugin<T> = (editor: UseEditor) => T
 type UseEditorProps = {
   model: monaco.editor.ITextModel
   runner?: IRunner | null
-  glyphMargin?: MaybeRefOrGetter<boolean>
   getStatements?: ((editor: UseEditor) => ComputedRef<Array<Statement>>) | null
+  readonly?: MaybeRefOrGetter<boolean>
 }
 
 export class UseEditor {
   private readonly container: HTMLElement
   public readonly editor: monaco.editor.IStandaloneCodeEditor
   public readonly runner: IRunner | null = null
-  public readonly glyphMargin: MaybeRefOrGetter<boolean>
   public readonly content: ComputedRef<string>
   public readonly statements: ComputedRef<Array<Statement>>
+  public readonly glyphMargin = useMediaQuery('(min-width: 768px)')
 
   constructor({
     model,
     runner,
-    glyphMargin = true,
     getStatements,
+    readonly = false,
   }: UseEditorProps) {
     this.runner = runner ?? null
-    this.glyphMargin = glyphMargin
     this.container = createContainer()
     this.editor = monaco.editor.create(this.container, {
       model,
@@ -45,6 +44,7 @@ export class UseEditor {
       minimap: {
         enabled: false,
       },
+      readOnly: true,
     })
 
     onScopeDispose(() => {
@@ -53,7 +53,8 @@ export class UseEditor {
 
     watchEffect(() => {
       this.editor.updateOptions({
-        glyphMargin: toValue(glyphMargin),
+        glyphMargin: toValue(this.glyphMargin),
+        readOnly: toValue(readonly),
       })
     })
 
