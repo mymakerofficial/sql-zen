@@ -130,7 +130,7 @@ export class DuckDB extends DataSource {
       throw new DatabaseNotLoadedError()
     }
 
-    const blob = await file.read()
+    const blob = await file.readBlob()
     const buffer = new Uint8Array(await blob.arrayBuffer())
     return await this.#database.registerFileBuffer(file.getName(), buffer)
   }

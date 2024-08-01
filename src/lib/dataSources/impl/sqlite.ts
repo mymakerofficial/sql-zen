@@ -62,8 +62,7 @@ export class SQLite extends DataSource {
       return
     }
     await this.logger.step('Importing Database File', async () => {
-      const blob = await this.initDump!.read()
-      const arrayBuffer = await blob.arrayBuffer()
+      const arrayBuffer = await this.initDump!.readArrayBuffer()
       const bufferPointer = this.#sqlite3!.wasm.allocFromTypedArray(arrayBuffer)
       this.#sqlite3!.capi.sqlite3_deserialize(
         this.#database!,
@@ -104,10 +103,9 @@ export class SQLite extends DataSource {
       }
 
       const data = this.#sqlite3.capi.sqlite3_js_db_export(this.#database)
-      const blob = new Blob([data], { type: 'application/x-sqlite3' })
-      this.logger.log(`Created database dump: ${blob.size} bytes`)
-      return FileAccessor.fromBlob(
-        blob,
+      this.logger.log(`Created database dump: ${data.byteLength} bytes`)
+      return FileAccessor.fromUint8Array(
+        data,
         `${this.getIdentifier() ?? 'database'}.sqlite3`,
       )
     })

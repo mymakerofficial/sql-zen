@@ -15,40 +15,45 @@ export abstract class FileAccessor {
     return new BlobFileAccessor(new Blob([array]), name)
   }
 
+  static fromLazy(
+    readFn: () => Promise<Blob>,
+    { name, size }: { name?: string; size?: number },
+  ) {
+    return new LazyFileAccessor(name ?? '', size ?? 0, readFn)
+  }
+
   static get Dummy() {
     return new DummyFileAccessor('dummy')
   }
 
-  abstract read(): Promise<Blob>
+  abstract readBlob(): Promise<Blob>
+
+  async readText(): Promise<string> {
+    const blob = await this.readBlob()
+    return await blob.text()
+  }
+
+  async readArrayBuffer(): Promise<ArrayBuffer> {
+    const blob = await this.readBlob()
+    return await blob.arrayBuffer()
+  }
 
   abstract getName(): string
+
+  abstract getSize(): Promise<number | undefined>
 }
 
-export class FileSystemFileHandleAccessor extends FileAccessor {
-  constructor(private handle: FileSystemFileHandle) {
-    super()
+export abstract class WritableFileAccessor extends FileAccessor {
+  abstract writeBlob(blob: Blob): Promise<void>
+
+  async writeText(text: string) {
+    const blob = new Blob([text])
+    await this.writeBlob(blob)
   }
 
-  async read() {
-    return await this.handle.getFile()
-  }
-
-  getName() {
-    return this.handle.name
-  }
-}
-
-export class NativeFileAccessor extends FileAccessor {
-  constructor(private file: File) {
-    super()
-  }
-
-  async read() {
-    return this.file
-  }
-
-  getName() {
-    return this.file.name
+  async writeArrayBuffer(arrayBuffer: ArrayBuffer) {
+    const blob = new Blob([arrayBuffer])
+    await this.writeBlob(blob)
   }
 }
 
@@ -60,12 +65,93 @@ export class BlobFileAccessor extends FileAccessor {
     super()
   }
 
-  async read() {
+  async readBlob() {
     return this.blob
   }
 
   getName() {
     return this.name
+  }
+
+  async getSize() {
+    return this.blob.size
+  }
+}
+
+export class FileSystemFileHandleAccessor extends WritableFileAccessor {
+  private file?: File
+
+  constructor(private handle: FileSystemFileHandle) {
+    super()
+  }
+
+  async readBlob() {
+    if (!this.file) {
+      this.file = await this.handle.getFile()
+    }
+
+    return this.file
+  }
+
+  getName() {
+    return this.handle.name
+  }
+
+  async getSize() {
+    const file = await this.readBlob()
+    return file.size
+  }
+
+  async writeBlob(blob: Blob) {
+    const writable = await this.handle.createWritable()
+    await writable.write(blob)
+    await writable.close()
+  }
+}
+
+export class LazyFileAccessor extends FileAccessor {
+  private blob?: Blob
+
+  constructor(
+    private name: string,
+    private size: number,
+    private readFn: () => Promise<Blob>,
+  ) {
+    super()
+  }
+
+  async readBlob() {
+    if (!this.blob) {
+      this.blob = await this.readFn()
+    }
+
+    return this.blob
+  }
+
+  getName() {
+    return this.name
+  }
+
+  async getSize() {
+    return this.size
+  }
+}
+
+export class NativeFileAccessor extends FileAccessor {
+  constructor(private file: File) {
+    super()
+  }
+
+  async readBlob() {
+    return this.file
+  }
+
+  getName() {
+    return this.file.name
+  }
+
+  async getSize() {
+    return this.file.size
   }
 }
 
@@ -74,11 +160,15 @@ export class DummyFileAccessor extends FileAccessor {
     super()
   }
 
-  async read() {
+  async readBlob() {
     return new Blob()
   }
 
   getName() {
     return this.name
+  }
+
+  async getSize() {
+    return 0
   }
 }

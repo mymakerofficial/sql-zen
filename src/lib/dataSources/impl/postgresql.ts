@@ -40,7 +40,7 @@ export class PostgreSQL extends DataSource {
 
     this.#database = await this.logger.step('Loading PostgreSQL', async () => {
       const module = await import('@electric-sql/pglite')
-      const loadDataDir = await this.initDump?.read()
+      const loadDataDir = await this.initDump?.readBlob()
       const database = new module.PGlite(this.#getDataDir(), {
         loadDataDir,
         extensions: {

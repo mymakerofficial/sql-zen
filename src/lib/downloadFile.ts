@@ -1,7 +1,7 @@
 import type { FileAccessor } from '@/lib/files/fileAccessor'
 
 export function downloadFile(fileAccessor: FileAccessor) {
-  fileAccessor.read().then((data) => {
+  fileAccessor.readBlob().then((data) => {
     const url = URL.createObjectURL(data)
     const a = document.createElement('a')
     a.href = url
