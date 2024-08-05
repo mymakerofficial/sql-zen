@@ -11,11 +11,13 @@ import { QueryState } from '@/lib/queries/enums'
 import { EventPublisher } from '@/lib/events/publisher'
 import { QueryEvent, type QueryEventMap } from '@/lib/queries/events'
 import { isPaginatedQueryResult } from '@/lib/queries/helpers'
+import { Mutex } from 'async-mutex'
 
 export class Query<T extends object = object>
   extends EventPublisher<QueryEventMap>
   implements IQuery<T>
 {
+  readonly #mutex = new Mutex()
   readonly #id: string = getId('query')
   readonly #dataSource: IDataSource
   readonly #statement: Statement
@@ -104,6 +106,18 @@ export class Query<T extends object = object>
     this.#isAnalyzed = true
   }
 
+  #getSql(offset: number, limit: number) {
+    if (this.#isPaginated) {
+      return this.#dialect.makePaginatedStatement(
+        this.#statement.sql,
+        offset,
+        limit,
+      )
+    } else {
+      return this.#statement.sql
+    }
+  }
+
   getResult(): QueryResult<T> | PaginatedQueryResult<T> | null {
     return this.#result
   }
@@ -116,39 +130,34 @@ export class Query<T extends object = object>
     if (this.hasResult()) {
       throw new Error('Query has already been executed')
     }
-    this.#setState(QueryState.Executing)
-    await this.#analyze().catch((err) => this.#setError(err))
+    await this.#mutex.runExclusive(async () => {
+      this.#setState(QueryState.Executing)
+      await this.#analyze().catch((err) => this.#setError(err))
+    })
     await this.fetchRows(0, 100)
     this.emit(QueryEvent.InitialResultCompleted)
   }
 
   async fetchRows(offset: number, limit: number) {
-    if (!this.#isAnalyzed) {
-      throw new Error('Query has not been analyzed yet')
-    }
-    if (
-      this.#result &&
-      isPaginatedQueryResult(this.#result) &&
-      this.#result.offset === offset &&
-      this.#result.limit === limit
-    ) {
-      return
-    }
-    let sql: string
-    if (this.#isPaginated) {
-      sql = this.#dialect.makePaginatedStatement(
-        this.#statement.sql,
-        offset,
-        limit,
+    await this.#mutex.runExclusive(async () => {
+      if (!this.#isAnalyzed) {
+        throw new Error('Query has not been analyzed yet')
+      }
+      if (
+        this.#result &&
+        isPaginatedQueryResult(this.#result) &&
+        this.#result.offset === offset &&
+        this.#result.limit === limit
+      ) {
+        return
+      }
+      const sql = this.#getSql(offset, limit)
+      this.#setState(QueryState.Executing)
+      await this.#dataSource.query<T>(sql).then(
+        (res) => this.#setResult(res, offset, limit),
+        (err) => this.#setError(err),
       )
-    } else {
-      sql = this.#statement.sql
-    }
-    this.#setState(QueryState.Executing)
-    await this.#dataSource.query<T>(sql).then(
-      (res) => this.#setResult(res, offset, limit),
-      (err) => this.#setError(err),
-    )
+    })
   }
 
   cancel() {
