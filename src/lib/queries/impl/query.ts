@@ -59,6 +59,33 @@ export class Query<T extends object = object>
     this.emit(QueryEvent.StateChanged, state)
   }
 
+  #setResult(
+    result: QueryResult<T> | PaginatedQueryResult<T>,
+    offset: number,
+    limit: number,
+  ) {
+    if (this.#isPaginated) {
+      this.#result = {
+        ...result,
+        totalRows: this.#probableRowCount,
+        offset,
+        limit,
+      } as PaginatedQueryResult<T>
+    } else {
+      this.#result = result
+    }
+    this.#error = null
+    this.#setState(QueryState.Success)
+    return this.#result
+  }
+
+  #setError(err: Error) {
+    this.#error = err
+    this.#result = null
+    this.#setState(QueryState.Error)
+    return err
+  }
+
   async #analyze() {
     const originalSql = this.#statement.sql
     this.#isSelect = this.#dialect.isSelect(originalSql)
@@ -90,7 +117,7 @@ export class Query<T extends object = object>
       throw new Error('Query has already been executed')
     }
     this.#setState(QueryState.Executing)
-    await this.#analyze()
+    await this.#analyze().catch((err) => this.#setError(err))
     await this.fetchRows(0, 100)
     this.emit(QueryEvent.InitialResultCompleted)
   }
@@ -118,24 +145,9 @@ export class Query<T extends object = object>
       sql = this.#statement.sql
     }
     this.#setState(QueryState.Executing)
-    this.#result = await this.#dataSource.query<T>(sql).then(
-      (res) => {
-        this.#setState(QueryState.Success)
-        if (this.#isPaginated) {
-          return {
-            ...res,
-            totalRows: this.#probableRowCount,
-            offset,
-            limit,
-          } as PaginatedQueryResult<T>
-        } else {
-          return res
-        }
-      },
-      (err) => {
-        this.#setState(QueryState.Error)
-        throw err
-      },
+    await this.#dataSource.query<T>(sql).then(
+      (res) => this.#setResult(res, offset, limit),
+      (err) => this.#setError(err),
     )
   }
 
