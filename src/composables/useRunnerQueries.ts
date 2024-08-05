@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted, triggerRef } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { EventType } from '@/lib/events/publisher'
 import { useQuery } from '@tanstack/vue-query'
 import type { IRunner } from '@/lib/runner/interface'
@@ -8,16 +8,11 @@ export function useRunnerQueries(runner: IRunner) {
 
   const { data, refetch } = useQuery({
     queryKey,
-    queryFn: () => runner.getQueries(),
+    queryFn: () => runner.getQueryIds(),
     initialData: [],
   })
 
-  const handler = () => {
-    refetch().then(() => {
-      // idk why
-      triggerRef(data)
-    })
-  }
+  const handler = () => refetch()
 
   onMounted(() => {
     runner.on(EventType.Any, handler)

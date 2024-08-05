@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { computed, ref, watch } from 'vue'
-import ResultTable from '@/components/shared/table/ResultTable.vue'
 import { SquareTerminalIcon, TableIcon } from 'lucide-vue-next'
 import LoggerPanel from '@/components/logger/LoggerPanel.vue'
 import { useRunnerQueries } from '@/composables/useRunnerQueries'
 import type { IRunner } from '@/lib/runner/interface'
-import { isSuccessQuery } from '@/lib/queries/helpers'
+import QueryDisplay from '@/components/shared/query/QueryDisplay.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -19,34 +18,25 @@ const props = withDefaults(
 )
 
 const queries = useRunnerQueries(props.runner)
-const results = computed(() => {
-  if (!props.showResults) {
-    return []
-  }
-  return queries.value
-    .filter(isSuccessQuery)
-    .map((query) => query.result)
-    .filter((result) => result.rows.length > 0)
-})
 
 const triggers = computed(() => {
-  return results.value.map((result, index) => ({
-    value: result.id,
+  return queries.value.map((id, index) => ({
+    value: id,
     label: `Result ${index + 1}`,
   }))
 })
 
 const contents = computed(() => {
-  return results.value.map((result) => ({
-    value: result.id,
-    data: result,
+  return queries.value.map((id) => ({
+    value: id,
+    data: props.runner.getQuery(id),
   }))
 })
 
 const selected = ref('log')
 
 watch(
-  results,
+  queries,
   () => {
     selected.value = triggers.value[triggers.value.length - 1]?.value ?? 'log'
   },
@@ -80,7 +70,7 @@ watch(
       :key="content.value"
       class="flex-1 overflow-y-auto"
     >
-      <ResultTable :data="content.data" />
+      <QueryDisplay :query="content.data" />
     </TabsContent>
   </Tabs>
 </template>
