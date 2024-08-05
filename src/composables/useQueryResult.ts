@@ -18,7 +18,7 @@ export function useQueryResult(
   const hasResult = useQueryHasResult(query)
 
   return useQuery({
-    queryKey: ['queryResult', query.getId(), { offset, limit }],
+    queryKey: ['query', query.getId(), 'result', { offset, limit }],
     queryFn: async () => {
       await query.fetchRows(toValue(offset), toValue(limit))
       return query.getResult()
@@ -26,5 +26,6 @@ export function useQueryResult(
     placeholderData: keepPreviousData,
     refetchOnMount: false,
     enabled: hasResult,
+    staleTime: Infinity,
   })
 }

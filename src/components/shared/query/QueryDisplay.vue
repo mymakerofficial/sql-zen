@@ -6,6 +6,7 @@ import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { ArrowLeftIcon, ArrowRightIcon } from 'lucide-vue-next'
 import { isPaginatedQueryResult } from '@/lib/queries/helpers'
+import { useQueryHasResult } from '@/composables/useQueryTotalRows'
 
 const props = defineProps<{
   query: IQuery
@@ -14,6 +15,7 @@ const props = defineProps<{
 const offset = ref(0)
 const limit = ref(100)
 
+const totalRows = useQueryHasResult(props.query)
 const { data: result } = useQueryResult(props.query, {
   offset,
   limit,
@@ -44,11 +46,16 @@ function nextPage() {
         <ArrowLeftIcon class="size-4 min-w-max" />
       </Button>
       <span class="text-xs text-muted-foreground">
-        {{ offset + 1 }} - {{ offset + limit }} of {{ result.totalRows }}
+        {{ offset + 1 }} - {{ offset + limit }} of
+        {{ totalRows.min + (totalRows.isKnown ? '' : '+') }}
       </span>
       <Button
         @click="nextPage"
-        :disabled="offset + limit >= result.totalRows"
+        :disabled="
+          totalRows !== null &&
+          offset + limit >= totalRows.min &&
+          totalRows.isKnown
+        "
         variant="ghost"
         size="xs"
         aria-label="Next page"

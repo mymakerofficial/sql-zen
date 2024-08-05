@@ -4,22 +4,25 @@ import { onMounted, onUnmounted } from 'vue'
 import { QueryEvent } from '@/lib/queries/events'
 
 export function useQueryHasResult(query: IQuery) {
-  const queryKey = ['query', query.getId(), 'hasResult']
+  const queryKey = ['query', query.getId(), 'totalRows']
 
   const { data, refetch } = useQuery({
     queryKey,
-    queryFn: () => query.hasResult(),
-    initialData: false,
+    queryFn: () => query.getTotalRowCount(),
+    initialData: {
+      min: 0,
+      isKnown: false,
+    },
   })
 
   const handler = () => refetch().then()
 
   onMounted(() => {
-    query.on(QueryEvent.InitialResultCompleted, handler)
+    query.on(QueryEvent.TotalRowsChanged, handler)
   })
 
   onUnmounted(() => {
-    query.off(QueryEvent.InitialResultCompleted, handler)
+    query.off(QueryEvent.TotalRowsChanged, handler)
   })
 
   return data

@@ -27,8 +27,9 @@ export class Query<T extends object = object>
 
   #isAnalyzed: boolean = false
   #isSelect: boolean = false
-  #probableRowCount: number = 0
-  #isPaginated: boolean = false
+
+  #minTotalRowCount: number = 0
+  #totalRowCountIsKnown: boolean = false
 
   #error: Error | null = null
   #result: QueryResult<T> | PaginatedQueryResult<T> | null = null
@@ -61,15 +62,20 @@ export class Query<T extends object = object>
     this.emit(QueryEvent.StateChanged, state)
   }
 
-  #setResult(
-    result: QueryResult<T> | PaginatedQueryResult<T>,
-    offset: number,
-    limit: number,
-  ) {
-    if (this.#isPaginated) {
+  #setResult(result: QueryResult<T>, offset: number, limit: number) {
+    if (
+      !this.#totalRowCountIsKnown &&
+      offset + result.rows.length >= this.#minTotalRowCount
+    ) {
+      if (result.rows.length < limit) {
+        this.#totalRowCountIsKnown = true
+      }
+      this.#minTotalRowCount = offset + result.rows.length
+      this.emit(QueryEvent.TotalRowsChanged)
+    }
+    if (this.#isSelect) {
       this.#result = {
         ...result,
-        totalRows: this.#probableRowCount,
         offset,
         limit,
       } as PaginatedQueryResult<T>
@@ -91,23 +97,11 @@ export class Query<T extends object = object>
   async #analyze() {
     const originalSql = this.#statement.sql
     this.#isSelect = this.#dialect.isSelect(originalSql)
-
-    if (!this.#isSelect) {
-      this.#isAnalyzed = true
-      return
-    }
-
-    const countStmt = this.#dialect.makeSelectCountFromStatement(originalSql)
-    this.#probableRowCount = await this.#dataSource
-      .query<{ count: number }>(countStmt)
-      .then((res) => res.rows[0].count)
-
-    this.#isPaginated = this.#probableRowCount > 100
     this.#isAnalyzed = true
   }
 
   #getSql(offset: number, limit: number) {
-    if (this.#isPaginated) {
+    if (this.#isSelect) {
       return this.#dialect.makePaginatedStatement(
         this.#statement.sql,
         offset,
@@ -126,6 +120,35 @@ export class Query<T extends object = object>
     return this.#error
   }
 
+  getTotalRowCount() {
+    return { min: this.#minTotalRowCount, isKnown: this.#totalRowCountIsKnown }
+  }
+
+  async computeTotalRowCount() {
+    if (!this.#isAnalyzed) {
+      throw new Error('Query has not been analyzed yet')
+    }
+
+    await this.#mutex.runExclusive(async () => {
+      const countStmt = this.#dialect.makeSelectCountFromStatement(
+        this.#statement.sql,
+      )
+      this.#minTotalRowCount = await this.#dataSource
+        .query<{ count: number }>(countStmt)
+        .then((res) => res.rows[0].count)
+      this.#totalRowCountIsKnown = true
+      this.emit(QueryEvent.TotalRowsChanged)
+    })
+  }
+
+  async #runSql(sql: string) {
+    this.#setState(QueryState.Executing)
+    return this.#dataSource.query<T>(sql).then(
+      (res) => this.#setResult(res, 0, 100),
+      (err) => this.#setError(err),
+    )
+  }
+
   async execute() {
     if (this.hasResult()) {
       throw new Error('Query has already been executed')
@@ -134,15 +157,22 @@ export class Query<T extends object = object>
       this.#setState(QueryState.Executing)
       await this.#analyze().catch((err) => this.#setError(err))
     })
-    await this.fetchRows(0, 100)
+    if (this.#isSelect) {
+      await this.fetchRows(0, 100)
+    } else {
+      await this.#runSql(this.#statement.sql)
+    }
     this.emit(QueryEvent.InitialResultCompleted)
   }
 
   async fetchRows(offset: number, limit: number) {
+    if (!this.#isAnalyzed) {
+      throw new Error('Query has not been analyzed yet')
+    }
+    if (!this.#isSelect) {
+      return
+    }
     await this.#mutex.runExclusive(async () => {
-      if (!this.#isAnalyzed) {
-        throw new Error('Query has not been analyzed yet')
-      }
       if (
         this.#result &&
         isPaginatedQueryResult(this.#result) &&
@@ -152,11 +182,7 @@ export class Query<T extends object = object>
         return
       }
       const sql = this.#getSql(offset, limit)
-      this.#setState(QueryState.Executing)
-      await this.#dataSource.query<T>(sql).then(
-        (res) => this.#setResult(res, offset, limit),
-        (err) => this.#setError(err),
-      )
+      await this.#runSql(sql)
     })
   }
 

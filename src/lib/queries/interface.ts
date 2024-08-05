@@ -15,7 +15,6 @@ export type QueryResult<T extends object = object> = {
 }
 
 export type PaginatedQueryResult<T extends object = object> = QueryResult<T> & {
-  totalRows: number
   offset: number
   limit: number
 }
@@ -28,6 +27,8 @@ export interface IQuery<T extends object = object>
   hasResult(): boolean
   getResult(): QueryResult<T> | PaginatedQueryResult<T> | null
   getError(): Error | null
+  getTotalRowCount(): { min: number; isKnown: boolean }
+  computeTotalRowCount(): Promise<void>
   // execute the query, if statement is a SELECT, the first 100 rows are stored in the result
   execute(): Promise<void>
   fetchRows(offset: number, limit: number): Promise<void>

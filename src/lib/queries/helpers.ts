@@ -33,5 +33,5 @@ export function isPaginatedQueryResult<T extends object>(
   result?: QueryResult<T> | PaginatedQueryResult<T> | null,
 ): result is PaginatedQueryResult<T> {
   if (!result) return false
-  return 'totalRows' in result
+  return 'limit' in result && 'offset' in result
 }

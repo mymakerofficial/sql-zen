@@ -5,7 +5,7 @@ import type { IQuery } from '@/lib/queries/interface'
 import { QueryEvent } from '@/lib/queries/events'
 
 export function useQueryState(query: IQuery) {
-  const queryKey = ['queryState', query.getId()]
+  const queryKey = ['query', query.getId(), 'state']
 
   const { data, refetch } = useQuery({
     queryKey,
