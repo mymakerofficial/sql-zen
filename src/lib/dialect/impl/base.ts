@@ -10,8 +10,9 @@ export abstract class SqlDialect implements ISqlDialect {
 
   abstract getDataSourceTree(): Promise<DSTreeItem[]>
 
-  isSelect(sql: string): boolean {
-    return sql.toLowerCase().startsWith('select')
+  mightYieldRows(sql: string): boolean {
+    const trimmed = sql.trim().toUpperCase()
+    return trimmed.startsWith('SELECT') || trimmed.startsWith('WITH')
   }
 
   #indentSql(sql: string): string {

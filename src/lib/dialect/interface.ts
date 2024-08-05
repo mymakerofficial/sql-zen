@@ -63,7 +63,7 @@ export type DSTreeItem =
 
 export interface ISqlDialect {
   getDataSourceTree(): Promise<DSTreeItem[]>
-  isSelect(sql: string): boolean
+  mightYieldRows(sql: string): boolean
   makeSelectCountFromStatement(original: string): string
   makePaginatedStatement(
     original: string,

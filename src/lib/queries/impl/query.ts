@@ -25,8 +25,8 @@ export class Query<T extends object = object>
 
   #state: QueryState = QueryState.Idle
 
-  #isAnalyzed: boolean = false
-  #isSelect: boolean = false
+  #mightYieldRows: boolean = false
+  #canBePaginated: boolean = false
 
   #minTotalRowCount: number = 0
   #totalRowCountIsKnown: boolean = false
@@ -62,7 +62,12 @@ export class Query<T extends object = object>
     this.emit(QueryEvent.StateChanged, state)
   }
 
-  #setResult(result: QueryResult<T>, offset: number, limit: number) {
+  #setResult(
+    result: QueryResult<T>,
+    paginated: boolean,
+    offset: number,
+    limit: number,
+  ) {
     if (
       !this.#totalRowCountIsKnown &&
       offset + result.rows.length >= this.#minTotalRowCount
@@ -73,7 +78,7 @@ export class Query<T extends object = object>
       this.#minTotalRowCount = offset + result.rows.length
       this.emit(QueryEvent.TotalRowsChanged)
     }
-    if (this.#isSelect) {
+    if (paginated) {
       this.#result = {
         ...result,
         offset,
@@ -94,14 +99,8 @@ export class Query<T extends object = object>
     return err
   }
 
-  async #analyze() {
-    const originalSql = this.#statement.sql
-    this.#isSelect = this.#dialect.isSelect(originalSql)
-    this.#isAnalyzed = true
-  }
-
-  #getSql(offset: number, limit: number) {
-    if (this.#isSelect) {
+  #getSql(paginated: boolean = true, offset: number = 0, limit: number = 100) {
+    if (paginated) {
       return this.#dialect.makePaginatedStatement(
         this.#statement.sql,
         offset,
@@ -125,10 +124,6 @@ export class Query<T extends object = object>
   }
 
   async computeTotalRowCount() {
-    if (!this.#isAnalyzed) {
-      throw new Error('Query has not been analyzed yet')
-    }
-
     await this.#mutex.runExclusive(async () => {
       const countStmt = this.#dialect.makeSelectCountFromStatement(
         this.#statement.sql,
@@ -141,11 +136,23 @@ export class Query<T extends object = object>
     })
   }
 
-  async #runSql(sql: string) {
+  async #run({
+    paginated,
+    offset,
+    limit,
+  }: {
+    paginated: boolean
+    offset: number
+    limit: number
+  }) {
+    const sql = this.#getSql(paginated, offset, limit)
     this.#setState(QueryState.Executing)
     return this.#dataSource.query<T>(sql).then(
-      (res) => this.#setResult(res, 0, 100),
-      (err) => this.#setError(err),
+      (result) => this.#setResult(result, paginated, offset, limit),
+      (error) => {
+        this.#setError(error)
+        throw error
+      },
     )
   }
 
@@ -154,22 +161,25 @@ export class Query<T extends object = object>
       throw new Error('Query has already been executed')
     }
     await this.#mutex.runExclusive(async () => {
-      this.#setState(QueryState.Executing)
-      await this.#analyze().catch((err) => this.#setError(err))
+      this.#mightYieldRows = this.#dialect.mightYieldRows(this.#statement.sql)
+      await this.#run({
+        paginated: this.#mightYieldRows,
+        offset: 0,
+        limit: 100,
+      })
+      if (
+        this.#mightYieldRows &&
+        this.#result &&
+        this.#result.rows.length > 0
+      ) {
+        this.#canBePaginated = true
+      }
+      this.emit(QueryEvent.InitialResultCompleted)
     })
-    if (this.#isSelect) {
-      await this.fetchRows(0, 100)
-    } else {
-      await this.#runSql(this.#statement.sql)
-    }
-    this.emit(QueryEvent.InitialResultCompleted)
   }
 
   async fetchRows(offset: number, limit: number) {
-    if (!this.#isAnalyzed) {
-      throw new Error('Query has not been analyzed yet')
-    }
-    if (!this.#isSelect) {
+    if (!this.#canBePaginated) {
       return
     }
     await this.#mutex.runExclusive(async () => {
@@ -181,8 +191,11 @@ export class Query<T extends object = object>
       ) {
         return
       }
-      const sql = this.#getSql(offset, limit)
-      await this.#runSql(sql)
+      await this.#run({
+        paginated: true,
+        offset,
+        limit,
+      })
     })
   }
 
