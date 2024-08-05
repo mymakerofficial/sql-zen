@@ -16,17 +16,22 @@ export abstract class SqlDialect implements ISqlDialect {
   }
 
   #indentSql(sql: string): string {
-    return sql
-      .split('\n')
-      .map((line) => `  ${line}`)
-      .join('\n')
+    if (sql.includes('\n')) {
+      const indented = sql
+        .split('\n')
+        .map((line) => `  ${line}`)
+        .join('\n')
+      return `\n${indented}\n`
+    } else {
+      return sql
+    }
   }
 
   makeSelectCountFromStatement(original: string): string {
     if (original.endsWith(';')) {
       throw new Error('original sql statement may not include semicolon.')
     }
-    return `SELECT count(*) as count FROM (\n${this.#indentSql(original)}\n)`
+    return `SELECT count(*) as count FROM (${this.#indentSql(original)})`
   }
 
   makePaginatedStatement(
@@ -34,9 +39,13 @@ export abstract class SqlDialect implements ISqlDialect {
     offset: number,
     limit: number,
   ): string {
-    if (original.endsWith(';')) {
+    const trimmed = original.trim().toUpperCase()
+    if (trimmed.endsWith(';')) {
       throw new Error('original sql statement may not include semicolon.')
     }
-    return `SELECT * FROM (\n${this.#indentSql(original)}\n) LIMIT ${limit} OFFSET ${offset}`
+    if (limit === Infinity) {
+      return original
+    }
+    return `SELECT * FROM (${this.#indentSql(original)}) LIMIT ${limit} OFFSET ${offset}`
   }
 }
