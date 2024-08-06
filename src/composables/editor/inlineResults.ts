@@ -1,17 +1,8 @@
 import type { UseEditor } from '@/composables/editor/useEditor'
 import { useRunnerQueries } from '@/composables/useRunnerQueries'
-import {
-  computed,
-  h,
-  type MaybeRefOrGetter,
-  render,
-  type VNode,
-  watchEffect,
-} from 'vue'
-import ResultTable from '@/components/shared/table/ResultTable.vue'
+import { h, type MaybeRefOrGetter, render, type VNode, watchEffect } from 'vue'
 import { toValue } from '@vueuse/core'
-import { isSuccessQuery } from '@/lib/queries/helpers'
-import type { SuccessQuery } from '@/lib/queries/interface'
+import type { QueryInfo } from '@/lib/queries/interface'
 
 export default function inlineResultsPlugin({
   enabled = true,
@@ -24,30 +15,24 @@ export default function inlineResultsPlugin({
     }
 
     const queries = useRunnerQueries(runner)
-    const successQueries = computed(() => {
-      return queries.value
-        .filter(isSuccessQuery)
-        .filter(
-          (query) => query.statement.range && query.result.rows.length > 0,
-        )
-    })
 
     const viewZones: Array<string> = []
 
-    function addResult(query: SuccessQuery) {
+    function addResult(queryInfo: QueryInfo) {
       editor.changeViewZones((vzChanger) => {
-        const { result, statement } = query
+        const query = runner!.getQuery(queryInfo.id)
 
         const domNode = createDomNode(
-          h(ResultTable, {
-            class: 'relative z-10 w-fit border border-border my-2',
-            data: result,
-          }),
+          h(
+            'p',
+            { class: 'text-muted-foreground italic' },
+            'sorry, inline results are currently disabled...',
+          ),
         )
 
         const id = vzChanger.addZone({
-          afterLineNumber: statement.range!.endLineNumber,
-          heightInPx: 58 + 48 * (result.rows.length + 1),
+          afterLineNumber: query.getStatement().range!.endLineNumber,
+          // heightInPx: 58 + 48 * ((query.getResult()?.rows.length || 0) + 1),
           domNode,
         })
         viewZones.push(id)
@@ -64,7 +49,9 @@ export default function inlineResultsPlugin({
     watchEffect(() => {
       clearResults()
       if (toValue(enabled)) {
-        toValue(successQueries).forEach(addResult)
+        toValue(queries)
+          .filter((it) => it.hasResultRows)
+          .forEach(addResult)
       }
     })
   }

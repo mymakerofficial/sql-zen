@@ -8,7 +8,7 @@ export function useQueryHasResult(query: IQuery) {
 
   const { data, refetch } = useQuery({
     queryKey,
-    queryFn: () => query.hasResult(),
+    queryFn: () => query.getHasResult(),
     initialData: false,
   })
 

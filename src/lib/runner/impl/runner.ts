@@ -1,9 +1,9 @@
-import { EventPublisher } from '@/lib/events/publisher'
+import { EventPublisher, EventType } from '@/lib/events/publisher'
 import { RunnerEvent, type RunnerEventMap } from '@/lib/runner/events'
 import type { IRunner } from '@/lib/runner/interface'
 import type { IDataSource } from '@/lib/dataSources/interface'
 import type { Statement } from '@/lib/statements/interface'
-import type { IQuery } from '@/lib/queries/interface'
+import type { IQuery, QueryInfo } from '@/lib/queries/interface'
 import { isIdleQuery, isSettledQuery } from '@/lib/queries/helpers'
 import { Query } from '@/lib/queries/impl/query'
 
@@ -60,8 +60,14 @@ export class Runner extends EventPublisher<RunnerEventMap> implements IRunner {
     )
   }
 
+  #handleQueryEvent() {
+    this.emit(RunnerEvent.QueriesUpdated)
+  }
+
   #createQuery(statement: Statement): IQuery {
-    return new Query(this.#dataSource, statement)
+    const query = new Query(this.#dataSource, statement)
+    query.on(EventType.Any, this.#handleQueryEvent.bind(this))
+    return query
   }
 
   batch(statements: Array<Statement>): void {
@@ -80,14 +86,8 @@ export class Runner extends EventPublisher<RunnerEventMap> implements IRunner {
     this.#runNextIdle()
   }
 
-  // @deprecated
-  getQueries(): Array<IQuery> {
-    // todo
-    return this.#queries
-  }
-
-  getQueryIds(): Array<string> {
-    return this.#queries.map((q) => q.getId())
+  getQueries(): Array<QueryInfo> {
+    return this.#queries.map((it) => it.toInfo())
   }
 
   getQuery(queryId: string): IQuery {

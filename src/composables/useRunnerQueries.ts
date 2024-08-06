@@ -4,15 +4,15 @@ import { useQuery } from '@tanstack/vue-query'
 import type { IRunner } from '@/lib/runner/interface'
 
 export function useRunnerQueries(runner: IRunner) {
-  const queryKey = ['runnerQueries', runner.getKey()]
+  const queryKey = ['runner', runner.getKey(), 'queries']
 
   const { data, refetch } = useQuery({
     queryKey,
-    queryFn: () => runner.getQueryIds(),
+    queryFn: () => runner.getQueries(),
     initialData: [],
   })
 
-  const handler = () => refetch()
+  const handler = () => refetch().then()
 
   onMounted(() => {
     runner.on(EventType.Any, handler)

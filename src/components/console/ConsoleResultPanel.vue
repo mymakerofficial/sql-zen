@@ -19,17 +19,24 @@ const props = withDefaults(
 
 const queries = useRunnerQueries(props.runner)
 
+const visibleQueries = computed(() => {
+  if (!props.showResults) {
+    return []
+  }
+  return queries.value.filter((info) => info.hasResultRows)
+})
+
 const triggers = computed(() => {
-  return queries.value.map((id, index) => ({
-    value: id,
+  return visibleQueries.value.map((info, index) => ({
+    value: info.id,
     label: `Result ${index + 1}`,
   }))
 })
 
 const contents = computed(() => {
-  return queries.value.map((id) => ({
-    value: id,
-    data: props.runner.getQuery(id),
+  return visibleQueries.value.map((info) => ({
+    value: info.id,
+    data: props.runner.getQuery(info.id),
   }))
 })
 

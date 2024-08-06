@@ -1,31 +1,31 @@
 import type {
-  IQuery,
   PaginatedQueryResult,
+  QueryInfo,
   QueryResult,
 } from '@/lib/queries/interface'
 import { QueryState } from '@/lib/queries/enums'
 
-export function isIdleQuery(query: IQuery) {
-  return query.getState() === QueryState.Idle
+export function isIdleQuery(query: QueryInfo) {
+  return query.state === QueryState.Idle
 }
 
-export function isExecutingQuery(query: IQuery) {
-  return query.getState() === QueryState.Executing
+export function isExecutingQuery(query: QueryInfo) {
+  return query.state === QueryState.Executing
 }
 
-export function isSuccessQuery(query: IQuery) {
-  return query.getState() === QueryState.Success
+export function isSuccessQuery(query: QueryInfo) {
+  return query.state === QueryState.Success
 }
 
-export function isErrorQuery(query: IQuery) {
-  return query.getState() === QueryState.Error
+export function isErrorQuery(query: QueryInfo) {
+  return query.state === QueryState.Error
 }
 
-export function isCancelledQuery(query: IQuery) {
-  return query.getState() === QueryState.Cancelled
+export function isCancelledQuery(query: QueryInfo) {
+  return query.state === QueryState.Cancelled
 }
 
-export function isSettledQuery(query: IQuery) {
+export function isSettledQuery(query: QueryInfo) {
   return isSuccessQuery(query) || isErrorQuery(query) || isCancelledQuery(query)
 }
 

@@ -5,6 +5,7 @@ import type { ISqlDialect } from '@/lib/dialect/interface'
 import type {
   IQuery,
   PaginatedQueryResult,
+  QueryInfo,
   QueryResult,
 } from '@/lib/queries/interface'
 import { QueryState } from '@/lib/queries/enums'
@@ -45,16 +46,40 @@ export class Query<T extends object = object>
     return this.#id
   }
 
+  get id() {
+    return this.getId()
+  }
+
   getState() {
     return this.#state
+  }
+
+  get state() {
+    return this.getState()
   }
 
   getStatement() {
     return this.#statement
   }
 
-  hasResult() {
+  get statementKey() {
+    return this.getStatement().key
+  }
+
+  getHasResult() {
     return this.#result !== null
+  }
+
+  get hasResult() {
+    return this.getHasResult()
+  }
+
+  getHasResultRows() {
+    return this.#result !== null && this.#result.rows.length > 0
+  }
+
+  get hasResultRows() {
+    return this.getHasResultRows()
   }
 
   #setState(state: QueryState) {
@@ -157,7 +182,7 @@ export class Query<T extends object = object>
   }
 
   async execute() {
-    if (this.hasResult()) {
+    if (this.getHasResult()) {
       throw new Error('Query has already been executed')
     }
     await this.#mutex.runExclusive(async () => {
@@ -204,5 +229,15 @@ export class Query<T extends object = object>
       throw new Error('Can only cancel idle queries')
     }
     this.#setState(QueryState.Cancelled)
+  }
+
+  toInfo(): QueryInfo {
+    return {
+      id: this.getId(),
+      statementKey: this.getStatement().key,
+      state: this.getState(),
+      hasResult: this.getHasResult(),
+      hasResultRows: this.getHasResultRows(),
+    }
   }
 }

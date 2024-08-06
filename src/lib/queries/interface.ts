@@ -19,12 +19,27 @@ export type PaginatedQueryResult<T extends object = object> = QueryResult<T> & {
   limit: number
 }
 
+export type QueryInfo = {
+  id: string
+  statementKey: string
+  state: QueryState
+  hasResult: boolean
+  hasResultRows: boolean
+}
+
 export interface IQuery<T extends object = object>
-  extends EventPublisher<QueryEventMap> {
+  extends EventPublisher<QueryEventMap>,
+    QueryInfo {
+  readonly id: string
   getId(): string
+  readonly state: QueryState
   getState(): QueryState
+  readonly statementKey: string
   getStatement(): Statement
-  hasResult(): boolean
+  readonly hasResult: boolean
+  getHasResult(): boolean
+  readonly hasResultRows: boolean
+  getHasResultRows(): boolean
   getResult(): QueryResult<T> | PaginatedQueryResult<T> | null
   getError(): Error | null
   getTotalRowCount(): { min: number; isKnown: boolean }
@@ -33,4 +48,5 @@ export interface IQuery<T extends object = object>
   execute(): Promise<void>
   fetchRows(offset: number, limit: number): Promise<void>
   cancel(): void
+  toInfo(): QueryInfo
 }

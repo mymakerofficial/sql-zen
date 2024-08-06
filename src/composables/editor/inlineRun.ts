@@ -3,10 +3,10 @@ import { h, type MaybeRefOrGetter, render, type VNode, watchEffect } from 'vue'
 import { Button } from '@/components/ui/button'
 import { DotIcon, LoaderCircleIcon, PlayIcon } from 'lucide-vue-next'
 import type { UseEditor } from '@/composables/editor/useEditor'
-import { useRunnerQueries } from '@/composables/useRunnerQueries'
 import { toValue } from '@vueuse/core'
-import { isIdleQuery, isExecutingQuery } from '@/lib/queries/helpers'
+import { isExecutingQuery, isIdleQuery } from '@/lib/queries/helpers'
 import type { Statement } from '@/lib/statements/interface'
+import { useRunnerQueries } from '@/composables/useRunnerQueries'
 
 export default function inlineRunPlugin({
   enabled = true,
@@ -36,7 +36,7 @@ export default function inlineRunPlugin({
         getId: () => statement.key,
         getDomNode: () => {
           const query = queries.value.find(
-            (query) => query.statement?.key === statement.key,
+            (it) => it.statementKey === statement.key,
           )
 
           if (query && isExecutingQuery(query)) {
