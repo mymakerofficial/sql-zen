@@ -28,7 +28,7 @@ export class UseEditor {
   public readonly runner: IRunner | null = null
   public readonly content: ComputedRef<string>
   public readonly statements: ComputedRef<Array<Statement>>
-  public readonly glyphMargin = useMediaQuery('(min-width: 768px)')
+  public readonly glyphMargin = useMediaQuery('(min-width: 640px)')
 
   constructor({
     model,
