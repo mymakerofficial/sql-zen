@@ -6,6 +6,7 @@ import type { Statement } from '@/lib/statements/interface'
 import type { IQuery, QueryInfo } from '@/lib/queries/interface'
 import { isIdleQuery, isSettledQuery } from '@/lib/queries/helpers'
 import { Query } from '@/lib/queries/impl/query'
+import { QueryState } from '@/lib/queries/enums'
 
 export class Runner extends EventPublisher<RunnerEventMap> implements IRunner {
   #queries: Array<IQuery> = []
@@ -34,14 +35,10 @@ export class Runner extends EventPublisher<RunnerEventMap> implements IRunner {
   }
 
   #cancelAllAfter(queryId: string) {
-    // const index = this.#queries.findIndex((q) => q.id === queryId)
-    // this.#queries.slice(index + 1).forEach((query) => {
-    //   if (query.state !== QueryState.Idle) {
-    //     throw Error('All queries after a cancelled query should be idle')
-    //   }
-    //   this.#updateQuery(query.id, { state: QueryState.Cancelled })
-    //   this.emit(RunnerEvent.QueryUpdated, query.id)
-    // })
+    const index = this.#queries.findIndex((q) => q.id === queryId)
+    this.#queries.slice(index + 1).forEach((query) => {
+      query.cancel()
+    })
   }
 
   #runQuery(queryId: string): void {
