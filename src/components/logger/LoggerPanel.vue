@@ -23,10 +23,6 @@ const isAtBottom = computed(() => {
 syncRefs(isAtBottom, stickToBottom)
 
 async function scrollToBottom() {
-  if (!container.value) {
-    return
-  }
-
   if (!stickToBottom.value) {
     return
   }
@@ -35,6 +31,10 @@ async function scrollToBottom() {
   await nextTick()
   await nextTick()
   await nextTick()
+
+  if (!container.value) {
+    return
+  }
 
   container.value.scrollTo({
     top: container.value.scrollHeight,
