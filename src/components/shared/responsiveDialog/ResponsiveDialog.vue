@@ -20,7 +20,7 @@ const forwarded = useForwardPropsEmits(props, emits)
   <Dialog v-if="desktop" v-bind="forwarded">
     <slot />
   </Dialog>
-  <Drawer v-else v-bind="props">
+  <Drawer v-else v-bind="forwarded">
     <slot />
   </Drawer>
 </template>

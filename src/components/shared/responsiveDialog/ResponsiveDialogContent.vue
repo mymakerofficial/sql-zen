@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
 import { DialogContent } from '@/components/ui/dialog'
-import { Drawer, DrawerContent } from '@/components/ui/drawer'
+import { DrawerContent } from '@/components/ui/drawer'
 import {
   type DialogContentEmits,
   type DialogContentProps,
@@ -20,7 +20,7 @@ const forwarded = useForwardPropsEmits(props, emits)
   <DialogContent v-if="desktop" v-bind="forwarded">
     <slot />
   </DialogContent>
-  <DrawerContent v-else v-bind="props">
+  <DrawerContent v-else v-bind="forwarded">
     <slot />
   </DrawerContent>
 </template>

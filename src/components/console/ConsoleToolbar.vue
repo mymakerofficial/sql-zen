@@ -58,7 +58,7 @@ function handleClear() {
 
 <template>
   <section
-    class="min-h-12 h-12 px-3 flex justify-between border-b border-border"
+    class="min-h-12 h-12 px-3 flex justify-between gap-3 border-b border-border overflow-x-auto"
   >
     <div class="h-full flex items-center gap-3">
       <RunButton :editor="editor" :transacting="runTransacting" />
