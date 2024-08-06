@@ -8,6 +8,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from 'lucide-vue-next'
 import { isPaginatedQueryResult } from '@/lib/queries/helpers'
 import { useQueryHasResult } from '@/composables/useQueryTotalRows'
 import { useMutation } from '@tanstack/vue-query'
+import LimitSelect from '@/components/shared/LimitSelect.vue'
 
 const props = defineProps<{
   query: IQuery
@@ -23,7 +24,7 @@ const { data: result } = useQueryResult(props.query, {
 })
 
 function previousPage() {
-  offset.value -= limit.value
+  offset.value = Math.max(offset.value - limit.value, 0)
 }
 
 function nextPage() {
@@ -51,9 +52,11 @@ const { mutateAsync: computeTotalRowCount } = useMutation({
         <ArrowLeftIcon class="size-4 min-w-max" />
       </Button>
       <span class="text-xs text-muted-foreground">
-        <Button variant="ghost" size="xs" class="font-normal text-xs">
-          {{ offset + 1 }} - {{ offset + limit }}
-        </Button>
+        <LimitSelect v-model="limit">
+          <Button variant="ghost" size="xs" class="font-normal text-xs">
+            {{ offset + 1 }} - {{ offset + limit }}
+          </Button>
+        </LimitSelect>
         of
         <Button
           v-if="!totalRows.isKnown"
@@ -71,11 +74,7 @@ const { mutateAsync: computeTotalRowCount } = useMutation({
       </span>
       <Button
         @click="nextPage"
-        :disabled="
-          totalRows !== null &&
-          offset + limit >= totalRows.min &&
-          totalRows.isKnown
-        "
+        :disabled="offset + limit >= totalRows.min && totalRows.isKnown"
         variant="ghost"
         size="xs"
         aria-label="Next page"
