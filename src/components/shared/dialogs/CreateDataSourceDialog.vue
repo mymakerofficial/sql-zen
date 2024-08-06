@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useDialogContext } from '@/composables/useDialog'
-import { DialogFooter } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -24,9 +23,14 @@ import ResponsiveDialogHeader from '@/components/shared/responsiveDialog/Respons
 import ResponsiveDialogTitle from '@/components/shared/responsiveDialog/ResponsiveDialogTitle.vue'
 import ResponsiveDialogDescription from '@/components/shared/responsiveDialog/ResponsiveDialogDescription.vue'
 
-const props = defineProps<{
-  engine: DatabaseEngine
-}>()
+const props = withDefaults(
+  defineProps<{
+    engine?: DatabaseEngine
+  }>(),
+  {
+    engine: DatabaseEngine.PostgreSQL,
+  },
+)
 
 const { close, open } = useDialogContext()
 const registry = useRegistry()

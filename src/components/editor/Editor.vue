@@ -11,11 +11,10 @@ import { useDataSources } from '@/composables/useDataSources'
 import { useMediaQuery, whenever } from '@vueuse/core'
 import { useRegistry } from '@/composables/useRegistry'
 import EditorLayout from '@/layouts/EditorLayout.vue'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Button } from '@/components/ui/button'
-import { MenuIcon } from 'lucide-vue-next'
+import DatabaseExplorerContent from '@/components/databaseExplorer/DatabaseExplorerContent.vue'
+import DatabaseExplorerDrawer from '@/components/databaseExplorer/DatabaseExplorerDrawer.vue'
 
-const useSheet = useMediaQuery('(max-width: 640px)') // sm
+const smallScreen = useMediaQuery('(max-width: 640px)') // sm
 
 const selected = ref<string | null>(null)
 
@@ -35,20 +34,11 @@ whenever(
 
 <template>
   <EditorLayout>
-    <template #header v-if="useSheet">
-      <Sheet>
-        <SheetTrigger>
-          <Button size="sm" variant="ghost">
-            <MenuIcon class="size-4 min-w-max" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="right" class="p-0 pt-14">
-          <DatabaseExplorerPanel v-model:selected="selected" />
-        </SheetContent>
-      </Sheet>
+    <template #header v-if="smallScreen">
+      <DatabaseExplorerDrawer selected="selected" />
     </template>
     <ResizablePanelGroup direction="horizontal">
-      <template v-if="!useSheet">
+      <template v-if="!smallScreen">
         <ResizablePanel :default-size="18">
           <DatabaseExplorerPanel v-model:selected="selected" />
         </ResizablePanel>
@@ -62,7 +52,13 @@ whenever(
           v-if="!selected"
           class="flex items-center justify-center h-full text-muted-foreground"
         >
-          <p v-if="databases.length">
+          <div v-if="smallScreen" class="flex flex-col gap-2 flex-1">
+            <p class="mx-8 text-primary font-medium">
+              Select a data source to start
+            </p>
+            <DatabaseExplorerContent v-model:selected="selected" class="mx-4" />
+          </div>
+          <p v-else-if="databases.length">
             Select a data source from the list to start querying
           </p>
           <p v-else>Create a data source to start querying</p>
