@@ -33,4 +33,8 @@ export class LoggerStore implements ILoggerStore {
   getAllFromLogger(loggerId: string): Array<LoggerStoreEntry> {
     return this.#store.get(loggerId) || []
   }
+
+  clearLogger(loggerId: string): void {
+    this.#store.set(loggerId, [])
+  }
 }

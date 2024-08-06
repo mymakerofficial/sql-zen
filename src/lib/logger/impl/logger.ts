@@ -111,4 +111,9 @@ export class Logger extends EventPublisher<LoggerEventMap> implements ILogger {
       },
     )
   }
+
+  clear() {
+    this.#store.clearLogger(this.getKey())
+    this.emit(LoggerEvent.Cleared)
+  }
 }

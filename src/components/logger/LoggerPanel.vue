@@ -46,7 +46,7 @@ whenever(container, scrollToBottom)
 whenever(stickToBottom, scrollToBottom)
 
 function handleClear() {
-  // props.logger.clear()
+  props.logger.clear()
 }
 
 function handleDown() {

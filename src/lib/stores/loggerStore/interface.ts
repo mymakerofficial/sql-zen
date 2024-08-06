@@ -23,4 +23,5 @@ export interface ILoggerStore {
     data: Partial<LoggerStoreEntry>,
   ): void
   getAllFromLogger(dataStoreKey: string): Array<LoggerStoreEntry>
+  clearLogger(dataStoreKey: string): void
 }

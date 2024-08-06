@@ -86,4 +86,5 @@ export interface ILogger extends EventPublisher<LoggerEventMap> {
   ): Promise<QueryResult<T>>
   // does not store the result of the block
   step<T>(message: string, block: () => Promise<T>): Promise<T>
+  clear(): void
 }
