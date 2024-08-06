@@ -54,7 +54,7 @@ const { mutateAsync: computeTotalRowCount } = useMutation({
       <span class="text-xs text-muted-foreground">
         <LimitSelect v-model="limit">
           <Button variant="ghost" size="xs" class="font-normal text-xs">
-            {{ offset + 1 }} - {{ offset + limit }}
+            {{ offset + 1 }} - {{ offset + result.rows.length }}
           </Button>
         </LimitSelect>
         of
