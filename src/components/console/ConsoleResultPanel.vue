@@ -53,7 +53,7 @@ watch(
 
 <template>
   <Tabs v-model="selected" class="h-full flex flex-col">
-    <TabsList class="w-full border-b">
+    <TabsList class="w-full border-b overflow-x-auto">
       <TabsTrigger value="log" class="gap-2">
         <SquareTerminalIcon class="size-4 min-w-max" />
         <span>Output</span>
