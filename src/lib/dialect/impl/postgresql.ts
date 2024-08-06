@@ -31,6 +31,18 @@ export class PostgreSQLDialect extends SqlDialect implements ISqlDialect {
       },
     ]
   }
+
+  async beginTransaction(): Promise<void> {
+    await this.dataSource.query(`BEGIN`)
+  }
+
+  async commitTransaction(): Promise<void> {
+    await this.dataSource.query(`COMMIT`)
+  }
+
+  async rollbackTransaction(): Promise<void> {
+    await this.dataSource.query(`ROLLBACK`)
+  }
 }
 
 type Schema = {

@@ -16,6 +16,7 @@ import { useIsRunning } from '@/composables/useIsRunning'
 
 const props = defineProps<{
   editor: UseEditor
+  transacting?: boolean
 }>()
 
 const isRunning = useIsRunning(props.editor.runner?.getKey() ?? '')
@@ -42,7 +43,7 @@ function handleHover(statements: Statement[]) {
 
 function handleRun(statements: Statement[]) {
   close()
-  props.editor.runner?.batch(statements)
+  props.editor.runner?.batch(statements, props.transacting)
 }
 </script>
 

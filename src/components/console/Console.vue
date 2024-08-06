@@ -16,12 +16,14 @@ import { useRegistry } from '@/composables/useRegistry'
 import { getExampleSql } from '@/lib/examples/getExampleSql'
 import highlightSelected from '@/composables/editor/highlightSelected'
 import { useIsRunning } from '@/composables/useIsRunning'
+import { ref } from 'vue'
 
 const props = defineProps<{
   dataSourceKey: string
 }>()
 
 const enableInlineResults = useStorage('enable-inline-results', false)
+const runTransacting = ref(true)
 
 const registry = useRegistry()
 const runner = registry.getRunner(props.dataSourceKey)
@@ -57,6 +59,7 @@ model.onDidChangeContent(() => {
         :runner="runner"
         :editor="editor"
         v-model:enable-inline-results="enableInlineResults"
+        v-model:run-transacting="runTransacting"
       />
       <MonacoEditor :editor="editor" />
     </ResizablePanel>

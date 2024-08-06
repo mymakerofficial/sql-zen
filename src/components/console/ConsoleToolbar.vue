@@ -5,6 +5,7 @@ import {
   EraserIcon,
   FolderIcon,
   TableRowsSplitIcon,
+  ArrowLeftRightIcon,
 } from 'lucide-vue-next'
 import { Toggle } from '@/components/ui/toggle'
 import type { UseEditor } from '@/composables/editor/useEditor'
@@ -19,6 +20,7 @@ import { useQueryClient } from '@tanstack/vue-query'
 import RunButton from '@/components/console/RunButton.vue'
 
 const enableInlineResults = defineModel<boolean>('enableInlineResults')
+const runTransacting = defineModel<boolean>('runTransacting')
 
 const props = defineProps<{
   runner: IRunner
@@ -59,7 +61,7 @@ function handleClear() {
     class="min-h-12 h-12 px-3 flex justify-between border-b border-border"
   >
     <div class="h-full flex items-center gap-3">
-      <RunButton :editor="editor" />
+      <RunButton :editor="editor" :transacting="runTransacting" />
       <Separator orientation="vertical" />
       <Button
         v-if="canOpenFileExplorer"
@@ -82,6 +84,10 @@ function handleClear() {
         <span class="hidden md:block">Download Dump</span>
       </Button>
       <Separator orientation="vertical" />
+      <Toggle v-model:pressed="runTransacting" class="gap-3 h-9">
+        <ArrowLeftRightIcon class="size-4 min-w-max" />
+        <span class="hidden md:block">Transaction</span>
+      </Toggle>
       <Toggle v-model:pressed="enableInlineResults" class="gap-3 h-9">
         <TableRowsSplitIcon class="size-4 min-w-max" />
         <span class="hidden md:block">Inline Results</span>

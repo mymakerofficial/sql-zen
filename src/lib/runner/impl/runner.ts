@@ -25,13 +25,13 @@ export class Runner extends EventPublisher<RunnerEventMap> implements IRunner {
     return this.#dataSource.getKey()
   }
 
-  #runNextIdle(): void {
+  async #runNextIdle() {
     const nextIdle = this.#queries.find(isIdleQuery)
     if (!nextIdle) {
       return
     }
 
-    this.#runQuery(nextIdle.getId())
+    await this.#runQuery(nextIdle.getId())
   }
 
   #cancelAllAfter(queryId: string) {
@@ -41,18 +41,33 @@ export class Runner extends EventPublisher<RunnerEventMap> implements IRunner {
     })
   }
 
-  #runQuery(queryId: string): void {
+  async #runQuery(queryId: string) {
     const query = this.#queries.find((q) => q.getId() === queryId)
     if (!query) {
       return
     }
 
-    query.execute().then(
-      () => {
-        this.#runNextIdle()
+    await query.execute().then(
+      async () => {
+        await this.#runNextIdle()
       },
-      () => {
+      (error) => {
         this.#cancelAllAfter(query.getId())
+        throw error
+      },
+    )
+  }
+
+  async #runAllIdle(transacting = false) {
+    const dialect = this.#dataSource.getDialect()
+    if (transacting) await dialect.beginTransaction()
+    await this.#runNextIdle().then(
+      async () => {
+        if (transacting) await dialect.commitTransaction()
+      },
+      async (error) => {
+        if (transacting) await dialect.rollbackTransaction()
+        throw error
       },
     )
   }
@@ -67,7 +82,7 @@ export class Runner extends EventPublisher<RunnerEventMap> implements IRunner {
     return query
   }
 
-  batch(statements: Array<Statement>): void {
+  batch(statements: Array<Statement>, transacting: boolean = false): void {
     const allSettled = this.#queries.every(isSettledQuery)
     if (!allSettled) {
       throw new Error(
@@ -80,7 +95,7 @@ export class Runner extends EventPublisher<RunnerEventMap> implements IRunner {
 
     this.#queries.push(...newQueries)
     this.emit(RunnerEvent.QueriesUpdated)
-    this.#runNextIdle()
+    this.#runAllIdle(transacting && statements.length > 1).then()
   }
 
   getQueries(): Array<QueryInfo> {

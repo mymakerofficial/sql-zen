@@ -8,7 +8,7 @@ export interface IRunner extends EventPublisher<RunnerEventMap> {
   getDataSource(): IDataSource
   // shorthand for getDataSource().getKey()
   getKey(): string
-  batch(statements: Array<Statement>): void
+  batch(statements: Array<Statement>, transacting?: boolean): void
   getQueries(): Array<QueryInfo>
   getQuery(id: string): IQuery
   clear(): void

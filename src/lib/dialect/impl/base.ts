@@ -10,6 +10,10 @@ export abstract class SqlDialect implements ISqlDialect {
 
   abstract getDataSourceTree(): Promise<DSTreeItem[]>
 
+  abstract beginTransaction(): Promise<void>
+  abstract commitTransaction(): Promise<void>
+  abstract rollbackTransaction(): Promise<void>
+
   mightYieldRows(sql: string): boolean {
     const trimmed = sql.trim().toUpperCase()
     return trimmed.startsWith('SELECT') || trimmed.startsWith('WITH')

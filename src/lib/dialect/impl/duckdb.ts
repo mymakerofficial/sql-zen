@@ -52,6 +52,18 @@ export class DuckDBDialect extends SqlDialect implements ISqlDialect {
       columns,
     )
   }
+
+  async beginTransaction(): Promise<void> {
+    await this.dataSource.query(`BEGIN TRANSACTION`)
+  }
+
+  async commitTransaction(): Promise<void> {
+    await this.dataSource.query(`COMMIT`)
+  }
+
+  async rollbackTransaction(): Promise<void> {
+    await this.dataSource.query(`ROLLBACK`)
+  }
 }
 
 type Extension = {
