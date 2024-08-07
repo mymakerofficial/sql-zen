@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import { useRegistry } from '@/composables/useRegistry'
-import type { DuckDB } from '@/lib/dataSources/impl/duckdb'
 import { useDialog, useDialogContext } from '@/composables/useDialog'
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { Button } from '@/components/ui/button'
 import FileInput from '@/components/shared/FileInput.vue'
 import type { FileAccessor } from '@/lib/files/fileAccessor'
 import DataTable from '@/components/shared/table/DataTable.vue'
-import type { WebFile } from '@duckdb/duckdb-wasm'
 import { createColumnHelper } from '@tanstack/vue-table'
 import { UploadIcon } from 'lucide-vue-next'
-import DuckDbExplorerItemActions from '@/components/shared/dialogs/duckDbExplorer/DuckDbExplorerItemActions.vue'
+import DuckDbExplorerItemActions from '@/components/shared/dialogs/fileExplorer/FileExplorerItemActions.vue'
 import { computed, h } from 'vue'
 import { downloadFile } from '@/lib/downloadFile'
 import FileViewerDialog from '@/components/shared/dialogs/fileViewer/FileViewerDialog.vue'
@@ -20,51 +18,53 @@ import ResponsiveDialogHeader from '@/components/shared/responsiveDialog/Respons
 import ResponsiveDialogTitle from '@/components/shared/responsiveDialog/ResponsiveDialogTitle.vue'
 import ResponsiveDialogDescription from '@/components/shared/responsiveDialog/ResponsiveDialogDescription.vue'
 import ResponsiveDialogFooter from '@/components/shared/responsiveDialog/ResponsiveDialogFooter.vue'
+import type { FileInfo } from '@/lib/files/interface'
 
 const props = defineProps<{
   dataSourceKey: string
 }>()
 
-const { open, close } = useDialogContext()
+const { open } = useDialogContext()
 const { open: openFileViewer } = useDialog(FileViewerDialog)
 
 const registry = useRegistry()
-const dataSource = registry.getDataSource(props.dataSourceKey) as DuckDB
+const dataSource = registry.getDataSource(props.dataSourceKey)
 
 const {
   data,
   refetch,
   error: fetchError,
 } = useQuery({
-  queryKey: ['getRegisteredFiles', props.dataSourceKey],
-  queryFn: () => dataSource.getRegisteredFiles(),
+  queryKey: ['getFiles', props.dataSourceKey],
+  queryFn: () => dataSource.getFiles(),
   initialData: [],
 })
 
 const { mutate: handleRegisterFile, error: registerError } = useMutation({
-  mutationFn: (file: FileAccessor) => dataSource.registerFile(file),
+  mutationFn: (file: FileAccessor) =>
+    dataSource.writeFile(file.getName(), file),
   onSuccess: () => refetch(),
 })
 
 const { mutate: handleDeleteFile, error: deleteError } = useMutation({
-  mutationFn: (item: WebFile) => dataSource.dropFile(item.fileName),
+  mutationFn: (item: FileInfo) => dataSource.deleteFile(item.path),
   onSuccess: () => refetch(),
 })
 
-const { mutate: handleDownloadFile, error: downloadError } = useMutation({
-  mutationFn: async (item: WebFile) => {
-    const file = await dataSource.exportFile(item.fileName)
-    downloadFile(file)
+const { mutateAsync: readFile, error: readError } = useMutation({
+  mutationFn: async (item: FileInfo) => {
+    return await dataSource.readFile(item.path)
   },
 })
 
-const { mutate: handleOpenDatabase, error: openDatabaseError } = useMutation({
-  mutationFn: (item: WebFile) => dataSource.openDatabase(item.fileName),
-  onSuccess: close,
-})
+async function handleDownloadFile(item: FileInfo) {
+  const fileAccessor = await readFile(item)
+  downloadFile(fileAccessor)
+}
 
-async function handleOpenFileViewer(item: WebFile) {
-  openFileViewer({ fileAccessor: await dataSource.exportFile(item.fileName) })
+async function handleOpenFileViewer(item: FileInfo) {
+  const fileAccessor = await readFile(item)
+  openFileViewer({ fileAccessor })
 }
 
 const errors = computed(() =>
@@ -72,14 +72,13 @@ const errors = computed(() =>
     fetchError.value,
     registerError.value,
     deleteError.value,
-    downloadError.value,
-    openDatabaseError.value,
+    readError.value,
   ].filter((e) => e),
 )
 
-const columnHelper = createColumnHelper<WebFile>()
+const columnHelper = createColumnHelper<FileInfo>()
 const columns = [
-  columnHelper.accessor('fileName', {
+  columnHelper.accessor('path', {
     header: 'Name',
     cell: (ctx) =>
       h(
@@ -91,7 +90,7 @@ const columns = [
         ctx.getValue(),
       ),
   }),
-  columnHelper.accessor('fileSize', {
+  columnHelper.accessor('size', {
     header: 'Size',
     cell: (ctx) => {
       return ctx.getValue() ? `${ctx.getValue()} bytes` : 'unknown'
@@ -105,7 +104,6 @@ const columns = [
         onOpenFile: handleOpenFileViewer,
         onDeleteFile: handleDeleteFile,
         onDownloadFile: handleDownloadFile,
-        onOpenDatabase: handleOpenDatabase,
       }),
     meta: {
       className: 'w-0',
@@ -118,22 +116,21 @@ const columns = [
   <ResponsiveDialog v-model:open="open">
     <ResponsiveDialogContent>
       <ResponsiveDialogHeader>
-        <ResponsiveDialogTitle>DuckDB Local File System</ResponsiveDialogTitle>
+        <ResponsiveDialogTitle>Local File System</ResponsiveDialogTitle>
         <ResponsiveDialogDescription>
           <p>
-            DuckDB local file system is a virtual file system that allows you to
-            register files to be used in your queries.
-          </p>
-          <p>
-            DuckDB can load table data from CSV, JSON, and Parquet files. You
-            can also upload and open databases from here.
+            You can upload files to the In-Browser File System to be used in
+            your queries. Files stored here will be lost when reloading the
+            page.
           </p>
         </ResponsiveDialogDescription>
       </ResponsiveDialogHeader>
       <div class="max-h-72 overflow-auto">
         <DataTable :data="data" :columns="columns" />
       </div>
-      <p v-for="error in errors" class="text-red-500">{{ error }}</p>
+      <p v-for="(error, index) in errors" class="text-red-500" :key="index">
+        {{ error }}
+      </p>
       <ResponsiveDialogFooter>
         <FileInput @selected="handleRegisterFile">
           <Button class="gap-3">

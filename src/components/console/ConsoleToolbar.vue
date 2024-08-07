@@ -15,7 +15,7 @@ import { Separator } from '@/components/ui/separator'
 import type { IRunner } from '@/lib/runner/interface'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { useDialog } from '@/composables/useDialog'
-import DuckDbExplorer from '@/components/shared/dialogs/duckDbExplorer/DuckDbExplorer.vue'
+import FileExplorer from '@/components/shared/dialogs/fileExplorer/FileExplorer.vue'
 import { useQueryClient } from '@tanstack/vue-query'
 import RunButton from '@/components/console/RunButton.vue'
 
@@ -28,10 +28,10 @@ const props = defineProps<{
 }>()
 
 const queryClient = useQueryClient()
-const { open: openFileExplorer } = useDialog(DuckDbExplorer)
+const { open: openFileExplorer } = useDialog(FileExplorer)
 
 const canOpenFileExplorer = computed(
-  () => props.runner.getDataSource().getEngine() === DatabaseEngine.DuckDB,
+  () => props.runner.getDataSource().getEngine() !== DatabaseEngine.SQLite,
 )
 
 const canDump = computed(
@@ -71,7 +71,7 @@ function handleClear() {
         class="gap-3"
       >
         <FolderIcon class="size-4 min-w-max" />
-        <span>Explore Files</span>
+        <span class="hidden md:block">Explore Files</span>
       </Button>
       <Button
         v-if="canDump"

@@ -5,7 +5,7 @@ import type {
 } from '@/lib/dataSources/interface'
 import type { DatabaseEngine } from '@/lib/engines/enums'
 import type { DataSourceMode } from '@/lib/dataSources/enums'
-import type { FileAccessor } from '@/lib/files/fileAccessor'
+import { FileAccessor } from '@/lib/files/fileAccessor'
 import { generateDataSourceKey } from '@/lib/dataSources/helpers'
 import type { QueryResult } from '@/lib/queries/interface'
 import { type ILogger } from '@/lib/logger/interface'
@@ -13,6 +13,7 @@ import type { ISqlDialect } from '@/lib/dialect/interface'
 import { SqlDialectFactory } from '@/lib/dialect/factory'
 import { Logger } from '@/lib/logger/impl/logger'
 import type { ILoggerStore } from '@/lib/stores/loggerStore/interface'
+import type { FileInfo } from '@/lib/files/interface'
 
 export abstract class DataSource implements IDataSource {
   readonly #engine: DatabaseEngine
@@ -74,6 +75,22 @@ export abstract class DataSource implements IDataSource {
   abstract query<T extends object = object>(
     sql: string,
   ): Promise<QueryResult<T>>
+
+  async getFiles(): Promise<Array<FileInfo>> {
+    return []
+  }
+
+  async readFile(_path: string): Promise<FileAccessor> {
+    return FileAccessor.Dummy
+  }
+
+  async writeFile(_path: string, _fileAccessor: FileAccessor): Promise<void> {
+    return
+  }
+
+  async deleteFile(_path: string): Promise<void> {
+    return
+  }
 
   abstract dump(): Promise<FileAccessor>
 

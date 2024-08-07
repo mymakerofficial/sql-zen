@@ -6,6 +6,9 @@ import { getId } from '@/lib/getId'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { DataSource } from '@/lib/dataSources/impl/base'
 import { vector } from '@electric-sql/pglite/vector'
+import type { FileInfo } from '@/lib/files/interface'
+
+const BASE_PATH = '/var'
 
 export class PostgreSQL extends DataSource {
   #database: PGlite | null = null
@@ -48,6 +51,10 @@ export class PostgreSQL extends DataSource {
         },
       })
       await database.waitReady
+
+      // Create the base directory for user files
+      database.Module.FS.mkdir(BASE_PATH)
+
       return database
     })
 
@@ -73,6 +80,52 @@ export class PostgreSQL extends DataSource {
     })
   }
 
+  async getFiles() {
+    if (!this.#database) {
+      throw new DatabaseNotLoadedError()
+    }
+
+    return readDirectory(this.#database.Module.FS, BASE_PATH)
+  }
+
+  async readFile(path: string) {
+    if (!this.#database) {
+      throw new DatabaseNotLoadedError()
+    }
+
+    const fs = this.#database.Module.FS
+    const stats = fs.stat(path)
+    if (!fs.isFile(stats.mode)) {
+      throw new Error('Provided path is not a file')
+    }
+    const arrayBuffer = fs.readFile(path, { encoding: 'binary' })
+    const fileName = path.split('/').pop() ?? ''
+    return FileAccessor.fromUint8Array(arrayBuffer, fileName)
+  }
+
+  async writeFile(path: string, fileAccessor: FileAccessor) {
+    if (!this.#database) {
+      throw new DatabaseNotLoadedError()
+    }
+
+    const fs = this.#database.Module.FS
+    const fullPath = `${BASE_PATH}/${path}`
+    const stream = fs.open(fullPath, 'w+')
+    const arrayBuffer = await fileAccessor.readUint8Array()
+    const fileSize = await fileAccessor.getSize()
+    fs.write(stream, arrayBuffer, 0, fileSize ?? 0, 0)
+    fs.close(stream)
+  }
+
+  async deleteFile(path: string): Promise<void> {
+    if (!this.#database) {
+      throw new DatabaseNotLoadedError()
+    }
+
+    const fs = this.#database.Module.FS
+    fs.unlink(path)
+  }
+
   async dump() {
     if (!this.#database) {
       throw new DatabaseNotLoadedError()
@@ -92,4 +145,29 @@ export class PostgreSQL extends DataSource {
       await this.#database.close()
     }
   }
+}
+
+function readDirectory(fs: PGlite['Module']['FS'], path: string) {
+  const files: FileInfo[] = []
+
+  const traverseDirectory = (currentPath: string) => {
+    const entries: string[] = fs.readdir(currentPath)
+    entries.forEach((entry) => {
+      if (entry === '.' || entry === '..') {
+        return
+      }
+      const fullPath = currentPath + '/' + entry
+      const stats = fs.stat(fullPath)
+      files.push({
+        path: fullPath,
+        size: stats.size,
+      })
+      if (fs.isDir(stats.mode)) {
+        traverseDirectory(fullPath)
+      }
+    })
+  }
+
+  traverseDirectory(path)
+  return files
 }

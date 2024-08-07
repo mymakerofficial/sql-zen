@@ -1,4 +1,5 @@
 import type * as duckdb from '@duckdb/duckdb-wasm'
+import { DuckDBAccessMode } from '@duckdb/duckdb-wasm'
 import { DatabaseNotLoadedError } from '@/lib/errors'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import type { Table } from 'apache-arrow'
@@ -6,8 +7,7 @@ import { DataSourceMode } from '@/lib/dataSources/enums'
 import type { QueryResult } from '@/lib/queries/interface'
 import { getId } from '@/lib/getId'
 import { DataSource } from '@/lib/dataSources/impl/base'
-import type { IDataSource } from '../interface'
-import { DuckDBDataProtocol, DuckDBAccessMode } from '@duckdb/duckdb-wasm'
+import type { FileInfo } from '@/lib/files/interface'
 
 export class DuckDB extends DataSource {
   #worker: Worker | null = null
@@ -117,32 +117,29 @@ export class DuckDB extends DataSource {
     })
   }
 
-  async getRegisteredFiles() {
+  async getFiles(): Promise<Array<FileInfo>> {
     if (!this.#database) {
       throw new DatabaseNotLoadedError()
     }
 
-    return await this.#database.globFiles('*')
+    const files = await this.#database.globFiles('*')
+    return files.map((file) => {
+      return {
+        path: file.fileName,
+        size: file.fileSize ?? 0,
+      }
+    })
   }
 
-  async registerFile(file: FileAccessor) {
+  async readFile(path: string) {
     if (!this.#database) {
       throw new DatabaseNotLoadedError()
     }
 
-    const buffer = await file.readUint8Array()
-    return await this.#database.registerFileBuffer(file.getName(), buffer)
-  }
-
-  async exportFile(name: string) {
-    if (!this.#database) {
-      throw new DatabaseNotLoadedError()
-    }
-
-    const [info] = await this.#database.globFiles(name)
+    const [info] = await this.#database.globFiles(path)
 
     if (!info) {
-      throw new Error(`File not found: ${name}`)
+      throw new Error(`File not found: ${path}`)
     }
 
     return FileAccessor.fromLazy(
@@ -151,52 +148,31 @@ export class DuckDB extends DataSource {
           throw new DatabaseNotLoadedError()
         }
 
-        const buffer = await this.#database.copyFileToBuffer(name)
+        const buffer = await this.#database.copyFileToBuffer(path)
         return new Blob([buffer])
       },
       {
-        name,
+        name: path.split('/').pop() ?? '',
         size: info.fileSize,
       },
     )
   }
 
-  async registerEmptyFile(name: string) {
+  async writeFile(path: string, fileAccessor: FileAccessor) {
     if (!this.#database) {
       throw new DatabaseNotLoadedError()
     }
 
-    return await this.#database.registerEmptyFileBuffer(name)
+    const buffer = await fileAccessor.readUint8Array()
+    await this.#database.registerFileBuffer(path, buffer)
   }
 
-  async registerFileUrl(name: string, url: string) {
+  async deleteFile(path: string) {
     if (!this.#database) {
       throw new DatabaseNotLoadedError()
     }
 
-    return await this.#database.registerFileURL(
-      name,
-      url,
-      DuckDBDataProtocol.HTTP,
-      false,
-    )
-  }
-
-  async renameFile(oldName: string, newName: string) {
-    if (!this.#database) {
-      throw new DatabaseNotLoadedError()
-    }
-
-    await this.#database.copyFileToPath(oldName, newName)
-    await this.#database.dropFile(oldName)
-  }
-
-  async dropFile(name: string) {
-    if (!this.#database) {
-      throw new DatabaseNotLoadedError()
-    }
-
-    await this.#database.dropFile(name)
+    await this.#database.dropFile(path)
   }
 
   async dump() {
@@ -216,8 +192,4 @@ export class DuckDB extends DataSource {
       this.#worker.terminate()
     }
   }
-}
-
-export function isDuckDb(dataSource: IDataSource): dataSource is DuckDB {
-  return dataSource instanceof DuckDB
 }

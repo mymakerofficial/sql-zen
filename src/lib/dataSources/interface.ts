@@ -4,6 +4,7 @@ import type { FileAccessor } from '@/lib/files/fileAccessor'
 import type { QueryResult } from '@/lib/queries/interface'
 import type { ILogger } from '@/lib/logger/interface'
 import type { ISqlDialect } from '@/lib/dialect/interface'
+import type { FileInfo } from '@/lib/files/interface'
 
 export type DataSourceDescriptor = {
   engine: DatabaseEngine
@@ -29,6 +30,10 @@ export interface IDataSource {
   isInitialized(): boolean
   init(): Promise<void>
   query<T extends object = object>(sql: string): Promise<QueryResult<T>>
+  getFiles(): Promise<Array<FileInfo>>
+  readFile(path: string): Promise<FileAccessor>
+  writeFile(path: string, fileAccessor: FileAccessor): Promise<void>
+  deleteFile(path: string): Promise<void>
   dump(): Promise<FileAccessor>
   close(): Promise<void>
 }

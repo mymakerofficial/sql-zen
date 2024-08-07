@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { WebFile } from '@duckdb/duckdb-wasm'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,24 +8,24 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import {
+  ClipboardIcon,
+  DatabaseIcon,
   DownloadIcon,
+  EyeIcon,
   MenuIcon,
   Trash2Icon,
-  DatabaseIcon,
-  ClipboardIcon,
-  EyeIcon,
 } from 'lucide-vue-next'
 import { copyToClipboard } from '@/lib/copyToClipboard'
+import type { FileInfo } from '@/lib/files/interface'
 
 const props = defineProps<{
-  item: WebFile
+  item: FileInfo
 }>()
 
 const emit = defineEmits<{
-  openFile: [file: WebFile]
-  deleteFile: [file: WebFile]
-  downloadFile: [file: WebFile]
-  openDatabase: [file: WebFile]
+  openFile: [file: FileInfo]
+  deleteFile: [file: FileInfo]
+  downloadFile: [file: FileInfo]
 }>()
 
 function handleOpenFile() {
@@ -41,12 +40,8 @@ function handleDownloadFile() {
   emit('downloadFile', props.item)
 }
 
-function handleOpenDatabae() {
-  emit('openDatabase', props.item)
-}
-
 function handleCopyName() {
-  copyToClipboard(props.item.fileName)
+  copyToClipboard(props.item.path)
 }
 </script>
 
@@ -69,10 +64,6 @@ function handleCopyName() {
         <span>Delete</span>
       </DropdownMenuItem>
       <DropdownMenuSeparator />
-      <DropdownMenuItem @click="handleOpenDatabae" class="gap-2">
-        <DatabaseIcon class="size-4 min-w-max" />
-        <span>Open As Database</span>
-      </DropdownMenuItem>
       <DropdownMenuItem @click="handleCopyName" class="gap-2">
         <ClipboardIcon class="size-4 min-w-max" />
         <span>Copy Name</span>
