@@ -21,6 +21,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
+import { useMutation } from '@tanstack/vue-query'
 
 env.allowLocalModels = false
 
@@ -42,7 +43,11 @@ const offset = ref(0)
 const editor = useEditor({
   model: monaco.editor.createModel(
     //"SELECT id, concat_ws(', ', title, description) as text FROM products;",
-    "SELECT line_id as id, concat_ws(', ', play_name, speaker, text_entry) as text FROM shakespeare",
+    `SELECT
+    line_id as id,
+    concat_ws(', ', play_name, speaker, text_entry) as text
+FROM shakespeare
+WHERE play_name = 'Romeo and Juliet'`,
     'sql',
   ),
 })
@@ -54,7 +59,7 @@ const embeddingsTableName = computed(() => {
 const embeddingsTableCreateStatement = computed(() => {
   return `CREATE TABLE IF NOT EXISTS ${embeddingsTableName.value}
 (
-    ${primaryColumnName.value} ${primaryColumnType.value.toUpperCase()} UNIQUE NOT NULL PRIMARY KEY,
+    ${primaryColumnName.value} ${primaryColumnType.value.toUpperCase()},
     embedding VECTOR(384)
 )`
 })
@@ -127,6 +132,10 @@ async function generateEmbeddings() {
     `COPY ${embeddingsTableName.value} FROM '/var/temp_embeddings.csv' DELIMITER ';' CSV HEADER ENCODING 'UTF8'`,
   )
 }
+
+const { mutate: handleGenerateEmbeddings, isPending } = useMutation({
+  mutationFn: generateEmbeddings,
+})
 </script>
 
 <template>
@@ -147,7 +156,12 @@ async function generateEmbeddings() {
         <div class="flex flex-wrap gap-4">
           <section class="space-y-2 col-span-2">
             <Label for="tableName" class="text-right">Table Name</Label>
-            <Input v-model="tableName" id="tableName" class="w-fit" />
+            <Input
+              v-model="tableName"
+              :disabled="isPending"
+              id="tableName"
+              class="w-fit"
+            />
           </section>
           <section class="space-y-2">
             <Label for="primaryColumnName" class="text-right"
@@ -155,6 +169,7 @@ async function generateEmbeddings() {
             >
             <Input
               v-model="primaryColumnName"
+              :disabled="isPending"
               id="primaryColumnName"
               class="w-fit"
             />
@@ -165,6 +180,7 @@ async function generateEmbeddings() {
             >
             <Input
               v-model="primaryColumnType"
+              :disabled="isPending"
               id="primaryColumnType"
               class="w-fit"
             />
@@ -173,11 +189,21 @@ async function generateEmbeddings() {
         <div class="flex flex-wrap gap-4">
           <section class="space-y-2 col-span-2">
             <Label for="limit">Limit</Label>
-            <Input v-model="limit" id="limit" class="w-fit" />
+            <Input
+              v-model="limit"
+              :disabled="isPending"
+              id="limit"
+              class="w-fit"
+            />
           </section>
           <section class="space-y-2">
             <Label for="offset">Offset</Label>
-            <Input v-model="offset" id="offset" class="w-fit" />
+            <Input
+              v-model="offset"
+              :disabled="isPending"
+              id="offset"
+              class="w-fit"
+            />
           </section>
         </div>
         <section class="space-y-2">
@@ -201,7 +227,11 @@ async function generateEmbeddings() {
         </section>
       </div>
       <DialogFooter>
-        <Button @click="generateEmbeddings" class="gap-3">
+        <Button
+          @click="handleGenerateEmbeddings"
+          :disabled="isPending"
+          class="gap-3"
+        >
           <SparklesIcon class="size-4 min-w-max" />
           <span>Generate</span>
         </Button>

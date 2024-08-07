@@ -7,6 +7,7 @@ import {
   TableRowsSplitIcon,
   ArrowLeftRightIcon,
   SparklesIcon,
+  SearchIcon,
 } from 'lucide-vue-next'
 import { Toggle } from '@/components/ui/toggle'
 import type { UseEditor } from '@/composables/editor/useEditor'
@@ -20,6 +21,7 @@ import FileExplorer from '@/components/shared/dialogs/fileExplorer/FileExplorer.
 import { useQueryClient } from '@tanstack/vue-query'
 import RunButton from '@/components/console/RunButton.vue'
 import EmbeddingsDialog from '@/components/shared/dialogs/embeddings/EmbeddingsDialog.vue'
+import EmbeddingsSearchDialog from '@/components/shared/dialogs/embeddings/EmbeddingsSearchDialog.vue'
 
 const enableInlineResults = defineModel<boolean>('enableInlineResults')
 const runTransacting = defineModel<boolean>('runTransacting')
@@ -32,6 +34,7 @@ const props = defineProps<{
 const queryClient = useQueryClient()
 const { open: openFileExplorer } = useDialog(FileExplorer)
 const { open: openEmbeddings } = useDialog(EmbeddingsDialog)
+const { open: openEmbeddingsSearch } = useDialog(EmbeddingsSearchDialog)
 
 const canOpenFileExplorer = computed(
   () => props.runner.getDataSource().getEngine() !== DatabaseEngine.SQLite,
@@ -51,6 +54,10 @@ function handleOpenFileExplorer() {
 
 function handleOpenEmbeddings() {
   openEmbeddings({ dataSourceKey: props.runner.getKey() })
+}
+
+function handleOpenEmbeddingsSearch() {
+  openEmbeddingsSearch({ dataSourceKey: props.runner.getKey() })
 }
 
 async function handleDump() {
@@ -115,6 +122,19 @@ function handleClear() {
         <span
           class="hidden md:block font-bold bg-gradient-to-br from-purple-300 to-cyan-300 text-transparent bg-clip-text"
           >Embeddings</span
+        >
+      </Button>
+      <Button
+        v-if="supportsEmbeddings"
+        @click="handleOpenEmbeddingsSearch"
+        size="sm"
+        variant="ghost"
+        class="gap-3"
+      >
+        <SearchIcon class="size-4 min-w-max text-purple-300" />
+        <span
+          class="hidden md:block font-bold bg-gradient-to-br from-purple-300 to-cyan-300 text-transparent bg-clip-text"
+          >Search</span
         >
       </Button>
     </div>
