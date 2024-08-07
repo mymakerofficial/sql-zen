@@ -15,6 +15,10 @@ export abstract class FileAccessor {
     return new BlobFileAccessor(new Blob([array]), name)
   }
 
+  static fromText(text: string, name: string) {
+    return new BlobFileAccessor(new Blob([text]), name)
+  }
+
   static fromLazy(
     readFn: () => Promise<Blob>,
     { name, size }: { name?: string; size?: number },
