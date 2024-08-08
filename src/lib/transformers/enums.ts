@@ -7,3 +7,12 @@ export const PipelineProgressStatus = {
 } as const
 export type PipelineProgressStatus =
   (typeof PipelineProgressStatus)[keyof typeof PipelineProgressStatus]
+
+export const PipelineWorkerMessageType = {
+  Progress: 'progress',
+  Ready: 'ready',
+  Done: 'done',
+  Error: 'error',
+}
+export type PipelineWorkerMessageType =
+  (typeof PipelineWorkerMessageType)[keyof typeof PipelineWorkerMessageType]

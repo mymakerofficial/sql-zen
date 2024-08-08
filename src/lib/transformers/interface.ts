@@ -1,34 +1,5 @@
 import { PipelineProgressStatus } from '@/lib/transformers/enums'
-
-export type RawProgress =
-  | {
-      status: typeof PipelineProgressStatus.Initiate
-      name: string
-      file: string
-    }
-  | {
-      status: typeof PipelineProgressStatus.Download
-      name: string
-      file: string
-    }
-  | {
-      status: typeof PipelineProgressStatus.Progress
-      name: string
-      file: string
-      progress: number
-      loaded: number
-      total: number
-    }
-  | {
-      status: typeof PipelineProgressStatus.Done
-      name: string
-      file: string
-    }
-  | {
-      status: typeof PipelineProgressStatus.Ready
-      task: string
-      model: string
-    }
+import type { PipelineType } from '@xenova/transformers/types/pipelines'
 
 export type RawProgressFlat = {
   status: PipelineProgressStatus
@@ -50,3 +21,25 @@ export type PipelineProgress = {
   loaded: number
   total: number
 }
+
+type PartialPipelineArgumentsMap = {
+  ['feature-extraction']: [text: string]
+}
+
+type PartialPipelineOutputMap = {
+  ['feature-extraction']: { data: Float32Array }
+}
+
+type PipelineArgumentsMap = {
+  [K in keyof Omit<PipelineType, keyof PartialPipelineOutputMap>]: unknown[]
+} & PartialPipelineArgumentsMap
+
+type PipelineOutputMap = {
+  [K in keyof Omit<PipelineType, keyof PartialPipelineOutputMap>]: unknown
+} & PartialPipelineOutputMap
+
+export type PipelineArguments<T extends PipelineType> = PipelineArgumentsMap[T &
+  keyof PipelineArgumentsMap]
+
+export type PipelineOutput<T extends PipelineType> = PipelineOutputMap[T &
+  keyof PipelineOutputMap]

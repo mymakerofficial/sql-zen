@@ -18,8 +18,8 @@ import {
 import { djb2 } from '@/lib/hash'
 import { useMutation } from '@tanstack/vue-query'
 import { useTransformerPipeline } from '@/composables/transformers/useTransformerPipeline'
-import { GteSmall } from '@/lib/transformers/pipeline'
 import { Progress } from '@/components/ui/progress'
+import { GteSmall } from '@/lib/transformers/singletons/gteSmall'
 
 env.allowLocalModels = false
 
@@ -32,25 +32,16 @@ const { open, close } = useDialogContext()
 const registry = useRegistry()
 const runner = registry.getRunner(props.dataSourceKey)
 
-const {
-  getPipeline,
-  isPending: pipelineIsPending,
-  progress: pipelineProgress,
-} = useTransformerPipeline(GteSmall)
+const { pipeline, progress: pipelineProgress } =
+  useTransformerPipeline(GteSmall)
 
 const searchTerm = ref('')
 const tableName = ref('shakespeare')
 const primaryColumnName = ref('line_id')
 
 async function search() {
-  // load model
-  const pipeline = await getPipeline()
-
   // generate embeddings
-  const embedding = await pipeline(searchTerm.value, {
-    pooling: 'mean',
-    normalize: true,
-  })
+  const embedding = await pipeline(searchTerm.value)
   console.debug(embedding)
 
   const statement = `SELECT t.*, e.embedding <-> '[${embedding.data.join(',')}]' as distance
@@ -119,7 +110,7 @@ const {
             class="col-span-3"
           />
         </div>
-        <div v-if="pipelineIsPending" class="space-y-1">
+        <div v-if="false" class="space-y-1">
           <Label>Loading model...</Label>
           <Progress :model-value="pipelineProgress" />
         </div>

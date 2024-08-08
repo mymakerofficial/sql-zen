@@ -22,9 +22,9 @@ import {
 } from '@/components/ui/dialog'
 import { useMutation } from '@tanstack/vue-query'
 import { useTransformerPipeline } from '@/composables/transformers/useTransformerPipeline'
-import { GteSmall } from '@/lib/transformers/pipeline'
 import { Progress } from '@/components/ui/progress'
 import { getId } from '@/lib/getId'
+import { GteSmall } from '@/lib/transformers/singletons/gteSmall'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -35,11 +35,8 @@ const { open, close } = useDialogContext()
 const registry = useRegistry()
 const dataSource = registry.getDataSource(props.dataSourceKey)
 
-const {
-  getPipeline,
-  isPending: pipelineIsPending,
-  progress: pipelineProgress,
-} = useTransformerPipeline(GteSmall)
+const { pipeline, progress: pipelineProgress } =
+  useTransformerPipeline(GteSmall)
 
 const tableName = ref('shakespeare')
 const primaryColumnName = ref('line_id')
@@ -90,22 +87,17 @@ async function generateEmbeddings() {
     text: string
   }>(dialect.makePaginatedStatement(selectStmt, offset.value, limit.value))
 
-  // load model
-  const pipeline = await getPipeline()
-
   // generate embeddings
   const embeddingsData: {
     id: string
-    embedding: number[]
+    embedding: Float32Array
   }[] = []
   for (const row of data) {
-    const embedding = await pipeline(row.text, {
-      pooling: 'mean',
-      normalize: true,
-    })
+    const embedding = await pipeline(row.text)
+    console.log(embedding)
     embeddingsData.push({
       id: row.id,
-      embedding: embedding.data as number[],
+      embedding: embedding.data,
     })
   }
 
@@ -222,7 +214,7 @@ const {
             class="text-xs [&_pre]:p-3"
           />
         </section>
-        <div v-if="pipelineIsPending" class="space-y-1">
+        <div v-if="false" class="space-y-1">
           <Label>Loading model...</Label>
           <Progress :model-value="pipelineProgress" />
         </div>

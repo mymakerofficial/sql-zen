@@ -4,15 +4,21 @@ import type {
 } from '@xenova/transformers/types/pipelines'
 import { env, pipeline } from '@xenova/transformers'
 import type {
+  PipelineArguments,
+  PipelineOutput,
   PipelineProgress,
   RawProgressFlat,
 } from '@/lib/transformers/interface'
-import { PipelineProgressStatus } from '@/lib/transformers/enums'
+import {
+  PipelineProgressStatus,
+  PipelineWorkerMessageType,
+} from '@/lib/transformers/enums'
 
 // skip local model scan
 env.allowLocalModels = false
 
-export class TransformerPipeline<T extends PipelineType> {
+// used inside the worker
+export class TransformerPipelineWorker<T extends PipelineType> {
   #instance: AllTasks[T] | null = null
   #progressEntries: Map<string, PipelineProgress> = new Map()
 
@@ -32,9 +38,7 @@ export class TransformerPipeline<T extends PipelineType> {
     return sum / entries.length
   }
 
-  async #loadModel(
-    callback?: (progress: number) => void,
-  ): Promise<AllTasks[T]> {
+  async loadModel(callback?: (progress: number) => void): Promise<AllTasks[T]> {
     return await pipeline(this.task, this.model, {
       progress_callback: (event: RawProgressFlat) => {
         if (!callback) {
@@ -66,16 +70,35 @@ export class TransformerPipeline<T extends PipelineType> {
   }
 
   async getInstance(
-    callback?: (progress: number) => void,
+    onProgress?: (progress: number) => void,
+    onReady?: () => void,
   ): Promise<AllTasks[T]> {
     if (!this.#instance) {
-      this.#instance = await this.#loadModel(callback)
+      this.#instance = await this.loadModel(onProgress)
+      onReady?.()
     }
     return this.#instance
   }
 }
 
-export const GteSmall = new TransformerPipeline(
-  'feature-extraction',
-  'Supabase/gte-small',
-)
+export class TransformerPipeline<T extends PipelineType> {
+  constructor(
+    // task is just for typing
+    _task: T,
+    private readonly worker: Worker,
+  ) {}
+
+  pipeline(...args: PipelineArguments<T>): Promise<PipelineOutput<T>> {
+    return new Promise((resolve, reject) => {
+      this.worker.onmessage = (event) => {
+        if (event.data.type === PipelineWorkerMessageType.Done) {
+          resolve(event.data.output)
+        } else if (event.data.type === PipelineWorkerMessageType.Error) {
+          reject(event.data.error)
+        }
+      }
+
+      this.worker.postMessage({ args })
+    })
+  }
+}
