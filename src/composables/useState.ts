@@ -1,7 +1,7 @@
 import type { ComputedRef } from 'vue'
 import { computed, customRef } from 'vue'
 
-export function useManualReadonlyRef<T>(
+export function useState<T>(
   initialValue: T,
 ): [ComputedRef<T>, (value: T) => void] {
   let updateValue: (value: T) => void

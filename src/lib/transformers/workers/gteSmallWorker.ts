@@ -1,18 +1,26 @@
-import { TransformerPipelineWorker } from '@/lib/transformers/pipeline'
-import { PipelineWorkerMessageType } from '@/lib/transformers/enums'
+import { TransformerPipelineWorker } from '@/lib/transformers/pipelineWorker'
 import type { PipelineArguments } from '@/lib/transformers/interface'
+import { PipelineEvent, PipelineWorkerEvent } from '@/lib/transformers/events'
 
 const Pipeline = new TransformerPipelineWorker(
   'feature-extraction',
   'Supabase/gte-small',
 )
 
+Pipeline.on(PipelineWorkerEvent.Loading, () => {
+  self.postMessage({ type: PipelineEvent.Loading })
+})
+
+Pipeline.on(PipelineWorkerEvent.Progress, (progress) => {
+  self.postMessage({ type: PipelineEvent.Progress, progress })
+})
+
+Pipeline.on(PipelineWorkerEvent.Ready, () => {
+  self.postMessage({ type: PipelineEvent.Ready })
+})
+
 self.addEventListener('message', async (event) => {
-  const pipeline = await Pipeline.getInstance(
-    (progress) =>
-      self.postMessage({ type: PipelineWorkerMessageType.Progress, progress }),
-    () => self.postMessage({ type: PipelineWorkerMessageType.Ready }),
-  )
+  const pipeline = await Pipeline.getInstance()
 
   const [text] = event.data.args as PipelineArguments<'feature-extraction'>
 
@@ -22,12 +30,12 @@ self.addEventListener('message', async (event) => {
   }).then(
     ({ data }) => {
       self.postMessage({
-        type: PipelineWorkerMessageType.Done,
+        type: PipelineEvent.Done,
         output: { data },
       })
     },
     (error) => {
-      self.postMessage({ type: PipelineWorkerMessageType.Error, error })
+      self.postMessage({ type: PipelineEvent.Error, error })
     },
   )
 })

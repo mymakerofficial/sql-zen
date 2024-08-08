@@ -12,16 +12,6 @@ export type RawProgressFlat = {
   model?: string
 }
 
-export type PipelineProgress = {
-  status: PipelineProgressStatus
-  key: string
-  name: string
-  file: string
-  progress: number
-  loaded: number
-  total: number
-}
-
 type PartialPipelineArgumentsMap = {
   ['feature-extraction']: [text: string]
 }

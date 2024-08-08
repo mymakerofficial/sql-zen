@@ -28,6 +28,17 @@ export class EventPublisher<
     this.#listeners[event]!.push(callback)
   }
 
+  once<K extends keyof EventMap<T>>(
+    event: K,
+    callback: (...args: EventMap<T>[K]) => void,
+  ) {
+    const onceCallback = (...args: EventMap<T>[K]) => {
+      this.off(event, onceCallback)
+      callback(...args)
+    }
+    this.on(event, onceCallback)
+  }
+
   off<K extends keyof EventMap<T>>(
     event: K,
     callback: (...args: EventMap<T>[K]) => void,

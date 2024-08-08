@@ -32,8 +32,11 @@ const { open, close } = useDialogContext()
 const registry = useRegistry()
 const runner = registry.getRunner(props.dataSourceKey)
 
-const { pipeline, progress: pipelineProgress } =
-  useTransformerPipeline(GteSmall)
+const {
+  pipeline,
+  isLoading: pipelineIsLoading,
+  progress: pipelineProgress,
+} = useTransformerPipeline(GteSmall)
 
 const searchTerm = ref('')
 const tableName = ref('shakespeare')
@@ -110,7 +113,7 @@ const {
             class="col-span-3"
           />
         </div>
-        <div v-if="false" class="space-y-1">
+        <div v-if="pipelineIsLoading" class="space-y-1">
           <Label>Loading model...</Label>
           <Progress :model-value="pipelineProgress" />
         </div>

@@ -8,7 +8,7 @@ import * as monaco from 'monaco-editor'
 import { Input } from '@/components/ui/input'
 import { computed, ref } from 'vue'
 import CodeBlock from '@/components/shared/CodeBlock.vue'
-import { SparklesIcon, LoaderCircleIcon } from 'lucide-vue-next'
+import { LoaderCircleIcon, SparklesIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { Separator } from '@/components/ui/separator'
@@ -35,8 +35,11 @@ const { open, close } = useDialogContext()
 const registry = useRegistry()
 const dataSource = registry.getDataSource(props.dataSourceKey)
 
-const { pipeline, progress: pipelineProgress } =
-  useTransformerPipeline(GteSmall)
+const {
+  pipeline,
+  isLoading: pipelineIsLoading,
+  progress: pipelineProgress,
+} = useTransformerPipeline(GteSmall)
 
 const tableName = ref('shakespeare')
 const primaryColumnName = ref('line_id')
@@ -214,7 +217,7 @@ const {
             class="text-xs [&_pre]:p-3"
           />
         </section>
-        <div v-if="false" class="space-y-1">
+        <div v-if="pipelineIsLoading" class="space-y-1">
           <Label>Loading model...</Label>
           <Progress :model-value="pipelineProgress" />
         </div>
