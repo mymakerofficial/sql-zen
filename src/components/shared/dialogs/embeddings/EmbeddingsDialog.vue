@@ -57,6 +57,8 @@ FROM shakespeare
 WHERE play_name = 'Romeo and Juliet'`,
     'sql',
   ),
+  glyphMargin: false,
+  lineNumbers: false,
 })
 
 const embeddingsTableName = computed(() => {

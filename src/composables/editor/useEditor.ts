@@ -20,7 +20,11 @@ type UseEditorProps = {
   runner?: IRunner | null
   getStatements?: ((editor: UseEditor) => ComputedRef<Array<Statement>>) | null
   readonly?: MaybeRefOrGetter<boolean>
+  glyphMargin?: MaybeRefOrGetter<boolean>
+  lineNumbers?: MaybeRefOrGetter<boolean>
 }
+
+const smallScreen = useMediaQuery('(min-width: 640px)')
 
 export class UseEditor {
   private readonly container: HTMLElement
@@ -28,13 +32,17 @@ export class UseEditor {
   public readonly runner: IRunner | null = null
   public readonly content: ComputedRef<string>
   public readonly statements: ComputedRef<Array<Statement>>
-  public readonly glyphMargin = useMediaQuery('(min-width: 640px)')
+
+  public readonly glyphMargin: MaybeRefOrGetter<boolean>
+  public readonly lineNumbers: MaybeRefOrGetter<boolean>
 
   constructor({
     model,
     runner,
     getStatements,
     readonly = false,
+    glyphMargin = true,
+    lineNumbers = true,
   }: UseEditorProps) {
     this.runner = runner ?? null
     this.container = createContainer()
@@ -44,8 +52,12 @@ export class UseEditor {
       minimap: {
         enabled: false,
       },
-      readOnly: true,
     })
+
+    this.glyphMargin = computed(() => {
+      return glyphMargin && smallScreen.value
+    })
+    this.lineNumbers = lineNumbers
 
     onScopeDispose(() => {
       this.editor.dispose()
@@ -53,8 +65,9 @@ export class UseEditor {
 
     watchEffect(() => {
       this.editor.updateOptions({
-        glyphMargin: toValue(this.glyphMargin),
         readOnly: toValue(readonly),
+        glyphMargin: toValue(this.glyphMargin),
+        lineNumbers: toValue(this.lineNumbers) ? 'on' : 'off',
       })
     })
 

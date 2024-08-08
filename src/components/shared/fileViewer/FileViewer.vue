@@ -29,6 +29,7 @@ const {
 const editor = useEditor({
   model: createEmptyModel(getLanguage(fileName.value)),
   readonly: true,
+  glyphMargin: false,
 })
 
 watch(
