@@ -18,6 +18,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogScrollContent,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useMutation } from '@tanstack/vue-query'
@@ -29,6 +30,10 @@ import {
   type GenerateEmbeddingsInput,
   useGenerateEmbeddings,
 } from '@/composables/transformers/useGenerateEmbeddings'
+import ResponsiveDialog from '@/components/shared/responsiveDialog/ResponsiveDialog.vue'
+import ResponsiveDialogContent from '@/components/shared/responsiveDialog/ResponsiveDialogContent.vue'
+import ResponsiveDialogHeader from '@/components/shared/responsiveDialog/ResponsiveDialogHeader.vue'
+import ResponsiveDialogFooter from '@/components/shared/responsiveDialog/ResponsiveDialogFooter.vue'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -126,11 +131,9 @@ const {
 </script>
 
 <template>
-  <Dialog v-model:open="open">
-    <DialogContent
-      class="max-w-full w-full max-h-full lg:w-1/2 lg:h-3/4 lg:flex flex-col"
-    >
-      <DialogHeader>
+  <ResponsiveDialog v-model:open="open">
+    <ResponsiveDialogContent class="lg:w-1/2">
+      <ResponsiveDialogHeader>
         <DialogTitle>Embeddings (Experimental)</DialogTitle>
         <DialogDescription>
           Generate embeddings for any table in the database. Embeddings can be
@@ -138,7 +141,7 @@ const {
           embeddings are generated using <code>gte-small</code> which will be
           downloaded from huggingface.co
         </DialogDescription>
-      </DialogHeader>
+      </ResponsiveDialogHeader>
       <div class="my-6 flex flex-col gap-6 overflow-y-auto">
         <div class="flex flex-wrap gap-4">
           <section class="space-y-2 col-span-2">
@@ -222,7 +225,7 @@ const {
         <Progress :model-value="pipelineProgress" />
       </div>
       <p v-if="error" class="text-red-500">{{ error }}</p>
-      <DialogFooter>
+      <ResponsiveDialogFooter>
         <Button
           @click="handleGenerateEmbeddings"
           :disabled="isPending"
@@ -235,7 +238,7 @@ const {
           <SparklesIcon v-else class="size-4 min-w-max" />
           <span>Generate</span>
         </Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
+      </ResponsiveDialogFooter>
+    </ResponsiveDialogContent>
+  </ResponsiveDialog>
 </template>

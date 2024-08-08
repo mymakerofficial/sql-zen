@@ -8,7 +8,7 @@ import {
   NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu'
 import {
-  BadgePlusIcon,
+  BrainIcon,
   DownloadIcon,
   FileIcon,
   FolderIcon,
@@ -149,7 +149,7 @@ async function handleDump() {
                 variant="ghost"
                 class="justify-start gap-3"
               >
-                <BadgePlusIcon class="size-4 min-w-max" />
+                <BrainIcon class="size-4 min-w-max" />
                 <span class="text-sm font-medium leading-none">
                   Generate Embeddings
                 </span>

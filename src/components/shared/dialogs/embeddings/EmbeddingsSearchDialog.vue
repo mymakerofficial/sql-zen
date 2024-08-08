@@ -20,6 +20,10 @@ import { useMutation } from '@tanstack/vue-query'
 import { useTransformerPipeline } from '@/composables/transformers/useTransformerPipeline'
 import { Progress } from '@/components/ui/progress'
 import { GteSmall } from '@/lib/transformers/singletons/gteSmall'
+import ResponsiveDialogFooter from '@/components/shared/responsiveDialog/ResponsiveDialogFooter.vue'
+import ResponsiveDialog from '@/components/shared/responsiveDialog/ResponsiveDialog.vue'
+import ResponsiveDialogContent from '@/components/shared/responsiveDialog/ResponsiveDialogContent.vue'
+import ResponsiveDialogHeader from '@/components/shared/responsiveDialog/ResponsiveDialogHeader.vue'
 
 env.allowLocalModels = false
 
@@ -72,9 +76,9 @@ const {
 </script>
 
 <template>
-  <Dialog v-model:open="open">
-    <DialogContent class="max-w-full w-full lg:w-1/2 lg:flex flex-col">
-      <DialogHeader>
+  <ResponsiveDialog v-model:open="open">
+    <ResponsiveDialogContent>
+      <ResponsiveDialogHeader>
         <DialogTitle>Embeddings (Experimental)</DialogTitle>
         <DialogDescription>
           Generate embeddings for any table in the database. Embeddings can be
@@ -82,7 +86,7 @@ const {
           embeddings are generated using <code>gte-small</code> which will be
           downloaded from huggingface.co
         </DialogDescription>
-      </DialogHeader>
+      </ResponsiveDialogHeader>
       <div class="grid gap-4 py-4 mx-4 md:mx-0">
         <div class="grid grid-cols-4 items-center gap-4">
           <Label for="searchTerm" class="text-right">Search Term</Label>
@@ -119,7 +123,7 @@ const {
         </div>
       </div>
       <p v-if="error" class="text-red-500">{{ error }}</p>
-      <DialogFooter>
+      <ResponsiveDialogFooter>
         <Button @click="handleSearch" :disabled="isPending" class="gap-3">
           <LoaderCircleIcon
             v-if="isPending"
@@ -128,7 +132,7 @@ const {
           <SearchIcon v-else class="size-4 min-w-max" />
           <span>Search</span>
         </Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
+      </ResponsiveDialogFooter>
+    </ResponsiveDialogContent>
+  </ResponsiveDialog>
 </template>
