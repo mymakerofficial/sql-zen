@@ -34,6 +34,16 @@ import ResponsiveDialog from '@/components/shared/responsiveDialog/ResponsiveDia
 import ResponsiveDialogContent from '@/components/shared/responsiveDialog/ResponsiveDialogContent.vue'
 import ResponsiveDialogHeader from '@/components/shared/responsiveDialog/ResponsiveDialogHeader.vue'
 import ResponsiveDialogFooter from '@/components/shared/responsiveDialog/ResponsiveDialogFooter.vue'
+import {
+  Stepper,
+  StepperDescription,
+  StepperIndicator,
+  StepperItem,
+  StepperSeparator,
+  StepperTitle,
+  StepperTrigger,
+} from '@/components/ui/stepper'
+import { cn } from '@/lib/utils'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -56,31 +66,23 @@ const {
   progress: generationProgress,
 } = useGenerateEmbeddings(pipeline)
 
+const step = ref(1)
+
 const tableName = ref('')
 const primaryColumnName = ref('id')
 const primaryColumnType = ref('text')
-const limit = ref(1000)
-const offset = ref(0)
 
 const editor = useEditor({
   model: monaco.editor.createModel(
-    `SELECT id, concat_ws(', ', title, description) as text FROM products`,
+    `SELECT
+    id,
+    concat_ws(', ', title, description) as text
+FROM products
+LIMIT 1000`,
     'sql',
   ),
   glyphMargin: false,
   lineNumbers: false,
-})
-
-const embeddingsTableName = computed(() => {
-  return `${tableName.value}_embeddings`
-})
-
-const embeddingsTableCreateStatement = computed(() => {
-  return `CREATE TABLE IF NOT EXISTS ${embeddingsTableName.value}
-(
-    ${primaryColumnName.value} ${primaryColumnType.value.toUpperCase()},
-    embedding VECTOR(384)
-)`
 })
 
 async function generateEmbeddings() {
@@ -89,17 +91,22 @@ async function generateEmbeddings() {
     return
   }
 
+  step.value = 3
+
   const dialect = dataSource.getDialect()
 
   // load vector extension
   await dataSource.query(`CREATE EXTENSION IF NOT EXISTS vector`)
 
   // create embeddings table
-  await dataSource.query(embeddingsTableCreateStatement.value)
+  const embeddingsTableName = `${tableName.value}_embeddings`
+  await dataSource.query(`CREATE TABLE IF NOT EXISTS ${embeddingsTableName}
+(
+    ${primaryColumnName.value} ${primaryColumnType.value.toUpperCase()},
+    embedding VECTOR(384)
+)`)
 
-  const { rows } = await dataSource.query<GenerateEmbeddingsInput>(
-    dialect.makePaginatedStatement(selectStmt, offset.value, limit.value),
-  )
+  const { rows } = await dataSource.query<GenerateEmbeddingsInput>(selectStmt)
 
   // generate embeddings
   const embeddingsData = await generateAsync(rows)
@@ -115,7 +122,7 @@ async function generateEmbeddings() {
   const fileName = `${getId('tmp')}.csv`
   await dataSource.writeFile(fileName, fileAccessor)
   await dataSource.query(
-    `COPY ${embeddingsTableName.value} FROM '/var/${fileName}' DELIMITER ';' CSV HEADER ENCODING 'UTF8'`,
+    `COPY ${embeddingsTableName} FROM '/var/${fileName}' DELIMITER ';' CSV HEADER ENCODING 'UTF8'`,
   )
   await dataSource.deleteFile(`/var/${fileName}`)
 }
@@ -132,110 +139,104 @@ const {
 
 <template>
   <ResponsiveDialog v-model:open="open">
-    <ResponsiveDialogContent class="lg:w-1/2">
+    <ResponsiveDialogContent class="lg:max-w-full lg:w-1/2">
       <ResponsiveDialogHeader>
-        <DialogTitle>Embeddings (Experimental)</DialogTitle>
+        <DialogTitle>Generate Embeddings</DialogTitle>
         <DialogDescription>
           Generate embeddings for any table in the database. Embeddings can be
-          used to perform semantic search, similarity search, and more. The
-          embeddings are generated using <code>gte-small</code> which will be
-          downloaded from huggingface.co
+          used to perform semantic search. The embeddings are generated using
+          <code>gte-small</code> which will be downloaded from huggingface.co
         </DialogDescription>
       </ResponsiveDialogHeader>
-      <div class="my-6 flex flex-col gap-6 overflow-y-auto">
-        <div class="flex flex-wrap gap-4">
-          <section class="space-y-2 col-span-2">
-            <Label for="tableName" class="text-right">Table Name</Label>
-            <Input
-              v-model="tableName"
-              :disabled="isPending"
-              id="tableName"
-              class="w-fit"
-            />
-          </section>
-          <section class="space-y-2">
-            <Label for="primaryColumnName" class="text-right"
-              >Primary Column</Label
-            >
-            <Input
-              v-model="primaryColumnName"
-              :disabled="isPending"
-              id="primaryColumnName"
-              class="w-fit"
-            />
-          </section>
-          <section class="space-y-2">
-            <Label for="primaryColumnType" class="text-right"
-              >Primary Column Type</Label
-            >
-            <Input
-              v-model="primaryColumnType"
-              :disabled="isPending"
-              id="primaryColumnType"
-              class="w-fit"
-            />
-          </section>
+      <Stepper v-if="step !== 3" v-model="step" class="mx-4 md:-mx-1">
+        <StepperItem :step="1">
+          <StepperTrigger>
+            <StepperIndicator />
+            <StepperTitle class="sr-only">Select Table</StepperTitle>
+          </StepperTrigger>
+          <StepperSeparator />
+        </StepperItem>
+        <StepperItem :step="2">
+          <StepperTrigger>
+            <StepperIndicator />
+            <StepperTitle class="sr-only">Configure Input</StepperTitle>
+          </StepperTrigger>
+        </StepperItem>
+      </Stepper>
+      <div v-if="step === 1" class="grid gap-4 p-4 overflow-y-auto">
+        <div class="grid grid-cols-4 items-center gap-4">
+          <Label for="tableName" class="text-right">Table Name</Label>
+          <Input
+            v-model="tableName"
+            :disabled="isPending"
+            id="tableName"
+            class="col-span-3"
+          />
         </div>
-        <div class="flex flex-wrap gap-4">
-          <section class="space-y-2 col-span-2">
-            <Label for="limit">Limit</Label>
-            <Input
-              v-model="limit"
-              :disabled="isPending"
-              id="limit"
-              class="w-fit"
-            />
-          </section>
-          <section class="space-y-2">
-            <Label for="offset">Offset</Label>
-            <Input
-              v-model="offset"
-              :disabled="isPending"
-              id="offset"
-              class="w-fit"
-            />
-          </section>
+        <div class="grid grid-cols-4 items-center gap-4">
+          <Label for="primaryColumnName" class="text-right"
+            >Primary Column Name</Label
+          >
+          <Input
+            v-model="primaryColumnName"
+            :disabled="isPending"
+            id="primaryColumnName"
+            class="col-span-3"
+          />
         </div>
+        <div class="grid grid-cols-4 items-center gap-4">
+          <Label for="primaryColumnType" class="text-right"
+            >Primary Column Type</Label
+          >
+          <Input
+            v-model="primaryColumnType"
+            :disabled="isPending"
+            id="primaryColumnType"
+            class="col-span-3"
+          />
+        </div>
+      </div>
+      <div
+        v-if="step === 2"
+        class="my-6 md:my-2 px-6 md:px-2 flex flex-col gap-6 overflow-y-auto"
+      >
         <section class="space-y-2">
           <Label>Select Statement</Label>
           <p class="text-sm text-muted-foreground">
             Statement used to retrieve the data that will be embedded. Must
             return <code>`id`</code> and <code>`text`</code> columns.
           </p>
-          <MonacoEditor :editor="editor" class="min-h-20 h-20 max-h-20" />
+          <MonacoEditor :editor="editor" class="min-h-40 h-40 max-h-40" />
         </section>
-        <Separator />
-        <section class="space-y-2">
-          <Label>Embeddings Table Create Statement</Label>
-          <p class="text-sm text-muted-foreground">
-            Auto generated create statement for the embeddings table.
+      </div>
+      <div v-if="step === 3" class="my-6 px-4 flex flex-col gap-3">
+        <div class="space-y-1">
+          <Label>Loading...</Label>
+          <p class="text-muted-foreground text-sm">
+            Please be patient. This may take a while.
           </p>
-          <CodeBlock
-            :code="embeddingsTableCreateStatement"
-            class="text-xs [&_pre]:p-3"
-          />
-        </section>
-      </div>
-      <div v-if="generationIsPending" class="space-y-1">
-        <Label>Generating Embeddings...</Label>
-        <Progress :model-value="generationProgress" />
-      </div>
-      <div v-if="pipelineIsLoading" class="space-y-1">
-        <Label>Loading model...</Label>
-        <Progress :model-value="pipelineProgress" />
+        </div>
+        <div v-if="generationIsPending" class="space-y-2">
+          <Label>Generating Embeddings...</Label>
+          <Progress :model-value="generationProgress" />
+        </div>
+        <div v-if="pipelineIsLoading" class="space-y-2">
+          <Label>Loading model...</Label>
+          <Progress :model-value="pipelineProgress" />
+        </div>
       </div>
       <p v-if="error" class="text-red-500">{{ error }}</p>
       <ResponsiveDialogFooter>
+        <Button v-if="step === 1" @click="() => step++">
+          <span>Continue</span>
+        </Button>
         <Button
+          v-else-if="step === 2"
           @click="handleGenerateEmbeddings"
           :disabled="isPending"
           class="gap-3"
         >
-          <LoaderCircleIcon
-            v-if="isPending"
-            class="size-4 min-w-max animate-spin"
-          />
-          <SparklesIcon v-else class="size-4 min-w-max" />
+          <SparklesIcon class="size-4 min-w-max" />
           <span>Generate</span>
         </Button>
       </ResponsiveDialogFooter>

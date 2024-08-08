@@ -79,12 +79,9 @@ const {
   <ResponsiveDialog v-model:open="open">
     <ResponsiveDialogContent>
       <ResponsiveDialogHeader>
-        <DialogTitle>Embeddings (Experimental)</DialogTitle>
+        <DialogTitle>Semantic Search</DialogTitle>
         <DialogDescription>
-          Generate embeddings for any table in the database. Embeddings can be
-          used to perform semantic search, similarity search, and more. The
-          embeddings are generated using <code>gte-small</code> which will be
-          downloaded from huggingface.co
+          Search for similar items in your dataset using embeddings.
         </DialogDescription>
       </ResponsiveDialogHeader>
       <div class="grid gap-4 py-4 mx-4 md:mx-0">
@@ -117,10 +114,10 @@ const {
             class="col-span-3"
           />
         </div>
-        <div v-if="pipelineIsLoading" class="space-y-1">
-          <Label>Loading model...</Label>
-          <Progress :model-value="pipelineProgress" />
-        </div>
+      </div>
+      <div v-if="pipelineIsLoading" class="space-y-2">
+        <Label>Loading model...</Label>
+        <Progress :model-value="pipelineProgress" />
       </div>
       <p v-if="error" class="text-red-500">{{ error }}</p>
       <ResponsiveDialogFooter>
