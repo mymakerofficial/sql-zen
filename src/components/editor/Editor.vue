@@ -33,9 +33,9 @@ whenever(
 </script>
 
 <template>
-  <EditorLayout>
+  <EditorLayout :active-data-source="selected">
     <template #header v-if="smallScreen">
-      <DatabaseExplorerDrawer selected="selected" />
+      <DatabaseExplorerDrawer :selected="selected" />
     </template>
     <ResizablePanelGroup direction="horizontal">
       <template v-if="!smallScreen">
