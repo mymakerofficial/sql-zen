@@ -8,31 +8,38 @@ import * as monaco from 'monaco-editor'
 import { Input } from '@/components/ui/input'
 import { computed, ref } from 'vue'
 import CodeBlock from '@/components/shared/CodeBlock.vue'
-import { env, FeatureExtractionPipeline, pipeline } from '@xenova/transformers'
-import { SparklesIcon } from 'lucide-vue-next'
+import { SparklesIcon, LoaderCircleIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { Separator } from '@/components/ui/separator'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from '@/components/ui/dialog'
 import { useMutation } from '@tanstack/vue-query'
-
-env.allowLocalModels = false
+import { useTransformerPipeline } from '@/composables/transformers/useTransformerPipeline'
+import { GteSmall } from '@/lib/transformers/pipeline'
+import { Progress } from '@/components/ui/progress'
+import { getId } from '@/lib/getId'
 
 const props = defineProps<{
   dataSourceKey: string
 }>()
 
-const { open } = useDialogContext()
+const { open, close } = useDialogContext()
 
 const registry = useRegistry()
 const dataSource = registry.getDataSource(props.dataSourceKey)
+
+const {
+  getPipeline,
+  isPending: pipelineIsPending,
+  progress: pipelineProgress,
+} = useTransformerPipeline(GteSmall)
 
 const tableName = ref('shakespeare')
 const primaryColumnName = ref('line_id')
@@ -63,23 +70,6 @@ const embeddingsTableCreateStatement = computed(() => {
     embedding VECTOR(384)
 )`
 })
-
-let pipelineInstance: FeatureExtractionPipeline | null = null
-async function getPipeline() {
-  if (pipelineInstance) {
-    return pipelineInstance
-  }
-  pipelineInstance = await pipeline(
-    'feature-extraction',
-    'Supabase/gte-small',
-    {
-      progress_callback: (event: object) => {
-        console.log(event)
-      },
-    },
-  )
-  return pipelineInstance
-}
 
 async function generateEmbeddings() {
   const selectStmt = editor.editor.getModel()?.getValue()
@@ -127,21 +117,28 @@ async function generateEmbeddings() {
   const fileAccessor = FileAccessor.fromText(blobData, '')
 
   // upload embeddings
-  await dataSource.writeFile('temp_embeddings.csv', fileAccessor)
+  const fileName = `${getId('tmp')}.csv`
+  await dataSource.writeFile(fileName, fileAccessor)
   await dataSource.query(
-    `COPY ${embeddingsTableName.value} FROM '/var/temp_embeddings.csv' DELIMITER ';' CSV HEADER ENCODING 'UTF8'`,
+    `COPY ${embeddingsTableName.value} FROM '/var/${fileName}' DELIMITER ';' CSV HEADER ENCODING 'UTF8'`,
   )
+  await dataSource.deleteFile(`/var/${fileName}`)
 }
 
-const { mutate: handleGenerateEmbeddings, isPending } = useMutation({
+const {
+  mutate: handleGenerateEmbeddings,
+  error,
+  isPending,
+} = useMutation({
   mutationFn: generateEmbeddings,
+  onSuccess: close,
 })
 </script>
 
 <template>
   <Dialog v-model:open="open">
     <DialogContent
-      class="max-w-full w-full h-full lg:w-1/2 lg:h-3/4 lg:flex flex-col"
+      class="max-w-full w-full max-h-full lg:w-1/2 lg:max-h-3/4 lg:flex flex-col"
     >
       <DialogHeader>
         <DialogTitle>Embeddings (Experimental)</DialogTitle>
@@ -212,7 +209,7 @@ const { mutate: handleGenerateEmbeddings, isPending } = useMutation({
             Statement used to retrieve the data that will be embedded. Must
             return <code>`id`</code> and <code>`text`</code> columns.
           </p>
-          <MonacoEditor :editor="editor" class="max-h-20" />
+          <MonacoEditor :editor="editor" class="h-20" />
         </section>
         <Separator />
         <section class="space-y-2">
@@ -225,14 +222,23 @@ const { mutate: handleGenerateEmbeddings, isPending } = useMutation({
             class="text-xs [&_pre]:p-3"
           />
         </section>
+        <div v-if="pipelineIsPending" class="space-y-1">
+          <Label>Loading model...</Label>
+          <Progress :model-value="pipelineProgress" />
+        </div>
       </div>
+      <p v-if="error" class="text-red-500">{{ error }}</p>
       <DialogFooter>
         <Button
           @click="handleGenerateEmbeddings"
           :disabled="isPending"
           class="gap-3"
         >
-          <SparklesIcon class="size-4 min-w-max" />
+          <LoaderCircleIcon
+            v-if="isPending"
+            class="size-4 min-w-max animate-spin"
+          />
+          <SparklesIcon v-else class="size-4 min-w-max" />
           <span>Generate</span>
         </Button>
       </DialogFooter>
