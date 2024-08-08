@@ -125,7 +125,7 @@ const {
             v-if="isPending"
             class="size-4 min-w-max animate-spin"
           />
-          <SearchIcon class="size-4 min-w-max" />
+          <SearchIcon v-else class="size-4 min-w-max" />
           <span>Search</span>
         </Button>
       </DialogFooter>

@@ -25,6 +25,10 @@ import { useTransformerPipeline } from '@/composables/transformers/useTransforme
 import { Progress } from '@/components/ui/progress'
 import { getId } from '@/lib/getId'
 import { GteSmall } from '@/lib/transformers/singletons/gteSmall'
+import {
+  type GenerateEmbeddingsInput,
+  useGenerateEmbeddings,
+} from '@/composables/transformers/useGenerateEmbeddings'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -40,6 +44,12 @@ const {
   isLoading: pipelineIsLoading,
   progress: pipelineProgress,
 } = useTransformerPipeline(GteSmall)
+
+const {
+  generateAsync,
+  isPending: generationIsPending,
+  progress: generationProgress,
+} = useGenerateEmbeddings(pipeline)
 
 const tableName = ref('shakespeare')
 const primaryColumnName = ref('line_id')
@@ -87,24 +97,12 @@ async function generateEmbeddings() {
   // create embeddings table
   await dataSource.query(embeddingsTableCreateStatement.value)
 
-  const { rows: data } = await dataSource.query<{
-    id: string
-    text: string
-  }>(dialect.makePaginatedStatement(selectStmt, offset.value, limit.value))
+  const { rows } = await dataSource.query<GenerateEmbeddingsInput>(
+    dialect.makePaginatedStatement(selectStmt, offset.value, limit.value),
+  )
 
   // generate embeddings
-  const embeddingsData: {
-    id: string
-    embedding: Float32Array
-  }[] = []
-  for (const row of data) {
-    const embedding = await pipeline(row.text)
-    console.log(embedding)
-    embeddingsData.push({
-      id: row.id,
-      embedding: embedding.data,
-    })
-  }
+  const embeddingsData = await generateAsync(rows)
 
   // create blob
   const blobData = [
@@ -219,6 +217,10 @@ const {
             class="text-xs [&_pre]:p-3"
           />
         </section>
+        <div v-if="generationIsPending" class="space-y-1">
+          <Label>Generating Embeddings...</Label>
+          <Progress :model-value="generationProgress" />
+        </div>
         <div v-if="pipelineIsLoading" class="space-y-1">
           <Label>Loading model...</Label>
           <Progress :model-value="pipelineProgress" />

@@ -33,3 +33,8 @@ export type PipelineArguments<T extends PipelineType> = PipelineArgumentsMap[T &
 
 export type PipelineOutput<T extends PipelineType> = PipelineOutputMap[T &
   keyof PipelineOutputMap]
+
+export type Pipeline<T extends PipelineType> = (
+  ...args: PipelineArguments<T>
+) => Promise<PipelineOutput<T>>
+export type FeatureExtractionPipeline = Pipeline<'feature-extraction'>
