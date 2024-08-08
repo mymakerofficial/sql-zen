@@ -51,20 +51,15 @@ const {
   progress: generationProgress,
 } = useGenerateEmbeddings(pipeline)
 
-const tableName = ref('shakespeare')
-const primaryColumnName = ref('line_id')
+const tableName = ref('')
+const primaryColumnName = ref('id')
 const primaryColumnType = ref('text')
-const limit = ref(100)
+const limit = ref(1000)
 const offset = ref(0)
 
 const editor = useEditor({
   model: monaco.editor.createModel(
-    //"SELECT id, concat_ws(', ', title, description) as text FROM products;",
-    `SELECT
-    line_id as id,
-    concat_ws(', ', play_name, speaker, text_entry) as text
-FROM shakespeare
-WHERE play_name = 'Romeo and Juliet'`,
+    `SELECT id, concat_ws(', ', title, description) as text FROM products`,
     'sql',
   ),
   glyphMargin: false,
@@ -133,7 +128,7 @@ const {
 <template>
   <Dialog v-model:open="open">
     <DialogContent
-      class="max-w-full w-full max-h-full lg:w-1/2 lg:max-h-3/4 lg:flex flex-col"
+      class="max-w-full w-full max-h-full lg:w-1/2 lg:h-3/4 lg:flex flex-col"
     >
       <DialogHeader>
         <DialogTitle>Embeddings (Experimental)</DialogTitle>
@@ -204,7 +199,7 @@ const {
             Statement used to retrieve the data that will be embedded. Must
             return <code>`id`</code> and <code>`text`</code> columns.
           </p>
-          <MonacoEditor :editor="editor" class="h-20" />
+          <MonacoEditor :editor="editor" class="min-h-20 h-20 max-h-20" />
         </section>
         <Separator />
         <section class="space-y-2">
@@ -217,14 +212,14 @@ const {
             class="text-xs [&_pre]:p-3"
           />
         </section>
-        <div v-if="generationIsPending" class="space-y-1">
-          <Label>Generating Embeddings...</Label>
-          <Progress :model-value="generationProgress" />
-        </div>
-        <div v-if="pipelineIsLoading" class="space-y-1">
-          <Label>Loading model...</Label>
-          <Progress :model-value="pipelineProgress" />
-        </div>
+      </div>
+      <div v-if="generationIsPending" class="space-y-1">
+        <Label>Generating Embeddings...</Label>
+        <Progress :model-value="generationProgress" />
+      </div>
+      <div v-if="pipelineIsLoading" class="space-y-1">
+        <Label>Loading model...</Label>
+        <Progress :model-value="pipelineProgress" />
       </div>
       <p v-if="error" class="text-red-500">{{ error }}</p>
       <DialogFooter>

@@ -39,8 +39,8 @@ const {
 } = useTransformerPipeline(GteSmall)
 
 const searchTerm = ref('')
-const tableName = ref('shakespeare')
-const primaryColumnName = ref('line_id')
+const tableName = ref('')
+const primaryColumnName = ref('id')
 
 async function search() {
   // generate embeddings
