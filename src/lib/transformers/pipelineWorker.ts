@@ -19,7 +19,13 @@ export class TransformerPipelineWorker<
   T extends PipelineType,
 > extends EventPublisher<PipelineWorkerEventMap> {
   private instance: AllTasks[T] | null = null
-  private progressMap: Map<string, number> = new Map()
+  private progressMap: Map<
+    string,
+    {
+      loaded: number
+      total: number
+    }
+  > = new Map()
 
   constructor(
     private readonly task: T,
@@ -35,22 +41,25 @@ export class TransformerPipelineWorker<
       return 0
     }
 
-    const sum = entries.reduce((acc, it) => acc + it, 0)
-    return sum / entries.length
+    const totalSum = entries.reduce((acc, it) => acc + it.total, 0)
+    const loadedSum = entries.reduce((acc, it) => acc + it.loaded, 0)
+    return (loadedSum / totalSum) * 100
   }
 
   private handleProgress(event: RawProgressFlat) {
-    if (event.status === PipelineProgressStatus.Ready) {
+    if (
+      event.status === PipelineProgressStatus.Ready ||
+      event.status === PipelineProgressStatus.Done
+    ) {
       // ignore ready events
       return
     }
 
     const key = `${event.name}-${event.file}`
-    this.progressMap.set(
-      key,
-      event.progress ??
-        (event.status === PipelineProgressStatus.Done ? 100 : 0),
-    )
+    this.progressMap.set(key, {
+      loaded: event.loaded ?? 0,
+      total: event.total ?? 100000, // im just guessing here
+    })
 
     this.emit(PipelineWorkerEvent.Progress, this.getProgress())
   }
