@@ -6,21 +6,11 @@ import MonacoEditor from '@/components/shared/monaco/MonacoEditor.vue'
 import { Label } from '@/components/ui/label'
 import * as monaco from 'monaco-editor'
 import { Input } from '@/components/ui/input'
-import { computed, ref } from 'vue'
-import CodeBlock from '@/components/shared/CodeBlock.vue'
-import { LoaderCircleIcon, SparklesIcon } from 'lucide-vue-next'
+import { ref } from 'vue'
+import { SparklesIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { FileAccessor } from '@/lib/files/fileAccessor'
-import { Separator } from '@/components/ui/separator'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogScrollContent,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { useMutation } from '@tanstack/vue-query'
 import { useTransformerPipeline } from '@/composables/transformers/useTransformerPipeline'
 import { Progress } from '@/components/ui/progress'
@@ -36,14 +26,12 @@ import ResponsiveDialogHeader from '@/components/shared/responsiveDialog/Respons
 import ResponsiveDialogFooter from '@/components/shared/responsiveDialog/ResponsiveDialogFooter.vue'
 import {
   Stepper,
-  StepperDescription,
   StepperIndicator,
   StepperItem,
   StepperSeparator,
   StepperTitle,
   StepperTrigger,
 } from '@/components/ui/stepper'
-import { cn } from '@/lib/utils'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -92,8 +80,6 @@ async function generateEmbeddings() {
   }
 
   step.value = 3
-
-  const dialect = dataSource.getDialect()
 
   // load vector extension
   await dataSource.query(`CREATE EXTENSION IF NOT EXISTS vector`)

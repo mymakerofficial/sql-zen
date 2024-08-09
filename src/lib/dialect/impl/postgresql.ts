@@ -1,5 +1,7 @@
 import type {
+  DSTreeCollectionItem,
   DSTreeColumnItem,
+  DSTreeExtensionItem,
   DSTreeSchemaItem,
   DSTreeTableItem,
   ISqlDialect,
@@ -9,8 +11,12 @@ import { SqlDialect } from '@/lib/dialect/impl/base'
 
 export class PostgreSQLDialect extends SqlDialect implements ISqlDialect {
   async getDataSourceTree() {
+    const { rows: extensions } = await this.dataSource.query<Extension>(
+      `SELECT e.extname, e.extversion, d.description FROM pg_catalog.pg_extension as e LEFT JOIN pg_catalog.pg_description as d ON e.oid = d.objoid`,
+    )
+
     const { rows: schemas } = await this.dataSource.query<Schema>(
-      `SELECT nspname, oid FROM pg_namespace ORDER BY oid DESC`,
+      `SELECT nspname, oid FROM pg_catalog.pg_namespace ORDER BY oid DESC`,
     )
 
     const { rows: tables } = await this.dataSource.query<Table>(
@@ -18,18 +24,10 @@ export class PostgreSQLDialect extends SqlDialect implements ISqlDialect {
     )
 
     const { rows: columns } = await this.dataSource.query<Column>(
-      `SELECT table_schema, table_name, column_name, data_type, is_nullable FROM information_schema.columns WHERE table_schema = 'public'`,
+      `SELECT table_schema, table_name, column_name, udt_name, is_nullable FROM information_schema.columns`,
     )
 
-    return [
-      {
-        key: '__schemas__',
-        name: 'schemas',
-        type: DSTreeItemType.Collection,
-        for: DSTreeItemType.Schema,
-        children: genSchemas(schemas, tables, columns),
-      },
-    ]
+    return genBase(extensions, schemas, tables, columns)
   }
 
   async beginTransaction(): Promise<void> {
@@ -43,6 +41,12 @@ export class PostgreSQLDialect extends SqlDialect implements ISqlDialect {
   async rollbackTransaction(): Promise<void> {
     await this.dataSource.query(`ROLLBACK`)
   }
+}
+
+type Extension = {
+  extname: string
+  extversion: boolean
+  description: string
 }
 
 type Schema = {
@@ -61,8 +65,43 @@ type Column = {
   table_schema: string
   table_name: string
   column_name: string
-  data_type: string
+  udt_name: string
   is_nullable: 'YES' | 'NO'
+}
+
+function genBase(
+  extensions: Extension[],
+  schemas: Schema[],
+  tables: Table[],
+  columns: Column[],
+) {
+  return [
+    {
+      key: '__schemas__',
+      name: 'schemas',
+      type: DSTreeItemType.Collection,
+      for: DSTreeItemType.Schema,
+      children: genSchemas(schemas, tables, columns),
+    },
+    {
+      key: `__extensions__`,
+      name: 'extensions',
+      type: DSTreeItemType.Collection,
+      for: DSTreeItemType.Extension,
+      children: genExtensions(extensions),
+    },
+  ] as DSTreeCollectionItem[]
+}
+
+function genExtensions(extensions: Extension[]): DSTreeExtensionItem[] {
+  return extensions.map((extension) => ({
+    key: `__extensions__-${extension.extname}`,
+    name: extension.extname,
+    type: DSTreeItemType.Extension,
+    description: extension.description,
+    loaded: true,
+    installed: true,
+  }))
 }
 
 function genSchemas(
@@ -112,7 +151,7 @@ function genColumns(
       key: `${schema}-${table}-${column.column_name}`,
       name: column.column_name,
       type: DSTreeItemType.Column,
-      dataType: column.data_type,
+      dataType: column.udt_name,
       isNullable: column.is_nullable === 'YES',
     }))
 }
