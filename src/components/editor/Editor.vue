@@ -5,14 +5,15 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import DatabaseExplorerPanel from '@/components/databaseExplorer/DatabaseExplorer.vue'
-import Console from '@/components/console/Console.vue'
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import { useDataSources } from '@/composables/useDataSources'
 import { useMediaQuery, whenever } from '@vueuse/core'
 import { useRegistry } from '@/composables/useRegistry'
 import EditorLayout from '@/layouts/EditorLayout.vue'
-import DatabaseExplorerContent from '@/components/databaseExplorer/DatabaseExplorerContent.vue'
 import DatabaseExplorerDrawer from '@/components/databaseExplorer/DatabaseExplorerDrawer.vue'
+import EditorMainView from '@/components/editor/EditorMainView.vue'
+import { tabManager } from '@/lib/tabs/manager'
+import { TabType } from '@/lib/tabs/enums'
 
 const smallScreen = useMediaQuery('(max-width: 640px)') // sm
 
@@ -20,6 +21,15 @@ const selected = ref<string | null>(null)
 
 const registry = useRegistry()
 const databases = useDataSources()
+
+watchEffect(() => {
+  databases.value.forEach((key) => {
+    tabManager.createTab({
+      type: TabType.Console,
+      dataSourceKey: key,
+    })
+  })
+})
 
 whenever(
   () => databases.value.length === 1,
@@ -45,24 +55,25 @@ whenever(
         <ResizableHandle />
       </template>
       <ResizablePanel>
-        <KeepAlive v-if="selected">
-          <Console :data-source-key="selected" :key="selected" />
-        </KeepAlive>
-        <div
-          v-if="!selected"
-          class="flex items-center justify-center h-full text-muted-foreground"
-        >
-          <div v-if="smallScreen" class="flex flex-col gap-2 flex-1">
-            <p class="mx-8 text-primary font-medium">
-              Select a data source to start
-            </p>
-            <DatabaseExplorerContent v-model:selected="selected" class="mx-4" />
-          </div>
-          <p v-else-if="databases.length">
-            Select a data source from the list to start querying
-          </p>
-          <p v-else>Create a data source to start querying</p>
-        </div>
+        <EditorMainView />
+        <!--        <KeepAlive v-if="selected">-->
+        <!--          <Console :data-source-key="selected" :key="selected" />-->
+        <!--        </KeepAlive>-->
+        <!--        <div-->
+        <!--          v-if="!selected"-->
+        <!--          class="flex items-center justify-center h-full text-muted-foreground"-->
+        <!--        >-->
+        <!--          <div v-if="smallScreen" class="flex flex-col gap-2 flex-1">-->
+        <!--            <p class="mx-8 text-primary font-medium">-->
+        <!--              Select a data source to start-->
+        <!--            </p>-->
+        <!--            <DatabaseExplorerContent v-model:selected="selected" class="mx-4" />-->
+        <!--          </div>-->
+        <!--          <p v-else-if="databases.length">-->
+        <!--            Select a data source from the list to start querying-->
+        <!--          </p>-->
+        <!--          <p v-else>Create a data source to start querying</p>-->
+        <!--        </div>-->
       </ResizablePanel>
     </ResizablePanelGroup>
   </EditorLayout>
