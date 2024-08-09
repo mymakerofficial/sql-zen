@@ -10,6 +10,9 @@ import { useRegistry } from '@/composables/useRegistry'
 import findPostgresDatabases from '@/lib/registry/plugins/findPostgres'
 import findSqliteDatabases from '@/lib/registry/plugins/findSqlite'
 import { storeInMemorySources } from '@/lib/registry/plugins/storeInMemorySources'
+import { useTabManager } from '@/composables/useTabManager'
+import { RegistryEvent } from '@/lib/registry/events'
+import { TabType } from '@/lib/tabs/enums'
 
 const app = createApp(App)
 
@@ -36,6 +39,23 @@ app.use(vueQuery, {
 app.mount('#app')
 
 const registry = useRegistry()
+const tabManager = useTabManager()
+
+registry.on(RegistryEvent.Registered, (dataSourceKey) => {
+  tabManager.createTab({
+    type: TabType.Console,
+    dataSourceKey,
+  })
+})
+
+registry.on(RegistryEvent.Unregistered, (dataSourceKey) => {
+  console.log('Unregistering', dataSourceKey)
+  tabManager.getTabs().forEach((tab) => {
+    if (tab.type === TabType.Console && tab.dataSourceKey === dataSourceKey) {
+      tabManager.removeTab(tab.id)
+    }
+  })
+})
 
 registry.use(findPostgresDatabases)
 registry.use(findSqliteDatabases)

@@ -7,6 +7,8 @@ import {
   getDataSourceDisplayName,
   getDataSourceEngineInfo,
 } from '@/lib/dataSources/helpers'
+import { DatabaseEngine } from '@/lib/engines/enums'
+import { DataSourceMode } from '@/lib/dataSources/enums'
 
 const Registry = useRegistry()
 
@@ -58,12 +60,17 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
     return this.#model
   }
 
-  getRunner() {
-    return Registry.getRunner(this.dataSourceKey)
-  }
-
   getDataSourceDescriptor() {
-    return Registry.getDescriptor(this.dataSourceKey)
+    try {
+      return Registry.getDescriptor(this.dataSourceKey)
+    } catch (e) {
+      console.error(e)
+      return {
+        engine: DatabaseEngine.PostgreSQL,
+        mode: DataSourceMode.Memory,
+        identifier: '<error>',
+      }
+    }
   }
 
   getEngineInfo() {
