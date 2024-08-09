@@ -1,9 +1,10 @@
 import { useState } from '@/composables/useState'
-import { tabManager } from '@/lib/tabs/manager'
 import { computed, onMounted, onUnmounted } from 'vue'
 import { TabManagerEvent } from '@/lib/tabs/events'
+import { useTabManager } from '@/composables/useTabManager'
 
 export function useActiveTabId() {
+  const tabManager = useTabManager()
   const [activeTab, setActiveTab] = useState(tabManager.getActiveTabId())
 
   onMounted(() => {

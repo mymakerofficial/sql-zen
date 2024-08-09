@@ -1,23 +1,13 @@
 <script setup lang="ts">
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from '@/components/ui/resizable'
 import DatabaseExplorer from '@/components/databaseExplorer/DatabaseExplorer.vue'
 import { watchEffect } from 'vue'
 import { useDataSources } from '@/composables/useDataSources'
-import { useMediaQuery, whenever } from '@vueuse/core'
-import { useRegistry } from '@/composables/useRegistry'
 import EditorLayout from '@/layouts/EditorLayout.vue'
-import DatabaseExplorerDrawer from '@/components/databaseExplorer/DatabaseExplorerDrawer.vue'
-import { tabManager } from '@/lib/tabs/manager'
 import { TabType } from '@/lib/tabs/enums'
 import TabView from '@/components/shared/tabs/TabView.vue'
+import { useTabManager } from '@/composables/useTabManager'
 
-const smallScreen = useMediaQuery('(max-width: 640px)') // sm
-
-const registry = useRegistry()
+const tabManager = useTabManager()
 const databases = useDataSources()
 
 watchEffect(() => {
@@ -32,19 +22,11 @@ watchEffect(() => {
 
 <template>
   <EditorLayout>
-    <template #header v-if="smallScreen">
-      <DatabaseExplorerDrawer />
+    <template #aside>
+      <DatabaseExplorer />
     </template>
-    <ResizablePanelGroup direction="horizontal">
-      <template v-if="!smallScreen">
-        <ResizablePanel :default-size="18">
-          <DatabaseExplorer />
-        </ResizablePanel>
-        <ResizableHandle />
-      </template>
-      <ResizablePanel>
-        <TabView />
-      </ResizablePanel>
-    </ResizablePanelGroup>
+    <template #main>
+      <TabView />
+    </template>
   </EditorLayout>
 </template>

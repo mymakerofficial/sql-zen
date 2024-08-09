@@ -95,5 +95,3 @@ export class TabManager extends EventPublisher<TabManagerEventMap> {
     return this.#tabSortOrder.indexOf(id)
   }
 }
-
-export const tabManager = new TabManager()

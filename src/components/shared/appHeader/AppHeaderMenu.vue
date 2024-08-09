@@ -25,14 +25,20 @@ import { DatabaseEngine } from '@/lib/engines/enums'
 import { downloadFile } from '@/lib/downloadFile'
 import { useRegistry } from '@/composables/useRegistry'
 import { useDataSourceDescriptor } from '@/composables/useDataSourceDescriptor'
-
-const props = defineProps<{
-  dataSource: string | null
-}>()
+import { useActiveTabInfo } from '@/composables/tabs/useActiveTabInfo'
+import { TabType } from '@/lib/tabs/enums'
 
 const registry = useRegistry()
+const activeTab = useActiveTabInfo()
 
-const descriptor = useDataSourceDescriptor(() => props.dataSource)
+const dataSource = computed(() => {
+  if (activeTab.value.type === TabType.Console) {
+    return activeTab.value.dataSourceKey
+  }
+  return null
+})
+
+const descriptor = useDataSourceDescriptor(() => dataSource.value)
 
 const { open: openFileExplorer } = useDialog(FileExplorer)
 const { open: openEmbeddings } = useDialog(EmbeddingsDialog)
@@ -51,31 +57,31 @@ const supportsEmbeddings = computed(
 )
 
 function handleOpenFileExplorer() {
-  if (!props.dataSource) {
+  if (!dataSource.value) {
     return
   }
-  openFileExplorer({ dataSourceKey: props.dataSource })
+  openFileExplorer({ dataSourceKey: dataSource.value })
 }
 
 function handleOpenEmbeddings() {
-  if (!props.dataSource) {
+  if (!dataSource.value) {
     return
   }
-  openEmbeddings({ dataSourceKey: props.dataSource })
+  openEmbeddings({ dataSourceKey: dataSource.value })
 }
 
 function handleOpenEmbeddingsSearch() {
-  if (!props.dataSource) {
+  if (!dataSource.value) {
     return
   }
-  openEmbeddingsSearch({ dataSourceKey: props.dataSource })
+  openEmbeddingsSearch({ dataSourceKey: dataSource.value })
 }
 
 async function handleDump() {
-  if (!props.dataSource) {
+  if (!dataSource.value) {
     return
   }
-  const dump = await registry.getDataSource(props.dataSource).dump()
+  const dump = await registry.getDataSource(dataSource.value).dump()
   downloadFile(dump)
 }
 </script>
