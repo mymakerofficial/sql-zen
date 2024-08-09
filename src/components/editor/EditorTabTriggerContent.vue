@@ -3,6 +3,7 @@ import { useTabInfo } from '@/composables/tabs/useTabInfo'
 import { FlowerIcon, XIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { tabManager } from '@/lib/tabs/manager'
+import { TabType } from '@/lib/tabs/enums'
 
 const props = defineProps<{
   tabId: string
@@ -17,7 +18,13 @@ function handleClose() {
 
 <template>
   <button class="gap-2 group">
-    <FlowerIcon class="size-4 min-w-max" />
+    <img
+      v-if="info.type === TabType.Console"
+      :src="info.engineIcon"
+      :alt="`${info.engineName} icon`"
+      class="size-4 min-w-max mr-1"
+    />
+    <FlowerIcon v-else class="size-4 min-w-max" />
     <span>{{ info.displayName }}</span>
     <Button
       @click="handleClose"

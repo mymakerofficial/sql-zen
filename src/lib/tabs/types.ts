@@ -29,6 +29,8 @@ export type EmptyTabInfo = Omit<BaseTabInfo, 'type'> & {
 export type ConsoleTabInfo = Omit<BaseTabInfo, 'type'> & {
   type: typeof TabType.Console
   dataSourceKey: string
+  engineName: string
+  engineIcon: string
 }
 
 export type TabInfo = EmptyTabInfo | ConsoleTabInfo

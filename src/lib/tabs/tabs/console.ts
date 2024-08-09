@@ -3,7 +3,10 @@ import { Tab } from '@/lib/tabs/tabs/base'
 import { useRegistry } from '@/composables/useRegistry'
 import { TabType } from '@/lib/tabs/enums'
 import type { ConsoleTabData, ConsoleTabInfo } from '@/lib/tabs/types'
-import { getDataSourceDisplayName } from '@/lib/dataSources/helpers'
+import {
+  getDataSourceDisplayName,
+  getDataSourceEngineInfo,
+} from '@/lib/dataSources/helpers'
 
 const Registry = useRegistry()
 
@@ -33,11 +36,21 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
     return this.#dataSourceKey
   }
 
+  get engineName() {
+    return this.getEngineInfo().name
+  }
+
+  get engineIcon() {
+    return this.getEngineInfo().icon
+  }
+
   getInfo(): ConsoleTabInfo {
     return {
       ...super.getBaseInfo(),
       type: TabType.Console,
       dataSourceKey: this.dataSourceKey,
+      engineName: this.engineName,
+      engineIcon: this.engineIcon,
     }
   }
 
@@ -51,5 +64,9 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
 
   getDataSourceDescriptor() {
     return Registry.getDescriptor(this.dataSourceKey)
+  }
+
+  getEngineInfo() {
+    return getDataSourceEngineInfo(this.getDataSourceDescriptor())
   }
 }
