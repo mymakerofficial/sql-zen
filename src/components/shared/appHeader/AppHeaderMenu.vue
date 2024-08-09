@@ -87,7 +87,7 @@ async function handleDump() {
 </script>
 
 <template>
-  <NavigationMenu>
+  <NavigationMenu v-if="dataSource">
     <NavigationMenuList>
       <NavigationMenuItem>
         <NavigationMenuTrigger class="gap-3">
@@ -95,7 +95,7 @@ async function handleDump() {
           <span class="hidden md:block">Files</span>
         </NavigationMenuTrigger>
         <NavigationMenuContent>
-          <ul class="grid w-[200px] p-2 md:w-[300px]">
+          <ul class="grid p-2 md:w-[300px]">
             <NavigationMenuLink as-child>
               <Button
                 @click="handleOpenFileExplorer"
@@ -125,7 +125,7 @@ async function handleDump() {
           </ul>
         </NavigationMenuContent>
       </NavigationMenuItem>
-      <NavigationMenuItem>
+      <NavigationMenuItem v-if="supportsEmbeddings">
         <NavigationMenuTrigger class="gap-3">
           <SparklesIcon class="size-4 min-w-max text-purple-300" />
           <span
@@ -134,20 +134,7 @@ async function handleDump() {
           >
         </NavigationMenuTrigger>
         <NavigationMenuContent>
-          <ul class="grid w-[200px] p-2 md:w-[300px]">
-            <NavigationMenuLink as-child>
-              <Button
-                @click="handleOpenEmbeddingsSearch"
-                :disabled="!supportsEmbeddings"
-                variant="ghost"
-                class="justify-start gap-3"
-              >
-                <SearchIcon class="size-4 min-w-max" />
-                <span class="text-sm font-medium leading-none"
-                  >Semantic Search</span
-                >
-              </Button>
-            </NavigationMenuLink>
+          <ul class="grid p-2 md:w-[300px]">
             <NavigationMenuLink as-child>
               <Button
                 @click="handleOpenEmbeddings"
@@ -159,6 +146,19 @@ async function handleDump() {
                 <span class="text-sm font-medium leading-none">
                   Generate Embeddings
                 </span>
+              </Button>
+            </NavigationMenuLink>
+            <NavigationMenuLink as-child>
+              <Button
+                @click="handleOpenEmbeddingsSearch"
+                :disabled="!supportsEmbeddings"
+                variant="ghost"
+                class="justify-start gap-3"
+              >
+                <SearchIcon class="size-4 min-w-max" />
+                <span class="text-sm font-medium leading-none"
+                  >Semantic Search</span
+                >
               </Button>
             </NavigationMenuLink>
           </ul>
