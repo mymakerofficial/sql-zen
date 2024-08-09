@@ -3,6 +3,7 @@ import { Tab } from '@/lib/tabs/tabs/base'
 import { useRegistry } from '@/composables/useRegistry'
 import { TabType } from '@/lib/tabs/enums'
 import type { ConsoleTabData, ConsoleTabInfo } from '@/lib/tabs/types'
+import { getDataSourceDisplayName } from '@/lib/dataSources/helpers'
 
 const Registry = useRegistry()
 
@@ -14,15 +15,18 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
     super(tab)
     this.#dataSourceKey = tab.dataSourceKey
     this.#model = monaco.editor.createModel(tab.modelValue ?? '', 'sql')
-
-    if (this.displayName === '') {
-      const descriptor = this.getDataSourceDescriptor()
-      this.displayName = descriptor.identifier ?? descriptor.engine
-    }
   }
 
   get type() {
     return TabType.Console
+  }
+
+  get displayName() {
+    if (super.displayName === '') {
+      const descriptor = this.getDataSourceDescriptor()
+      return getDataSourceDisplayName(descriptor)
+    }
+    return super.displayName
   }
 
   get dataSourceKey() {

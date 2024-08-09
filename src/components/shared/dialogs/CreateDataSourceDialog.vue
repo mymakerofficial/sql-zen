@@ -11,7 +11,7 @@ import DatabaseEngineSelect from '@/components/shared/databaseEngineSelect/Datab
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { Separator } from '@/components/ui/separator'
 import { whenever } from '@vueuse/core'
-import { simplifyIdentifier } from '@/lib/simplifyIdentifier'
+import { simplifyIdentifier } from '@/lib/dataSources/helpers'
 import FileInput from '@/components/shared/FileInput.vue'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceMode } from '@/lib/dataSources/enums'

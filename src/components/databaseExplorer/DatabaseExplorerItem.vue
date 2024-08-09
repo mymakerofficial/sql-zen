@@ -7,6 +7,7 @@ import { SquareTerminalIcon, Trash2Icon } from 'lucide-vue-next'
 import DSTree from '@/components/databaseExplorer/DSTree.vue'
 import { useDataSourceStatus } from '@/composables/useDataSourceStatus'
 import { DataSourceStatus } from '@/lib/registry/enums'
+import { getDataSourceDisplayName } from '@/lib/dataSources/helpers'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -53,9 +54,7 @@ function handleDelete() {
           />
         </span>
         <span class="font-medium">{{
-          !descriptor.identifier
-            ? `${engineInfo.name}`
-            : `${descriptor.identifier}`
+          getDataSourceDisplayName(descriptor)
         }}</span>
       </Button>
       <div class="flex items-center">
