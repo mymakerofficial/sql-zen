@@ -2,8 +2,12 @@ import { TabType } from '@/lib/tabs/enums'
 import { EventPublisher } from '@/lib/events/publisher'
 import { getId } from '@/lib/getId'
 import type { BaseTabData, BaseTabInfo, TabInfo } from '@/lib/tabs/types'
+import { TabEvent, type TabEventMap } from '@/lib/tabs/events'
 
-export abstract class Tab extends EventPublisher implements BaseTabInfo {
+export abstract class Tab
+  extends EventPublisher<TabEventMap>
+  implements BaseTabInfo
+{
   readonly #id: string
   #displayName: string
 
@@ -25,6 +29,7 @@ export abstract class Tab extends EventPublisher implements BaseTabInfo {
 
   set displayName(value: string) {
     this.#displayName = value
+    this.emit(TabEvent.DisplayNameChanged, value)
   }
 
   getBaseInfo(): BaseTabInfo {

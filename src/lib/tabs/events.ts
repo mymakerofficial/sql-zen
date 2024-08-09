@@ -11,3 +11,12 @@ export type TabManagerEventMap = {
   [TabManagerEvent.TabRemoved]: [id: string]
   [TabManagerEvent.ActiveTabChanged]: [newId: string, oldId: string]
 }
+
+export const TabEvent = {
+  DisplayNameChanged: 'display-name-changed',
+} as const
+export type TabEvent = (typeof TabEvent)[keyof typeof TabEvent]
+
+export type TabEventMap = {
+  [TabEvent.DisplayNameChanged]: [value: string]
+}
