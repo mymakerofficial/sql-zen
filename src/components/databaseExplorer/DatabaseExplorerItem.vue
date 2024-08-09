@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { getEngineInfo } from '@/lib/engines/helpers'
 import { computed } from 'vue'
 import { useRegistry } from '@/composables/useRegistry'
-import { SquareTerminalIcon, Trash2Icon } from 'lucide-vue-next'
+import { Trash2Icon } from 'lucide-vue-next'
 import DSTree from '@/components/databaseExplorer/DSTree.vue'
 import { useDataSourceStatus } from '@/composables/useDataSourceStatus'
 import { DataSourceStatus } from '@/lib/registry/enums'
@@ -11,7 +11,6 @@ import { getDataSourceDisplayName } from '@/lib/dataSources/helpers'
 
 const props = defineProps<{
   dataSourceKey: string
-  isActive: boolean
 }>()
 
 const emit = defineEmits<{
@@ -58,17 +57,13 @@ function handleDelete() {
         }}</span>
       </Button>
       <div class="flex items-center">
-        <SquareTerminalIcon
-          v-if="isActive"
-          class="size-4 min-w-max text-muted-foreground mx-2"
-        />
-        <Button v-else @click="handleDelete" size="xs" variant="ghost">
+        <Button @click="handleDelete" size="xs" variant="ghost">
           <Trash2Icon class="size-4 min-w-max" />
         </Button>
       </div>
     </div>
     <DSTree
-      v-if="isActive && status === DataSourceStatus.Running"
+      v-if="status === DataSourceStatus.Running"
       :data-source-key="dataSourceKey"
     />
   </article>

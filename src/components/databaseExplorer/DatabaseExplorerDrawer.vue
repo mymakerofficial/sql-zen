@@ -10,14 +10,9 @@ import {
 import DatabaseExplorerContent from '@/components/databaseExplorer/DatabaseExplorerContent.vue'
 import { Button } from '@/components/ui/button'
 import { DialogTrigger } from '@/components/ui/dialog'
-import { MenuIcon, PlusIcon } from 'lucide-vue-next'
+import { MenuIcon } from 'lucide-vue-next'
 import { useDialog } from '@/composables/useDialog'
 import CreateDataSourceDialog from '@/components/shared/dialogs/CreateDataSourceDialog.vue'
-
-const selected = defineModel<string | null>('selected', {
-  required: true,
-  default: null,
-})
 
 const { open: openCreate } = useDialog(CreateDataSourceDialog)
 </script>
@@ -37,7 +32,7 @@ const { open: openCreate } = useDialog(CreateDataSourceDialog)
           console.</DrawerDescription
         >
       </DrawerHeader>
-      <DatabaseExplorerContent v-model:selected="selected" class="max-h-96" />
+      <DatabaseExplorerContent class="max-h-96" />
       <DrawerFooter>
         <Button @click="openCreate"> Add Data Source </Button>
       </DrawerFooter>

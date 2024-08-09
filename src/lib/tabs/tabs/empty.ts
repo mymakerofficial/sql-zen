@@ -14,7 +14,7 @@ export class EmptyTab extends Tab implements EmptyTabInfo {
   }
 
   get displayName() {
-    return 'Welcome!'
+    return 'Welcome to SqlZen'
   }
 
   set displayName(_value) {}

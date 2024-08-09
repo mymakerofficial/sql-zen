@@ -8,11 +8,6 @@ import { useQueryClient } from '@tanstack/vue-query'
 import type { DatabaseEngine } from '@/lib/engines/enums'
 import DatabaseExplorerContent from '@/components/databaseExplorer/DatabaseExplorerContent.vue'
 
-const selected = defineModel<string | null>('selected', {
-  required: true,
-  default: null,
-})
-
 const { open: openCreate } = useDialog(CreateDataSourceDialog)
 const queryClient = useQueryClient()
 
@@ -44,6 +39,6 @@ function handleRefresh() {
         <RefreshCwIcon class="size-4 min-w-max" />
       </Button>
     </div>
-    <DatabaseExplorerContent v-model:selected="selected" />
+    <DatabaseExplorerContent />
   </section>
 </template>
