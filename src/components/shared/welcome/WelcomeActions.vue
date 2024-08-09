@@ -7,9 +7,12 @@ import { Button } from '@/components/ui/button'
 import { useDialog } from '@/composables/useDialog'
 import CreateDataSourceDialog from '@/components/shared/dialogs/CreateDataSourceDialog.vue'
 import type { DatabaseEngine } from '@/lib/engines/enums'
+import { TabType } from '@/lib/tabs/enums'
+import { useTabManager } from '@/composables/useTabManager'
 
 const { open: openCreate } = useDialog(CreateDataSourceDialog)
 const dataSources = useDataSources()
+const tabManager = useTabManager()
 
 function handleCreate(engine: DatabaseEngine) {
   openCreate({
@@ -18,7 +21,10 @@ function handleCreate(engine: DatabaseEngine) {
 }
 
 function handleSelect(key: string) {
-  console.log(key)
+  tabManager.createTab({
+    type: TabType.Console,
+    dataSourceKey: key,
+  })
 }
 </script>
 

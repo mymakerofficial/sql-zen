@@ -2,8 +2,11 @@
 import DatabaseExplorerItem from '@/components/databaseExplorer/DatabaseExplorerItem.vue'
 import { useDataSources } from '@/composables/useDataSources'
 import { useRegistry } from '@/composables/useRegistry'
+import { TabType } from '@/lib/tabs/enums'
+import { useTabManager } from '@/composables/useTabManager'
 
 const registry = useRegistry()
+const tabManager = useTabManager()
 const dataSources = useDataSources()
 
 function handleDelete(key: string) {
@@ -11,7 +14,10 @@ function handleDelete(key: string) {
 }
 
 function handleSelect(key: string) {
-  registry.start(key)
+  tabManager.createTab({
+    type: TabType.Console,
+    dataSourceKey: key,
+  })
 }
 </script>
 

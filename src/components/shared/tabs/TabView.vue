@@ -11,7 +11,7 @@ const activeTab = useActiveTabId()
 
 <template>
   <Tabs v-model="activeTab" class="h-full flex flex-col">
-    <TabsList class="w-full border-b overflow-x-auto">
+    <TabsList class="w-full border-b overflow-x-auto" :key="tabs.length">
       <TabsTrigger v-for="tabId in tabs" :value="tabId" :key="tabId" as-child>
         <TabTriggerContent :tab-id="tabId" />
       </TabsTrigger>
