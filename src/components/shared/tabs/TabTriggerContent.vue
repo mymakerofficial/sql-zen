@@ -31,8 +31,8 @@ function handleClose() {
       @click="handleClose"
       variant="ghost"
       size="xs"
-      class="invisible group-hover:visible size-6 -mr-3"
-      aria-label="Close"
+      class="md:invisible group-hover:visible size-6 -mr-3"
+      aria-label="Close Tab"
     >
       <XIcon class="size-3 min-w-max" />
     </Button>
