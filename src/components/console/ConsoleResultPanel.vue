@@ -5,11 +5,11 @@ import { SquareTerminalIcon, TableIcon } from 'lucide-vue-next'
 import LoggerPanel from '@/components/logger/LoggerPanel.vue'
 import { useRunnerQueries } from '@/composables/useRunnerQueries'
 import QueryDisplay from '@/components/shared/query/QueryDisplay.vue'
-import type { Runner } from '@/lib/runner/impl/runner'
+import { useRegistry } from '@/composables/useRegistry'
 
 const props = withDefaults(
   defineProps<{
-    runner: Runner
+    dataSourceKey: string
     showResults?: boolean
   }>(),
   {
@@ -17,7 +17,10 @@ const props = withDefaults(
   },
 )
 
-const queries = useRunnerQueries(props.runner)
+const registry = useRegistry()
+const dataSource = registry.getDataSource(props.dataSourceKey)
+
+const queries = useRunnerQueries(dataSource.runner)
 
 const visibleQueries = computed(() => {
   if (!props.showResults) {
@@ -36,7 +39,7 @@ const triggers = computed(() => {
 const contents = computed(() => {
   return visibleQueries.value.map((info) => ({
     value: info.id,
-    data: props.runner.getQuery(info.id),
+    data: dataSource.runner.getQuery(info.id),
   }))
 })
 
@@ -69,7 +72,7 @@ watch(
       </TabsTrigger>
     </TabsList>
     <TabsContent value="log" class="flex-1 overflow-y-auto">
-      <LoggerPanel :logger="props.runner.getDataSource().getLogger()" />
+      <LoggerPanel :logger="dataSource.logger" />
     </TabsContent>
     <TabsContent
       v-for="content in contents"

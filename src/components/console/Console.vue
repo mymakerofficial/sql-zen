@@ -66,7 +66,7 @@ model.onDidChangeContent(() => {
     <ResizableHandle />
     <ResizablePanel :default-size="33">
       <ConsoleResultPanel
-        :runner="runner"
+        :data-source-key="dataSourceKey"
         :show-results="!enableInlineResults"
       />
     </ResizablePanel>
