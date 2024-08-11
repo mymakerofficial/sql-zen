@@ -10,6 +10,7 @@ import {
 import type { TabManager } from '@/lib/tabs/manager/manager'
 import { useDebounceFn } from '@vueuse/core'
 import { TabEvent } from '@/lib/tabs/events'
+import { getExampleSql } from '@/lib/examples/getExampleSql'
 
 const registry = useRegistry()
 
@@ -20,7 +21,11 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
   constructor(tab: ConsoleTabData, manager: TabManager) {
     super(tab, manager)
     this.#dataSourceKey = tab.dataSourceKey
-    this.#model = monaco.editor.createModel(tab.modelValue ?? '', 'sql')
+    this.#model = monaco.editor.createModel(
+      tab.modelValue ??
+        getExampleSql(registry.getDataSource(this.dataSourceKey).engine),
+      'sql',
+    )
 
     const debouncedSave = useDebounceFn(() => {
       this.emit(TabEvent.RequestSave)

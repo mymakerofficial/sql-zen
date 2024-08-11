@@ -16,5 +16,6 @@ const tab = tabManager.getTab(props.tabId)
     v-if="isConsoleTab(tab)"
     :data-source-key="tab.dataSourceKey"
     :model="tab.getModel()"
+    auto-start
   />
 </template>
