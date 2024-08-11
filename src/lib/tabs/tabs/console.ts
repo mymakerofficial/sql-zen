@@ -7,8 +7,7 @@ import {
   getDataSourceDisplayName,
   getDataSourceEngineInfo,
 } from '@/lib/dataSources/helpers'
-import { DatabaseEngine } from '@/lib/engines/enums'
-import { DataSourceMode } from '@/lib/dataSources/enums'
+import { type TabManager } from '@/lib/tabs/manager'
 
 const registry = useRegistry()
 
@@ -16,8 +15,8 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
   readonly #dataSourceKey: string
   readonly #model: monaco.editor.ITextModel
 
-  constructor(tab: ConsoleTabData) {
-    super(tab)
+  constructor(tab: ConsoleTabData, manager: TabManager) {
+    super(tab, manager)
     this.#dataSourceKey = tab.dataSourceKey
     this.#model = monaco.editor.createModel(tab.modelValue ?? '', 'sql')
   }
@@ -26,9 +25,13 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
     return TabType.Console
   }
 
+  get persistent() {
+    return false
+  }
+
   get displayName() {
     if (super.displayName === '') {
-      const descriptor = this.getDataSourceDescriptor()
+      const descriptor = this.getDataSourceInfo()
       return getDataSourceDisplayName(descriptor)
     }
     return super.displayName
@@ -60,20 +63,11 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
     return this.#model
   }
 
-  getDataSourceDescriptor() {
-    try {
-      return registry.getInfo(this.dataSourceKey)
-    } catch (e) {
-      console.error(e)
-      return {
-        engine: DatabaseEngine.PostgreSQL,
-        mode: DataSourceMode.Memory,
-        identifier: '<error>',
-      }
-    }
+  getDataSourceInfo() {
+    return registry.getInfo(this.dataSourceKey)
   }
 
   getEngineInfo() {
-    return getDataSourceEngineInfo(this.getDataSourceDescriptor())
+    return getDataSourceEngineInfo(this.getDataSourceInfo())
   }
 }

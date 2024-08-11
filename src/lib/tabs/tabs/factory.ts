@@ -2,13 +2,14 @@ import { EmptyTab } from '@/lib/tabs/tabs/empty'
 import { ConsoleTab } from '@/lib/tabs/tabs/console'
 import { TabType } from '@/lib/tabs/enums'
 import type { TabData } from '@/lib/tabs/types'
+import type { TabManager } from '@/lib/tabs/manager'
 
 const empty = new EmptyTab()
 
 export class TabFactory {
-  static from(tab: TabData) {
+  static create(tab: TabData, manager: TabManager) {
     if (tab.type === TabType.Console) {
-      return new ConsoleTab(tab)
+      return new ConsoleTab(tab, manager)
     } else {
       return this.empty
     }

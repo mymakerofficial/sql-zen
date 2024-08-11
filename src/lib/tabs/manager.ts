@@ -34,7 +34,7 @@ export class TabManager extends EventPublisher<TabManagerEventMap> {
     return this.getTabIds().map((id) => this.getTab(id).getInfo())
   }
 
-  addTab(tab: Tab) {
+  #addTab(tab: Tab) {
     if (tab.type === TabType.Empty) {
       throw new Error(`Cannot add empty tab`)
     }
@@ -48,16 +48,20 @@ export class TabManager extends EventPublisher<TabManagerEventMap> {
   }
 
   createTab(tab: TabData) {
-    const newTab = TabFactory.from(tab)
-    this.addTab(newTab)
+    const newTab = TabFactory.create(tab, this)
+    this.#addTab(newTab)
   }
 
   removeTab(id: string) {
     if (id === TabFactory.empty.id) {
       return
     }
-    if (!this.#tabs.has(id)) {
+    const tab = this.#tabs.get(id)
+    if (!tab) {
       throw new Error(`Tab with id ${id} not found`)
+    }
+    if (tab.persistent) {
+      return
     }
     this.#tabs.delete(id)
     this.#tabSortOrder = this.#tabSortOrder.filter((it) => it !== id)

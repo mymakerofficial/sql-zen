@@ -20,6 +20,7 @@ export type TabData = EmptyTabData | ConsoleTabData
 export type BaseTabInfo = BaseTabData & {
   id: string
   displayName: string
+  persistent: boolean
 }
 
 export type EmptyTabInfo = Omit<BaseTabInfo, 'type'> & {
