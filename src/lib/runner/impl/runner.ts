@@ -36,6 +36,19 @@ export class Runner extends EventPublisher<RunnerEventMap> {
     return this.getKey()
   }
 
+  getQueries(): Array<QueryInfo> {
+    return this.#queries.map((it) => it.getInfo())
+  }
+
+  getQuery(queryId: string): Query {
+    const query = this.#queries.find((it) => it.id === queryId)
+    return query ?? Query.null
+  }
+
+  getQueryIndex(queryId: string): number {
+    return this.#queries.findIndex((it) => it.id === queryId)
+  }
+
   async #runNextIdle() {
     const nextIdle = this.#queries.find(isIdleQuery)
     if (!nextIdle) {
@@ -107,18 +120,6 @@ export class Runner extends EventPublisher<RunnerEventMap> {
 
     statements.forEach((it) => this.#createQuery(it))
     this.#runAllIdle(transacting && statements.length > 1).then()
-  }
-
-  getQueries(): Array<QueryInfo> {
-    return this.#queries.map((it) => it.getInfo())
-  }
-
-  getQuery(queryId: string): Query {
-    const query = this.#queries.find((q) => q.getId() === queryId)
-    if (!query) {
-      throw new Error(`Query with id ${queryId} not found`)
-    }
-    return query
   }
 
   removeQuery(queryId: string): void {

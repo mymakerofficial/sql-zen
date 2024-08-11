@@ -6,14 +6,14 @@ import type {
   QueryResult,
 } from '@/lib/queries/interface'
 import { QueryState } from '@/lib/queries/enums'
-import { EventPublisher } from '@/lib/events/publisher'
-import { QueryEvent, type QueryEventMap } from '@/lib/queries/events'
+import { QueryEvent } from '@/lib/queries/events'
 import { isPaginatedQueryResult } from '@/lib/queries/helpers'
 import { Mutex } from 'async-mutex'
 import type { DataSource } from '@/lib/dataSources/impl/base'
+import { QueryBase } from '@/lib/queries/impl/base'
 
 export class Query<T extends object = object>
-  extends EventPublisher<QueryEventMap>
+  extends QueryBase<T>
   implements QueryInfo
 {
   readonly #mutex = new Mutex()
@@ -42,10 +42,6 @@ export class Query<T extends object = object>
     return this.#id
   }
 
-  get id() {
-    return this.getId()
-  }
-
   getState() {
     return this.#state
   }
@@ -55,42 +51,16 @@ export class Query<T extends object = object>
     this.emit(QueryEvent.StateChanged, state)
   }
 
-  get state() {
-    return this.getState()
-  }
-
   getStatement() {
     return this.#statement
-  }
-
-  get statement() {
-    return this.getStatement()
   }
 
   getHasResult() {
     return this.#result !== null
   }
 
-  get hasResult() {
-    return this.getHasResult()
-  }
-
   getHasResultRows() {
     return this.#result !== null && this.#result.rows.length > 0
-  }
-
-  get hasResultRows() {
-    return this.getHasResultRows()
-  }
-
-  getInfo(): QueryInfo {
-    return {
-      id: this.id,
-      state: this.state,
-      statement: this.statement,
-      hasResult: this.hasResult,
-      hasResultRows: this.hasResultRows,
-    }
   }
 
   getError() {
@@ -104,8 +74,8 @@ export class Query<T extends object = object>
     return err
   }
 
-  getResult(): QueryResult<T> | PaginatedQueryResult<T> | null {
-    return this.#result
+  getResult(): QueryResult<T> | PaginatedQueryResult<T> {
+    return this.#result || { rows: [], affectedRows: null, duration: 0, id: '' }
   }
 
   #setResult(
