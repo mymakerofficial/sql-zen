@@ -13,6 +13,7 @@ import {
   type TableOptions,
   useVueTable,
 } from '@tanstack/vue-table'
+import { cn } from '@/lib/utils'
 
 const props = defineProps<{
   class?: string
@@ -35,7 +36,7 @@ const table = useVueTable({
 
 <template>
   <Table :class="props.class">
-    <TableHeader>
+    <TableHeader class="sticky top-0 bg-background">
       <TableRow
         v-for="headerGroup in table.getHeaderGroups()"
         :key="headerGroup.id"

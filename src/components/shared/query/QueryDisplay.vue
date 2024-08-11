@@ -43,7 +43,7 @@ const { mutateAsync: computeTotalRowCount } = useMutation({
 </script>
 
 <template>
-  <div class="flex-1">
+  <div class="flex-1 h-full flex flex-col">
     <div
       v-if="isPaginatedQueryResult(result)"
       class="p-1 border-b border-border flex gap-2 items-center"
