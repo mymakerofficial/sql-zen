@@ -116,7 +116,7 @@ export class Runner extends EventPublisher<RunnerEventMap> {
       )
     }
 
-    // this.clear()
+    this.clear()
 
     statements.forEach((it) => this.#createQuery(it))
     this.#runAllIdle(transacting && statements.length > 1).then()
