@@ -87,7 +87,7 @@ async function handleDump() {
       <NavigationMenuItem v-if="supportsFileExplorer || supportsDatabaseDump">
         <NavigationMenuTrigger class="gap-3">
           <FileIcon class="size-4 min-w-max" />
-          <span class="hidden md:block">Files</span>
+          <span>Files</span>
         </NavigationMenuTrigger>
         <NavigationMenuContent>
           <ul class="grid p-2 md:w-[300px]">

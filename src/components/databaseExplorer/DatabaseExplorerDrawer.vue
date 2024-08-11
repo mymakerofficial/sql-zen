@@ -13,6 +13,11 @@ import { DialogTrigger } from '@/components/ui/dialog'
 import { MenuIcon } from 'lucide-vue-next'
 import { useDialog } from '@/composables/useDialog'
 import CreateDataSourceDialog from '@/components/shared/dialogs/CreateDataSourceDialog.vue'
+import type { HTMLAttributes } from 'vue'
+
+const props = defineProps<{
+  class: HTMLAttributes['class']
+}>()
 
 const { open: openCreate } = useDialog(CreateDataSourceDialog)
 </script>
@@ -20,7 +25,7 @@ const { open: openCreate } = useDialog(CreateDataSourceDialog)
 <template>
   <Drawer>
     <DialogTrigger>
-      <Button size="sm" variant="ghost">
+      <Button size="sm" variant="ghost" :class="props.class">
         <MenuIcon class="size-4 min-w-max" />
       </Button>
     </DialogTrigger>

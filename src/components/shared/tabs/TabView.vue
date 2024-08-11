@@ -15,6 +15,9 @@ const activeTab = useActiveTabId()
       class="w-full min-h-12 border-b overflow-x-auto"
       :key="tabs.join()"
     >
+      <div class="h-full sticky left-0 bg-background flex">
+        <slot name="beforeTabs" />
+      </div>
       <TabsTrigger v-for="tabId in tabs" :value="tabId" :key="tabId" as-child>
         <TabTriggerContent :tab-id="tabId" />
       </TabsTrigger>
