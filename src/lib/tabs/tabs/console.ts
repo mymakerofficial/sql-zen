@@ -7,7 +7,7 @@ import {
   getDataSourceDisplayName,
   getDataSourceEngineInfo,
 } from '@/lib/dataSources/helpers'
-import { type TabManager } from '@/lib/tabs/manager'
+import type { TabManager } from '@/lib/tabs/manager/manager'
 
 const registry = useRegistry()
 

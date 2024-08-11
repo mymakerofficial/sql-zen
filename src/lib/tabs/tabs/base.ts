@@ -3,7 +3,7 @@ import { EventPublisher } from '@/lib/events/publisher'
 import { getId } from '@/lib/getId'
 import type { BaseTabData, BaseTabInfo, TabInfo } from '@/lib/tabs/types'
 import { TabEvent, type TabEventMap, TabManagerEvent } from '@/lib/tabs/events'
-import type { TabManager } from '@/lib/tabs/manager'
+import type { TabManager } from '@/lib/tabs/manager/manager'
 
 export abstract class Tab
   extends EventPublisher<TabEventMap>

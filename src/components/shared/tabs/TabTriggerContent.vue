@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useTabInfo } from '@/composables/tabs/useTabInfo'
-import { FlowerIcon, XIcon } from 'lucide-vue-next'
+import { FlowerIcon, SquareTerminalIcon, XIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { TabType } from '@/lib/tabs/enums'
-import { useTabManager } from '@/composables/useTabManager'
+import { useTabManager } from '@/composables/tabs/useTabManager'
 
 const props = defineProps<{
   tabId: string
@@ -24,6 +24,10 @@ function handleClose() {
       :src="info.engineIcon"
       :alt="`${info.engineName} icon`"
       class="size-4 min-w-max mr-1"
+    />
+    <SquareTerminalIcon
+      v-else-if="info.type === TabType.Logger"
+      class="size-4 min-w-max"
     />
     <FlowerIcon v-else class="size-4 min-w-max" />
     <span>{{ info.displayName }}</span>

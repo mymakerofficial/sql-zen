@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { computed, ref, watch } from 'vue'
-import { SquareTerminalIcon, TableIcon } from 'lucide-vue-next'
-import LoggerPanel from '@/components/logger/LoggerPanel.vue'
-import { useRunnerQueries } from '@/composables/useRunnerQueries'
-import QueryDisplay from '@/components/shared/query/QueryDisplay.vue'
-import { useRegistry } from '@/composables/useRegistry'
+import { provideTabManager } from '@/composables/tabs/useTabManager'
+import TabView from '@/components/shared/tabs/TabView.vue'
+import { ConsoleTabManager } from '@/lib/tabs/manager/consoleTabManager'
 
 const props = withDefaults(
   defineProps<{
@@ -17,70 +13,37 @@ const props = withDefaults(
   },
 )
 
-const registry = useRegistry()
-const dataSource = registry.getDataSource(props.dataSourceKey)
-
-const queries = useRunnerQueries(dataSource.runner)
-
-const visibleQueries = computed(() => {
-  if (!props.showResults) {
-    return []
-  }
-  return queries.value.filter((info) => info.hasResultRows)
-})
-
-const triggers = computed(() => {
-  return visibleQueries.value.map((info, index) => ({
-    value: info.id,
-    label: `Result ${index + 1}`,
-  }))
-})
-
-const contents = computed(() => {
-  return visibleQueries.value.map((info) => ({
-    value: info.id,
-    data: dataSource.runner.getQuery(info.id),
-  }))
-})
-
-const selected = ref('log')
-
-watch(
-  queries,
-  () => {
-    selected.value = triggers.value[triggers.value.length - 1]?.value ?? 'log'
-  },
-  { immediate: true },
-)
+provideTabManager(new ConsoleTabManager(props.dataSourceKey))
 </script>
 
 <template>
-  <Tabs v-model="selected" class="h-full flex flex-col">
-    <TabsList class="w-full border-b overflow-x-auto">
-      <TabsTrigger value="log" class="gap-2">
-        <SquareTerminalIcon class="size-4 min-w-max" />
-        <span>Output</span>
-      </TabsTrigger>
-      <TabsTrigger
-        v-for="trigger in triggers"
-        :value="trigger.value"
-        :key="trigger.value"
-        class="gap-2"
-      >
-        <TableIcon class="size-4 min-w-max" />
-        <span>{{ trigger.label }}</span>
-      </TabsTrigger>
-    </TabsList>
-    <TabsContent value="log" class="flex-1 overflow-y-auto">
-      <LoggerPanel :logger="dataSource.logger" />
-    </TabsContent>
-    <TabsContent
-      v-for="content in contents"
-      :value="content.value"
-      :key="content.value"
-      class="flex-1 overflow-y-auto"
-    >
-      <QueryDisplay :query="content.data" />
-    </TabsContent>
-  </Tabs>
+  <TabView />
+  <!--  <Tabs v-model="selected" class="h-full flex flex-col">-->
+  <!--    <TabsList class="w-full border-b overflow-x-auto">-->
+  <!--      <TabsTrigger value="log" class="gap-2">-->
+  <!--        <SquareTerminalIcon class="size-4 min-w-max" />-->
+  <!--        <span>Output</span>-->
+  <!--      </TabsTrigger>-->
+  <!--      <TabsTrigger-->
+  <!--        v-for="trigger in triggers"-->
+  <!--        :value="trigger.value"-->
+  <!--        :key="trigger.value"-->
+  <!--        class="gap-2"-->
+  <!--      >-->
+  <!--        <TableIcon class="size-4 min-w-max" />-->
+  <!--        <span>{{ trigger.label }}</span>-->
+  <!--      </TabsTrigger>-->
+  <!--    </TabsList>-->
+  <!--    <TabsContent value="log" class="flex-1 overflow-y-auto">-->
+  <!--      <LoggerPanel :logger="dataSource.logger" />-->
+  <!--    </TabsContent>-->
+  <!--    <TabsContent-->
+  <!--      v-for="content in contents"-->
+  <!--      :value="content.value"-->
+  <!--      :key="content.value"-->
+  <!--      class="flex-1 overflow-y-auto"-->
+  <!--    >-->
+  <!--      <QueryDisplay :query="content.data" />-->
+  <!--    </TabsContent>-->
+  <!--  </Tabs>-->
 </template>

@@ -10,7 +10,7 @@ import { useRegistry } from '@/composables/useRegistry'
 import findPostgresDatabases from '@/lib/registry/plugins/findPostgres'
 import findSqliteDatabases from '@/lib/registry/plugins/findSqlite'
 import { storeInMemorySources } from '@/lib/registry/plugins/storeInMemorySources'
-import { useTabManager } from '@/composables/useTabManager'
+import { useTabManager } from '@/composables/tabs/useTabManager'
 import { RegistryEvent } from '@/lib/registry/events'
 import { TabType } from '@/lib/tabs/enums'
 

@@ -1,10 +1,10 @@
 import { onMounted, onUnmounted } from 'vue'
 import { EventType } from '@/lib/events/publisher'
-import type { ILogger } from '@/lib/logger/interface'
 import { useQuery } from '@tanstack/vue-query'
+import type { Logger } from '@/lib/logger/impl/logger'
 
-export function useLoggerEvents(logger: ILogger) {
-  const queryKey = ['loggerEvents', logger.getKey()]
+export function useLoggerEvents(logger: Logger) {
+  const queryKey = ['logger', logger.id, 'events']
 
   const { data, refetch } = useQuery({
     queryKey,

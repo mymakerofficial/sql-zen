@@ -1,4 +1,5 @@
 import { TabType } from '@/lib/tabs/enums'
+import type { Logger } from '@/lib/logger/impl/logger'
 
 export type BaseTabData = {
   type: TabType
@@ -15,7 +16,12 @@ export type ConsoleTabData = Omit<BaseTabData, 'type'> & {
   modelValue?: string
 }
 
-export type TabData = EmptyTabData | ConsoleTabData
+export type LoggerTabData = Omit<BaseTabData, 'type'> & {
+  type: typeof TabType.Logger
+  logger: Logger
+}
+
+export type TabData = EmptyTabData | ConsoleTabData | LoggerTabData
 
 export type BaseTabInfo = BaseTabData & {
   id: string
@@ -34,4 +40,9 @@ export type ConsoleTabInfo = Omit<BaseTabInfo, 'type'> & {
   engineIcon: string
 }
 
-export type TabInfo = EmptyTabInfo | ConsoleTabInfo
+export type LoggerTabInfo = Omit<BaseTabInfo, 'type'> & {
+  type: typeof TabType.Logger
+  loggerId: string
+}
+
+export type TabInfo = EmptyTabInfo | ConsoleTabInfo | LoggerTabInfo

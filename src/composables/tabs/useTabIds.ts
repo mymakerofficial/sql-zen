@@ -1,7 +1,7 @@
 import { useState } from '@/composables/useState'
 import { TabManagerEvent } from '@/lib/tabs/events'
 import { onMounted, onUnmounted } from 'vue'
-import { useTabManager } from '@/composables/useTabManager'
+import { useTabManager } from '@/composables/tabs/useTabManager'
 
 export function useTabIds() {
   const tabManager = useTabManager()

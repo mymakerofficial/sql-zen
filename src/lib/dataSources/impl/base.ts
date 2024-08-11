@@ -7,7 +7,6 @@ import {
   simplifyIdentifier,
 } from '@/lib/dataSources/helpers'
 import type { QueryResult } from '@/lib/queries/interface'
-import { type ILogger } from '@/lib/logger/interface'
 import { SqlDialectFactory } from '@/lib/dialect/factory'
 import type { FileInfo } from '@/lib/files/interface'
 import { Logger } from '@/lib/logger/impl/logger'
@@ -103,11 +102,11 @@ export abstract class DataSource
     return this.getRunner()
   }
 
-  getLogger(): ILogger {
+  getLogger(): Logger {
     return this.#logger
   }
 
-  get logger(): ILogger {
+  get logger(): Logger {
     return this.getLogger()
   }
 

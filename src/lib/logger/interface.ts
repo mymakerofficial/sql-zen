@@ -73,18 +73,3 @@ export type LogEvent =
   | LogStepEvent
 
 export type LogEventData = LogEvent['data']
-
-export interface ILogger extends EventPublisher<LoggerEventMap> {
-  // generally equal to the data source key
-  getKey(): string
-  getEvents(): Array<LogEvent>
-  log(message: string): void
-  error(message: string): void
-  query<T extends object = object>(
-    sql: string,
-    block: () => Promise<QueryResult<T>>,
-  ): Promise<QueryResult<T>>
-  // does not store the result of the block
-  step<T>(message: string, block: () => Promise<T>): Promise<T>
-  clear(): void
-}

@@ -1,6 +1,6 @@
 import { EventPublisher } from '@/lib/events/publisher'
 import { LoggerEvent, type LoggerEventMap } from '@/lib/logger/events'
-import type { ILogger, LogEvent, LogEventData } from '@/lib/logger/interface'
+import type { LogEvent, LogEventData } from '@/lib/logger/interface'
 import type { ILoggerStore } from '@/lib/stores/loggerStore/interface'
 import {
   logEventDataUpdateToStoreEntryUpdate,
@@ -13,36 +13,47 @@ import type { QueryResult } from '@/lib/queries/interface'
 import { getId } from '@/lib/getId'
 import { LoggerStore } from '@/lib/stores/loggerStore/impl/loggerStore'
 
-export class Logger extends EventPublisher<LoggerEventMap> implements ILogger {
-  readonly #key: string
+export class Logger extends EventPublisher<LoggerEventMap> {
+  static #loggers: Map<string, Logger> = new Map()
+
+  readonly #id: string
   readonly #store: ILoggerStore
 
   constructor() {
     super()
-    this.#key = getId()
+    this.#id = getId()
     this.#store = new LoggerStore()
+    Logger.#loggers.set(this.getId(), this)
   }
 
-  getKey(): string {
-    return this.#key
+  static getLogger(id: string): Logger {
+    return Logger.#loggers.get(id) ?? new Logger()
+  }
+
+  getId(): string {
+    return this.#id
+  }
+
+  get id() {
+    return this.getId()
   }
 
   getEvents() {
     return this.#store
-      .getAllFromLogger(this.getKey())
+      .getAllFromLogger(this.getId())
       .map(loggerStoreEntryToLogEvent)
   }
 
   #create(partial: Omit<LogEvent, 'id' | 'when'>) {
     const event = createLogEvent(partial)
-    this.#store.create(logEventToLoggerStoreEntry(event, this.getKey()))
+    this.#store.create(logEventToLoggerStoreEntry(event, this.getId()))
     this.emit(LoggerEvent.Logged, event.id)
     return event.id
   }
 
   #update(id: string, data: Partial<LogEventData>) {
     this.#store.update(
-      this.getKey(),
+      this.getId(),
       id,
       logEventDataUpdateToStoreEntryUpdate(data),
     )
@@ -115,7 +126,7 @@ export class Logger extends EventPublisher<LoggerEventMap> implements ILogger {
   }
 
   clear() {
-    this.#store.clearLogger(this.getKey())
+    this.#store.clearLogger(this.getId())
     this.emit(LoggerEvent.Cleared)
   }
 }

@@ -86,10 +86,11 @@ export class Runner extends EventPublisher<RunnerEventMap> {
     this.emit(RunnerEvent.QueriesUpdated)
   }
 
-  #createQuery(statement: Statement): Query {
+  #createQuery(statement: Statement) {
     const query = new Query(this.#dataSource, statement)
+    this.#queries.push(query)
+    this.emit(RunnerEvent.QueryCreated, query.getInfo())
     query.on(EventType.Any, this.#handleQueryEvent.bind(this))
-    return query
   }
 
   batch(statements: Array<Statement>, transacting: boolean = false): void {
@@ -101,10 +102,7 @@ export class Runner extends EventPublisher<RunnerEventMap> {
     }
     this.clear()
 
-    const newQueries = statements.map((it) => this.#createQuery(it))
-
-    this.#queries.push(...newQueries)
-    this.emit(RunnerEvent.QueriesUpdated)
+    statements.forEach((it) => this.#createQuery(it))
     this.#runAllIdle(transacting && statements.length > 1).then()
   }
 
@@ -127,6 +125,7 @@ export class Runner extends EventPublisher<RunnerEventMap> {
     }
 
     this.#queries = []
+    this.emit(RunnerEvent.ClearedAll)
     this.emit(RunnerEvent.QueriesUpdated)
   }
 }

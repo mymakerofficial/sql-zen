@@ -4,14 +4,15 @@ import { useLoggerEvents } from '@/composables/useLoggerEvents'
 import { computed, nextTick, ref, watch } from 'vue'
 import { syncRefs, useScroll, whenever } from '@vueuse/core'
 import LoggerToolbar from '@/components/logger/LoggerToolbar.vue'
-import type { ILogger } from '@/lib/logger/interface'
+import { Logger } from '@/lib/logger/impl/logger'
 
 const props = defineProps<{
-  logger: ILogger
+  id?: string
 }>()
 
 const container = ref<HTMLElement | null>(null)
-const events = useLoggerEvents(props.logger)
+const logger = Logger.getLogger(props.id ?? '')
+const events = useLoggerEvents(logger)
 const { arrivedState } = useScroll(container)
 
 const stickToBottom = ref(true)
@@ -46,7 +47,7 @@ whenever(container, scrollToBottom)
 whenever(stickToBottom, scrollToBottom)
 
 function handleClear() {
-  props.logger.clear()
+  logger.clear()
 }
 
 function handleDown() {

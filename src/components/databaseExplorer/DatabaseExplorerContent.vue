@@ -2,7 +2,7 @@
 import DatabaseExplorerItem from '@/components/databaseExplorer/DatabaseExplorerItem.vue'
 import { useRegistry } from '@/composables/useRegistry'
 import { TabType } from '@/lib/tabs/enums'
-import { useTabManager } from '@/composables/useTabManager'
+import { useTabManager } from '@/composables/tabs/useTabManager'
 import { useDataSourceKeys } from '@/composables/dataSources/useDataSourceKeys'
 
 const registry = useRegistry()

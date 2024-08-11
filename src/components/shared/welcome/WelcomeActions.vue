@@ -7,7 +7,7 @@ import { useDialog } from '@/composables/useDialog'
 import CreateDataSourceDialog from '@/components/shared/dialogs/CreateDataSourceDialog.vue'
 import type { DatabaseEngine } from '@/lib/engines/enums'
 import { TabType } from '@/lib/tabs/enums'
-import { useTabManager } from '@/composables/useTabManager'
+import { useTabManager } from '@/composables/tabs/useTabManager'
 import { useDataSourceKeys } from '@/composables/dataSources/useDataSourceKeys'
 
 const { open: openCreate } = useDialog(CreateDataSourceDialog)

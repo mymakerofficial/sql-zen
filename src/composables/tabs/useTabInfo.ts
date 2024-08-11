@@ -2,7 +2,7 @@ import { type MaybeRefOrGetter, watchEffect, toValue } from 'vue'
 import { useState } from '@/composables/useState'
 import { TabFactory } from '@/lib/tabs/tabs/factory'
 import { EventType } from '@/lib/events/publisher'
-import { useTabManager } from '@/composables/useTabManager'
+import { useTabManager } from '@/composables/tabs/useTabManager'
 
 export function useTabInfo(tabId: MaybeRefOrGetter<string>) {
   const tabManager = useTabManager()
