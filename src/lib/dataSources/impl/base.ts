@@ -16,6 +16,7 @@ import { EventPublisher } from '@/lib/events/publisher'
 import type { DataSourceEventMap } from '@/lib/dataSources/events'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import type { SqlDialect } from '@/lib/dialect/impl/base'
+import { Runner } from '@/lib/runner/impl/runner'
 
 export abstract class DataSource
   extends EventPublisher<DataSourceEventMap>
@@ -29,8 +30,9 @@ export abstract class DataSource
 
   readonly #initDump: FileAccessor | null
 
-  readonly #dialect: SqlDialect
+  readonly #runner: Runner
   readonly #logger: Logger
+  readonly #dialect: SqlDialect
 
   constructor(data: DataSourceData) {
     super()
@@ -38,8 +40,9 @@ export abstract class DataSource
     this.#identifier = simplifyIdentifier(data.identifier)
     this.#initDump = data.dump || null
     this.#key = generateDataSourceKey(this.getInfo())
-    this.#dialect = SqlDialectFactory.create(this)
+    this.#runner = Runner.for(this)
     this.#logger = new Logger()
+    this.#dialect = SqlDialectFactory.create(this)
   }
 
   abstract getEngine(): DatabaseEngine
@@ -90,6 +93,14 @@ export abstract class DataSource
 
   get displayName(): string {
     return this.getDisplayName()
+  }
+
+  getRunner(): Runner {
+    return this.#runner
+  }
+
+  get runner(): Runner {
+    return this.getRunner()
   }
 
   getLogger(): ILogger {

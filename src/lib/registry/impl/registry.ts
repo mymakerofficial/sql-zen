@@ -7,17 +7,15 @@ import type { DataSource } from '@/lib/dataSources/impl/base'
 import type { DataSourceStatus } from '@/lib/dataSources/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 
-const dummyRunner = new Runner(DataSourceFactory.dummy)
-
 export class Registry extends EventPublisher<RegistryEventMap> {
-  #runners: Map<string, Runner> = new Map()
+  #dataSources: Map<string, DataSource> = new Map()
 
   use<T>(plugin: (registry: Registry) => T): T {
     return plugin(this)
   }
 
   getDataSourceKeys(): Array<string> {
-    return Array.from(this.#runners.keys())
+    return Array.from(this.#dataSources.keys())
   }
 
   getDataSources(): Array<DataSourceInfo> {
@@ -26,12 +24,12 @@ export class Registry extends EventPublisher<RegistryEventMap> {
     )
   }
 
-  getRunner(key: string): Runner {
-    return this.#runners.get(key) ?? dummyRunner
+  getDataSource(key: string): DataSource {
+    return this.#dataSources.get(key) ?? DataSourceFactory.dummy
   }
 
-  getDataSource(key: string): DataSource {
-    return this.getRunner(key).getDataSource()
+  getRunner(key: string): Runner {
+    return this.getDataSource(key).getRunner()
   }
 
   getInfo(key: string): DataSourceInfo {
@@ -44,7 +42,7 @@ export class Registry extends EventPublisher<RegistryEventMap> {
 
   register(info: DataSourceData): void {
     const dataSource = DataSourceFactory.create(info)
-    this.#runners.set(dataSource.key, Runner.for(dataSource))
+    this.#dataSources.set(dataSource.key, dataSource)
     this.emit(RegistryEvent.Registered, dataSource.key)
   }
 
@@ -74,7 +72,7 @@ export class Registry extends EventPublisher<RegistryEventMap> {
 
   async unregister(key: string) {
     await this.close(key)
-    this.#runners.delete(key)
+    this.#dataSources.delete(key)
     this.emit(RegistryEvent.Unregistered, key)
   }
 }
