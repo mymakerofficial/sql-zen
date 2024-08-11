@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { useTabInfo } from '@/composables/tabs/useTabInfo'
-import { FlowerIcon, SquareTerminalIcon, XIcon } from 'lucide-vue-next'
+import {
+  FlowerIcon,
+  SquareTerminalIcon,
+  TableIcon,
+  XIcon,
+} from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { TabType } from '@/lib/tabs/enums'
 import { useTabManager } from '@/composables/tabs/useTabManager'
@@ -27,6 +32,10 @@ function handleClose() {
     />
     <SquareTerminalIcon
       v-else-if="info.type === TabType.Logger"
+      class="size-4 min-w-max"
+    />
+    <TableIcon
+      v-else-if="info.type === TabType.Query"
       class="size-4 min-w-max"
     />
     <FlowerIcon v-else class="size-4 min-w-max" />

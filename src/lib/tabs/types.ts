@@ -21,7 +21,17 @@ export type LoggerTabData = Omit<BaseTabData, 'type'> & {
   logger: Logger
 }
 
-export type TabData = EmptyTabData | ConsoleTabData | LoggerTabData
+export type QueryTabData = Omit<BaseTabData, 'type'> & {
+  type: typeof TabType.Query
+  dataSourceKey: string
+  queryId: string
+}
+
+export type TabData =
+  | EmptyTabData
+  | ConsoleTabData
+  | LoggerTabData
+  | QueryTabData
 
 export type BaseTabInfo = BaseTabData & {
   id: string
@@ -45,4 +55,14 @@ export type LoggerTabInfo = Omit<BaseTabInfo, 'type'> & {
   loggerId: string
 }
 
-export type TabInfo = EmptyTabInfo | ConsoleTabInfo | LoggerTabInfo
+export type QueryTabInfo = Omit<BaseTabInfo, 'type'> & {
+  type: typeof TabType.Query
+  dataSourceKey: string
+  queryId: string
+}
+
+export type TabInfo =
+  | EmptyTabInfo
+  | ConsoleTabInfo
+  | LoggerTabInfo
+  | QueryTabInfo

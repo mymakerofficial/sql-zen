@@ -207,7 +207,7 @@ export class Query<T extends object = object>
       ) {
         this.#canBePaginated = true
       }
-      this.emit(QueryEvent.InitialResultCompleted)
+      this.emit(QueryEvent.InitialResultCompleted, this.getInfo())
     })
   }
 

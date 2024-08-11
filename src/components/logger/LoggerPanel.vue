@@ -56,21 +56,23 @@ function handleDown() {
 </script>
 
 <template>
-  <div class="h-full flex flex-row">
-    <div ref="container" class="flex-1 h-full flex flex-col overflow-y-auto">
-      <LogItem v-for="event in events" :key="event.id" :event="event" />
-      <div
-        v-if="events.length === 0"
-        class="h-24 flex justify-center items-center"
-      >
-        <i class="text-muted-foreground">*crickets*</i>
+  <div class="flex-1 overflow-y-auto">
+    <div class="h-full flex flex-row">
+      <div ref="container" class="flex-1 h-full flex flex-col overflow-y-auto">
+        <LogItem v-for="event in events" :key="event.id" :event="event" />
+        <div
+          v-if="events.length === 0"
+          class="h-24 flex justify-center items-center"
+        >
+          <i class="text-muted-foreground">*crickets*</i>
+        </div>
       </div>
+      <LoggerToolbar
+        :can-clear="events.length > 0"
+        v-model:stick-to-bottom="stickToBottom"
+        @clear="handleClear"
+        @down="handleDown"
+      />
     </div>
-    <LoggerToolbar
-      :can-clear="events.length > 0"
-      v-model:stick-to-bottom="stickToBottom"
-      @clear="handleClear"
-      @down="handleDown"
-    />
   </div>
 </template>

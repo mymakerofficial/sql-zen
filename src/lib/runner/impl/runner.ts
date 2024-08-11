@@ -5,6 +5,7 @@ import type { QueryInfo } from '@/lib/queries/interface'
 import { isIdleQuery, isSettledQuery } from '@/lib/queries/helpers'
 import { Query } from '@/lib/queries/impl/query'
 import type { DataSource } from '@/lib/dataSources/impl/base'
+import { QueryEvent } from '@/lib/queries/events'
 
 export class Runner extends EventPublisher<RunnerEventMap> {
   #queries: Array<Query> = []
@@ -82,15 +83,16 @@ export class Runner extends EventPublisher<RunnerEventMap> {
     )
   }
 
-  #handleQueryEvent() {
-    this.emit(RunnerEvent.QueriesUpdated)
-  }
-
   #createQuery(statement: Statement) {
     const query = new Query(this.#dataSource, statement)
     this.#queries.push(query)
     this.emit(RunnerEvent.QueryCreated, query.getInfo())
-    query.on(EventType.Any, this.#handleQueryEvent.bind(this))
+    query.on(EventType.Any, () => {
+      this.emit(RunnerEvent.QueriesUpdated)
+    })
+    query.on(QueryEvent.InitialResultCompleted, (info) => {
+      this.emit(RunnerEvent.QueryHasCompletedInitialResult, info)
+    })
   }
 
   batch(statements: Array<Statement>, transacting: boolean = false): void {
@@ -100,7 +102,8 @@ export class Runner extends EventPublisher<RunnerEventMap> {
         'Cannot run new statements while there are active queries',
       )
     }
-    this.clear()
+
+    // this.clear()
 
     statements.forEach((it) => this.#createQuery(it))
     this.#runAllIdle(transacting && statements.length > 1).then()
@@ -118,14 +121,21 @@ export class Runner extends EventPublisher<RunnerEventMap> {
     return query
   }
 
+  removeQuery(queryId: string): void {
+    const query = this.getQuery(queryId)
+    const index = this.#queries.indexOf(query)
+    this.#queries.splice(index, 1)
+    this.emit(RunnerEvent.QueriesUpdated)
+    this.emit(RunnerEvent.QueryRemoved, query.getInfo())
+  }
+
   clear() {
     const allSettled = this.#queries.every(isSettledQuery)
     if (!allSettled) {
       throw new Error('Cannot clear while there are active queries')
     }
 
-    this.#queries = []
+    this.getQueries().forEach(({ id }) => this.removeQuery(id))
     this.emit(RunnerEvent.ClearedAll)
-    this.emit(RunnerEvent.QueriesUpdated)
   }
 }

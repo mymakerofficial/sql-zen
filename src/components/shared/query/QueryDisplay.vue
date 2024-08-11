@@ -8,17 +8,23 @@ import { isPaginatedQueryResult } from '@/lib/queries/helpers'
 import { useQueryHasResult } from '@/composables/useQueryTotalRows'
 import { useMutation } from '@tanstack/vue-query'
 import LimitSelect from '@/components/shared/LimitSelect.vue'
-import type { Query } from '@/lib/queries/impl/query'
+import { useRegistry } from '@/composables/useRegistry'
 
 const props = defineProps<{
-  query: Query
+  dataSourceKey: string
+  queryId: string
 }>()
+
+const registry = useRegistry()
+const query = registry
+  .getDataSource(props.dataSourceKey)
+  .runner.getQuery(props.queryId)
 
 const offset = ref(0)
 const limit = ref(100)
 
-const totalRows = useQueryHasResult(props.query)
-const { data: result } = useQueryResult(props.query, {
+const totalRows = useQueryHasResult(query)
+const { data: result } = useQueryResult(query, {
   offset,
   limit,
 })
@@ -32,7 +38,7 @@ function nextPage() {
 }
 
 const { mutateAsync: computeTotalRowCount } = useMutation({
-  mutationFn: () => props.query.computeTotalRowCount(),
+  mutationFn: () => query.computeTotalRowCount(),
 })
 </script>
 

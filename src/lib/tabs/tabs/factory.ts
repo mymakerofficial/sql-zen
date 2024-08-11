@@ -4,6 +4,7 @@ import { TabType } from '@/lib/tabs/enums'
 import type { TabData } from '@/lib/tabs/types'
 import type { TabManager } from '@/lib/tabs/manager/manager'
 import { LoggerTab } from '@/lib/tabs/tabs/logger'
+import { QueryTab } from '@/lib/tabs/tabs/query'
 
 const empty = new EmptyTab()
 
@@ -13,6 +14,8 @@ export class TabFactory {
       return new ConsoleTab(tab, manager)
     } else if (tab.type === TabType.Logger) {
       return new LoggerTab(tab, manager)
+    } else if (tab.type === TabType.Query) {
+      return new QueryTab(tab, manager)
     } else {
       return this.empty
     }
