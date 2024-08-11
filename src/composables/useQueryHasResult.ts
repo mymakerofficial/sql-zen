@@ -1,9 +1,9 @@
-import type { IQuery } from '@/lib/queries/interface'
 import { useQuery } from '@tanstack/vue-query'
 import { onMounted, onUnmounted } from 'vue'
 import { QueryEvent } from '@/lib/queries/events'
+import type { Query } from '@/lib/queries/impl/query'
 
-export function useQueryHasResult(query: IQuery) {
+export function useQueryHasResult(query: Query) {
   const queryKey = ['query', query.getId(), 'hasResult']
 
   const { data, refetch } = useQuery({

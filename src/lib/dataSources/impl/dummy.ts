@@ -1,15 +1,25 @@
 import type { QueryResult } from '@/lib/queries/interface'
-import { FileAccessor } from '@/lib/files/fileAccessor'
 import { getId } from '@/lib/getId'
 import { DataSource } from '@/lib/dataSources/impl/base'
+import { DatabaseEngine } from '@/lib/engines/enums'
+import { DataSourceStatus } from '@/lib/dataSources/enums'
+import { DataSourceEvent } from '@/lib/dataSources/events'
 
 export class DataSourceDummy extends DataSource {
+  getEngine(): DatabaseEngine {
+    return DatabaseEngine.None
+  }
+
   isInitialized(): boolean {
     return true
   }
 
-  init() {
-    return this.logger.step('Initializing dummy data source', async () => {})
+  async init() {
+    this.setStatus(DataSourceStatus.Pending)
+    this.emit(DataSourceEvent.Initializing)
+    await this.logger.step('Initializing dummy data source', async () => {})
+    this.setStatus(DataSourceStatus.Running)
+    this.emit(DataSourceEvent.Initialized)
   }
 
   query<T extends object = object>(sql: string) {
@@ -21,13 +31,5 @@ export class DataSourceDummy extends DataSource {
         id: getId('result'),
       } as QueryResult<T>
     })
-  }
-
-  async dump() {
-    return FileAccessor.Dummy
-  }
-
-  async close() {
-    return
   }
 }

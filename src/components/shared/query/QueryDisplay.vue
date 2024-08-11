@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { IQuery } from '@/lib/queries/interface'
 import ResultTable from '@/components/shared/table/ResultTable.vue'
 import { useQueryResult } from '@/composables/useQueryResult'
 import { ref } from 'vue'
@@ -9,9 +8,10 @@ import { isPaginatedQueryResult } from '@/lib/queries/helpers'
 import { useQueryHasResult } from '@/composables/useQueryTotalRows'
 import { useMutation } from '@tanstack/vue-query'
 import LimitSelect from '@/components/shared/LimitSelect.vue'
+import type { Query } from '@/lib/queries/impl/query'
 
 const props = defineProps<{
-  query: IQuery
+  query: Query
 }>()
 
 const offset = ref(0)

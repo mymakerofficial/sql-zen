@@ -4,12 +4,12 @@ import { computed, ref, watch } from 'vue'
 import { SquareTerminalIcon, TableIcon } from 'lucide-vue-next'
 import LoggerPanel from '@/components/logger/LoggerPanel.vue'
 import { useRunnerQueries } from '@/composables/useRunnerQueries'
-import type { IRunner } from '@/lib/runner/interface'
 import QueryDisplay from '@/components/shared/query/QueryDisplay.vue'
+import type { Runner } from '@/lib/runner/impl/runner'
 
 const props = withDefaults(
   defineProps<{
-    runner: IRunner
+    runner: Runner
     showResults?: boolean
   }>(),
   {

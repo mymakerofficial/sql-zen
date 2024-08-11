@@ -1,15 +1,14 @@
 import type {
-  ISqlDialect,
-  DSTreeColumnItem,
-  DSTreeTableItem,
   DSTreeCollectionItem,
+  DSTreeColumnItem,
   DSTreeFunctionItem,
   DSTreeSchemaItem,
+  DSTreeTableItem,
 } from '@/lib/dialect/interface'
 import { DSTreeItemType } from '@/lib/dialect/enums'
 import { SqlDialect } from '@/lib/dialect/impl/base'
 
-export class SQLiteDialect extends SqlDialect implements ISqlDialect {
+export class SQLiteDialect extends SqlDialect {
   async getDataSourceTree() {
     const { rows: schemas } = await this.dataSource.query<Schema>(
       `SELECT DISTINCT schema AS name FROM pragma_table_list`,

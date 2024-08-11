@@ -10,7 +10,7 @@ import {
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceMode } from '@/lib/dataSources/enums'
 
-const Registry = useRegistry()
+const registry = useRegistry()
 
 export class ConsoleTab extends Tab implements ConsoleTabInfo {
   readonly #dataSourceKey: string
@@ -62,7 +62,7 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
 
   getDataSourceDescriptor() {
     try {
-      return Registry.getDescriptor(this.dataSourceKey)
+      return registry.getInfo(this.dataSourceKey)
     } catch (e) {
       console.error(e)
       return {

@@ -1,9 +1,6 @@
 import { getId } from '@/lib/getId'
 import type { Statement } from '@/lib/statements/interface'
-import type { IDataSource } from '@/lib/dataSources/interface'
-import type { ISqlDialect } from '@/lib/dialect/interface'
 import type {
-  IQuery,
   PaginatedQueryResult,
   QueryInfo,
   QueryResult,
@@ -13,16 +10,16 @@ import { EventPublisher } from '@/lib/events/publisher'
 import { QueryEvent, type QueryEventMap } from '@/lib/queries/events'
 import { isPaginatedQueryResult } from '@/lib/queries/helpers'
 import { Mutex } from 'async-mutex'
+import type { DataSource } from '@/lib/dataSources/impl/base'
 
 export class Query<T extends object = object>
   extends EventPublisher<QueryEventMap>
-  implements IQuery<T>
+  implements QueryInfo
 {
   readonly #mutex = new Mutex()
   readonly #id: string = getId('query')
-  readonly #dataSource: IDataSource
+  readonly #dataSource: DataSource
   readonly #statement: Statement
-  readonly #dialect: ISqlDialect
 
   #state: QueryState = QueryState.Idle
 
@@ -35,11 +32,10 @@ export class Query<T extends object = object>
   #error: Error | null = null
   #result: QueryResult<T> | PaginatedQueryResult<T> | null = null
 
-  constructor(dataSource: IDataSource, statement: Statement) {
+  constructor(dataSource: DataSource, statement: Statement) {
     super()
     this.#dataSource = dataSource
     this.#statement = statement
-    this.#dialect = this.#dataSource.getDialect()
   }
 
   getId() {
@@ -54,6 +50,11 @@ export class Query<T extends object = object>
     return this.#state
   }
 
+  #setState(state: QueryState) {
+    this.#state = state
+    this.emit(QueryEvent.StateChanged, state)
+  }
+
   get state() {
     return this.getState()
   }
@@ -62,8 +63,8 @@ export class Query<T extends object = object>
     return this.#statement
   }
 
-  get statementKey() {
-    return this.getStatement().key
+  get statement() {
+    return this.getStatement()
   }
 
   getHasResult() {
@@ -82,9 +83,29 @@ export class Query<T extends object = object>
     return this.getHasResultRows()
   }
 
-  #setState(state: QueryState) {
-    this.#state = state
-    this.emit(QueryEvent.StateChanged, state)
+  getInfo(): QueryInfo {
+    return {
+      id: this.id,
+      state: this.state,
+      statement: this.statement,
+      hasResult: this.hasResult,
+      hasResultRows: this.hasResultRows,
+    }
+  }
+
+  getError() {
+    return this.#error
+  }
+
+  #setError(err: Error) {
+    this.#error = err
+    this.#result = null
+    this.#setState(QueryState.Error)
+    return err
+  }
+
+  getResult(): QueryResult<T> | PaginatedQueryResult<T> | null {
+    return this.#result
   }
 
   #setResult(
@@ -117,16 +138,9 @@ export class Query<T extends object = object>
     return this.#result
   }
 
-  #setError(err: Error) {
-    this.#error = err
-    this.#result = null
-    this.#setState(QueryState.Error)
-    return err
-  }
-
   #getSql(paginated: boolean = true, offset: number = 0, limit: number = 100) {
     if (paginated) {
-      return this.#dialect.makePaginatedStatement(
+      return this.#dataSource.dialect.makePaginatedStatement(
         this.#statement.sql,
         offset,
         limit,
@@ -136,21 +150,13 @@ export class Query<T extends object = object>
     }
   }
 
-  getResult(): QueryResult<T> | PaginatedQueryResult<T> | null {
-    return this.#result
-  }
-
-  getError() {
-    return this.#error
-  }
-
   getTotalRowCount() {
     return { min: this.#minTotalRowCount, isKnown: this.#totalRowCountIsKnown }
   }
 
   async computeTotalRowCount() {
     await this.#mutex.runExclusive(async () => {
-      const countStmt = this.#dialect.makeSelectCountFromStatement(
+      const countStmt = this.#dataSource.dialect.makeSelectCountFromStatement(
         this.#statement.sql,
       )
       this.#minTotalRowCount = await this.#dataSource
@@ -186,7 +192,9 @@ export class Query<T extends object = object>
       throw new Error('Query has already been executed')
     }
     await this.#mutex.runExclusive(async () => {
-      this.#mightYieldRows = this.#dialect.mightYieldRows(this.#statement.sql)
+      this.#mightYieldRows = this.#dataSource.dialect.mightYieldRows(
+        this.#statement.sql,
+      )
       await this.#run({
         paginated: this.#mightYieldRows,
         offset: 0,
@@ -229,15 +237,5 @@ export class Query<T extends object = object>
       throw new Error('Can only cancel idle queries')
     }
     this.#setState(QueryState.Cancelled)
-  }
-
-  toInfo(): QueryInfo {
-    return {
-      id: this.getId(),
-      statementKey: this.getStatement().key,
-      state: this.getState(),
-      hasResult: this.getHasResult(),
-      hasResultRows: this.getHasResultRows(),
-    }
   }
 }

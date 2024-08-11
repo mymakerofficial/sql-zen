@@ -2,12 +2,10 @@
 import { Button } from '@/components/ui/button'
 import { getEngineInfo } from '@/lib/engines/helpers'
 import { computed } from 'vue'
-import { useRegistry } from '@/composables/useRegistry'
 import { Trash2Icon } from 'lucide-vue-next'
 import DSTree from '@/components/databaseExplorer/DSTree.vue'
-import { useDataSourceStatus } from '@/composables/useDataSourceStatus'
-import { DataSourceStatus } from '@/lib/registry/enums'
-import { getDataSourceDisplayName } from '@/lib/dataSources/helpers'
+import { useDataSourceInfo } from '@/composables/dataSources/useDataSourceInfo'
+import { DataSourceStatus } from '@/lib/dataSources/enums'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -18,10 +16,8 @@ const emit = defineEmits<{
   delete: []
 }>()
 
-const registry = useRegistry()
-const descriptor = computed(() => registry.getDescriptor(props.dataSourceKey))
-const engineInfo = computed(() => getEngineInfo(descriptor.value.engine))
-const status = useDataSourceStatus(props.dataSourceKey)
+const info = useDataSourceInfo(props.dataSourceKey)
+const engineInfo = computed(() => getEngineInfo(info.value.engine))
 
 function handleSelect() {
   emit('select')
@@ -48,13 +44,11 @@ function handleDelete() {
             class="size-4 min-w-max text-muted-foreground"
           />
           <span
-            :data-state="status"
-            class="block absolute -top-1 -right-1 size-1.5 rounded-full data-[state=running]:bg-green-500 data-[state=pending]:bg-orange-500 data-[state=stopped]:bg-red-500"
+            :data-status="info.status"
+            class="block absolute -top-1 -right-1 size-1.5 rounded-full data-[status=running]:bg-green-500 data-[status=pending]:bg-orange-500 data-[status=stopped]:bg-red-500"
           />
         </span>
-        <span class="font-medium">{{
-          getDataSourceDisplayName(descriptor)
-        }}</span>
+        <span class="font-medium">{{ info.displayName }}</span>
       </Button>
       <div class="flex items-center">
         <Button @click="handleDelete" size="xs" variant="ghost">
@@ -63,7 +57,7 @@ function handleDelete() {
       </div>
     </div>
     <DSTree
-      v-if="status === DataSourceStatus.Running"
+      v-if="info.status === DataSourceStatus.Running"
       :data-source-key="dataSourceKey"
     />
   </article>

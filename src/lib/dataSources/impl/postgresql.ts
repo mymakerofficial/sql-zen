@@ -1,17 +1,23 @@
 import type { PGlite } from '@electric-sql/pglite'
 import { DatabaseNotLoadedError } from '@/lib/errors'
-import { DataSourceMode } from '@/lib/dataSources/enums'
+import { DataSourceMode, DataSourceStatus } from '@/lib/dataSources/enums'
 import type { QueryResult } from '@/lib/queries/interface'
 import { getId } from '@/lib/getId'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { DataSource } from '@/lib/dataSources/impl/base'
 import { vector } from '@electric-sql/pglite/vector'
 import type { FileInfo } from '@/lib/files/interface'
+import { DatabaseEngine } from '@/lib/engines/enums'
+import { DataSourceEvent } from '@/lib/dataSources/events'
 
 const BASE_PATH = '/var'
 
 export class PostgreSQL extends DataSource {
   #database: PGlite | null = null
+
+  getEngine(): DatabaseEngine {
+    return DatabaseEngine.PostgreSQL
+  }
 
   #getDataDir() {
     if (this.getMode() === DataSourceMode.Memory) {
@@ -41,9 +47,12 @@ export class PostgreSQL extends DataSource {
       return
     }
 
+    this.setStatus(DataSourceStatus.Pending)
+    this.emit(DataSourceEvent.Initializing)
+
     this.#database = await this.logger.step('Loading PostgreSQL', async () => {
       const module = await import('@electric-sql/pglite')
-      const loadDataDir = await this.initDump?.readBlob()
+      const loadDataDir = await this.getInitDump()?.readBlob()
       const database = new module.PGlite(this.#getDataDir(), {
         loadDataDir,
         extensions: {
@@ -60,6 +69,9 @@ export class PostgreSQL extends DataSource {
 
     const version = await this.#getVersion()
     this.logger.log(`Running PostgreSQL version: ${version}`)
+
+    this.setStatus(DataSourceStatus.Running)
+    this.emit(DataSourceEvent.Initialized)
   }
 
   query<T extends object = object>(sql: string): Promise<QueryResult<T>> {
@@ -141,9 +153,12 @@ export class PostgreSQL extends DataSource {
   }
 
   async close() {
+    this.emit(DataSourceEvent.Closing)
     if (this.#database) {
       await this.#database.close()
     }
+    this.setStatus(DataSourceStatus.Stopped)
+    this.emit(DataSourceEvent.Closed)
   }
 }
 

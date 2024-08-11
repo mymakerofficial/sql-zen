@@ -1,27 +1,38 @@
 import { EventPublisher, EventType } from '@/lib/events/publisher'
 import { RunnerEvent, type RunnerEventMap } from '@/lib/runner/events'
-import type { IRunner } from '@/lib/runner/interface'
-import type { IDataSource } from '@/lib/dataSources/interface'
 import type { Statement } from '@/lib/statements/interface'
-import type { IQuery, QueryInfo } from '@/lib/queries/interface'
+import type { QueryInfo } from '@/lib/queries/interface'
 import { isIdleQuery, isSettledQuery } from '@/lib/queries/helpers'
 import { Query } from '@/lib/queries/impl/query'
+import type { DataSource } from '@/lib/dataSources/impl/base'
 
-export class Runner extends EventPublisher<RunnerEventMap> implements IRunner {
-  #queries: Array<IQuery> = []
-  #dataSource: IDataSource
+export class Runner extends EventPublisher<RunnerEventMap> {
+  #queries: Array<Query> = []
+  #dataSource: DataSource
 
-  constructor(dataSource: IDataSource) {
+  constructor(dataSource: DataSource) {
     super()
     this.#dataSource = dataSource
   }
 
-  getDataSource(): IDataSource {
+  static for(dataSource: DataSource): Runner {
+    return new Runner(dataSource)
+  }
+
+  getDataSource(): DataSource {
     return this.#dataSource
+  }
+
+  get dataSource(): DataSource {
+    return this.getDataSource()
   }
 
   getKey(): string {
     return this.#dataSource.getKey()
+  }
+
+  get key(): string {
+    return this.getKey()
   }
 
   async #runNextIdle() {
@@ -75,7 +86,7 @@ export class Runner extends EventPublisher<RunnerEventMap> implements IRunner {
     this.emit(RunnerEvent.QueriesUpdated)
   }
 
-  #createQuery(statement: Statement): IQuery {
+  #createQuery(statement: Statement): Query {
     const query = new Query(this.#dataSource, statement)
     query.on(EventType.Any, this.#handleQueryEvent.bind(this))
     return query
@@ -98,10 +109,10 @@ export class Runner extends EventPublisher<RunnerEventMap> implements IRunner {
   }
 
   getQueries(): Array<QueryInfo> {
-    return this.#queries.map((it) => it.toInfo())
+    return this.#queries.map((it) => it.getInfo())
   }
 
-  getQuery(queryId: string): IQuery {
+  getQuery(queryId: string): Query {
     const query = this.#queries.find((q) => q.getId() === queryId)
     if (!query) {
       throw new Error(`Query with id ${queryId} not found`)

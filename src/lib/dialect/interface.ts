@@ -60,17 +60,3 @@ export type DSTreeItem =
   | DSTreeViewItem
   | DSTreeFunctionItem
   | DSTreeColumnItem
-
-export interface ISqlDialect {
-  getDataSourceTree(): Promise<DSTreeItem[]>
-  beginTransaction(): Promise<void>
-  commitTransaction(): Promise<void>
-  rollbackTransaction(): Promise<void>
-  mightYieldRows(sql: string): boolean
-  makeSelectCountFromStatement(original: string): string
-  makePaginatedStatement(
-    original: string,
-    offset: number,
-    limit: number,
-  ): string
-}

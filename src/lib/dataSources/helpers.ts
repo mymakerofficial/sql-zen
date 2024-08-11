@@ -1,43 +1,32 @@
 import { djb2 } from '@/lib/hash'
-import type { DataSourceDescriptor } from '@/lib/dataSources/interface'
+import type { DataSourceBase } from '@/lib/dataSources/types'
 import { getEngineInfo } from '@/lib/engines/helpers'
 
-export function simplifyIdentifier(identifier: string | null) {
+export function simplifyIdentifier(identifier: string) {
   if (!identifier) {
-    return null
-  }
-
-  if (identifier === 'null') {
-    return null
-  }
-
-  if (identifier === 'database') {
-    return null
-  }
-
-  if (identifier === 'identifier') {
-    return null
-  }
-
-  if (identifier === 'default') {
-    return null
+    return 'default'
   }
 
   return identifier
 }
 
-export function generateDataSourceKey(desc: DataSourceDescriptor): string {
-  const hash = djb2(`${desc.engine}-${desc.mode}-${desc.identifier}`)
+export function generateDataSourceKey(info: DataSourceBase): string {
+  const hash = djb2(`${info.engine}-${info.mode}-${info.identifier}`)
   return `ds_${hash}`
 }
 
-export function getDataSourceEngineInfo(desc: DataSourceDescriptor) {
-  return getEngineInfo(desc.engine)
+// @deprecated
+export function getDataSourceEngineInfo(info: DataSourceBase) {
+  return getEngineInfo(info.engine)
 }
 
-export function getDataSourceDisplayName(desc: DataSourceDescriptor): string {
-  const info = getDataSourceEngineInfo(desc)
-  const identifier = simplifyIdentifier(desc.identifier)
+export function getDataSourceDisplayName(info: DataSourceBase): string {
+  const engineInfo = getDataSourceEngineInfo(info)
+  const identifier = simplifyIdentifier(info.identifier)
 
-  return identifier ?? info.name
+  if (identifier === 'default') {
+    return engineInfo.name
+  }
+
+  return identifier
 }

@@ -24,36 +24,27 @@ import { computed } from 'vue'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { downloadFile } from '@/lib/downloadFile'
 import { useRegistry } from '@/composables/useRegistry'
-import { useDataSourceDescriptor } from '@/composables/useDataSourceDescriptor'
-import { useActiveTabInfo } from '@/composables/tabs/useActiveTabInfo'
-import { TabType } from '@/lib/tabs/enums'
+import { useDataSourceInfo } from '@/composables/dataSources/useDataSourceInfo'
+import { useActiveDataSourceKey } from '@/composables/dataSources/useActiveDataSourceKey'
 
 const registry = useRegistry()
-const activeTab = useActiveTabInfo()
-
-const dataSource = computed(() => {
-  if (activeTab.value.type === TabType.Console) {
-    return activeTab.value.dataSourceKey
-  }
-  return null
-})
-
-const descriptor = useDataSourceDescriptor(() => dataSource.value)
+const dataSource = useActiveDataSourceKey()
+const info = useDataSourceInfo(dataSource)
 
 const { open: openFileExplorer } = useDialog(FileExplorer)
 const { open: openEmbeddings } = useDialog(EmbeddingsDialog)
 const { open: openEmbeddingsSearch } = useDialog(EmbeddingsSearchDialog)
 
 const supportsFileExplorer = computed(
-  () => descriptor.value?.engine !== DatabaseEngine.SQLite,
+  () => info.value?.engine !== DatabaseEngine.SQLite,
 )
 
 const supportsDatabaseDump = computed(
-  () => descriptor.value?.engine !== DatabaseEngine.DuckDB,
+  () => info.value?.engine !== DatabaseEngine.DuckDB,
 )
 
 const supportsEmbeddings = computed(
-  () => descriptor.value?.engine === DatabaseEngine.PostgreSQL,
+  () => info.value?.engine === DatabaseEngine.PostgreSQL,
 )
 
 function handleOpenFileExplorer() {

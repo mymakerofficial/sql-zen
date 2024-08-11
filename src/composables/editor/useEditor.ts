@@ -9,15 +9,15 @@ import {
 import { toValue, useMediaQuery } from '@vueuse/core'
 import themePlugin from '@/composables/editor/theme'
 import { useEditorContent } from '@/composables/editor/useEditorContent'
-import type { IRunner } from '@/lib/runner/interface'
 import { findStatements } from '@/lib/statements/findStatements'
 import type { Statement } from '@/lib/statements/interface'
+import type { Runner } from '@/lib/runner/impl/runner'
 
 type UseEditorPlugin<T> = (editor: UseEditor) => T
 
 type UseEditorProps = {
   model: monaco.editor.ITextModel
-  runner?: IRunner | null
+  runner?: Runner | null
   getStatements?: ((editor: UseEditor) => ComputedRef<Array<Statement>>) | null
   readonly?: MaybeRefOrGetter<boolean>
   glyphMargin?: MaybeRefOrGetter<boolean>
@@ -29,7 +29,7 @@ const smallScreen = useMediaQuery('(min-width: 640px)')
 export class UseEditor {
   private readonly container: HTMLElement
   public readonly editor: monaco.editor.IStandaloneCodeEditor
-  public readonly runner: IRunner | null = null
+  public readonly runner: Runner | null = null
   public readonly content: ComputedRef<string>
   public readonly statements: ComputedRef<Array<Statement>>
 

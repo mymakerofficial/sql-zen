@@ -1,8 +1,8 @@
-import { useDataSourceStatus } from '@/composables/useDataSourceStatus'
 import { computed, type MaybeRefOrGetter } from 'vue'
-import { DataSourceStatus } from '@/lib/registry/enums'
+import { useDataSourceInfo } from '@/composables/dataSources/useDataSourceInfo'
+import { DataSourceStatus } from '@/lib/dataSources/enums'
 
 export function useIsRunning(dataSourceKey: MaybeRefOrGetter<string>) {
-  const status = useDataSourceStatus(dataSourceKey)
-  return computed(() => status.value === DataSourceStatus.Running)
+  const info = useDataSourceInfo(dataSourceKey)
+  return computed(() => info.value.status === DataSourceStatus.Running)
 }

@@ -8,15 +8,15 @@ import {
 import { Toggle } from '@/components/ui/toggle'
 import type { UseEditor } from '@/composables/editor/useEditor'
 import { Separator } from '@/components/ui/separator'
-import type { IRunner } from '@/lib/runner/interface'
 import { useQueryClient } from '@tanstack/vue-query'
 import RunButton from '@/components/console/RunButton.vue'
+import type { Runner } from '@/lib/runner/impl/runner'
 
 const enableInlineResults = defineModel<boolean>('enableInlineResults')
 const runTransacting = defineModel<boolean>('runTransacting')
 
 const props = defineProps<{
-  runner: IRunner
+  runner: Runner
   editor: UseEditor
 }>()
 

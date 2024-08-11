@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { useDataSourceStatus } from '@/composables/useDataSourceStatus'
-import { DataSourceStatus } from '@/lib/registry/enums'
 import { PlayIcon } from 'lucide-vue-next'
 import Console from '@/components/console/Console.vue'
 import { useRegistry } from '@/composables/useRegistry'
 import { watchEffect } from 'vue'
-import { useDataSourceDisplayName } from '@/composables/useDataSourceDisplayName'
 import { Button } from '@/components/ui/button'
+import { useDataSourceInfo } from '@/composables/dataSources/useDataSourceInfo'
+import { DataSourceStatus } from '@/lib/dataSources/enums'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -14,8 +13,7 @@ const props = defineProps<{
 }>()
 
 const registry = useRegistry()
-const status = useDataSourceStatus(props.dataSourceKey)
-const displayName = useDataSourceDisplayName(props.dataSourceKey)
+const dataSourceInfo = useDataSourceInfo(props.dataSourceKey)
 
 function handleStart() {
   registry.start(props.dataSourceKey)
@@ -30,10 +28,12 @@ watchEffect(() => {
 
 <template>
   <div
-    v-if="status === DataSourceStatus.Stopped"
+    v-if="dataSourceInfo.status === DataSourceStatus.Stopped"
     class="flex flex-col items-center justify-center gap-4 flex-1"
   >
-    <p class="text-muted-foreground">{{ displayName }} is stopped</p>
+    <p class="text-muted-foreground">
+      {{ dataSourceInfo.displayName }} is stopped
+    </p>
     <Button @click="handleStart" variant="ghost" class="gap-3">
       <PlayIcon class="size-4 min-w-max" />
       <span>Start</span>

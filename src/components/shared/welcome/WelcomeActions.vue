@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useDataSources } from '@/composables/useDataSources'
 import WelcomeDataSourceItem from '@/components/shared/welcome/WelcomeDataSourceItem.vue'
 import DatabaseEngineSelect from '@/components/shared/databaseEngineSelect/DatabaseEngineSelect.vue'
 import { PlusIcon } from 'lucide-vue-next'
@@ -9,9 +8,10 @@ import CreateDataSourceDialog from '@/components/shared/dialogs/CreateDataSource
 import type { DatabaseEngine } from '@/lib/engines/enums'
 import { TabType } from '@/lib/tabs/enums'
 import { useTabManager } from '@/composables/useTabManager'
+import { useDataSourceKeys } from '@/composables/dataSources/useDataSourceKeys'
 
 const { open: openCreate } = useDialog(CreateDataSourceDialog)
-const dataSources = useDataSources()
+const dataSources = useDataSourceKeys()
 const tabManager = useTabManager()
 
 function handleCreate(engine: DatabaseEngine) {

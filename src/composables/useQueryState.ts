@@ -1,10 +1,10 @@
 import { onMounted, onUnmounted } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
-import { DataSourceStatus } from '@/lib/registry/enums'
-import type { IQuery } from '@/lib/queries/interface'
 import { QueryEvent } from '@/lib/queries/events'
+import { DataSourceStatus } from '@/lib/dataSources/enums'
+import type { Query } from '@/lib/queries/impl/query'
 
-export function useQueryState(query: IQuery) {
+export function useQueryState(query: Query) {
   const queryKey = ['query', query.getId(), 'state']
 
   const { data, refetch } = useQuery({

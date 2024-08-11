@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { getDataSourceDisplayName } from '@/lib/dataSources/helpers'
-import { useDataSourceDescriptor } from '@/composables/useDataSourceDescriptor'
 import { computed } from 'vue'
 import { getEngineInfo } from '@/lib/engines/helpers'
 import { Button } from '@/components/ui/button'
+import { useDataSourceInfo } from '@/composables/dataSources/useDataSourceInfo'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -13,8 +12,8 @@ const emit = defineEmits<{
   select: []
 }>()
 
-const descriptor = useDataSourceDescriptor(props.dataSourceKey)
-const engineInfo = computed(() => getEngineInfo(descriptor.value!.engine))
+const dataSourceInfo = useDataSourceInfo(props.dataSourceKey)
+const engineInfo = computed(() => getEngineInfo(dataSourceInfo.value.engine))
 
 function handleSelect() {
   emit('select')
@@ -33,6 +32,6 @@ function handleSelect() {
       :alt="`${engineInfo.name} icon`"
       class="size-4 min-w-max text-muted-foreground"
     />
-    <span class="font-medium">{{ getDataSourceDisplayName(descriptor!) }}</span>
+    <span class="font-medium">{{ dataSourceInfo.displayName }}</span>
   </Button>
 </template>

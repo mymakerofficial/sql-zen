@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import DatabaseExplorerItem from '@/components/databaseExplorer/DatabaseExplorerItem.vue'
-import { useDataSources } from '@/composables/useDataSources'
 import { useRegistry } from '@/composables/useRegistry'
 import { TabType } from '@/lib/tabs/enums'
 import { useTabManager } from '@/composables/useTabManager'
+import { useDataSourceKeys } from '@/composables/dataSources/useDataSourceKeys'
 
 const registry = useRegistry()
 const tabManager = useTabManager()
-const dataSources = useDataSources()
+const dataSources = useDataSourceKeys()
 
 function handleDelete(key: string) {
   registry.unregister(key)

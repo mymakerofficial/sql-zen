@@ -1,13 +1,13 @@
-import type { IRegistry } from '@/lib/registry/interface'
-import type { DataSourceDescriptor } from '@/lib/dataSources/interface'
 import { DataSourceMode } from '@/lib/dataSources/enums'
 import { RegistryEvent } from '@/lib/registry/events'
+import type { DataSourceInfo } from '@/lib/dataSources/types'
+import type { Registry } from '@/lib/registry/impl/registry'
 
-type Data = Pick<DataSourceDescriptor, 'engine' | 'identifier'>
+type Data = Pick<DataSourceInfo, 'engine' | 'identifier'>
 
 const storageKey = 'sql-zen-in-memory-sources'
 
-export function storeInMemorySources(registry: IRegistry) {
+export function storeInMemorySources(registry: Registry) {
   const stored = localStorage.getItem(storageKey)
 
   if (stored) {
@@ -23,7 +23,7 @@ export function storeInMemorySources(registry: IRegistry) {
 
   function update() {
     const data = registry
-      .getDescriptors()
+      .getDataSources()
       .filter((it) => it.mode === DataSourceMode.Memory)
       .map((it) => ({
         engine: it.engine,

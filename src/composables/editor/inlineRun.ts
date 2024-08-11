@@ -36,7 +36,7 @@ export default function inlineRunPlugin({
         getId: () => statement.key,
         getDomNode: () => {
           const query = queries.value.find(
-            (it) => it.statementKey === statement.key,
+            (it) => it.statement.key === statement.key,
           )
 
           if (query && isExecutingQuery(query)) {

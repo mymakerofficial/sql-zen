@@ -1,5 +1,4 @@
 import type {
-  ISqlDialect,
   DSTreeDatabaseItem,
   DSTreeColumnItem,
   DSTreeSchemaItem,
@@ -12,7 +11,7 @@ import type {
 import { DSTreeItemType } from '@/lib/dialect/enums'
 import { SqlDialect } from '@/lib/dialect/impl/base'
 
-export class DuckDBDialect extends SqlDialect implements ISqlDialect {
+export class DuckDBDialect extends SqlDialect {
   async getDataSourceTree() {
     const { rows: extensions } = await this.dataSource.query<Extension>(
       `SELECT extension_name, loaded, installed, description FROM duckdb_extensions()`,

@@ -5,6 +5,11 @@ import { DatabaseEngine } from '@/lib/engines/enums'
 import type { DatabaseEngineInfo } from '@/lib/engines/interface'
 
 export const databaseEnginesMap = {
+  [DatabaseEngine.None]: {
+    name: 'None',
+    description: 'No database engine selected.',
+    icon: '',
+  },
   [DatabaseEngine.PostgreSQL]: {
     name: 'PostgeSQL',
     description:

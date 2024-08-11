@@ -18,7 +18,7 @@ function handleSelect(engine: DatabaseEngine) {
   registry.register({
     engine,
     mode: DataSourceMode.Memory,
-    identifier: null,
+    identifier: '',
   })
   router.push('/app')
 }

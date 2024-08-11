@@ -3,19 +3,21 @@ import { DuckDBAccessMode } from '@duckdb/duckdb-wasm'
 import { DatabaseNotLoadedError } from '@/lib/errors'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import type { Table } from 'apache-arrow'
-import { DataSourceMode } from '@/lib/dataSources/enums'
+import { DataSourceMode, DataSourceStatus } from '@/lib/dataSources/enums'
 import type { QueryResult } from '@/lib/queries/interface'
 import { getId } from '@/lib/getId'
 import { DataSource } from '@/lib/dataSources/impl/base'
 import type { FileInfo } from '@/lib/files/interface'
+import { DatabaseEngine } from '@/lib/engines/enums'
+import { DataSourceEvent } from '@/lib/dataSources/events'
 
 export class DuckDB extends DataSource {
   #worker: Worker | null = null
   #database: duckdb.AsyncDuckDB | null = null
   #connection: duckdb.AsyncDuckDBConnection | null = null
 
-  isInitialized(): boolean {
-    return this.#connection !== null
+  getEngine(): DatabaseEngine {
+    return DatabaseEngine.DuckDB
   }
 
   async init() {
@@ -23,12 +25,11 @@ export class DuckDB extends DataSource {
       return
     }
 
-    if (this.getMode() !== DataSourceMode.Memory) {
-      throw new Error(`Unsupported mode for DuckDB: ${this.getMode()}`)
-    }
+    this.setStatus(DataSourceStatus.Pending)
+    this.emit(DataSourceEvent.Initializing)
 
-    if (this.getIdentifier()) {
-      throw new Error(`DuckDB does not support identifiers`)
+    if (this.mode !== DataSourceMode.Memory) {
+      throw new Error(`Unsupported mode for DuckDB: ${this.mode}`)
     }
 
     const { duckdb, duckdb_wasm, mvp_worker, duckdb_wasm_eh, eh_worker } =
@@ -75,6 +76,9 @@ export class DuckDB extends DataSource {
     })
 
     await this.openDatabase('mydb.db')
+
+    this.setStatus(DataSourceStatus.Running)
+    this.emit(DataSourceEvent.Initialized)
   }
 
   async openDatabase(path: string) {
@@ -175,13 +179,8 @@ export class DuckDB extends DataSource {
     await this.#database.dropFile(path)
   }
 
-  async dump() {
-    throw new Error(`DuckDB does not support dumping`)
-    // just to satisfy the interface
-    return FileAccessor.Dummy
-  }
-
   async close() {
+    this.emit(DataSourceEvent.Closing)
     if (this.#connection) {
       await this.#connection.close()
     }
@@ -191,5 +190,7 @@ export class DuckDB extends DataSource {
     if (this.#worker) {
       this.#worker.terminate()
     }
+    this.setStatus(DataSourceStatus.Stopped)
+    this.emit(DataSourceEvent.Closed)
   }
 }

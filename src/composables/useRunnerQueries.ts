@@ -1,9 +1,9 @@
 import { onMounted, onUnmounted } from 'vue'
 import { EventType } from '@/lib/events/publisher'
 import { useQuery } from '@tanstack/vue-query'
-import type { IRunner } from '@/lib/runner/interface'
+import type { Runner } from '@/lib/runner/impl/runner'
 
-export function useRunnerQueries(runner: IRunner) {
+export function useRunnerQueries(runner: Runner) {
   const queryKey = ['runner', runner.getKey(), 'queries']
 
   const { data, refetch } = useQuery({

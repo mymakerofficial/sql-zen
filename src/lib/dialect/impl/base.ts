@@ -1,10 +1,10 @@
-import type { ISqlDialect, DSTreeItem } from '@/lib/dialect/interface'
-import type { IDataSource } from '@/lib/dataSources/interface'
+import type { DSTreeItem } from '@/lib/dialect/interface'
+import type { DataSource } from '@/lib/dataSources/impl/base'
 
-export abstract class SqlDialect implements ISqlDialect {
-  protected dataSource: IDataSource
+export abstract class SqlDialect {
+  protected dataSource: DataSource
 
-  constructor(dataSource: IDataSource) {
+  constructor(dataSource: DataSource) {
     this.dataSource = dataSource
   }
 

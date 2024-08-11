@@ -11,17 +11,16 @@ import DatabaseEngineSelect from '@/components/shared/databaseEngineSelect/Datab
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { Separator } from '@/components/ui/separator'
 import { whenever } from '@vueuse/core'
-import { simplifyIdentifier } from '@/lib/dataSources/helpers'
 import FileInput from '@/components/shared/FileInput.vue'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceMode } from '@/lib/dataSources/enums'
-import type { DataSourceCompleteDescriptor } from '@/lib/dataSources/interface'
 import ResponsiveDialog from '@/components/shared/responsiveDialog/ResponsiveDialog.vue'
 import ResponsiveDialogContent from '@/components/shared/responsiveDialog/ResponsiveDialogContent.vue'
 import ResponsiveDialogFooter from '@/components/shared/responsiveDialog/ResponsiveDialogFooter.vue'
 import ResponsiveDialogHeader from '@/components/shared/responsiveDialog/ResponsiveDialogHeader.vue'
 import ResponsiveDialogTitle from '@/components/shared/responsiveDialog/ResponsiveDialogTitle.vue'
 import ResponsiveDialogDescription from '@/components/shared/responsiveDialog/ResponsiveDialogDescription.vue'
+import type { DataSourceData } from '@/lib/dataSources/types'
 
 const props = withDefaults(
   defineProps<{
@@ -71,26 +70,26 @@ async function handleFileSelected(value: FileAccessor) {
 
 const { mutate: create, error } = useMutation({
   mutationFn: () => {
-    const info: DataSourceCompleteDescriptor = {
+    const data: DataSourceData = {
       engine: engine.value,
       mode: mode.value,
-      identifier: simplifyIdentifier(identifier.value),
+      identifier: identifier.value,
       dump: dump.value,
     }
 
     if (disableMode.value) {
-      info.mode = DataSourceMode.Memory
+      data.mode = DataSourceMode.Memory
     }
 
     if (disableIdentifier.value) {
-      info.identifier = null
+      data.identifier = ''
     }
 
     if (disableDump.value) {
-      info.dump = null
+      data.dump = null
     }
 
-    registry.register(info)
+    registry.register(data)
     return Promise.resolve()
   },
   onSuccess: close,

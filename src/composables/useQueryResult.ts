@@ -1,8 +1,8 @@
-import type { IQuery } from '@/lib/queries/interface'
 import { keepPreviousData, useQuery } from '@tanstack/vue-query'
 import { useQueryHasResult } from '@/composables/useQueryHasResult'
 import type { MaybeRefOrGetter } from 'vue'
 import { toValue } from '@vueuse/core'
+import type { Query } from '@/lib/queries/impl/query'
 
 export type UseQueryResultOptions = {
   offset?: MaybeRefOrGetter<number>
@@ -10,7 +10,7 @@ export type UseQueryResultOptions = {
 }
 
 export function useQueryResult(
-  query: IQuery,
+  query: Query,
   options: UseQueryResultOptions = {},
 ) {
   const { offset = 0, limit = 100 } = options

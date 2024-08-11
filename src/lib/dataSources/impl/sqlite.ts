@@ -2,26 +2,31 @@ import type {
   Database as SqliteWasmDatabase,
   Sqlite3Static,
 } from '@sqlite.org/sqlite-wasm'
-import { DataSourceMode } from '@/lib/dataSources/enums'
+import { DataSourceMode, DataSourceStatus } from '@/lib/dataSources/enums'
 import type { QueryResult } from '@/lib/queries/interface'
 import { DatabaseNotLoadedError } from '@/lib/errors'
 import { getId } from '@/lib/getId'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { DataSource } from '@/lib/dataSources/impl/base'
 import { runPromised } from '@/lib/runPromised'
+import { DatabaseEngine } from '@/lib/engines/enums'
+import { DataSourceEvent } from '@/lib/dataSources/events'
 
 export class SQLite extends DataSource {
   #sqlite3: Sqlite3Static | null = null
   #database: SqliteWasmDatabase | null = null
 
-  isInitialized(): boolean {
-    return this.#database !== null
+  getEngine(): DatabaseEngine {
+    return DatabaseEngine.SQLite
   }
 
   async init() {
     if (this.#database) {
       return
     }
+
+    this.setStatus(DataSourceStatus.Pending)
+    this.emit(DataSourceEvent.Initializing)
 
     if (
       this.getMode() === DataSourceMode.BrowserPersisted &&
@@ -58,21 +63,24 @@ export class SQLite extends DataSource {
       }
     })
 
-    if (!this.initDump) {
-      return
+    if (this.getInitDump()) {
+      await this.logger.step('Importing Database File', async () => {
+        const arrayBuffer = await this.getInitDump()!.readArrayBuffer()
+        const bufferPointer =
+          this.#sqlite3!.wasm.allocFromTypedArray(arrayBuffer)
+        this.#sqlite3!.capi.sqlite3_deserialize(
+          this.#database!,
+          'main',
+          bufferPointer,
+          arrayBuffer.byteLength,
+          arrayBuffer.byteLength,
+          this.#sqlite3!.capi.SQLITE_DESERIALIZE_FREEONCLOSE,
+        )
+      })
     }
-    await this.logger.step('Importing Database File', async () => {
-      const arrayBuffer = await this.initDump!.readArrayBuffer()
-      const bufferPointer = this.#sqlite3!.wasm.allocFromTypedArray(arrayBuffer)
-      this.#sqlite3!.capi.sqlite3_deserialize(
-        this.#database!,
-        'main',
-        bufferPointer,
-        arrayBuffer.byteLength,
-        arrayBuffer.byteLength,
-        this.#sqlite3!.capi.SQLITE_DESERIALIZE_FREEONCLOSE,
-      )
-    })
+
+    this.setStatus(DataSourceStatus.Running)
+    this.emit(DataSourceEvent.Initialized)
   }
 
   query<T extends object = object>(sql: string): Promise<QueryResult<T>> {
@@ -113,9 +121,12 @@ export class SQLite extends DataSource {
 
   async close(): Promise<void> {
     return runPromised(() => {
+      this.emit(DataSourceEvent.Closing)
       if (this.#database) {
         this.#database.close()
       }
+      this.setStatus(DataSourceStatus.Stopped)
+      this.emit(DataSourceEvent.Closed)
     })
   }
 }

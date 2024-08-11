@@ -1,4 +1,5 @@
 export const DatabaseEngine = {
+  None: 'none',
   PostgreSQL: 'postgresql',
   SQLite: 'sqlite',
   DuckDB: 'duckdb',

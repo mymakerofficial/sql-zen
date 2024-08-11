@@ -4,12 +4,11 @@ import type {
   DSTreeExtensionItem,
   DSTreeSchemaItem,
   DSTreeTableItem,
-  ISqlDialect,
 } from '@/lib/dialect/interface'
 import { DSTreeItemType } from '@/lib/dialect/enums'
 import { SqlDialect } from '@/lib/dialect/impl/base'
 
-export class PostgreSQLDialect extends SqlDialect implements ISqlDialect {
+export class PostgreSQLDialect extends SqlDialect {
   async getDataSourceTree() {
     const { rows: extensions } = await this.dataSource.query<Extension>(
       `SELECT e.extname, e.extversion, d.description FROM pg_catalog.pg_extension as e LEFT JOIN pg_catalog.pg_description as d ON e.oid = d.objoid`,
