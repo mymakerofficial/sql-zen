@@ -12,7 +12,6 @@ import { RegistryEvent, type RegistryEventMap } from '@/lib/registry/events'
 import { Runner } from '@/lib/runner/impl/runner'
 import { DataSourceStatus } from '@/lib/registry/enums'
 import { DataSourceFactory } from '@/lib/dataSources/factory'
-import { LoggerStore } from '@/lib/stores/loggerStore/impl/loggerStore'
 
 type RegistryEntry = {
   descriptor: DataSourceCompleteDescriptor
@@ -23,8 +22,6 @@ export class Registry
   extends EventPublisher<RegistryEventMap>
   implements IRegistry
 {
-  readonly #loggerStore = new LoggerStore()
-
   entries: Map<string, RegistryEntry> = new Map()
 
   use<T>(plugin: (registry: IRegistry) => T): T {
@@ -102,10 +99,7 @@ export class Registry
       return
     }
 
-    const dataSource = DataSourceFactory.create(
-      entry.descriptor,
-      this.#loggerStore,
-    )
+    const dataSource = DataSourceFactory.create(entry.descriptor)
     const runner = new Runner(dataSource)
     Object.assign(entry, { runner })
 

@@ -10,15 +10,17 @@ import {
 import { LogEventType, PromiseState } from '@/lib/logger/enums'
 import { createLogEvent } from '@/lib/logger/helpers'
 import type { QueryResult } from '@/lib/queries/interface'
+import { getId } from '@/lib/getId'
+import { LoggerStore } from '@/lib/stores/loggerStore/impl/loggerStore'
 
 export class Logger extends EventPublisher<LoggerEventMap> implements ILogger {
   readonly #key: string
   readonly #store: ILoggerStore
 
-  constructor(key: string, store: ILoggerStore) {
+  constructor() {
     super()
-    this.#key = key
-    this.#store = store
+    this.#key = getId()
+    this.#store = new LoggerStore()
   }
 
   getKey(): string {

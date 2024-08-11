@@ -11,9 +11,8 @@ import type { QueryResult } from '@/lib/queries/interface'
 import { type ILogger } from '@/lib/logger/interface'
 import type { ISqlDialect } from '@/lib/dialect/interface'
 import { SqlDialectFactory } from '@/lib/dialect/factory'
-import { Logger } from '@/lib/logger/impl/logger'
-import type { ILoggerStore } from '@/lib/stores/loggerStore/interface'
 import type { FileInfo } from '@/lib/files/interface'
+import { Logger } from '@/lib/logger/impl/logger'
 
 export abstract class DataSource implements IDataSource {
   readonly #engine: DatabaseEngine
@@ -22,18 +21,14 @@ export abstract class DataSource implements IDataSource {
   readonly #key: string
 
   protected initDump: FileAccessor | null
-  protected logger: ILogger
+  protected logger = new Logger()
 
-  constructor(
-    descriptor: DataSourceCompleteDescriptor,
-    loggerStore: ILoggerStore,
-  ) {
+  constructor(descriptor: DataSourceCompleteDescriptor) {
     this.#engine = descriptor.engine
     this.#mode = descriptor.mode
     this.#identifier = descriptor.identifier
     this.initDump = descriptor.dump || null
     this.#key = generateDataSourceKey(descriptor)
-    this.logger = new Logger(this.#key, loggerStore)
   }
 
   getDescriptor(): DataSourceDescriptor {

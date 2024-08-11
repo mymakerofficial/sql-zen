@@ -6,7 +6,6 @@ import type { Statement } from '@/lib/statements/interface'
 import type { IQuery, QueryInfo } from '@/lib/queries/interface'
 import { isIdleQuery, isSettledQuery } from '@/lib/queries/helpers'
 import { Query } from '@/lib/queries/impl/query'
-import { QueryState } from '@/lib/queries/enums'
 
 export class Runner extends EventPublisher<RunnerEventMap> implements IRunner {
   #queries: Array<IQuery> = []
