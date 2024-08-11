@@ -20,7 +20,7 @@ export class EmptyTab extends Tab implements EmptyTabInfo {
     return TabType.Empty
   }
 
-  get persistent() {
+  get preventClose() {
     return true
   }
 

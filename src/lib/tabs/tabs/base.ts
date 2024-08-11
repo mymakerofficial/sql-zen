@@ -1,7 +1,12 @@
 import { TabType } from '@/lib/tabs/enums'
 import { EventPublisher } from '@/lib/events/publisher'
 import { getId } from '@/lib/getId'
-import type { BaseTabData, BaseTabInfo, TabInfo } from '@/lib/tabs/types'
+import type {
+  BaseTabData,
+  BaseTabInfo,
+  TabData,
+  TabInfo,
+} from '@/lib/tabs/types'
 import { TabEvent, type TabEventMap, TabManagerEvent } from '@/lib/tabs/events'
 import type { TabManager } from '@/lib/tabs/manager/manager'
 
@@ -22,8 +27,8 @@ export abstract class Tab
     this.#manager.on(TabManagerEvent.TabRemoved, this.#onRemove)
   }
 
-  #onRemove(id: string) {
-    if (id === this.id) {
+  #onRemove(info: TabInfo) {
+    if (info.id === this.id) {
       this.#manager.off(TabManagerEvent.TabRemoved, this.#onRemove)
       this.destroy()
     }
@@ -35,7 +40,7 @@ export abstract class Tab
 
   abstract get type(): TabType
 
-  abstract get persistent(): boolean
+  abstract get preventClose(): boolean
 
   get displayName() {
     return this.#displayName
@@ -44,12 +49,13 @@ export abstract class Tab
   set displayName(value: string) {
     this.#displayName = value
     this.emit(TabEvent.DisplayNameChanged, value)
+    this.emit(TabEvent.RequestSave)
   }
 
   getBaseInfo(): BaseTabInfo {
     return {
       id: this.id,
-      persistent: this.persistent,
+      preventClose: this.preventClose,
       type: this.type,
       displayName: this.displayName,
     }
@@ -57,6 +63,17 @@ export abstract class Tab
 
   getInfo(): TabInfo {
     return this.getBaseInfo() as TabInfo
+  }
+
+  getBaseData(): BaseTabData {
+    return {
+      type: this.type,
+      displayName: this.displayName,
+    }
+  }
+
+  getData(): TabData {
+    return this.getBaseData() as TabData
   }
 
   destroy(): void {}

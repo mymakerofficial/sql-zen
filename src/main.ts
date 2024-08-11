@@ -13,6 +13,7 @@ import { storeInMemorySources } from '@/lib/registry/plugins/storeInMemorySource
 import { useTabManager } from '@/composables/tabs/useTabManager'
 import { RegistryEvent } from '@/lib/registry/events'
 import { TabType } from '@/lib/tabs/enums'
+import persistTabs from '@/lib/tabs/plugins/persistTabs'
 
 const app = createApp(App)
 
@@ -41,16 +42,11 @@ app.mount('#app')
 const registry = useRegistry()
 const tabManager = useTabManager()
 
-registry.on(RegistryEvent.Registered, (dataSourceKey) => {
-  tabManager.createTab({
-    type: TabType.Console,
-    dataSourceKey,
-  })
-})
+tabManager.use(persistTabs)
 
 registry.on(RegistryEvent.Unregistered, (dataSourceKey) => {
   console.log('Unregistering', dataSourceKey)
-  tabManager.getTabs().forEach((tab) => {
+  tabManager.getTabInfos().forEach((tab) => {
     if (tab.type === TabType.Console && tab.dataSourceKey === dataSourceKey) {
       tabManager.removeTab(tab.id)
     }

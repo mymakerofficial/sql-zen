@@ -1,5 +1,8 @@
 import { TabType } from '@/lib/tabs/enums'
-import type { Logger } from '@/lib/logger/impl/logger'
+import type { EmptyTab } from '@/lib/tabs/tabs/empty'
+import type { ConsoleTab } from '@/lib/tabs/tabs/console'
+import type { LoggerTab } from '@/lib/tabs/tabs/logger'
+import type { QueryTab } from '@/lib/tabs/tabs/query'
 
 export type BaseTabData = {
   type: TabType
@@ -18,7 +21,7 @@ export type ConsoleTabData = Omit<BaseTabData, 'type'> & {
 
 export type LoggerTabData = Omit<BaseTabData, 'type'> & {
   type: typeof TabType.Logger
-  logger: Logger
+  loggerId: string
 }
 
 export type QueryTabData = Omit<BaseTabData, 'type'> & {
@@ -36,7 +39,7 @@ export type TabData =
 export type BaseTabInfo = BaseTabData & {
   id: string
   displayName: string
-  persistent: boolean
+  preventClose: boolean
 }
 
 export type EmptyTabInfo = Omit<BaseTabInfo, 'type'> & {
@@ -66,3 +69,19 @@ export type TabInfo =
   | ConsoleTabInfo
   | LoggerTabInfo
   | QueryTabInfo
+
+export type TabInfoMap = {
+  [TabType.Empty]: EmptyTabInfo
+  [TabType.Console]: ConsoleTabInfo
+  [TabType.Logger]: LoggerTabInfo
+  [TabType.Query]: QueryTabInfo
+}
+
+export type TabClassMap = {
+  [TabType.Empty]: EmptyTab
+  [TabType.Console]: ConsoleTab
+  [TabType.Logger]: LoggerTab
+  [TabType.Query]: QueryTab
+}
+
+export type TabClass<T extends TabInfo> = TabClassMap[T['type']]

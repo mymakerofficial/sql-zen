@@ -1,5 +1,10 @@
 import { Tab } from '@/lib/tabs/tabs/base'
-import type { QueryTabData, QueryTabInfo, TabInfo } from '@/lib/tabs/types'
+import type {
+  QueryTabData,
+  QueryTabInfo,
+  TabData,
+  TabInfo,
+} from '@/lib/tabs/types'
 import type { TabManager } from '@/lib/tabs/manager/manager'
 import { TabType } from '@/lib/tabs/enums'
 import { useRegistry } from '@/composables/useRegistry'
@@ -20,7 +25,7 @@ export class QueryTab extends Tab implements QueryTabInfo {
     return TabType.Query
   }
 
-  get persistent() {
+  get preventClose() {
     return false
   }
 
@@ -48,11 +53,20 @@ export class QueryTab extends Tab implements QueryTabInfo {
     }
   }
 
+  getData(): QueryTabData {
+    return {
+      ...super.getBaseData(),
+      type: TabType.Query,
+      dataSourceKey: this.dataSourceKey,
+      queryId: this.queryId,
+    }
+  }
+
   destroy() {
     registry.getDataSource(this.dataSourceKey).runner.removeQuery(this.queryId)
   }
 }
 
-export function isQueryTab(tab: TabInfo): tab is QueryTabInfo {
+export function isQueryTabInfo(tab: TabInfo): tab is QueryTabInfo {
   return tab.type === TabType.Query
 }

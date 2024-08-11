@@ -5,18 +5,18 @@ import { TabType } from '@/lib/tabs/enums'
 import type { Logger } from '@/lib/logger/impl/logger'
 
 export class LoggerTab extends Tab implements LoggerTabInfo {
-  readonly #logger: Logger
+  readonly #loggerId: string
 
   constructor(tab: LoggerTabData, manager: TabManager) {
     super(tab, manager)
-    this.#logger = tab.logger
+    this.#loggerId = tab.loggerId
   }
 
   get type() {
     return TabType.Logger
   }
 
-  get persistent() {
+  get preventClose() {
     return true
   }
 
@@ -25,12 +25,20 @@ export class LoggerTab extends Tab implements LoggerTabInfo {
   }
 
   get loggerId() {
-    return this.#logger.getId()
+    return this.#loggerId
   }
 
   getInfo(): TabInfo {
     return {
       ...super.getBaseInfo(),
+      type: TabType.Logger,
+      loggerId: this.loggerId,
+    }
+  }
+
+  getData(): LoggerTabData {
+    return {
+      ...super.getBaseData(),
       type: TabType.Logger,
       loggerId: this.loggerId,
     }

@@ -9,17 +9,16 @@ import {
 import ConsoleResultPanel from '@/components/console/ConsoleResultPanel.vue'
 import { getStatements, useEditor } from '@/composables/editor/useEditor'
 import inlineRun from '@/composables/editor/inlineRun'
-import inlineResults from '@/composables/editor/inlineResults'
 import * as monaco from 'monaco-editor'
 import { useStorage } from '@vueuse/core'
 import { useRegistry } from '@/composables/useRegistry'
-import { getExampleSql } from '@/lib/examples/getExampleSql'
 import highlightSelected from '@/composables/editor/highlightSelected'
 import { useIsRunning } from '@/composables/useIsRunning'
 import { ref } from 'vue'
 
 const props = defineProps<{
   dataSourceKey: string
+  model: monaco.editor.ITextModel
 }>()
 
 const enableInlineResults = useStorage('enable-inline-results', false)
@@ -28,28 +27,14 @@ const runTransacting = ref(true)
 const registry = useRegistry()
 const runner = registry.getRunner(props.dataSourceKey)
 const isRunning = useIsRunning(props.dataSourceKey)
-const model = monaco.editor.createModel(
-  getExampleSql(runner.getDataSource().getEngine()),
-  'sql',
-)
 const editor = useEditor({
-  model,
+  model: props.model,
   runner,
   getStatements,
 })
 editor.use(inlineRun({ enabled: isRunning }))
-editor.use(inlineResults({ enabled: enableInlineResults }))
+// editor.use(inlineResults({ enabled: enableInlineResults }))
 editor.use(highlightSelected)
-
-// temporary store the model content in local storage
-const modelStorage = useStorage(
-  `editor-model-${props.dataSourceKey}-sql`,
-  model.getValue(),
-)
-model.setValue(modelStorage.value)
-model.onDidChangeContent(() => {
-  modelStorage.value = model.getValue()
-})
 </script>
 
 <template>

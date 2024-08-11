@@ -1,9 +1,13 @@
 import { Tab } from '@/lib/tabs/tabs/base'
 import { EventPublisher } from '@/lib/events/publisher'
-import { TabManagerEvent, type TabManagerEventMap } from '@/lib/tabs/events'
+import {
+  TabEvent,
+  TabManagerEvent,
+  type TabManagerEventMap,
+} from '@/lib/tabs/events'
 import { TabFactory } from '@/lib/tabs/tabs/factory'
 import { TabType } from '@/lib/tabs/enums'
-import type { TabData, TabInfo } from '@/lib/tabs/types'
+import type { TabClass, TabData, TabInfo } from '@/lib/tabs/types'
 
 export class TabManager extends EventPublisher<TabManagerEventMap> {
   #tabs: Map<string, Tab> = new Map()
@@ -23,6 +27,10 @@ export class TabManager extends EventPublisher<TabManagerEventMap> {
     this.#tabHistory.unshift(this.#activeTabId)
   }
 
+  use<T>(plugin: (manager: TabManager) => T): T {
+    return plugin(this)
+  }
+
   getTabIds(): string[] {
     if (this.#tabSortOrder.length === 0) {
       return [TabFactory.empty.id]
@@ -30,21 +38,28 @@ export class TabManager extends EventPublisher<TabManagerEventMap> {
     return this.#tabSortOrder
   }
 
-  getTabs(): TabInfo[] {
-    return this.getTabIds().map((id) => this.getTab(id).getInfo())
+  getTabs(): Tab[] {
+    return this.getTabIds().map((id) => this.getTab(id))
+  }
+
+  getTabInfos(): TabInfo[] {
+    return this.getTabs().map((it) => it.getInfo())
   }
 
   #addTab(tab: Tab) {
     if (tab.type === TabType.Empty) {
-      throw new Error(`Cannot add empty tab`)
+      return
     }
     if (this.#tabs.has(tab.id)) {
       throw new Error(`Tab with id ${tab.id} already exists`)
     }
     this.#tabs.set(tab.id, tab)
     this.#tabSortOrder.push(tab.id)
-    this.emit(TabManagerEvent.TabAdded, tab.id)
+    this.emit(TabManagerEvent.TabAdded, tab.getInfo())
     this.setActiveTabId(tab.id)
+    tab.on(TabEvent.RequestSave, () => {
+      this.emit(TabManagerEvent.TabRequestedSave, tab.getInfo())
+    })
   }
 
   createTab(tab: TabData) {
@@ -60,18 +75,22 @@ export class TabManager extends EventPublisher<TabManagerEventMap> {
     if (!tab) {
       throw new Error(`Tab with id ${id} not found`)
     }
-    if (tab.persistent) {
+    if (tab.preventClose) {
       return
     }
     this.#tabs.delete(id)
     this.#tabSortOrder = this.#tabSortOrder.filter((it) => it !== id)
     this.#tabHistory = this.#tabHistory.filter((it) => it !== id)
-    this.emit(TabManagerEvent.TabAdded, id)
+    this.emit(TabManagerEvent.TabAdded, tab.getInfo())
     this.setActiveTabId(this.#tabHistory[0] ?? TabFactory.empty.id)
   }
 
   getTab(id: string): Tab {
     return this.#tabs.get(id) ?? TabFactory.empty
+  }
+
+  getTabFromInfo<T extends TabInfo>(info: T): TabClass<T> {
+    return this.getTab(info.id) as TabClass<T>
   }
 
   getTabInfo(id: string): TabInfo {

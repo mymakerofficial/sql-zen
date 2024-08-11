@@ -25,12 +25,12 @@ const suggestions = useRunSuggestions(props.editor)
 const hovered = ref<Statement[]>([])
 const isOpen = ref(false)
 
-props.editor.use(
-  highlightStatements(hovered, {
-    className: 'selected-statement-run-bg',
-    inlineClassName: 'selected-statement-run',
-  }),
-)
+const highlightHovered = highlightStatements(hovered, {
+  className: 'selected-statement-run-bg',
+  inlineClassName: 'selected-statement-run',
+})
+
+props.editor.use(highlightHovered)
 
 function close() {
   hovered.value = []

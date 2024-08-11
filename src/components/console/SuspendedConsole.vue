@@ -6,9 +6,11 @@ import { watchEffect } from 'vue'
 import { Button } from '@/components/ui/button'
 import { useDataSourceInfo } from '@/composables/dataSources/useDataSourceInfo'
 import { DataSourceStatus } from '@/lib/dataSources/enums'
+import * as monaco from 'monaco-editor'
 
 const props = defineProps<{
   dataSourceKey: string
+  model: monaco.editor.ITextModel
   autoStart?: boolean
 }>()
 
@@ -40,6 +42,10 @@ watchEffect(() => {
     </Button>
   </div>
   <div v-else class="flex-1">
-    <Console :data-source-key="dataSourceKey" :key="dataSourceKey" />
+    <Console
+      :data-source-key="dataSourceKey"
+      :model="model"
+      :key="dataSourceKey"
+    />
   </div>
 </template>

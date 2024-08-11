@@ -1,34 +1,16 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
-import {
-  ArrowLeftRightIcon,
-  EraserIcon,
-  TableRowsSplitIcon,
-} from 'lucide-vue-next'
+import { ArrowLeftRightIcon, TableRowsSplitIcon } from 'lucide-vue-next'
 import { Toggle } from '@/components/ui/toggle'
 import type { UseEditor } from '@/composables/editor/useEditor'
 import { Separator } from '@/components/ui/separator'
-import { useQueryClient } from '@tanstack/vue-query'
 import RunButton from '@/components/console/RunButton.vue'
-import type { Runner } from '@/lib/runner/impl/runner'
 
 const enableInlineResults = defineModel<boolean>('enableInlineResults')
 const runTransacting = defineModel<boolean>('runTransacting')
 
-const props = defineProps<{
-  runner: Runner
+defineProps<{
   editor: UseEditor
 }>()
-
-const queryClient = useQueryClient()
-
-function handleClear() {
-  props.editor.editor.getModel()?.setValue('')
-  props.runner.clear()
-  queryClient.invalidateQueries({
-    queryKey: ['runnerQueries', props.runner.getKey()],
-  })
-}
 </script>
 
 <template>
@@ -47,10 +29,6 @@ function handleClear() {
         <span class="hidden md:block">Inline Results</span>
       </Toggle>
     </div>
-    <div class="h-full flex items-center">
-      <Button @click="handleClear" size="sm" variant="ghost">
-        <EraserIcon class="size-4 min-w-max" />
-      </Button>
-    </div>
+    <div class="h-full flex items-center"></div>
   </section>
 </template>

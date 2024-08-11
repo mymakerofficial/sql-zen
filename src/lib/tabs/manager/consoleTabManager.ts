@@ -4,7 +4,7 @@ import { useRegistry } from '@/composables/useRegistry'
 import { TabType } from '@/lib/tabs/enums'
 import { RunnerEvent } from '@/lib/runner/events'
 import type { QueryInfo } from '@/lib/queries/interface'
-import { isQueryTab } from '@/lib/tabs/tabs/query'
+import { isQueryTabInfo } from '@/lib/tabs/tabs/query'
 import { TabFactory } from '@/lib/tabs/tabs/factory'
 
 const registry = useRegistry()
@@ -17,7 +17,7 @@ export class ConsoleTabManager extends TabManager {
     this.#dataSource = registry.getDataSource(dataSourceKey)
     this.createTab({
       type: TabType.Logger,
-      logger: this.dataSource.logger,
+      loggerId: this.dataSource.logger.id,
     })
     this.dataSource.runner.getQueries().forEach(this.#onQueryResult.bind(this))
     this.dataSource.runner.on(
@@ -50,8 +50,8 @@ export class ConsoleTabManager extends TabManager {
   }
 
   getTabByQueryId(queryId: string) {
-    const tab = this.getTabs()
-      .filter(isQueryTab)
+    const tab = this.getTabInfos()
+      .filter(isQueryTabInfo)
       .find((tab) => tab.queryId === queryId)
     return tab?.id ?? TabFactory.empty.id
   }

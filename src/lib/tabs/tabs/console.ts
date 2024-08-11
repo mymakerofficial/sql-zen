@@ -2,12 +2,14 @@ import * as monaco from 'monaco-editor'
 import { Tab } from '@/lib/tabs/tabs/base'
 import { useRegistry } from '@/composables/useRegistry'
 import { TabType } from '@/lib/tabs/enums'
-import type { ConsoleTabData, ConsoleTabInfo } from '@/lib/tabs/types'
+import type { ConsoleTabData, ConsoleTabInfo, TabInfo } from '@/lib/tabs/types'
 import {
   getDataSourceDisplayName,
   getDataSourceEngineInfo,
 } from '@/lib/dataSources/helpers'
 import type { TabManager } from '@/lib/tabs/manager/manager'
+import { useDebounceFn } from '@vueuse/core'
+import { TabEvent } from '@/lib/tabs/events'
 
 const registry = useRegistry()
 
@@ -19,13 +21,18 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
     super(tab, manager)
     this.#dataSourceKey = tab.dataSourceKey
     this.#model = monaco.editor.createModel(tab.modelValue ?? '', 'sql')
+
+    const debouncedSave = useDebounceFn(() => {
+      this.emit(TabEvent.RequestSave)
+    }, 1000)
+    this.#model.onDidChangeContent(debouncedSave)
   }
 
   get type() {
     return TabType.Console
   }
 
-  get persistent() {
+  get preventClose() {
     return false
   }
 
@@ -59,6 +66,15 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
     }
   }
 
+  getData(): ConsoleTabData {
+    return {
+      ...super.getBaseData(),
+      type: TabType.Console,
+      dataSourceKey: this.dataSourceKey,
+      modelValue: this.getModel().getValue(),
+    }
+  }
+
   getModel() {
     return this.#model
   }
@@ -70,4 +86,12 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
   getEngineInfo() {
     return getDataSourceEngineInfo(this.getDataSourceInfo())
   }
+}
+
+export function isConsoleTabInfo(tab: TabInfo): tab is ConsoleTabInfo {
+  return tab.type === TabType.Console
+}
+
+export function isConsoleTab(tab: Tab): tab is ConsoleTab {
+  return tab.type === TabType.Console
 }
