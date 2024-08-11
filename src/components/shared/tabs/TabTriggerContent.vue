@@ -18,7 +18,7 @@ function handleClose() {
 </script>
 
 <template>
-  <button class="gap-2 group">
+  <button class="gap-2 group" @click.middle="handleClose">
     <img
       v-if="info.type === TabType.Console"
       :src="info.engineIcon"
