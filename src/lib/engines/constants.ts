@@ -1,8 +1,11 @@
 import postgresqlIcon from '@/assets/icons/postgresql.svg'
 import sqliteIcon from '@/assets/icons/sqlite.svg'
 import duckdbIcon from '@/assets/icons/duckdb.svg'
-import { DatabaseEngine } from '@/lib/engines/enums'
-import type { DatabaseEngineInfo } from '@/lib/engines/interface'
+import { DatabaseEngine, DatabaseEngineCapability } from '@/lib/engines/enums'
+import type {
+  DatabaseEngineCapabilities,
+  DatabaseEngineInfo,
+} from '@/lib/engines/interface'
 
 export const databaseEnginesMap = {
   [DatabaseEngine.None]: {
@@ -30,9 +33,45 @@ export const databaseEnginesMap = {
   },
 } as const satisfies Record<DatabaseEngine, Omit<DatabaseEngineInfo, 'engine'>>
 
+export const databaseEngineCapabilities = {
+  [DatabaseEngine.None]: {
+    [DatabaseEngineCapability.UserSelectable]: false,
+    [DatabaseEngineCapability.ExportDump]: false,
+    [DatabaseEngineCapability.ImportDump]: false,
+    [DatabaseEngineCapability.LocalFileSystems]: false,
+    [DatabaseEngineCapability.Embeddings]: false,
+  },
+  [DatabaseEngine.PostgreSQL]: {
+    [DatabaseEngineCapability.UserSelectable]: true,
+    [DatabaseEngineCapability.ExportDump]: true,
+    [DatabaseEngineCapability.ImportDump]: true,
+    [DatabaseEngineCapability.LocalFileSystems]: true,
+    [DatabaseEngineCapability.Embeddings]: true,
+  },
+  [DatabaseEngine.SQLite]: {
+    [DatabaseEngineCapability.UserSelectable]: true,
+    [DatabaseEngineCapability.ExportDump]: true,
+    [DatabaseEngineCapability.ImportDump]: true,
+    [DatabaseEngineCapability.LocalFileSystems]: false,
+    [DatabaseEngineCapability.Embeddings]: false,
+  },
+  [DatabaseEngine.DuckDB]: {
+    [DatabaseEngineCapability.UserSelectable]: true,
+    [DatabaseEngineCapability.ExportDump]: false,
+    [DatabaseEngineCapability.ImportDump]: false,
+    [DatabaseEngineCapability.LocalFileSystems]: true,
+    [DatabaseEngineCapability.Embeddings]: false,
+  },
+} as const satisfies Record<DatabaseEngine, DatabaseEngineCapabilities>
+
 export const databaseEngines = Object.entries(databaseEnginesMap).map(
   ([engine, info]) => ({
     engine,
     ...info,
   }),
 ) as Array<DatabaseEngineInfo>
+
+export const selectableDatabaseEngines = databaseEngines.filter(
+  ({ engine }) =>
+    databaseEngineCapabilities[engine][DatabaseEngineCapability.UserSelectable],
+)

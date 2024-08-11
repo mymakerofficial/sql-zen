@@ -20,12 +20,13 @@ import { useDialog } from '@/composables/useDialog'
 import FileExplorer from '@/components/shared/dialogs/fileExplorer/FileExplorer.vue'
 import EmbeddingsDialog from '@/components/shared/dialogs/embeddings/EmbeddingsDialog.vue'
 import EmbeddingsSearchDialog from '@/components/shared/dialogs/embeddings/EmbeddingsSearchDialog.vue'
-import { computed } from 'vue'
-import { DatabaseEngine } from '@/lib/engines/enums'
+import { DatabaseEngineCapability } from '@/lib/engines/enums'
 import { downloadFile } from '@/lib/downloadFile'
 import { useRegistry } from '@/composables/useRegistry'
 import { useDataSourceInfo } from '@/composables/dataSources/useDataSourceInfo'
 import { useActiveDataSourceKey } from '@/composables/dataSources/useActiveDataSourceKey'
+import { useEngineSupports } from '@/composables/engines/useEngineSupports'
+import { DataSourceStatus } from '@/lib/dataSources/enums'
 
 const registry = useRegistry()
 const dataSource = useActiveDataSourceKey()
@@ -35,16 +36,19 @@ const { open: openFileExplorer } = useDialog(FileExplorer)
 const { open: openEmbeddings } = useDialog(EmbeddingsDialog)
 const { open: openEmbeddingsSearch } = useDialog(EmbeddingsSearchDialog)
 
-const supportsFileExplorer = computed(
-  () => info.value?.engine !== DatabaseEngine.SQLite,
+const supportsFileExplorer = useEngineSupports(
+  () => info.value.engine,
+  DatabaseEngineCapability.LocalFileSystems,
 )
 
-const supportsDatabaseDump = computed(
-  () => info.value?.engine !== DatabaseEngine.DuckDB,
+const supportsDatabaseDump = useEngineSupports(
+  () => info.value.engine,
+  DatabaseEngineCapability.ExportDump,
 )
 
-const supportsEmbeddings = computed(
-  () => info.value?.engine === DatabaseEngine.PostgreSQL,
+const supportsEmbeddings = useEngineSupports(
+  () => info.value.engine,
+  DatabaseEngineCapability.Embeddings,
 )
 
 function handleOpenFileExplorer() {
@@ -78,9 +82,9 @@ async function handleDump() {
 </script>
 
 <template>
-  <NavigationMenu v-if="dataSource">
+  <NavigationMenu v-if="info.status === DataSourceStatus.Running">
     <NavigationMenuList>
-      <NavigationMenuItem>
+      <NavigationMenuItem v-if="supportsFileExplorer || supportsDatabaseDump">
         <NavigationMenuTrigger class="gap-3">
           <FileIcon class="size-4 min-w-max" />
           <span class="hidden md:block">Files</span>

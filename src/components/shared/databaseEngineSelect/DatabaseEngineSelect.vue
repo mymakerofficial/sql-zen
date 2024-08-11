@@ -11,7 +11,10 @@ import DatabaseSelectItemContent from '@/components/shared/databaseEngineSelect/
 import { SelectTrigger as RadixSelectTrigger } from 'radix-vue'
 import type { HTMLAttributes } from 'vue'
 import { DatabaseEngine } from '@/lib/engines/enums'
-import { databaseEngines } from '@/lib/engines/constants'
+import {
+  databaseEngines,
+  selectableDatabaseEngines,
+} from '@/lib/engines/constants'
 
 const model = defineModel<DatabaseEngine>({
   default: DatabaseEngine.PostgreSQL,
@@ -44,7 +47,7 @@ function handleSelect(value: string) {
     <SelectContent>
       <SelectGroup>
         <SelectItem
-          v-for="item in databaseEngines"
+          v-for="item in selectableDatabaseEngines"
           :value="item.engine"
           :key="item.engine"
           class="px-3"

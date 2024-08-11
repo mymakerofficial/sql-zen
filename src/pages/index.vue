@@ -8,7 +8,10 @@ import { FileAccessor } from '@/lib/files/fileAccessor'
 import { simplifyIdentifier } from '@/lib/dataSources/helpers'
 import FileInput from '@/components/shared/FileInput.vue'
 import { DataSourceMode } from '@/lib/dataSources/enums'
-import { databaseEngines } from '@/lib/engines/constants'
+import {
+  databaseEngines,
+  selectableDatabaseEngines,
+} from '@/lib/engines/constants'
 import { DatabaseEngine } from '@/lib/engines/enums'
 
 const router = useRouter()
@@ -72,7 +75,7 @@ async function handleSelectFile(fileAccessor: FileAccessor) {
           </p>
           <div class="flex flex-col gap-4">
             <Button
-              v-for="item in databaseEngines"
+              v-for="item in selectableDatabaseEngines"
               @click="() => handleSelect(item.engine)"
               :key="item.engine"
               variant="ghost"

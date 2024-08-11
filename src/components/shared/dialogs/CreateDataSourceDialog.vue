@@ -12,7 +12,7 @@ import { FileAccessor } from '@/lib/files/fileAccessor'
 import { Separator } from '@/components/ui/separator'
 import { whenever } from '@vueuse/core'
 import FileInput from '@/components/shared/FileInput.vue'
-import { DatabaseEngine } from '@/lib/engines/enums'
+import { DatabaseEngine, DatabaseEngineCapability } from '@/lib/engines/enums'
 import { DataSourceMode } from '@/lib/dataSources/enums'
 import ResponsiveDialog from '@/components/shared/responsiveDialog/ResponsiveDialog.vue'
 import ResponsiveDialogContent from '@/components/shared/responsiveDialog/ResponsiveDialogContent.vue'
@@ -21,6 +21,7 @@ import ResponsiveDialogHeader from '@/components/shared/responsiveDialog/Respons
 import ResponsiveDialogTitle from '@/components/shared/responsiveDialog/ResponsiveDialogTitle.vue'
 import ResponsiveDialogDescription from '@/components/shared/responsiveDialog/ResponsiveDialogDescription.vue'
 import type { DataSourceData } from '@/lib/dataSources/types'
+import { useEngineSupports } from '@/composables/engines/useEngineSupports'
 
 const props = withDefaults(
   defineProps<{
@@ -57,12 +58,10 @@ const disableIdentifier = computed(() => {
   )
 })
 
-const disableDump = computed(() => {
-  return !(
-    engine.value === DatabaseEngine.SQLite ||
-    engine.value === DatabaseEngine.PostgreSQL
-  )
-})
+const enableDump = useEngineSupports(
+  engine,
+  DatabaseEngineCapability.ImportDump,
+)
 
 async function handleFileSelected(value: FileAccessor) {
   dump.value = value
@@ -85,7 +84,7 @@ const { mutate: create, error } = useMutation({
       data.identifier = ''
     }
 
-    if (disableDump.value) {
+    if (!enableDump.value) {
       data.dump = null
     }
 
@@ -150,7 +149,7 @@ const { mutate: create, error } = useMutation({
           <Label for="file" class="text-right">Import Dump</Label>
           <FileInput @selected="handleFileSelected">
             <Button
-              :disabled="disableDump"
+              :disabled="!enableDump"
               id="file"
               variant="outline"
               class="col-span-3"
@@ -159,7 +158,7 @@ const { mutate: create, error } = useMutation({
             </Button>
           </FileInput>
           <p
-            v-if="disableDump"
+            v-if="enableDump"
             class="col-span-full text-sm text-muted-foreground"
           >
             Only SQLite and PostgreSQL databases can be imported.
