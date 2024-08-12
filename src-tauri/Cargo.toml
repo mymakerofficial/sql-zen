@@ -1,5 +1,5 @@
 [package]
-name = "sql-zen"
+name = "app"
 version = "0.1.0"
 description = "SqlZen lets you play with your favourite databases right in the browser."
 authors = ["My_Maker"]
