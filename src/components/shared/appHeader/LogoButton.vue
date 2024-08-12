@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
+import { isTauri } from '@tauri-apps/api/core'
+
+const to = isTauri() ? '/app' : '/'
 </script>
 
 <template>
   <Button as-child variant="ghost" class="min-w-max">
-    <RouterLink to="/">
+    <RouterLink :to="to">
       <img
         src="@/assets/sql-zen-logo.svg"
         alt="SqlZen"

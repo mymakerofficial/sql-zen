@@ -2,7 +2,7 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import App from './App.vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, useRoute } from 'vue-router'
 import { VueQueryPlugin as vueQuery } from '@tanstack/vue-query'
 import { routes, handleHotUpdate } from 'vue-router/auto-routes'
 import '@/lib/monaco/setup'
@@ -14,6 +14,7 @@ import { useTabManager } from '@/composables/tabs/useTabManager'
 import { RegistryEvent } from '@/lib/registry/events'
 import { TabType } from '@/lib/tabs/enums'
 import persistTabs from '@/lib/tabs/plugins/persistTabs'
+import { isTauri } from '@tauri-apps/api/core'
 
 const app = createApp(App)
 

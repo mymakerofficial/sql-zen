@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute, useRouter } from 'vue-router'
 import DialogProvider from '@/components/shared/dialog/DialogProvider.vue'
 import { useQueryClient } from '@tanstack/vue-query'
 import AppHeader from '@/components/shared/appHeader/AppHeader.vue'
+import { isTauri } from '@tauri-apps/api/core'
 
 const queryClient = useQueryClient()
 
@@ -12,6 +13,12 @@ queryClient.setDefaultOptions({
     retry: false,
   },
 })
+
+const route = useRoute()
+const router = useRouter()
+if (isTauri() && route.path === '/') {
+  router.replace('/app')
+}
 </script>
 
 <template>
