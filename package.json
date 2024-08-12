@@ -15,6 +15,8 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@tauri-apps/api": ">=2.0.0-rc.0",
+    "@tauri-apps/plugin-shell": ">=2.0.0-rc.0",
     "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
     "@electric-sql/pglite": "0.2.0-alpha.7",
     "@sqlite.org/sqlite-wasm": "^3.46.0-build2",
@@ -38,7 +40,7 @@
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",
     "@shikijs/monaco": "^1.10.3",
-    "@tauri-apps/cli": "^1.6.0",
+    "@tauri-apps/cli": "^2.0.0-rc.3",
     "@tsconfig/node20": "^20.1.4",
     "@types/jsdom": "^21.1.7",
     "@types/node": "^20.14.5",
