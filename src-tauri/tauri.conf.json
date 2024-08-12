@@ -1,7 +1,7 @@
 {
-  "productName": "tauri-app",
+  "productName": "SqlZen",
   "version": "0.0.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "de.maiker.sqlzen",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -11,12 +11,15 @@
   "app": {
     "windows": [
       {
-        "title": "tauri-app",
+        "title": "SqlZen",
         "width": 800,
         "height": 600,
         "decorations": false
       }
     ],
+    "trayIcon": {
+      "iconPath": "icons/icon.png"
+    },
     "security": {
       "csp": null
     }
