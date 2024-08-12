@@ -16,8 +16,8 @@ const smallScreen = useMediaQuery('(max-width: 640px)')
     </template>
     <template #main>
       <TabView>
-        <template #beforeTabs>
-          <DatabaseExplorerDrawer v-if="smallScreen" class="mx-2" />
+        <template #beforeTabs v-if="smallScreen">
+          <DatabaseExplorerDrawer class="mx-2" />
           <Separator orientation="vertical" />
         </template>
       </TabView>

@@ -11,18 +11,15 @@ const smallScreen = useMediaQuery('(max-width: 640px)') // sm
 </script>
 
 <template>
-  <div class="h-screen flex flex-col">
-    <AppHeader :active-data-source="null" />
-    <ResizablePanelGroup direction="horizontal">
-      <template v-if="!smallScreen">
-        <ResizablePanel :default-size="18">
-          <slot name="aside" />
-        </ResizablePanel>
-        <ResizableHandle />
-      </template>
-      <ResizablePanel>
-        <slot name="main" />
+  <ResizablePanelGroup direction="horizontal">
+    <template v-if="!smallScreen">
+      <ResizablePanel :default-size="18">
+        <slot name="aside" />
       </ResizablePanel>
-    </ResizablePanelGroup>
-  </div>
+      <ResizableHandle />
+    </template>
+    <ResizablePanel>
+      <slot name="main" />
+    </ResizablePanel>
+  </ResizablePanelGroup>
 </template>
