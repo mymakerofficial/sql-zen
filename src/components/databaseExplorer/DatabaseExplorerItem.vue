@@ -41,7 +41,7 @@ function handleDelete() {
           <img
             :src="engineInfo.icon"
             :alt="`${engineInfo.name} icon`"
-            class="size-4 min-w-max text-muted-foreground"
+            class="size-4 min-h-max text-muted-foreground"
           />
           <span
             :data-status="info.status"
@@ -52,7 +52,7 @@ function handleDelete() {
       </Button>
       <div class="flex items-center">
         <Button @click="handleDelete" size="xs" variant="ghost">
-          <Trash2Icon class="size-4 min-w-max" />
+          <Trash2Icon class="size-4 min-h-max" />
         </Button>
       </div>
     </div>

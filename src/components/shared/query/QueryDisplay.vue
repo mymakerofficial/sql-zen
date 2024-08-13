@@ -55,7 +55,7 @@ const { mutateAsync: computeTotalRowCount } = useMutation({
         size="xs"
         aria-label="Previous page"
       >
-        <ArrowLeftIcon class="size-4 min-w-max" />
+        <ArrowLeftIcon class="size-4 min-h-max" />
       </Button>
       <span class="text-xs text-muted-foreground">
         <LimitSelect v-model="limit">
@@ -85,7 +85,7 @@ const { mutateAsync: computeTotalRowCount } = useMutation({
         size="xs"
         aria-label="Next page"
       >
-        <ArrowRightIcon class="size-4 min-w-max" />
+        <ArrowRightIcon class="size-4 min-h-max" />
       </Button>
     </div>
     <ResultTable v-if="result" :data="result" />

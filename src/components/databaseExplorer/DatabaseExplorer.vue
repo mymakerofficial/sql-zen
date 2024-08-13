@@ -31,12 +31,12 @@ function handleRefresh() {
     >
       <DatabaseEngineSelect @select="handleCreate">
         <Button size="sm" variant="ghost" class="gap-3">
-          <PlusIcon class="size-4 min-w-max" />
+          <PlusIcon class="size-4 min-h-max" />
           <span>Add Data Source</span>
         </Button>
       </DatabaseEngineSelect>
       <Button @click="handleRefresh" size="sm" variant="ghost">
-        <RefreshCwIcon class="size-4 min-w-max" />
+        <RefreshCwIcon class="size-4 min-h-max" />
       </Button>
     </div>
     <DatabaseExplorerContent />

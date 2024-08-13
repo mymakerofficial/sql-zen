@@ -222,7 +222,7 @@ const {
           :disabled="isPending"
           class="gap-3"
         >
-          <SparklesIcon class="size-4 min-w-max" />
+          <SparklesIcon class="size-4 min-h-max" />
           <span>Generate</span>
         </Button>
       </ResponsiveDialogFooter>

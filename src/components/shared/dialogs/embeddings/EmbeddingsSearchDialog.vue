@@ -124,9 +124,9 @@ const {
         <Button @click="handleSearch" :disabled="isPending" class="gap-3">
           <LoaderCircleIcon
             v-if="isPending"
-            class="size-4 min-w-max animate-spin"
+            class="size-4 min-h-max animate-spin"
           />
-          <SearchIcon v-else class="size-4 min-w-max" />
+          <SearchIcon v-else class="size-4 min-h-max" />
           <span>Search</span>
         </Button>
       </ResponsiveDialogFooter>

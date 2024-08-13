@@ -40,48 +40,48 @@ defineProps<{
         <template v-if="'children' in item.value && item.value.children.length">
           <ChevronDownIcon
             v-if="isExpanded"
-            class="relative -ml-6 size-4 min-w-max text-muted-foreground"
+            class="relative -ml-6 size-4 min-h-max text-muted-foreground"
           />
           <ChevronRightIcon
             v-else
-            class="relative -ml-6 size-4 min-w-max text-muted-foreground"
+            class="relative -ml-6 size-4 min-h-max text-muted-foreground"
           />
         </template>
         <span class="relative">
           <template v-if="item.value.type === DSTreeItemType.Collection">
             <FolderOpenIcon
               v-if="isExpanded"
-              class="size-4 min-w-max text-blue-500"
+              class="size-4 min-h-max text-blue-500"
             />
-            <FolderIcon v-else class="size-4 min-w-max text-blue-500" />
+            <FolderIcon v-else class="size-4 min-h-max text-blue-500" />
           </template>
           <ToyBrickIcon
             v-else-if="item.value.type === DSTreeItemType.Extension"
-            class="size-4 min-w-max text-muted-foreground"
+            class="size-4 min-h-max text-muted-foreground"
           />
           <DatabaseIcon
             v-else-if="item.value.type === DSTreeItemType.Database"
-            class="size-4 min-w-max text-blue-500"
+            class="size-4 min-h-max text-blue-500"
           />
           <BlocksIcon
             v-else-if="item.value.type === DSTreeItemType.Schema"
-            class="size-4 min-w-max text-muted-foreground"
+            class="size-4 min-h-max text-muted-foreground"
           />
           <TableIcon
             v-else-if="item.value.type === DSTreeItemType.Table"
-            class="size-4 min-w-max text-muted-foreground"
+            class="size-4 min-h-max text-muted-foreground"
           />
           <TableIcon
             v-else-if="item.value.type === DSTreeItemType.View"
-            class="size-4 min-w-max text-muted-foreground"
+            class="size-4 min-h-max text-muted-foreground"
           />
           <SquareFunctionIcon
             v-else-if="item.value.type === DSTreeItemType.Function"
-            class="size-4 min-w-max text-muted-foreground"
+            class="size-4 min-h-max text-muted-foreground"
           />
           <TablePropertiesIcon
             v-else-if="item.value.type === DSTreeItemType.Column"
-            class="size-4 min-w-max text-muted-foreground"
+            class="size-4 min-h-max text-muted-foreground"
           />
           <span
             v-if="item.value.type === DSTreeItemType.Extension"

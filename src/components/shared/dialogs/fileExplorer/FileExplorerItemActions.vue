@@ -48,24 +48,24 @@ function handleCopyName() {
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger>
-      <Button variant="ghost"><MenuIcon class="size-4 min-w-max" /></Button>
+      <Button variant="ghost"><MenuIcon class="size-4 min-h-max" /></Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent>
       <DropdownMenuItem @click="handleOpenFile" class="gap-2">
-        <EyeIcon class="size-4 min-w-max" />
+        <EyeIcon class="size-4 min-h-max" />
         <span>Open</span>
       </DropdownMenuItem>
       <DropdownMenuItem @click="handleDownloadFile" class="gap-2">
-        <DownloadIcon class="size-4 min-w-max" />
+        <DownloadIcon class="size-4 min-h-max" />
         <span>Download</span>
       </DropdownMenuItem>
       <DropdownMenuItem @click="handleDeleteFile" class="gap-2">
-        <Trash2Icon class="size-4 min-w-max" />
+        <Trash2Icon class="size-4 min-h-max" />
         <span>Delete</span>
       </DropdownMenuItem>
       <DropdownMenuSeparator />
       <DropdownMenuItem @click="handleCopyName" class="gap-2">
-        <ClipboardIcon class="size-4 min-w-max" />
+        <ClipboardIcon class="size-4 min-h-max" />
         <span>Copy Name</span>
       </DropdownMenuItem>
     </DropdownMenuContent>

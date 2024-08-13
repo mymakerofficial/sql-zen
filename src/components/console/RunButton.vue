@@ -57,7 +57,7 @@ function handleRun(statements: Statement[]) {
         class="gap-3"
         aria-label="Select statement to run"
       >
-        <PlayIcon class="size-4 min-w-max" />
+        <PlayIcon class="size-4 min-h-max" />
         <span>Run</span>
       </Button>
     </PopoverTrigger>

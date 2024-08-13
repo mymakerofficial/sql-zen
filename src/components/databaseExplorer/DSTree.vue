@@ -31,7 +31,7 @@ const { data, isFetching, error } = useQuery({
     </p>
     <div v-if="isFetching" class="h-12 ml-3.5 flex items-center">
       <LoaderCircleIcon
-        class="size-4 min-w-max text-muted-foreground animate-spin"
+        class="size-4 min-h-max text-muted-foreground animate-spin"
       />
     </div>
     <EmbeddedDSTree v-else :items="data" />

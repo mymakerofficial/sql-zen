@@ -21,7 +21,7 @@ provideTabManager(new ConsoleTabManager(props.dataSourceKey))
   <!--  <Tabs v-model="selected" class="h-full flex flex-col">-->
   <!--    <TabsList class="w-full border-b overflow-x-auto">-->
   <!--      <TabsTrigger value="log" class="gap-2">-->
-  <!--        <SquareTerminalIcon class="size-4 min-w-max" />-->
+  <!--        <SquareTerminalIcon class="size-4 min-h-max" />-->
   <!--        <span>Output</span>-->
   <!--      </TabsTrigger>-->
   <!--      <TabsTrigger-->
@@ -30,7 +30,7 @@ provideTabManager(new ConsoleTabManager(props.dataSourceKey))
   <!--        :key="trigger.value"-->
   <!--        class="gap-2"-->
   <!--      >-->
-  <!--        <TableIcon class="size-4 min-w-max" />-->
+  <!--        <TableIcon class="size-4 min-h-max" />-->
   <!--        <span>{{ trigger.label }}</span>-->
   <!--      </TabsTrigger>-->
   <!--    </TabsList>-->

@@ -32,7 +32,7 @@ function handleSelect(key: string) {
   <div class="flex-1 flex flex-col gap-2 max-w-80">
     <DatabaseEngineSelect @select="handleCreate">
       <Button size="sm" variant="ghost" class="gap-3 justify-start">
-        <PlusIcon class="size-4 min-w-max" />
+        <PlusIcon class="size-4 min-h-max" />
         <span>Create Data Source</span>
       </Button>
     </DatabaseEngineSelect>

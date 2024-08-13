@@ -26,7 +26,7 @@ const { open: openCreate } = useDialog(CreateDataSourceDialog)
   <Drawer>
     <DialogTrigger>
       <Button size="sm" variant="ghost" :class="props.class">
-        <MenuIcon class="size-4 min-w-max" />
+        <MenuIcon class="size-4 min-h-max" />
       </Button>
     </DialogTrigger>
     <DrawerContent>

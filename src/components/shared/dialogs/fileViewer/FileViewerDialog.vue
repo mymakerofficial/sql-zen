@@ -50,7 +50,7 @@ function handleDownload() {
       <FileViewer :file-accessor="fileAccessor" class="flex-1" />
       <DialogFooter>
         <Button @click="handleDownload" class="gap-3">
-          <DownloadIcon class="size-4 min-w-max" />
+          <DownloadIcon class="size-4 min-h-max" />
           <span>Download</span>
         </Button>
       </DialogFooter>

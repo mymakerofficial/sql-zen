@@ -21,17 +21,17 @@ function handleClose() {
 <template>
   <div class="flex items-center h-full">
     <Button class="h-full rounded-none" variant="ghost" @click="handleMinimize">
-      <MinusIcon class="size-4 min-w-max" />
+      <MinusIcon class="size-4 min-h-max" />
     </Button>
     <Button class="h-full rounded-none" variant="ghost" @click="handleMaximize">
-      <SquareIcon class="size-4 min-w-max" />
+      <SquareIcon class="size-4 min-h-max" />
     </Button>
     <Button
       class="h-full rounded-none hover:bg-red-500"
       variant="ghost"
       @click="handleClose"
     >
-      <XIcon class="size-4 min-w-max" />
+      <XIcon class="size-4 min-h-max" />
     </Button>
   </div>
 </template>

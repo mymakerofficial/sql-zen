@@ -27,13 +27,13 @@ const props = defineProps<{
       <SelectGroup>
         <SelectItem :value="DataSourceMode.Memory" class="px-3">
           <div class="flex items-center gap-2">
-            <CpuIcon class="size-4 min-w-max" />
+            <CpuIcon class="size-4 min-h-max" />
             <span>In Memory</span>
           </div>
         </SelectItem>
         <SelectItem :value="DataSourceMode.BrowserPersisted" class="px-3">
           <div class="flex items-center gap-2">
-            <HardDriveIcon class="size-4 min-w-max" />
+            <HardDriveIcon class="size-4 min-h-max" />
             <span>Persisted</span>
           </div>
         </SelectItem>
