@@ -3,6 +3,12 @@ import { DataSourceMode } from '@/lib/dataSources/enums'
 import type { Registry } from '@/lib/registry/impl/registry'
 
 export default function findPostgresDatabases(registry: Registry) {
+  if (!('indexedDB' in globalThis)) {
+    return
+  }
+  if (!('databases' in indexedDB)) {
+    return
+  }
   indexedDB.databases().then((databases) => {
     databases.filter(isPostgresDatabase).forEach((database) => {
       registry.register({
