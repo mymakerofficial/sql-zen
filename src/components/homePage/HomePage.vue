@@ -4,7 +4,9 @@ import HowItWorks from '@/components/homePage/HowItWorks.vue'
 </script>
 
 <template>
-  <div class="flex flex-col gap-28 p-6 md:p-16 lg:p-28 mx-auto max-w-[2024px]">
+  <div
+    class="flex flex-col gap-20 md:gap-32 p-6 md:px-16 md:py-[10vh] lg:px-28 mx-auto max-w-[2024px]"
+  >
     <HeroSection />
     <HowItWorks />
   </div>
