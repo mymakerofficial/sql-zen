@@ -1,19 +1,25 @@
-CREATE TABLE IF NOT EXISTS users (
+-- Create a table to store products
+CREATE TABLE products (
     id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    favorite_color TEXT NOT NULl,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    name TEXT NOT NULL UNIQUE,
+    heading TEXT,
+    description TEXT,
+    price NUMERIC
 );
 
-INSERT INTO users (name, favorite_color)
-VALUES ('Alice', 'blue'),
-    ('Bob', 'green'),
-    ('Charlie', 'red'),
-    ('David', 'blue');
+-- Insert some data
+INSERT INTO products (name, heading, description, price)
+VALUES
+    ('Quantum Leap Headphones', 'Sonic Bliss Unleashed', 'Immersive audio with noise cancellation that transports you.', 299.99),
+    ('Smartphone', 'Your Digital Life', 'The ultimate device for staying connected and entertained.', 999.99),
+    ('Smartwatch', 'Your Wrist, Your World', 'Stay connected and track your fitness goals.', 199.99),
+    ('Office Chair', 'Elevate Your Workspace', 'Experience optimal comfort and support while working.', 1499.99),
+    ('Virtual Reality Headset', 'Escape the Ordinary', 'Your new favorite way to avoid chores.', 399.99);
 
-SELECT * FROM users;
-
-SELECT *
-FROM users
-WHERE favorite_color = 'blue'
-ORDER BY name DESC;
+-- Select all products
+SELECT
+    name,
+    concat(heading, ': ', description) as details,
+    concat(price, '€') as price
+FROM products
+ORDER BY price DESC;

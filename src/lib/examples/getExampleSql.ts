@@ -16,9 +16,6 @@ export function getExampleSql(engine: DatabaseEngine) {
 }
 
 function prependBanner(sql: string) {
-  return `-- Welcome to SqlZen!
--- You run statements by pressing the "Run" button above, 
---  or using the play buttons on the left margin.
-
+  return `
 ${sql}`
 }

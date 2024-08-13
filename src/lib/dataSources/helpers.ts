@@ -11,7 +11,9 @@ export function simplifyIdentifier(identifier: string) {
 }
 
 export function generateDataSourceKey(info: DataSourceBase): string {
-  const hash = djb2(`${info.engine}-${info.mode}-${info.identifier}`)
+  const hash = djb2(
+    `${info.engine}-${info.mode}-${simplifyIdentifier(info.identifier)}`,
+  )
   return `ds_${hash}`
 }
 

@@ -5,6 +5,9 @@ import LogoButton from '@/components/shared/appHeader/LogoButton.vue'
 import TitleBarControls from '@/components/shared/appHeader/TitleBarControls.vue'
 import { isTauri } from '@tauri-apps/api/core'
 import { cn } from '@/lib/utils'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 </script>
 
 <template>
@@ -19,7 +22,7 @@ import { cn } from '@/lib/utils'
   >
     <div class="h-full flex items-center gap-3">
       <LogoButton />
-      <AppHeaderMenu />
+      <AppHeaderMenu v-if="route.path !== '/'" />
     </div>
     <div class="h-full flex items-center gap-3">
       <ColorModeSelect />

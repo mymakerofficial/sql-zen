@@ -8,6 +8,7 @@ import { Logger } from '@/lib/logger/impl/logger'
 
 const props = defineProps<{
   id?: string
+  noToolbar?: boolean
 }>()
 
 const container = ref<HTMLElement | null>(null)
@@ -68,6 +69,7 @@ function handleDown() {
         </div>
       </div>
       <LoggerToolbar
+        v-if="!noToolbar"
         :can-clear="events.length > 0"
         v-model:stick-to-bottom="stickToBottom"
         @clear="handleClear"

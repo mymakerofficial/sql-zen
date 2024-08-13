@@ -6,6 +6,7 @@ import type { DataSourceData, DataSourceInfo } from '@/lib/dataSources/types'
 import type { DataSource } from '@/lib/dataSources/impl/base'
 import type { DataSourceStatus } from '@/lib/dataSources/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
+import { generateDataSourceKey } from '@/lib/dataSources/helpers'
 
 export class Registry extends EventPublisher<RegistryEventMap> {
   #dataSources: Map<string, DataSource> = new Map()
@@ -40,10 +41,16 @@ export class Registry extends EventPublisher<RegistryEventMap> {
     return this.getDataSource(key).getStatus()
   }
 
-  register(info: DataSourceData): void {
+  register(info: DataSourceData): string {
+    const key = generateDataSourceKey(info)
+    if (this.#dataSources.has(key)) {
+      // ignore duplicate registrations
+      return key
+    }
     const dataSource = DataSourceFactory.create(info)
     this.#dataSources.set(dataSource.key, dataSource)
     this.emit(RegistryEvent.Registered, dataSource.key)
+    return dataSource.key
   }
 
   start(key: string) {
