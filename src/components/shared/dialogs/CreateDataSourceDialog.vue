@@ -158,7 +158,7 @@ const { mutate: create, error } = useMutation({
             </Button>
           </FileInput>
           <p
-            v-if="enableDump"
+            v-if="!enableDump"
             class="col-span-full text-sm text-muted-foreground"
           >
             Only SQLite and PostgreSQL databases can be imported.
