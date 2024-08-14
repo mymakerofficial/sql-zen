@@ -9,6 +9,7 @@ import { DataSourceStatus } from '@/lib/dataSources/enums'
 
 const props = defineProps<{
   dataSourceKey: string
+  hideActions?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -50,7 +51,7 @@ function handleDelete() {
         </span>
         <span class="font-medium">{{ info.displayName }}</span>
       </Button>
-      <div class="flex items-center">
+      <div v-if="!hideActions" class="flex items-center">
         <Button @click="handleDelete" size="xs" variant="ghost">
           <Trash2Icon class="size-4 min-h-max" />
         </Button>

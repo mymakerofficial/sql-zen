@@ -16,7 +16,9 @@ import ConsoleResultPanel from '@/components/console/ConsoleResultPanel.vue'
 import inlineRun from '@/composables/editor/inlineRun'
 import highlightSelected from '@/composables/editor/highlightSelected'
 import { whenever } from '@vueuse/core'
+import { useQueryClient } from '@tanstack/vue-query'
 
+const queryClient = useQueryClient()
 const registry = useRegistry()
 
 const dataSourceKey = registry.register({
@@ -44,6 +46,9 @@ editor.editor.setScrollTop(100)
 
 whenever(isRunning, () => {
   runner.batch(editor.statements.value, true)
+  queryClient.invalidateQueries({
+    queryKey: ['schemaTree'],
+  })
 })
 </script>
 
