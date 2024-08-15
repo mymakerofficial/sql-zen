@@ -2,6 +2,8 @@
 import DatabaseExplorerItem from '@/components/databaseExplorer/DatabaseExplorerItem.vue'
 import HighlightsItem from '@/components/homePage/HighlightsItem.vue'
 import { SparklesIcon } from 'lucide-vue-next'
+import EmbeddedDSTree from '@/components/databaseExplorer/EmbeddedDSTree.vue'
+import { exampleDSTree } from '@/components/homePage/constants'
 </script>
 
 <template>
@@ -16,9 +18,9 @@ import { SparklesIcon } from 'lucide-vue-next'
       <HighlightsItem>
         <template #panel>
           <div class="absolute w-2/3 left-1/2 -translate-x-1/2 top-6">
-            <DatabaseExplorerItem
-              :data-source-key="'ds_-2e7db68f'"
-              hide-actions
+            <EmbeddedDSTree
+              :items="exampleDSTree"
+              :default-expanded="['mydb', 'mydb-main', 'mydb-main-__tables__']"
             />
           </div>
         </template>

@@ -15,9 +15,15 @@ import {
 import type { DSTreeItem } from '@/lib/dialect/interface'
 import { DSTreeItemType } from '@/lib/dialect/enums'
 
-defineProps<{
-  items: DSTreeItem[]
-}>()
+withDefaults(
+  defineProps<{
+    items: DSTreeItem[]
+    defaultExpanded?: string[]
+  }>(),
+  {
+    defaultExpanded: [],
+  },
+)
 </script>
 
 <template>
@@ -25,7 +31,7 @@ defineProps<{
     v-slot="{ flattenItems }"
     :items="items"
     :get-key="(item) => item.key"
-    :default-expanded="['__databases__', '__schemas__']"
+    :default-expanded="defaultExpanded"
     class="text-sm font-medium"
   >
     <TreeItem
