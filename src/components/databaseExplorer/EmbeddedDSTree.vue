@@ -15,15 +15,10 @@ import {
 import type { DSTreeItem } from '@/lib/dialect/interface'
 import { DSTreeItemType } from '@/lib/dialect/enums'
 
-withDefaults(
-  defineProps<{
-    items: DSTreeItem[]
-    defaultExpanded?: string[]
-  }>(),
-  {
-    defaultExpanded: [],
-  },
-)
+defineProps<{
+  items: DSTreeItem[]
+  defaultExpanded?: string[]
+}>()
 </script>
 
 <template>
