@@ -6,15 +6,19 @@ import { MousePointer2Icon, DownloadIcon } from 'lucide-vue-next'
 <template>
   <section class="flex flex-col gap-12">
     <div class="flex flex-col gap-4 md:gap-8">
-      <h1 class="text-4xl md:text-5xl">
+      <h1 class="text-4xl md:text-5xl flex items-center gap-3 md:gap-5">
         <img
           src="@/assets/sql-zen-logo.svg"
           alt="SqlZen"
-          class="inline size-10 mr-3 -mt-2 md:size-14 md:mr-5 md:-mt-2"
+          class="inline size-10 md:size-14"
         />
         <span
           class="bg-gradient-to-br from-blue-200 to-blue-600 inline-block text-transparent bg-clip-text leading-normal font-black"
           >SqlZen</span
+        >
+        <small
+          class="text-sm font-medium text-neutral-900 bg-gradient-to-r from-amber-300 to-amber-500 px-2 py-0.5 rounded-sm self-baseline"
+          >Early Access</small
         >
       </h1>
       <h2 class="text-2xl md:text-4xl font-bold leading-10">
