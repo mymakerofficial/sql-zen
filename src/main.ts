@@ -14,6 +14,10 @@ import { useTabManager } from '@/composables/tabs/useTabManager'
 import { RegistryEvent } from '@/lib/registry/events'
 import { TabType } from '@/lib/tabs/enums'
 import persistTabs from '@/lib/tabs/plugins/persistTabs'
+import { inject } from '@vercel/analytics'
+
+// inject vercel analytics
+inject()
 
 const app = createApp(App)
 
