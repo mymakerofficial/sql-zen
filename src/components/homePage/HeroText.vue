@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
 import { MousePointer2Icon, DownloadIcon } from 'lucide-vue-next'
+import ClickTheButton from '@/assets/click-the-button.svg?raw'
 </script>
 
 <template>
@@ -30,13 +31,19 @@ import { MousePointer2Icon, DownloadIcon } from 'lucide-vue-next'
         your machine.
       </p>
     </div>
-    <div class="flex flex-wrap gap-3">
-      <Button as-child size="lg" class="gap-3">
-        <RouterLink to="/app">
-          <MousePointer2Icon class="size-4 min-h-max" />
-          <span>Get Started</span>
-        </RouterLink>
-      </Button>
+    <div class="flex flex-wrap gap-3 mt-6">
+      <div class="relative">
+        <span
+          v-html="ClickTheButton"
+          class="absolute -top-3 -translate-y-10 translate-x-1/2 [&_path]:!stroke-current [&_text]:!fill-current"
+        />
+        <Button as-child size="lg" class="gap-3">
+          <RouterLink to="/app">
+            <MousePointer2Icon class="size-4 min-h-max" />
+            <span>Get Started</span>
+          </RouterLink>
+        </Button>
+      </div>
       <Button size="lg" variant="secondary" class="gap-3">
         <DownloadIcon class="size-4 min-h-max" />
         <span>Download for Windows</span>

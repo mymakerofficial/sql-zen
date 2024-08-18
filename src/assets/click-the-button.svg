@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 1700 400" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <g transform="matrix(0.857007,-0.0156883,0.0183028,0.999832,-354.603,-185.931)">
+        <path d="M881.86,333.488C673.445,350.775 616.541,426.133 623.721,468.837C640.123,566.394 772.111,470.362 676.744,436.744C658.012,430.141 627.42,436.778 611.163,443.721C505.826,488.709 506.549,530.349 489.767,559.535" style="fill:none;stroke:black;stroke-width:17.75px;"/>
+    </g>
+    <g transform="matrix(0.999832,-0.0183028,0.0183028,0.999832,-415.923,-183.872)">
+        <path d="M449.258,501.807C482.667,542.807 473.909,571.038 474.406,571.534C476.094,573.222 509.943,540.119 544.133,541.243" style="fill:none;stroke:black;stroke-width:16.53px;"/>
+    </g>
+    <g transform="matrix(0.999832,-0.0183028,0.0183028,0.999832,-462.41,-166.795)">
+        <g transform="matrix(155.588,0,0,155.588,2066.11,374.408)">
+        </g>
+        <text x="897.677px" y="374.408px" style="font-family:'ComicSansMS', 'Comic Sans MS', cursive;font-size:155.588px;">Click the button</text>
+    </g>
+</svg>
