@@ -25,3 +25,29 @@ export const DuckDBDataType = {
 } as const
 export type DuckDBDataType =
   (typeof DuckDBDataType)[keyof typeof DuckDBDataType]
+
+export const DuckDBTypeMap = {
+  ['BIGINT']: DuckDBDataType.BigInt,
+  ['BIT']: DuckDBDataType.Bit,
+  ['BLOB']: DuckDBDataType.Blob,
+  ['BOOLEAN']: DuckDBDataType.Boolean,
+  ['DATE']: DuckDBDataType.Date,
+  ['DECIMAL']: DuckDBDataType.Decimal,
+  ['DOUBLE']: DuckDBDataType.Double,
+  ['FLOAT']: DuckDBDataType.Float,
+  ['HUGEINT']: DuckDBDataType.HugeInt,
+  ['INTEGER']: DuckDBDataType.Integer,
+  ['INTERVAL']: DuckDBDataType.Interval,
+  ['SMALLINT']: DuckDBDataType.SmallInt,
+  ['TIME']: DuckDBDataType.Time,
+  ['TIMESTAMPZ']: DuckDBDataType.TimestampWithTimezone,
+  ['TIMESTAMP']: DuckDBDataType.Timestamp,
+  ['TINYINT']: DuckDBDataType.TinyInt,
+  ['UBIGINT']: DuckDBDataType.UBigInt,
+  ['UHUGEINT']: DuckDBDataType.UHugeInt,
+  ['UINTEGER']: DuckDBDataType.UInteger,
+  ['USMALLINT']: DuckDBDataType.USmallInt,
+  ['UTINYINT']: DuckDBDataType.UTinyInt,
+  ['UUID']: DuckDBDataType.Uuid,
+  ['VARCHAR']: DuckDBDataType.Varchar,
+} as const satisfies Record<string, DuckDBDataType>

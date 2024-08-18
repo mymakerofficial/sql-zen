@@ -10,7 +10,11 @@ import { DataSource } from '@/lib/dataSources/impl/base'
 import type { FileInfo } from '@/lib/files/interface'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
-import { ColumnDefinition } from '@/lib/schema/columns/definition/base'
+import {
+  ColumnDefinition,
+  type FieldInfo,
+} from '@/lib/schema/columns/definition/base'
+import { DuckDBColumnDefinition } from '@/lib/schema/columns/definition/duckdb'
 
 export class DuckDB extends DataSource {
   #worker: Worker | null = null
@@ -113,9 +117,13 @@ export class DuckDB extends DataSource {
       const start = performance.now()
       const arrowResult = await this.#connection.query(sql)
       const end = performance.now()
-      const fields = arrowResult.schema.fields.map((field) => {
-        return ColumnDefinition.fromUnknown(field.name).toFieldInfo()
+
+      const fields = await this.#getTypes(sql, arrowResult).catch(() => {
+        return arrowResult.schema.fields.map((field) => {
+          return DuckDBColumnDefinition.fromUnknown(field.name).toFieldInfo()
+        })
       })
+
       return {
         fields,
         rows: this.#unwrapRawResponse<T>(arrowResult),
@@ -123,6 +131,36 @@ export class DuckDB extends DataSource {
         duration: end - start,
         id: getId('result'),
       } as QueryResult<T>
+    })
+  }
+
+  async #getTypes(
+    originalSql: string,
+    originalResult: Table,
+  ): Promise<FieldInfo<typeof DatabaseEngine.DuckDB>[]> {
+    if (
+      originalResult.toArray().length === 0 ||
+      originalSql.substring(0, 6).toUpperCase() !== 'SELECT'
+    ) {
+      return []
+    }
+
+    if (!this.#connection) {
+      throw new DatabaseNotLoadedError()
+    }
+
+    const sql = `DESCRIBE ${originalSql}`
+    const arrowResult = await this.#connection.query(sql)
+    const result = this.#unwrapRawResponse<{
+      column_name: string
+      column_type: string
+    }>(arrowResult)
+
+    return result.map((row) => {
+      return DuckDBColumnDefinition.fromNameAndType(
+        row.column_name,
+        row.column_type,
+      ).toFieldInfo()
     })
   }
 
