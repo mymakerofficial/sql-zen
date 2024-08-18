@@ -3,6 +3,7 @@ import { SelectTrigger as RadixSelectTrigger } from 'radix-vue'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectTrigger,
   SelectValue,
   SelectItem,

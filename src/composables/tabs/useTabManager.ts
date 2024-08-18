@@ -1,5 +1,5 @@
 import { TabManager } from '@/lib/tabs/manager/manager'
-import { inject, provide } from 'vue'
+import { inject, provide, getCurrentInstance } from 'vue'
 
 const mainTabManager = new TabManager()
 
@@ -8,6 +8,11 @@ export function provideTabManager(tabManager: TabManager = new TabManager()) {
 }
 
 export function useTabManager() {
-  const injectedTabManager = inject<TabManager>('__tabManager__')
-  return injectedTabManager ?? mainTabManager
+  const instance = getCurrentInstance()
+
+  if (!instance) {
+    return mainTabManager
+  }
+
+  return inject<TabManager>('__tabManager__', mainTabManager)
 }
