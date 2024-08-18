@@ -4,8 +4,8 @@ import {
 } from '@/lib/schema/columns/definition/base'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import {
-  PostgesDataTypeIdMap,
   type PostgresDataType,
+  PostgresUDTNameDataTypeMap,
 } from '@/lib/schema/columns/types/postgresql'
 import {
   PseudoDataType,
@@ -19,29 +19,27 @@ export class PostgreSQLColumnDefinition extends ColumnDefinition<
     super(info)
   }
 
-  static fromNameAndTypeId(
+  static fromNameAndUDTName(
     name: string,
-    typeId: number,
+    udtName: string,
   ): PostgreSQLColumnDefinition {
     return new PostgreSQLColumnDefinition({
       engine: DatabaseEngine.PostgreSQL,
       name,
-      dataType: dataTypeIdToDataType(typeId),
-      nullable: false,
-      primary: false,
-      unique: false,
+      dataType: udtNameToDataType(udtName),
+      isNullable: false,
+      isPrimaryKey: false,
+      isUnique: false,
     })
   }
 }
 
-function dataTypeIdToDataType(
-  typeId: number,
-): WithPseudoTypes<PostgresDataType> {
+function udtNameToDataType(udtName: string): WithPseudoTypes<PostgresDataType> {
   // @ts-expect-error
-  const dataType = PostgesDataTypeIdMap[typeId]
+  const dataType = PostgresUDTNameDataTypeMap[udtName.toLowerCase()]
 
   if (!dataType) {
-    console.warn(`Unknown PostgreSQL data type ID: ${typeId}`)
+    console.warn(`Unknown PostgreSQL data type: ${udtName}`)
     return PseudoDataType.Unknown
   }
 

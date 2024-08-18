@@ -14,6 +14,7 @@ const BASE_PATH = '/var'
 
 export class PostgreSQL extends DataSource {
   #database: PGlite | null = null
+  #types: Map<number, string> = new Map()
 
   getEngine(): DatabaseEngine {
     return DatabaseEngine.PostgreSQL
@@ -36,10 +37,6 @@ export class PostgreSQL extends DataSource {
       'SELECT version()',
     )
     return rows[0]?.version
-  }
-
-  isInitialized(): boolean {
-    return this.#database !== null
   }
 
   async init() {
@@ -88,12 +85,15 @@ export class PostgreSQL extends DataSource {
       const start = performance.now()
       const rawResponse = await this.#database.query<T>(sql)
       const end = performance.now()
+
+      await this.fetchOIDs(rawResponse.fields.map((field) => field.dataTypeID))
       const columns = rawResponse.fields.map((field) =>
-        PostgreSQLColumnDefinition.fromNameAndTypeId(
+        PostgreSQLColumnDefinition.fromNameAndUDTName(
           field.name,
-          field.dataTypeID,
+          this.getUDTByOID(field.dataTypeID),
         ).getInfo(),
       )
+
       return {
         columns,
         rows: rawResponse.rows,
@@ -102,6 +102,37 @@ export class PostgreSQL extends DataSource {
         id: getId('result'),
       } as QueryResult<T>
     })
+  }
+
+  // returns the type name for the given OID
+  //  be sure to call #fetchOIDs first
+  getUDTByOID(oid: number) {
+    return this.#types.get(oid) ?? ''
+  }
+
+  // Fetches the type names for the given OIDs and caches them
+  async fetchOIDs(oids: number[]) {
+    if (!this.#database) {
+      throw new DatabaseNotLoadedError()
+    }
+
+    const distinctOIDs = [...new Set(oids)]
+    const missingOIDs = distinctOIDs.filter((oid) => !this.#types.has(oid))
+
+    if (!missingOIDs.length) {
+      return
+    }
+
+    const { rows } = await this.#database.query<{
+      oid: number
+      typname: string
+    }>(`SELECT oid, typname FROM pg_catalog.pg_type WHERE oid = ANY($1)`, [
+      missingOIDs,
+    ])
+
+    for (const row of rows) {
+      this.#types.set(row.oid, row.typname)
+    }
   }
 
   async getFiles() {

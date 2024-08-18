@@ -9,9 +9,9 @@ export type ColumnDefinitionInfo<T extends DatabaseEngine = DatabaseEngine> = {
   engine: T
   name: string
   dataType: WithPseudoTypes<DataTypeFromEngine<T>>
-  nullable: boolean
-  primary: boolean
-  unique: boolean
+  isNullable: boolean
+  isPrimaryKey: boolean
+  isUnique: boolean
 }
 
 export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
@@ -20,17 +20,17 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
   readonly #engine: T
   readonly #name: string
   readonly #dataType: WithPseudoTypes<DataTypeFromEngine<T>>
-  readonly #nullable: boolean
-  readonly #primary: boolean
-  readonly #unique: boolean
+  readonly #isNullable: boolean
+  readonly #isPrimaryKey: boolean
+  readonly #isUnique: boolean
 
   constructor(info: ColumnDefinitionInfo<T>) {
     this.#engine = info.engine
     this.#name = info.name
     this.#dataType = info.dataType
-    this.#nullable = info.nullable
-    this.#primary = info.primary
-    this.#unique = info.unique
+    this.#isNullable = info.isNullable
+    this.#isPrimaryKey = info.isPrimaryKey
+    this.#isUnique = info.isUnique
   }
 
   static fromUnknown(name: string) {
@@ -38,9 +38,9 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
       engine: DatabaseEngine.None,
       name,
       dataType: PseudoDataType.Unknown,
-      nullable: false,
-      primary: false,
-      unique: false,
+      isNullable: false,
+      isPrimaryKey: false,
+      isUnique: false,
     })
   }
 
@@ -56,16 +56,16 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
     return this.#dataType
   }
 
-  get nullable() {
-    return this.#nullable
+  get isNullable() {
+    return this.#isNullable
   }
 
-  get primary() {
-    return this.#primary
+  get isPrimaryKey() {
+    return this.#isPrimaryKey
   }
 
-  get unique() {
-    return this.#unique
+  get isUnique() {
+    return this.#isUnique
   }
 
   getInfo(): ColumnDefinitionInfo<T> {
@@ -73,9 +73,9 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
       engine: this.#engine,
       name: this.#name,
       dataType: this.#dataType,
-      nullable: this.#nullable,
-      primary: this.#primary,
-      unique: this.#unique,
+      isNullable: this.#isNullable,
+      isPrimaryKey: this.#isPrimaryKey,
+      isUnique: this.#isUnique,
     }
   }
 
