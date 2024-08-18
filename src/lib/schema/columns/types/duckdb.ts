@@ -51,3 +51,24 @@ export const DuckDBTypeMap = {
   ['UUID']: DuckDBDataType.Uuid,
   ['VARCHAR']: DuckDBDataType.Varchar,
 } as const satisfies Record<string, DuckDBDataType>
+
+export const ArrowTypeToDuckDBTypeMap = {
+  ['Int8']: DuckDBDataType.BigInt,
+  ['Int16']: DuckDBDataType.SmallInt,
+  ['Int32']: DuckDBDataType.Integer,
+  ['Int64']: DuckDBDataType.HugeInt,
+  ['Uint8']: DuckDBDataType.TinyInt,
+  ['Uint16']: DuckDBDataType.USmallInt,
+  ['Uint32']: DuckDBDataType.UInteger,
+  ['Uint64']: DuckDBDataType.UHugeInt,
+  ['Float']: DuckDBDataType.Float,
+  ['Double']: DuckDBDataType.Double,
+  ['Utf8']: DuckDBDataType.Varchar,
+  ['Binary']: DuckDBDataType.Blob,
+  ['Bool']: DuckDBDataType.Boolean,
+  ['Date']: DuckDBDataType.Date,
+  ['Time']: DuckDBDataType.Time,
+  ['Timestamp']: DuckDBDataType.Timestamp,
+  ['TimestampTz']: DuckDBDataType.TimestampWithTimezone,
+  ['Interval']: DuckDBDataType.Interval,
+}
