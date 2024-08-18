@@ -10,6 +10,7 @@ import { DataSource } from '@/lib/dataSources/impl/base'
 import type { FileInfo } from '@/lib/files/interface'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
+import { ColumnDefinition } from '@/lib/schema/columns/definition/base'
 
 export class DuckDB extends DataSource {
   #worker: Worker | null = null
@@ -112,7 +113,11 @@ export class DuckDB extends DataSource {
       const start = performance.now()
       const arrowResult = await this.#connection.query(sql)
       const end = performance.now()
+      const columns = arrowResult.schema.fields.map((field) => {
+        return ColumnDefinition.fromUnknown(field.name).getInfo()
+      })
       return {
+        columns,
         rows: this.#unwrapRawResponse<T>(arrowResult),
         affectedRows: 0,
         duration: end - start,

@@ -11,6 +11,7 @@ import { DataSource } from '@/lib/dataSources/impl/base'
 import { runPromised } from '@/lib/runPromised'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
+import { ColumnDefinition } from '@/lib/schema/columns/definition/base'
 
 export class SQLite extends DataSource {
   #sqlite3: Sqlite3Static | null = null
@@ -90,13 +91,19 @@ export class SQLite extends DataSource {
       }
 
       const start = performance.now()
-      const row = this.#database.exec(sql, {
+      const rows = this.#database.exec(sql, {
         rowMode: 'object',
         returnValue: 'resultRows',
       })
       const end = performance.now()
+      const columns = rows.length
+        ? Object.keys(rows[0]).map((name) =>
+            ColumnDefinition.fromUnknown(name).getInfo(),
+          )
+        : []
       return {
-        rows: row,
+        columns,
+        rows: rows as T,
         affectedRows: null,
         duration: end - start,
         id: getId('result'),

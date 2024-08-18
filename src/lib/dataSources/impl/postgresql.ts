@@ -8,6 +8,7 @@ import { DataSource } from '@/lib/dataSources/impl/base'
 import type { FileInfo } from '@/lib/files/interface'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
+import { PostgreSQLColumnDefinition } from '@/lib/schema/columns/definition/postgresql'
 
 const BASE_PATH = '/var'
 
@@ -87,7 +88,14 @@ export class PostgreSQL extends DataSource {
       const start = performance.now()
       const rawResponse = await this.#database.query<T>(sql)
       const end = performance.now()
+      const columns = rawResponse.fields.map((field) =>
+        PostgreSQLColumnDefinition.fromNameAndTypeId(
+          field.name,
+          field.dataTypeID,
+        ).getInfo(),
+      )
       return {
+        columns,
         rows: rawResponse.rows,
         affectedRows: rawResponse.affectedRows,
         duration: end - start,

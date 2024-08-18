@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import DataTable from '@/components/shared/table/DataTable.vue'
 import { createColumnHelper } from '@tanstack/vue-table'
-import { computed } from 'vue'
+import { computed, h } from 'vue'
 import type { QueryResult } from '@/lib/queries/interface'
+import ResultTableHeader from '@/components/shared/table/ResultTableHeader.vue'
 
 const props = defineProps<{
   data: QueryResult
@@ -10,14 +11,12 @@ const props = defineProps<{
 
 const columnHelper = createColumnHelper<object>()
 const columns = computed(() => {
-  return props.data.rows.length
-    ? Object.keys(props.data.rows[0]).map((key) =>
-        // @ts-ignore // TODO: Fix this
-        columnHelper.accessor(key, {
-          header: key,
-        }),
-      )
-    : []
+  return props.data.columns.map((column) =>
+    // @ts-expect-error
+    columnHelper.accessor(column.name, {
+      header: () => h(ResultTableHeader, { column }),
+    }),
+  )
 })
 </script>
 
