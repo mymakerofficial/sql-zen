@@ -75,7 +75,15 @@ export class Query<T extends object = object>
   }
 
   getResult(): QueryResult<T> | PaginatedQueryResult<T> {
-    return this.#result || { rows: [], affectedRows: null, duration: 0, id: '' }
+    return (
+      this.#result || {
+        fields: [],
+        rows: [],
+        affectedRows: null,
+        duration: 0,
+        id: '',
+      }
+    )
   }
 
   #setResult(
