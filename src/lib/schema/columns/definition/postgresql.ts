@@ -27,7 +27,7 @@ export class PostgreSQLColumnDefinition extends ColumnDefinition<
       engine: DatabaseEngine.PostgreSQL,
       name,
       dataType: udtNameToDataType(udtName),
-      isNullable: false,
+      isNullable: true,
       isPrimaryKey: false,
       isUnique: false,
     })

@@ -5,14 +5,18 @@ import {
   type WithPseudoTypes,
 } from '@/lib/schema/columns/types/base'
 
-export type ColumnDefinitionInfo<T extends DatabaseEngine = DatabaseEngine> = {
+export type FieldInfo<T extends DatabaseEngine = DatabaseEngine> = {
   engine: T
   name: string
   dataType: WithPseudoTypes<DataTypeFromEngine<T>>
-  isNullable: boolean
-  isPrimaryKey: boolean
-  isUnique: boolean
 }
+
+export type ColumnDefinitionInfo<T extends DatabaseEngine = DatabaseEngine> =
+  FieldInfo<T> & {
+    isNullable: boolean
+    isPrimaryKey: boolean
+    isUnique: boolean
+  }
 
 export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
   implements ColumnDefinitionInfo<T>
@@ -33,14 +37,28 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
     this.#isUnique = info.isUnique
   }
 
+  static from<T extends DatabaseEngine = typeof DatabaseEngine.None>(
+    info: ColumnDefinitionInfo<T>,
+  ) {
+    return new ColumnDefinition(info)
+  }
+
+  static fromFieldInfo<T extends DatabaseEngine = typeof DatabaseEngine.None>(
+    info: FieldInfo<T>,
+  ) {
+    return this.from({
+      ...info,
+      isNullable: true,
+      isPrimaryKey: false,
+      isUnique: false,
+    })
+  }
+
   static fromUnknown(name: string) {
-    return new ColumnDefinition({
+    return this.fromFieldInfo({
       engine: DatabaseEngine.None,
       name,
       dataType: PseudoDataType.Unknown,
-      isNullable: false,
-      isPrimaryKey: false,
-      isUnique: false,
     })
   }
 
@@ -68,20 +86,20 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
     return this.#isUnique
   }
 
-  getInfo(): ColumnDefinitionInfo<T> {
+  toFieldInfo(): FieldInfo<T> {
     return {
-      engine: this.#engine,
-      name: this.#name,
-      dataType: this.#dataType,
-      isNullable: this.#isNullable,
-      isPrimaryKey: this.#isPrimaryKey,
-      isUnique: this.#isUnique,
+      engine: this.engine,
+      name: this.name,
+      dataType: this.dataType,
     }
   }
 
-  static from<T extends DatabaseEngine = typeof DatabaseEngine.None>(
-    info: ColumnDefinitionInfo<T>,
-  ) {
-    return new ColumnDefinition(info)
+  getInfo(): ColumnDefinitionInfo<T> {
+    return {
+      ...this.toFieldInfo(),
+      isNullable: this.isNullable,
+      isPrimaryKey: this.isPrimaryKey,
+      isUnique: this.isUnique,
+    }
   }
 }

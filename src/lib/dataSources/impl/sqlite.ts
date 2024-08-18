@@ -96,13 +96,13 @@ export class SQLite extends DataSource {
         returnValue: 'resultRows',
       })
       const end = performance.now()
-      const columns = rows.length
+      const fields = rows.length
         ? Object.keys(rows[0]).map((name) =>
-            ColumnDefinition.fromUnknown(name).getInfo(),
+            ColumnDefinition.fromUnknown(name).toFieldInfo(),
           )
         : []
       return {
-        columns,
+        fields,
         rows: rows as T,
         affectedRows: null,
         duration: end - start,

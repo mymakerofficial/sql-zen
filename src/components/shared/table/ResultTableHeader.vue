@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { ColumnDefinitionInfo } from '@/lib/schema/columns/definition/base'
+import type { FieldInfo } from '@/lib/schema/columns/definition/base'
 
 defineProps<{
-  column: ColumnDefinitionInfo
+  field: FieldInfo
 }>()
 </script>
 
 <template>
   <span class="flex items-center gap-3">
-    <span>{{ column.name }}</span>
-    <span class="text-xs font-normal">{{ column.dataType }}</span>
+    <span>{{ field.name }}</span>
+    <span class="text-xs font-normal">{{ field.dataType }}</span>
   </span>
 </template>

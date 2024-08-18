@@ -87,15 +87,15 @@ export class PostgreSQL extends DataSource {
       const end = performance.now()
 
       await this.fetchOIDs(rawResponse.fields.map((field) => field.dataTypeID))
-      const columns = rawResponse.fields.map((field) =>
+      const fields = rawResponse.fields.map((field) =>
         PostgreSQLColumnDefinition.fromNameAndUDTName(
           field.name,
           this.getUDTByOID(field.dataTypeID),
-        ).getInfo(),
+        ).toFieldInfo(),
       )
 
       return {
-        columns,
+        fields,
         rows: rawResponse.rows,
         affectedRows: rawResponse.affectedRows,
         duration: end - start,
@@ -105,7 +105,7 @@ export class PostgreSQL extends DataSource {
   }
 
   // returns the type name for the given OID
-  //  be sure to call #fetchOIDs first
+  //  be sure to call fetchOIDs first
   getUDTByOID(oid: number) {
     return this.#types.get(oid) ?? ''
   }

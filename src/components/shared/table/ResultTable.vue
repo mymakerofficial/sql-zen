@@ -11,10 +11,10 @@ const props = defineProps<{
 
 const columnHelper = createColumnHelper<object>()
 const columns = computed(() => {
-  return props.data.columns.map((column) =>
+  return props.data.fields.map((field) =>
     // @ts-expect-error
-    columnHelper.accessor(column.name, {
-      header: () => h(ResultTableHeader, { column }),
+    columnHelper.accessor(field.name, {
+      header: () => h(ResultTableHeader, { field }),
     }),
   )
 })

@@ -25,7 +25,7 @@ export class DataSourceDummy extends DataSource {
   query<T extends object = object>(sql: string) {
     return this.logger.query(sql, async () => {
       return {
-        columns: [],
+        fields: [],
         rows: [],
         affectedRows: null,
         duration: 0,

@@ -113,11 +113,11 @@ export class DuckDB extends DataSource {
       const start = performance.now()
       const arrowResult = await this.#connection.query(sql)
       const end = performance.now()
-      const columns = arrowResult.schema.fields.map((field) => {
-        return ColumnDefinition.fromUnknown(field.name).getInfo()
+      const fields = arrowResult.schema.fields.map((field) => {
+        return ColumnDefinition.fromUnknown(field.name).toFieldInfo()
       })
       return {
-        columns,
+        fields,
         rows: this.#unwrapRawResponse<T>(arrowResult),
         affectedRows: 0,
         duration: end - start,
