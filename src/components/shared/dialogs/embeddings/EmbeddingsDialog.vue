@@ -109,13 +109,13 @@ watch([tableName, primaryColumnName, step], () => {
   const columnsSql = columns.value
     .filter((column) => column.name !== primaryColumnName.value)
     .map(
-      (column) => `'${capitalizeFirstLetter(column.name)}: ' || ${column.name}`,
+      (column) => `'${capitalizeFirstLetter(column.name)}: ', ${column.name}`,
     )
-    .join(' || ')
+    .join(', ')
   editor.editor.getModel()?.setValue(
     `SELECT
     ${primaryColumnName.value},
-    ${columnsSql} as text
+    concat(${columnsSql}) as text
 FROM ${tableName.value}`,
   )
 })
