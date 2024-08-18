@@ -5,7 +5,6 @@ import type { QueryResult } from '@/lib/queries/interface'
 import { getId } from '@/lib/getId'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { DataSource } from '@/lib/dataSources/impl/base'
-import { vector } from '@electric-sql/pglite/vector'
 import type { FileInfo } from '@/lib/files/interface'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
@@ -51,9 +50,14 @@ export class PostgreSQL extends DataSource {
     this.emit(DataSourceEvent.Initializing)
 
     this.#database = await this.logger.step('Loading PostgreSQL', async () => {
-      const module = await import('@electric-sql/pglite')
+      const { PGlite } = await import('@electric-sql/pglite')
+      const { vector } = await import('@electric-sql/pglite/vector')
+
+      const dataDir = this.#getDataDir()
       const loadDataDir = await this.getInitDump()?.readBlob()
-      const database = new module.PGlite(this.#getDataDir(), {
+
+      const database = await PGlite.create({
+        dataDir,
         loadDataDir,
         extensions: {
           vector,

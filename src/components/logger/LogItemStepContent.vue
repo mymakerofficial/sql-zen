@@ -23,5 +23,11 @@ defineProps<{
       class="size-5 min-h-max text-red-500"
     />
     <p class="text-sm">{{ event.data.message }}</p>
+    <p
+      v-if="event.data.state === PromiseState.Error"
+      class="text-red-500 text-sm"
+    >
+      {{ event.data.errorMessage }}
+    </p>
   </div>
 </template>
