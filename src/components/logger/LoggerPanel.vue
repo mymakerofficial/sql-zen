@@ -43,8 +43,13 @@ async function scrollToBottom() {
   })
 }
 
+async function forceScrollToBottom() {
+  stickToBottom.value = true
+  await scrollToBottom()
+}
+
 watch(events, scrollToBottom)
-whenever(container, scrollToBottom)
+whenever(container, forceScrollToBottom)
 whenever(stickToBottom, scrollToBottom)
 
 function handleClear() {
