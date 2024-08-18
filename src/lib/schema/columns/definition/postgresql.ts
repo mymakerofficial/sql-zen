@@ -12,6 +12,15 @@ import {
   type WithPseudoTypes,
 } from '@/lib/schema/columns/types/base'
 
+export type PostgreSQLInformationSchemaColumn = {
+  table_catalog: string
+  table_schema: string
+  table_name: string
+  column_name: string
+  udt_name: string
+  is_nullable: 'YES' | 'NO'
+}
+
 export class PostgreSQLColumnDefinition extends ColumnDefinition<
   typeof DatabaseEngine.PostgreSQL
 > {
@@ -28,6 +37,19 @@ export class PostgreSQLColumnDefinition extends ColumnDefinition<
       name,
       dataType: udtNameToDataType(udtName),
       isNullable: true,
+      isPrimaryKey: false,
+      isUnique: false,
+    })
+  }
+
+  static fromInformationSchemaColumn(
+    column: PostgreSQLInformationSchemaColumn,
+  ): PostgreSQLColumnDefinition {
+    return new PostgreSQLColumnDefinition({
+      engine: DatabaseEngine.PostgreSQL,
+      name: column.column_name,
+      dataType: udtNameToDataType(column.udt_name),
+      isNullable: column.is_nullable === 'YES',
       isPrimaryKey: false,
       isUnique: false,
     })

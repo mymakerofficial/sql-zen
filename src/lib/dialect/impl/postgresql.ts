@@ -7,6 +7,17 @@ import type {
 } from '@/lib/dialect/interface'
 import { DSTreeItemType } from '@/lib/dialect/enums'
 import { SqlDialect } from '@/lib/dialect/impl/base'
+import {
+  ColumnDefinition,
+  type ColumnDefinitionInfo,
+} from '@/lib/schema/columns/definition/base'
+import type {
+  DataTypeFromEngine,
+  WithPseudoTypes,
+} from '@/lib/schema/columns/types/base'
+import { DatabaseEngine } from '@/lib/engines/enums'
+import type { PostgreSQLInformationSchemaColumn } from '@/lib/schema/columns/definition/postgresql'
+import { PostgreSQLColumnDefinition } from '@/lib/schema/columns/definition/postgresql'
 
 export class PostgreSQLDialect extends SqlDialect {
   async getDataSourceTree() {
@@ -27,6 +38,26 @@ export class PostgreSQLDialect extends SqlDialect {
     )
 
     return genBase(extensions, schemas, tables, columns)
+  }
+
+  async getPublicTableNames() {
+    const { rows } = await this.dataSource.query<{ tablename: string }>(
+      `SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public'`,
+    )
+    return rows.map((it) => it.tablename)
+  }
+
+  async getTableColumns(tableName: string) {
+    const { rows } =
+      await this.dataSource.query<PostgreSQLInformationSchemaColumn>(
+        `SELECT table_schema, table_name, column_name, udt_name, is_nullable
+       FROM information_schema.columns
+       WHERE table_name = '${tableName}'`,
+      )
+
+    return rows.map((column) =>
+      PostgreSQLColumnDefinition.fromInformationSchemaColumn(column).getInfo(),
+    ) as ColumnDefinitionInfo[]
   }
 
   async beginTransaction(): Promise<void> {

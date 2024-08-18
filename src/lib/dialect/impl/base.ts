@@ -1,5 +1,6 @@
 import type { DSTreeItem } from '@/lib/dialect/interface'
 import type { DataSource } from '@/lib/dataSources/impl/base'
+import type { ColumnDefinitionInfo } from '@/lib/schema/columns/definition/base'
 
 export abstract class SqlDialect {
   protected dataSource: DataSource
@@ -9,6 +10,9 @@ export abstract class SqlDialect {
   }
 
   abstract getDataSourceTree(): Promise<DSTreeItem[]>
+
+  abstract getPublicTableNames(): Promise<string[]>
+  abstract getTableColumns(tableName: string): Promise<ColumnDefinitionInfo[]>
 
   abstract beginTransaction(): Promise<void>
   abstract commitTransaction(): Promise<void>

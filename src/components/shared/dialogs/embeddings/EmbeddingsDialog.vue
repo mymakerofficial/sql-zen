@@ -6,12 +6,12 @@ import MonacoEditor from '@/components/shared/monaco/MonacoEditor.vue'
 import { Label } from '@/components/ui/label'
 import * as monaco from 'monaco-editor'
 import { Input } from '@/components/ui/input'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { SparklesIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { DialogDescription, DialogTitle } from '@/components/ui/dialog'
-import { useMutation } from '@tanstack/vue-query'
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import { useTransformerPipeline } from '@/composables/transformers/useTransformerPipeline'
 import { Progress } from '@/components/ui/progress'
 import { getId } from '@/lib/getId'
@@ -32,6 +32,14 @@ import {
   StepperTitle,
   StepperTrigger,
 } from '@/components/ui/stepper'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -58,7 +66,27 @@ const step = ref(1)
 
 const tableName = ref('')
 const primaryColumnName = ref('id')
-const primaryColumnType = ref('text')
+
+const { data: tables } = useQuery({
+  queryKey: [dataSource.key, 'tables'],
+  queryFn: async () => {
+    const allTables = await dataSource.dialect.getPublicTableNames()
+    const filteredTables = allTables.filter(
+      (table) => !table.endsWith('_embeddings'),
+    )
+    if (filteredTables.length > 0) {
+      tableName.value = filteredTables[0]
+    }
+    return filteredTables
+  },
+  initialData: [],
+})
+
+const { data: columns } = useQuery({
+  queryKey: [dataSource.key, tableName, 'columns'],
+  queryFn: () => dataSource.dialect.getTableColumns(tableName.value),
+  initialData: [],
+})
 
 const editor = useEditor({
   model: monaco.editor.createModel(
@@ -71,6 +99,25 @@ LIMIT 1000`,
   ),
   glyphMargin: false,
   lineNumbers: false,
+})
+
+function capitalizeFirstLetter(text: string) {
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
+watch([tableName, primaryColumnName, step], () => {
+  const columnsSql = columns.value
+    .filter((column) => column.name !== primaryColumnName.value)
+    .map(
+      (column) => `'${capitalizeFirstLetter(column.name)}: ' || ${column.name}`,
+    )
+    .join(' || ')
+  editor.editor.getModel()?.setValue(
+    `SELECT
+    ${primaryColumnName.value},
+    ${columnsSql} as text
+FROM ${tableName.value}`,
+  )
 })
 
 async function generateEmbeddings() {
@@ -86,9 +133,12 @@ async function generateEmbeddings() {
 
   // create embeddings table
   const embeddingsTableName = `${tableName.value}_embeddings`
+  const primaryColumnType = columns.value.find(
+    (column) => column.name === primaryColumnName.value,
+  )!.dataType
   await dataSource.query(`CREATE TABLE IF NOT EXISTS ${embeddingsTableName}
 (
-    ${primaryColumnName.value} ${primaryColumnType.value.toUpperCase()},
+    ${primaryColumnName.value} ${primaryColumnType},
     embedding VECTOR(384)
 )`)
 
@@ -151,35 +201,44 @@ const {
       </Stepper>
       <div v-if="step === 1" class="grid gap-4 p-4 overflow-y-auto">
         <div class="grid grid-cols-4 items-center gap-4">
-          <Label for="tableName" class="text-right">Table Name</Label>
-          <Input
-            v-model="tableName"
-            :disabled="isPending"
-            id="tableName"
-            class="col-span-3"
-          />
+          <Label for="tableName" class="text-right">Table</Label>
+          <Select v-model="tableName" :disabled="isPending" id="tableName">
+            <SelectTrigger class="col-span-3">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem v-for="table in tables" :value="table" :key="table">
+                  {{ table }}
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
         <div class="grid grid-cols-4 items-center gap-4">
           <Label for="primaryColumnName" class="text-right"
-            >Primary Column Name</Label
+            >Primary Column</Label
           >
-          <Input
+          <Select
             v-model="primaryColumnName"
             :disabled="isPending"
             id="primaryColumnName"
-            class="col-span-3"
-          />
-        </div>
-        <div class="grid grid-cols-4 items-center gap-4">
-          <Label for="primaryColumnType" class="text-right"
-            >Primary Column Type</Label
           >
-          <Input
-            v-model="primaryColumnType"
-            :disabled="isPending"
-            id="primaryColumnType"
-            class="col-span-3"
-          />
+            <SelectTrigger class="col-span-3">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem
+                  v-for="column in columns"
+                  :value="column.name"
+                  :key="column.name"
+                >
+                  {{ column.name }} {{ column.dataType }}
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
       </div>
       <div

@@ -44,6 +44,16 @@ export class SQLiteDialect extends SqlDialect {
     ] as unknown as DSTreeCollectionItem[]
   }
 
+  async getPublicTableNames() {
+    // TODO
+    return []
+  }
+
+  async getTableColumns(_tableName: string) {
+    // TODO
+    return []
+  }
+
   async beginTransaction(): Promise<void> {
     await this.dataSource.query(`BEGIN IMMEDIATE TRANSACTION`)
   }
