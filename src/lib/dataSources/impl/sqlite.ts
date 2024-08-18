@@ -11,7 +11,11 @@ import { DataSource } from '@/lib/dataSources/impl/base'
 import { runPromised } from '@/lib/runPromised'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
-import { ColumnDefinition } from '@/lib/schema/columns/definition/base'
+import {
+  ColumnDefinition,
+  type FieldInfo,
+} from '@/lib/schema/columns/definition/base'
+import { SQLiteColumnDefinition } from '@/lib/schema/columns/definition/sqlite'
 
 export class SQLite extends DataSource {
   #sqlite3: Sqlite3Static | null = null
@@ -96,11 +100,18 @@ export class SQLite extends DataSource {
         returnValue: 'resultRows',
       })
       const end = performance.now()
-      const fields = rows.length
-        ? Object.keys(rows[0]).map((name) =>
-            ColumnDefinition.fromUnknown(name).toFieldInfo(),
-          )
-        : []
+
+      let fields: FieldInfo[] = []
+      if (rows.length > 0) {
+        try {
+          fields = this.#getTypes(sql, Object.keys(rows[0]))
+        } catch (_e) {
+          fields = Object.keys(rows[0]).map((it) =>
+            ColumnDefinition.fromUnknown(it).toFieldInfo(),
+          ) as FieldInfo[]
+        }
+      }
+
       return {
         fields,
         rows: rows as T,
@@ -109,6 +120,23 @@ export class SQLite extends DataSource {
         id: getId('result'),
       } as QueryResult<T>
     })
+  }
+
+  #getTypes(originalSql: string, keys: string[]): FieldInfo[] {
+    if (!this.#database) {
+      throw new DatabaseNotLoadedError()
+    }
+
+    const typeofSql = keys.map((it) => `typeof(${it}) as ${it}`).join(', ')
+    const sql = `SELECT ${typeofSql} FROM (${originalSql}) LIMIT 1`
+    const [result] = this.#database.exec(sql, {
+      rowMode: 'object',
+      returnValue: 'resultRows',
+    }) as Record<string, string>[]
+
+    return Object.entries(result).map(([name, type]) => {
+      return SQLiteColumnDefinition.fromNameAndType(name, type).toFieldInfo()
+    }) as FieldInfo[]
   }
 
   async dump() {
