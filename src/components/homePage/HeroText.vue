@@ -23,12 +23,12 @@ import ClickTheButton from '@/assets/click-the-button.svg?raw'
         >
       </h1>
       <h2 class="text-2xl md:text-4xl font-bold leading-10">
-        The Database IDE in the Browser.
+        Database tooling that runs everywhere.
       </h2>
       <p class="text-lg font-medium leading-8 text-muted-foreground">
         SqlZen lets you run your favourite databases right in your browser.
         Create and manage as many databases as you want, everything stays on
-        your machine.
+        your device.
       </p>
     </div>
     <div class="flex flex-wrap gap-3 mt-6">

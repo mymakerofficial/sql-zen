@@ -1,6 +1,13 @@
-# SqlZen
+<p align="center">
+    <a href="https://sql.maiker.de" target="_blank">
+        <img src="/src/assets/thumbnail.webp" width="720" alt="SqlZen Logo above a Screenshot of the Application">
+    </a>
+</p>
 
-A web-based SQL editor that lets you run databases right in your browser.
+<h1 align="center">SqlZen</h1>
+<p align="center">
+    Database tooling that runs everywhere.
+</p>
 
 ## Development
 
@@ -45,7 +52,7 @@ npm run tauri build
 ```
 
 ### Check Types
-It's recommended to check types before pushing changes 
+It's recommended to check types before pushing changes
 to make sure the app can be built successfully.
 ```sh
 npm run type-check
