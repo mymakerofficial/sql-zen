@@ -38,6 +38,7 @@ const {
   queryKey: ['getFiles', props.dataSourceKey],
   queryFn: () => dataSource.getFiles(),
   initialData: [],
+  throwOnError: true,
 })
 
 const { mutate: handleRegisterFile, error: registerError } = useMutation({
