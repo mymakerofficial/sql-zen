@@ -81,7 +81,7 @@ export class PostgreSQL extends DataSource {
         loadDataDir,
       })
 
-      await database.exec('SELECT 1')
+      await database.waitReady
 
       return database
     })
