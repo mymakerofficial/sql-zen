@@ -92,7 +92,7 @@ export class PostgreSQL extends DataSource {
       }
 
       // Create the base directory for user files
-      await this.#fs.launch('mkdir', BASE_PATH)
+      await this.#fs.mkdir(BASE_PATH)
     })
 
     const version = await this.#getVersion()
@@ -174,11 +174,12 @@ export class PostgreSQL extends DataSource {
       throw new DatabaseNotLoadedError()
     }
 
-    const stats = await this.#fs.run('stat', path)
-    if (!(await this.#fs.run('isFile', stats.mode))) {
+    const stats = await this.#fs.stat(path)
+    const isFile = await this.#fs.isFile(stats.mode)
+    if (!isFile) {
       throw new Error('Provided path is not a file')
     }
-    const arrayBuffer = await this.#fs.run('readFile', path, {
+    const arrayBuffer = await this.#fs.readFile(path, {
       encoding: 'binary',
     })
     const fileName = path.split('/').pop() ?? ''
@@ -192,7 +193,7 @@ export class PostgreSQL extends DataSource {
 
     const fullPath = `${BASE_PATH}/${path}`
     const arrayBuffer = await fileAccessor.readUint8Array()
-    await this.#fs.launch('writeFile', fullPath, arrayBuffer, {
+    await this.#fs.writeFile(fullPath, arrayBuffer, {
       flags: 'w+',
     })
   }
@@ -202,7 +203,7 @@ export class PostgreSQL extends DataSource {
       throw new DatabaseNotLoadedError()
     }
 
-    await this.#fs.launch('unlink', path)
+    await this.#fs.unlink(path)
   }
 
   async dump() {
@@ -233,18 +234,22 @@ async function readDirectory(fs: PGliteWorkerFS, path: string) {
   const files: FileInfo[] = []
 
   async function traverseDirectory(currentPath: string) {
-    const entries: string[] = await fs.run('readdir', currentPath)
+    const entries: string[] = await fs.readdir(currentPath)
     for (const entry of entries) {
       if (entry === '.' || entry === '..') {
         continue
       }
+
       const fullPath = currentPath + '/' + entry
-      const stats = await fs.run('stat', fullPath)
+      const stats = await fs.stat(fullPath)
+      const isDir = await fs.isDir(stats.mode)
+
       files.push({
         path: fullPath,
         size: stats.size,
       })
-      if (await fs.run('isDir', stats.mode)) {
+
+      if (isDir) {
         await traverseDirectory(fullPath)
       }
     }
