@@ -26,6 +26,10 @@ export default defineConfig({
     // we have one top-level await in src/lib/highlighter.ts
     target: 'esnext',
   },
+  worker: {
+    // avoid "UMD and IIFE output formats are not supported for code-splitting builds." error
+    format: 'es',
+  },
   // prevent vite from obscuring rust errors
   clearScreen: false,
   // tauri expects a fixed port, fail if that port is not available
