@@ -1,4 +1,4 @@
-import type { PGlite } from '@electric-sql/pglite'
+import type { PGliteInterface } from '@electric-sql/pglite'
 import { DatabaseNotLoadedError } from '@/lib/errors'
 import { DataSourceMode, DataSourceStatus } from '@/lib/dataSources/enums'
 import type { QueryResult } from '@/lib/queries/interface'
@@ -9,11 +9,14 @@ import type { FileInfo } from '@/lib/files/interface'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import { PostgreSQLColumnDefinition } from '@/lib/schema/columns/definition/postgresql'
+import { PGliteWorkerFS } from '@/lib/dataSources/impl/lib/PGliteWorkerFS'
 
 const BASE_PATH = '/var'
 
 export class PostgreSQL extends DataSource {
-  #database: PGlite | null = null
+  #worker: Worker | null = null
+  #fs: PGliteWorkerFS | null = null
+  #database: PGliteInterface | null = null
   #types: Map<number, string> = new Map()
 
   getEngine(): DatabaseEngine {
@@ -47,26 +50,49 @@ export class PostgreSQL extends DataSource {
     this.setStatus(DataSourceStatus.Pending)
     this.emit(DataSourceEvent.Initializing)
 
+    await this.logger.step('Creating Worker', async () => {
+      this.#worker = new Worker(
+        new URL('./lib/pglite-worker.ts', import.meta.url),
+        {
+          type: 'module',
+        },
+      )
+
+      this.#fs = new PGliteWorkerFS(this.#worker)
+    })
+
+    const { PGliteWorker } = await this.logger.step(
+      'Importing Module',
+      async () => {
+        return await import('@electric-sql/pglite/worker')
+      },
+    )
+
     this.#database = await this.logger.step('Loading PostgreSQL', async () => {
-      const { PGlite } = await import('@electric-sql/pglite')
-      const { vector } = await import('@electric-sql/pglite/vector')
+      if (!this.#worker) {
+        throw new Error('Worker does not exist')
+      }
 
       const dataDir = this.#getDataDir()
       const loadDataDir = await this.getInitDump()?.readBlob()
 
-      const database = await PGlite.create({
+      const database = await PGliteWorker.create(this.#worker, {
         dataDir,
         loadDataDir,
-        extensions: {
-          vector,
-        },
       })
+
       await database.waitReady
 
-      // Create the base directory for user files
-      database.Module.FS.mkdir(BASE_PATH)
-
       return database
+    })
+
+    await this.logger.step('Creating Directories', async () => {
+      if (!this.#fs) {
+        throw new Error('Worker does not exist')
+      }
+
+      // Create the base directory for user files
+      await this.#fs.launch('mkdir', BASE_PATH)
     })
 
     const version = await this.#getVersion()
@@ -136,49 +162,47 @@ export class PostgreSQL extends DataSource {
   }
 
   async getFiles() {
-    if (!this.#database) {
+    if (!this.#fs) {
       throw new DatabaseNotLoadedError()
     }
 
-    return readDirectory(this.#database.Module.FS, BASE_PATH)
+    return await readDirectory(this.#fs, BASE_PATH)
   }
 
   async readFile(path: string) {
-    if (!this.#database) {
+    if (!this.#fs) {
       throw new DatabaseNotLoadedError()
     }
 
-    const fs = this.#database.Module.FS
-    const stats = fs.stat(path)
-    if (!fs.isFile(stats.mode)) {
+    const stats = await this.#fs.run('stat', path)
+    if (!(await this.#fs.run('isFile', stats.mode))) {
       throw new Error('Provided path is not a file')
     }
-    const arrayBuffer = fs.readFile(path, { encoding: 'binary' })
+    const arrayBuffer = await this.#fs.run('readFile', path, {
+      encoding: 'binary',
+    })
     const fileName = path.split('/').pop() ?? ''
     return FileAccessor.fromUint8Array(arrayBuffer, fileName)
   }
 
   async writeFile(path: string, fileAccessor: FileAccessor) {
-    if (!this.#database) {
+    if (!this.#fs) {
       throw new DatabaseNotLoadedError()
     }
 
-    const fs = this.#database.Module.FS
     const fullPath = `${BASE_PATH}/${path}`
-    const stream = fs.open(fullPath, 'w+')
     const arrayBuffer = await fileAccessor.readUint8Array()
-    const fileSize = await fileAccessor.getSize()
-    fs.write(stream, arrayBuffer, 0, fileSize ?? 0, 0)
-    fs.close(stream)
+    await this.#fs.launch('writeFile', fullPath, arrayBuffer, {
+      flags: 'w+',
+    })
   }
 
   async deleteFile(path: string): Promise<void> {
-    if (!this.#database) {
+    if (!this.#fs) {
       throw new DatabaseNotLoadedError()
     }
 
-    const fs = this.#database.Module.FS
-    fs.unlink(path)
+    await this.#fs.launch('unlink', path)
   }
 
   async dump() {
@@ -205,27 +229,27 @@ export class PostgreSQL extends DataSource {
   }
 }
 
-function readDirectory(fs: PGlite['Module']['FS'], path: string) {
+async function readDirectory(fs: PGliteWorkerFS, path: string) {
   const files: FileInfo[] = []
 
-  const traverseDirectory = (currentPath: string) => {
-    const entries: string[] = fs.readdir(currentPath)
-    entries.forEach((entry) => {
+  async function traverseDirectory(currentPath: string) {
+    const entries: string[] = await fs.run('readdir', currentPath)
+    for (const entry of entries) {
       if (entry === '.' || entry === '..') {
-        return
+        continue
       }
       const fullPath = currentPath + '/' + entry
-      const stats = fs.stat(fullPath)
+      const stats = await fs.run('stat', fullPath)
       files.push({
         path: fullPath,
         size: stats.size,
       })
-      if (fs.isDir(stats.mode)) {
-        traverseDirectory(fullPath)
+      if (await fs.run('isDir', stats.mode)) {
+        await traverseDirectory(fullPath)
       }
-    })
+    }
   }
 
-  traverseDirectory(path)
+  await traverseDirectory(path)
   return files
 }
