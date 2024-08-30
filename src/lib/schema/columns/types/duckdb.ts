@@ -1,3 +1,5 @@
+import type { DataTypeDefinition } from '@/lib/schema/columns/types/base'
+
 export const DuckDBDataType = {
   BigInt: 'BIGINT',
   Bit: 'BIT',
@@ -25,6 +27,91 @@ export const DuckDBDataType = {
 } as const
 export type DuckDBDataType =
   (typeof DuckDBDataType)[keyof typeof DuckDBDataType]
+
+export const DuckDBTypeDefinition = {
+  [DuckDBDataType.BigInt]: {
+    name: 'bigint',
+    aliases: ['int8', 'long'],
+  },
+  [DuckDBDataType.Bit]: {
+    name: 'bit',
+    aliases: ['bitstring'],
+  },
+  [DuckDBDataType.Blob]: {
+    name: 'blob',
+    aliases: ['bytea', 'binary', 'varbinary'],
+  },
+  [DuckDBDataType.Boolean]: {
+    name: 'boolean',
+    aliases: ['bool', 'logical'],
+  },
+  [DuckDBDataType.Date]: {
+    name: 'date',
+  },
+  [DuckDBDataType.Decimal]: {
+    name: 'decimal',
+    aliases: ['numeric'],
+  },
+  [DuckDBDataType.Double]: {
+    name: 'double',
+    aliases: ['float8'],
+  },
+  [DuckDBDataType.Float]: {
+    name: 'float',
+    aliases: ['float4', 'real'],
+  },
+  [DuckDBDataType.HugeInt]: {
+    name: 'hugeint',
+  },
+  [DuckDBDataType.Integer]: {
+    name: 'integer',
+    aliases: ['int4', 'int', 'signed'],
+  },
+  [DuckDBDataType.Interval]: {
+    name: 'interval',
+  },
+  [DuckDBDataType.SmallInt]: {
+    name: 'smallint',
+    aliases: ['int2', 'short'],
+  },
+  [DuckDBDataType.Time]: {
+    name: 'time',
+  },
+  [DuckDBDataType.TimestampWithTimezone]: {
+    name: 'timestamp with timezone',
+    aliases: ['timestamptz'],
+  },
+  [DuckDBDataType.Timestamp]: {
+    name: 'timestamp',
+    aliases: ['datetime'],
+  },
+  [DuckDBDataType.TinyInt]: {
+    name: 'tinyint',
+    aliases: ['int1'],
+  },
+  [DuckDBDataType.UBigInt]: {
+    name: 'ubigint',
+  },
+  [DuckDBDataType.UHugeInt]: {
+    name: 'uhugeint',
+  },
+  [DuckDBDataType.UInteger]: {
+    name: 'uinteger',
+  },
+  [DuckDBDataType.USmallInt]: {
+    name: 'usmallint',
+  },
+  [DuckDBDataType.UTinyInt]: {
+    name: 'utinyint',
+  },
+  [DuckDBDataType.Uuid]: {
+    name: 'uuid',
+  },
+  [DuckDBDataType.Varchar]: {
+    name: 'varchar',
+    aliases: ['char', 'bpchar', 'text', 'string'],
+  },
+} as const satisfies Record<DuckDBDataType, DataTypeDefinition>
 
 export const DuckDBTypeMap = {
   ['BIGINT']: DuckDBDataType.BigInt,

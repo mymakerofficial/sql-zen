@@ -1,7 +1,22 @@
 import { DatabaseEngine } from '@/lib/engines/enums'
-import { SqliteDataType } from '@/lib/schema/columns/types/sqlite'
-import { PostgresDataType } from '@/lib/schema/columns/types/postgresql'
-import { DuckDBDataType } from '@/lib/schema/columns/types/duckdb'
+import {
+  SqliteDataType,
+  SqliteDataTypeDefinition,
+} from '@/lib/schema/columns/types/sqlite'
+import {
+  PostgresDataType,
+  PostgresDataTypeDefinitions,
+} from '@/lib/schema/columns/types/postgresql'
+import {
+  DuckDBDataType,
+  DuckDBTypeDefinition,
+} from '@/lib/schema/columns/types/duckdb'
+
+export type DataTypeDefinition = {
+  name: string
+  aliases?: string[]
+  displayName?: string
+}
 
 export const PseudoDataType = {
   Unknown: 'UNKNOWN',
@@ -9,6 +24,15 @@ export const PseudoDataType = {
 } as const
 export type PseudoDataType =
   (typeof PseudoDataType)[keyof typeof PseudoDataType]
+
+export const PseudoDataTypeDefinition = {
+  [PseudoDataType.Unknown]: {
+    name: 'unknown',
+  },
+  [PseudoDataType.Null]: {
+    name: 'null',
+  },
+} as const satisfies Record<PseudoDataType, DataTypeDefinition>
 
 export const BasicDataType = {
   Text: 'TEXT',
@@ -25,6 +49,42 @@ export const BasicDataType = {
 } as const
 export type BasicDataType = (typeof BasicDataType)[keyof typeof BasicDataType]
 
+export const BasicDataTypeDefinition = {
+  [BasicDataType.Text]: {
+    name: 'text',
+  },
+  [BasicDataType.Integer]: {
+    name: 'integer',
+  },
+  [BasicDataType.Real]: {
+    name: 'real',
+  },
+  [BasicDataType.Blob]: {
+    name: 'blob',
+  },
+  [BasicDataType.Boolean]: {
+    name: 'boolean',
+  },
+  [BasicDataType.Date]: {
+    name: 'date',
+  },
+  [BasicDataType.Time]: {
+    name: 'time',
+  },
+  [BasicDataType.DateTime]: {
+    name: 'datetime',
+  },
+  [BasicDataType.Numeric]: {
+    name: 'numeric',
+  },
+  [BasicDataType.Json]: {
+    name: 'json',
+  },
+  [BasicDataType.Vector]: {
+    name: 'vector',
+  },
+} as const satisfies Record<BasicDataType, DataTypeDefinition>
+
 export const DataType = {
   ...BasicDataType,
   ...SqliteDataType,
@@ -40,6 +100,13 @@ export const DatabaseEngineDataTypesMap = {
   [DatabaseEngine.DuckDB]: DuckDBDataType,
 } as const satisfies Record<DatabaseEngine, Record<string, Partial<DataType>>>
 export type DatabaseEngineDataTypesMap = typeof DatabaseEngineDataTypesMap
+
+export const DatabaseEngineDataTypeDefinitionMap = {
+  [DatabaseEngine.None]: BasicDataTypeDefinition,
+  [DatabaseEngine.SQLite]: SqliteDataTypeDefinition,
+  [DatabaseEngine.PostgreSQL]: PostgresDataTypeDefinitions,
+  [DatabaseEngine.DuckDB]: DuckDBTypeDefinition,
+} as const satisfies Record<DatabaseEngine, Record<string, DataTypeDefinition>>
 
 export type DataTypeFromEngine<T extends DatabaseEngine = DatabaseEngine> =
   (typeof DatabaseEngineDataTypesMap)[T][keyof (typeof DatabaseEngineDataTypesMap)[T]]
