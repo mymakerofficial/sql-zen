@@ -1,3 +1,5 @@
+import type { DataTypeDefinition } from '@/lib/schema/columns/types/base'
+
 export const PostgresDataType = {
   BigInt: 'BIGINT',
   BigSerial: 'BIGSERIAL',
@@ -51,6 +53,179 @@ export const PostgresDataType = {
 } as const
 export type PostgresDataType =
   (typeof PostgresDataType)[keyof typeof PostgresDataType]
+
+export const PostgresDataTypeDefinitions = {
+  [PostgresDataType.BigInt]: {
+    name: 'bigint',
+    aliases: ['int8'],
+  },
+  [PostgresDataType.BigSerial]: {
+    name: 'bigserial',
+    aliases: ['serial8'],
+  },
+  [PostgresDataType.Bit]: {
+    name: 'bit',
+  },
+  [PostgresDataType.BitVarying]: {
+    name: 'bit varying',
+    aliases: ['varbit'],
+    displayName: 'varbit',
+  },
+  [PostgresDataType.Boolean]: {
+    name: 'boolean',
+    aliases: ['bool'],
+    displayName: 'bool',
+  },
+  [PostgresDataType.Box]: {
+    name: 'box',
+  },
+  [PostgresDataType.Bytea]: {
+    name: 'bytea',
+  },
+  [PostgresDataType.Character]: {
+    name: 'character',
+    aliases: ['char'],
+    displayName: 'char',
+  },
+  [PostgresDataType.CharacterVarying]: {
+    name: 'character varying',
+    aliases: ['varchar'],
+    displayName: 'varchar',
+  },
+  [PostgresDataType.Cidr]: {
+    name: 'cidr',
+  },
+  [PostgresDataType.Circle]: {
+    name: 'circle',
+  },
+  [PostgresDataType.Date]: {
+    name: 'date',
+  },
+  [PostgresDataType.DoublePrecision]: {
+    name: 'double precision',
+    aliases: ['float8'],
+    displayName: 'double',
+  },
+  [PostgresDataType.Inet]: {
+    name: 'inet',
+  },
+  [PostgresDataType.Integer]: {
+    name: 'integer',
+    aliases: ['int', 'int4'],
+    displayName: 'int',
+  },
+  [PostgresDataType.Interval]: {
+    name: 'interval',
+  },
+  [PostgresDataType.Json]: {
+    name: 'json',
+  },
+  [PostgresDataType.Jsonb]: {
+    name: 'jsonb',
+  },
+  [PostgresDataType.Line]: {
+    name: 'line',
+  },
+  [PostgresDataType.Lseg]: {
+    name: 'lseg',
+  },
+  [PostgresDataType.Macaddr]: {
+    name: 'macaddr',
+  },
+  [PostgresDataType.Macaddr8]: {
+    name: 'macaddr8',
+  },
+  [PostgresDataType.Money]: {
+    name: 'money',
+  },
+  [PostgresDataType.Numeric]: {
+    name: 'numeric',
+    aliases: ['decimal'],
+  },
+  [PostgresDataType.Path]: {
+    name: 'path',
+  },
+  [PostgresDataType.PgLsn]: {
+    name: 'pg_lsn',
+  },
+  [PostgresDataType.PgSnapshot]: {
+    name: 'pg_snapshot',
+  },
+  [PostgresDataType.Point]: {
+    name: 'point',
+  },
+  [PostgresDataType.Polygon]: {
+    name: 'polygon',
+  },
+  [PostgresDataType.Real]: {
+    name: 'real',
+    aliases: ['float4'],
+  },
+  [PostgresDataType.SmallInt]: {
+    name: 'smallint',
+    aliases: ['int2'],
+  },
+  [PostgresDataType.SmallSerial]: {
+    name: 'smallserial',
+    aliases: ['serial2'],
+  },
+  [PostgresDataType.Serial]: {
+    name: 'serial',
+    aliases: ['serial4'],
+  },
+  [PostgresDataType.Text]: {
+    name: 'text',
+  },
+  [PostgresDataType.Time]: {
+    name: 'time',
+    aliases: ['time without timezone'],
+  },
+  [PostgresDataType.TimeWithTimezone]: {
+    name: 'time with timezone',
+    aliases: ['timez'],
+  },
+  [PostgresDataType.Timestamp]: {
+    name: 'timestamp',
+    aliases: ['timestamp without timezone'],
+  },
+  [PostgresDataType.TimestampWithTimezone]: {
+    name: 'timestamp with timezone',
+    aliases: ['timestamptz'],
+  },
+  [PostgresDataType.TsQuery]: {
+    name: 'tsquery',
+  },
+  [PostgresDataType.TsVector]: {
+    name: 'tsvector',
+  },
+  [PostgresDataType.TxidSnapshot]: {
+    name: 'txid_snapshot',
+  },
+  [PostgresDataType.Uuid]: {
+    name: 'uuid',
+  },
+  [PostgresDataType.Xml]: {
+    name: 'xml',
+  },
+  [PostgresDataType.Name]: {
+    name: 'name',
+  },
+  [PostgresDataType.OID]: {
+    name: 'oid',
+  },
+  [PostgresDataType.TID]: {
+    name: 'tid',
+  },
+  [PostgresDataType.XID]: {
+    name: 'xid',
+  },
+  [PostgresDataType.CID]: {
+    name: 'cid',
+  },
+  [PostgresDataType.Vector]: {
+    name: 'vector',
+  },
+} as const satisfies Record<PostgresDataType, DataTypeDefinition>
 
 export const PostgresUDTNameDataTypeMap = {
   ['int2']: PostgresDataType.SmallInt,

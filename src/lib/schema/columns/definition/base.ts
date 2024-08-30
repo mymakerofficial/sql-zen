@@ -1,5 +1,6 @@
 import { DatabaseEngine } from '@/lib/engines/enums'
 import {
+  DataType,
   type DataTypeFromEngine,
   PseudoDataType,
   type WithPseudoTypes,
@@ -13,6 +14,7 @@ import {
   ArrowTypeToDuckDBTypeMap,
   DuckDBTypeMap,
 } from '@/lib/schema/columns/types/duckdb'
+import { getDataTypeDisplayName } from '@/lib/schema/columns/types/helpers'
 
 export type FieldInfo<T extends DatabaseEngine = DatabaseEngine> = {
   engine: T
@@ -141,6 +143,13 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
 
   get isUnique() {
     return this.#isUnique
+  }
+
+  getDataTypeDisplayName() {
+    return getDataTypeDisplayName(
+      this.engine,
+      this.dataType as WithPseudoTypes<DataType>,
+    )
   }
 
   toFieldInfo(): FieldInfo<T> {

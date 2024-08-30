@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import type { FieldInfo } from '@/lib/schema/columns/definition/base'
+import {
+  ColumnDefinition,
+  type FieldInfo,
+} from '@/lib/schema/columns/definition/base'
 import { PseudoDataType } from '@/lib/schema/columns/types/base'
 
 defineProps<{
@@ -13,7 +16,7 @@ defineProps<{
     <span
       v-if="field.dataType !== PseudoDataType.Unknown"
       class="text-xs font-normal"
-      >{{ field.dataType }}</span
+      >{{ ColumnDefinition.fromField(field).getDataTypeDisplayName() }}</span
     >
   </span>
 </template>
