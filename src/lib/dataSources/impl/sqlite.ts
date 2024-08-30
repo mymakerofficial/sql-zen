@@ -15,7 +15,6 @@ import {
   ColumnDefinition,
   type FieldInfo,
 } from '@/lib/schema/columns/definition/base'
-import { SQLiteColumnDefinition } from '@/lib/schema/columns/definition/sqlite'
 
 export class SQLite extends DataSource {
   #sqlite3: Sqlite3Static | null = null
@@ -135,7 +134,7 @@ export class SQLite extends DataSource {
     }) as Record<string, string>[]
 
     return Object.entries(result).map(([name, type]) => {
-      return SQLiteColumnDefinition.fromNameAndType(name, type).toFieldInfo()
+      return ColumnDefinition.fromSqliteNameAndType(name, type).toFieldInfo()
     }) as FieldInfo[]
   }
 

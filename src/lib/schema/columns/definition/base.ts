@@ -4,6 +4,15 @@ import {
   PseudoDataType,
   type WithPseudoTypes,
 } from '@/lib/schema/columns/types/base'
+import { SqliteTypeMap } from '@/lib/schema/columns/types/sqlite'
+import {
+  type PostgresDataType,
+  PostgresUDTNameDataTypeMap,
+} from '@/lib/schema/columns/types/postgresql'
+import {
+  ArrowTypeToDuckDBTypeMap,
+  DuckDBTypeMap,
+} from '@/lib/schema/columns/types/duckdb'
 
 export type FieldInfo<T extends DatabaseEngine = DatabaseEngine> = {
   engine: T
@@ -43,7 +52,7 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
     return new ColumnDefinition(info)
   }
 
-  static fromFieldInfo<T extends DatabaseEngine = typeof DatabaseEngine.None>(
+  static fromField<T extends DatabaseEngine = typeof DatabaseEngine.None>(
     info: FieldInfo<T>,
   ) {
     return this.from({
@@ -55,10 +64,58 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
   }
 
   static fromUnknown(name: string) {
-    return this.fromFieldInfo({
+    return this.fromField({
       engine: DatabaseEngine.None,
       name,
       dataType: PseudoDataType.Unknown,
+    })
+  }
+
+  static fromPGNameAndUDTName(name: string, udtName: string) {
+    return this.fromField({
+      engine: DatabaseEngine.PostgreSQL,
+      name,
+      dataType: pgUdtNameToDataType(udtName),
+    })
+  }
+
+  static fromPGInformationSchemaColumn(
+    column: PostgreSQLInformationSchemaColumn,
+  ) {
+    return this.from({
+      engine: DatabaseEngine.PostgreSQL,
+      name: column.column_name,
+      dataType: pgUdtNameToDataType(column.udt_name),
+      isNullable: column.is_nullable === 'YES',
+      isPrimaryKey: false,
+      isUnique: false,
+    })
+  }
+
+  static fromSqliteNameAndType(name: string, type: string) {
+    return this.fromField({
+      engine: DatabaseEngine.SQLite,
+      name,
+      // @ts-expect-error
+      dataType: SqliteTypeMap[type.toLowerCase()] ?? PseudoDataType.Unknown,
+    })
+  }
+
+  static fromDuckDBNameAndType(name: string, type: string) {
+    return this.fromField({
+      engine: DatabaseEngine.DuckDB,
+      name,
+      // @ts-expect-error
+      dataType: DuckDBTypeMap[type.toUpperCase()] ?? PseudoDataType.Unknown,
+    })
+  }
+
+  static fromDuckDBNameAndArrowType(name: string, type: string) {
+    return this.fromField({
+      engine: DatabaseEngine.DuckDB,
+      name,
+      // @ts-expect-error
+      dataType: ArrowTypeToDuckDBTypeMap[type] ?? PseudoDataType.Unknown,
     })
   }
 
@@ -102,4 +159,27 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
       isUnique: this.isUnique,
     }
   }
+}
+
+export type PostgreSQLInformationSchemaColumn = {
+  table_catalog: string
+  table_schema: string
+  table_name: string
+  column_name: string
+  udt_name: string
+  is_nullable: 'YES' | 'NO'
+}
+
+function pgUdtNameToDataType(
+  udtName: string,
+): WithPseudoTypes<PostgresDataType> {
+  // @ts-expect-error
+  const dataType = PostgresUDTNameDataTypeMap[udtName.toLowerCase()]
+
+  if (!dataType) {
+    console.warn(`Unknown PostgreSQL data type: ${udtName}`)
+    return PseudoDataType.Unknown
+  }
+
+  return dataType
 }
