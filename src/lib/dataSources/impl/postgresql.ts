@@ -8,8 +8,8 @@ import { DataSource } from '@/lib/dataSources/impl/base'
 import type { FileInfo } from '@/lib/files/interface'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
-import { PostgreSQLColumnDefinition } from '@/lib/schema/columns/definition/postgresql'
 import { PGliteWorkerFS } from '@/lib/dataSources/impl/lib/PGliteWorkerFS'
+import { ColumnDefinition } from '@/lib/schema/columns/definition/base'
 
 const BASE_PATH = '/var'
 
@@ -114,7 +114,7 @@ export class PostgreSQL extends DataSource {
 
       await this.fetchOIDs(rawResponse.fields.map((field) => field.dataTypeID))
       const fields = rawResponse.fields.map((field) =>
-        PostgreSQLColumnDefinition.fromNameAndUDTName(
+        ColumnDefinition.fromPGNameAndUDTName(
           field.name,
           this.getUDTByOID(field.dataTypeID),
         ).toFieldInfo(),

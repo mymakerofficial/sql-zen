@@ -71,4 +71,4 @@ export const ArrowTypeToDuckDBTypeMap = {
   ['Timestamp']: DuckDBDataType.Timestamp,
   ['TimestampTz']: DuckDBDataType.TimestampWithTimezone,
   ['Interval']: DuckDBDataType.Interval,
-}
+} as const satisfies Record<string, DuckDBDataType>

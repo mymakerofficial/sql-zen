@@ -5,7 +5,7 @@ export const SqliteDataType = {
   Text: 'TEXT',
   Blob: 'BLOB',
 } as const
-export type SqliteDataTypes =
+export type SqliteDataType =
   (typeof SqliteDataType)[keyof typeof SqliteDataType]
 
 export const SqliteTypeMap = {
@@ -14,4 +14,4 @@ export const SqliteTypeMap = {
   ['real']: SqliteDataType.Real,
   ['text']: SqliteDataType.Text,
   ['blob']: SqliteDataType.Blob,
-} as const satisfies Record<string, SqliteDataTypes>
+} as const satisfies Record<string, SqliteDataType>

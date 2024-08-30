@@ -10,14 +10,8 @@ import { SqlDialect } from '@/lib/dialect/impl/base'
 import {
   ColumnDefinition,
   type ColumnDefinitionInfo,
+  type PostgreSQLInformationSchemaColumn,
 } from '@/lib/schema/columns/definition/base'
-import type {
-  DataTypeFromEngine,
-  WithPseudoTypes,
-} from '@/lib/schema/columns/types/base'
-import { DatabaseEngine } from '@/lib/engines/enums'
-import type { PostgreSQLInformationSchemaColumn } from '@/lib/schema/columns/definition/postgresql'
-import { PostgreSQLColumnDefinition } from '@/lib/schema/columns/definition/postgresql'
 
 export class PostgreSQLDialect extends SqlDialect {
   async getDataSourceTree() {
@@ -56,7 +50,7 @@ export class PostgreSQLDialect extends SqlDialect {
       )
 
     return rows.map((column) =>
-      PostgreSQLColumnDefinition.fromInformationSchemaColumn(column).getInfo(),
+      ColumnDefinition.fromPGInformationSchemaColumn(column).getInfo(),
     ) as ColumnDefinitionInfo[]
   }
 

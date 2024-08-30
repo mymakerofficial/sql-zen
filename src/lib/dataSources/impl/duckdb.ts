@@ -10,12 +10,13 @@ import { DataSource } from '@/lib/dataSources/impl/base'
 import type { FileInfo } from '@/lib/files/interface'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
+import type { FieldInfo } from '@/lib/schema/columns/definition/base'
 import {
-  ColumnDefinition,
-  type FieldInfo,
-} from '@/lib/schema/columns/definition/base'
-import { DuckDBColumnDefinition } from '@/lib/schema/columns/definition/duckdb'
-import { ArrowTypeToDuckDBTypeMap } from '@/lib/schema/columns/types/duckdb'
+  ArrowTypeToDuckDBTypeMap,
+  DuckDBTypeMap,
+} from '@/lib/schema/columns/types/duckdb'
+import { ColumnDefinition } from '@/lib/schema/columns/definition/base'
+import { PseudoDataType } from '@/lib/schema/columns/types/base'
 
 export class DuckDB extends DataSource {
   #worker: Worker | null = null
@@ -143,10 +144,9 @@ export class DuckDB extends DataSource {
       // we can only use DESCRIBE for SELECT queries
       //  fallback to looking at the Arrow schema
       return originalResult.schema.fields.map((field) => {
-        return DuckDBColumnDefinition.fromNameAndType(
+        return ColumnDefinition.fromDuckDBNameAndArrowType(
           field.name,
-          // @ts-expect-error
-          ArrowTypeToDuckDBTypeMap[field.type.toString()] ?? 'UNKNOWN',
+          field.type.toString(),
         ).toFieldInfo()
       })
     }
@@ -155,31 +155,29 @@ export class DuckDB extends DataSource {
       throw new DatabaseNotLoadedError()
     }
 
-    const sql = `DESCRIBE ${originalSql}`
-    const result = await this.#connection
-      .query(sql)
-      .then((it) =>
+    return await this.#connection
+      .query(`DESCRIBE ${originalSql}`)
+      .then((table) =>
+        // DESCRIBE succeeded, map the result to FieldInfo
         this.#unwrapRawResponse<{
           column_name: string
           column_type: string
-        }>(it),
+        }>(table).map((row) => {
+          return ColumnDefinition.fromDuckDBNameAndType(
+            row.column_name,
+            row.column_type,
+          ).toFieldInfo()
+        }),
       )
       .catch(() =>
         // DESCRIBE failed, fallback to looking at the Arrow schema
-        originalResult.schema.fields.map((field) => ({
-          column_name: field.name,
-          column_type:
-            // @ts-expect-error
-            ArrowTypeToDuckDBTypeMap[field.type.toString()] ?? 'UNKNOWN',
-        })),
+        originalResult.schema.fields.map((field) => {
+          return ColumnDefinition.fromDuckDBNameAndArrowType(
+            field.name,
+            field.type.toString(),
+          ).toFieldInfo()
+        }),
       )
-
-    return result.map((row) => {
-      return DuckDBColumnDefinition.fromNameAndType(
-        row.column_name,
-        row.column_type,
-      ).toFieldInfo()
-    })
   }
 
   async getFiles(): Promise<Array<FileInfo>> {
