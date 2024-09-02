@@ -5,14 +5,6 @@ export class DummyDialect extends SqlDialect {
     return []
   }
 
-  async getPublicTableNames() {
-    return []
-  }
-
-  async getTableColumns(_tableName: string) {
-    return []
-  }
-
   async beginTransaction(): Promise<void> {
     return
   }

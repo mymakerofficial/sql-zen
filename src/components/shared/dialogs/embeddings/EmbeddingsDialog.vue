@@ -86,7 +86,7 @@ const { data: tables } = useQuery({
 
 const { data: columns } = useQuery({
   queryKey: [dataSource.key, tableName, 'columns'],
-  queryFn: () => dataSource.dialect.getTableColumns(tableName.value),
+  queryFn: () => dataSource.dialect.getTableColumns({ name: tableName.value }),
   initialData: [],
 })
 
