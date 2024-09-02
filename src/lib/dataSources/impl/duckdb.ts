@@ -11,12 +11,7 @@ import type { FileInfo } from '@/lib/files/interface'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import type { FieldInfo } from '@/lib/schema/columns/definition/base'
-import {
-  ArrowTypeToDuckDBTypeMap,
-  DuckDBTypeMap,
-} from '@/lib/schema/columns/types/duckdb'
-import { ColumnDefinition } from '@/lib/schema/columns/definition/base'
-import { PseudoDataType } from '@/lib/schema/columns/types/base'
+import { FieldDefinition } from '@/lib/schema/columns/definition/base'
 
 export class DuckDB extends DataSource {
   #worker: Worker | null = null
@@ -144,7 +139,7 @@ export class DuckDB extends DataSource {
       // we can only use DESCRIBE for SELECT queries
       //  fallback to looking at the Arrow schema
       return originalResult.schema.fields.map((field) => {
-        return ColumnDefinition.fromDuckDBNameAndArrowType(
+        return FieldDefinition.fromDuckDBNameAndArrowType(
           field.name,
           field.type.toString(),
         ).toFieldInfo()
@@ -163,7 +158,7 @@ export class DuckDB extends DataSource {
           column_name: string
           column_type: string
         }>(table).map((row) => {
-          return ColumnDefinition.fromDuckDBNameAndType(
+          return FieldDefinition.fromDuckDBNameAndType(
             row.column_name,
             row.column_type,
           ).toFieldInfo()
@@ -172,7 +167,7 @@ export class DuckDB extends DataSource {
       .catch(() =>
         // DESCRIBE failed, fallback to looking at the Arrow schema
         originalResult.schema.fields.map((field) => {
-          return ColumnDefinition.fromDuckDBNameAndArrowType(
+          return FieldDefinition.fromDuckDBNameAndArrowType(
             field.name,
             field.type.toString(),
           ).toFieldInfo()

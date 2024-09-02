@@ -12,7 +12,7 @@ import { runPromised } from '@/lib/runPromised'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import {
-  ColumnDefinition,
+  FieldDefinition,
   type FieldInfo,
 } from '@/lib/schema/columns/definition/base'
 
@@ -106,7 +106,7 @@ export class SQLite extends DataSource {
           fields = this.#getTypes(sql, Object.keys(rows[0]))
         } catch (_e) {
           fields = Object.keys(rows[0]).map((it) =>
-            ColumnDefinition.fromUnknown(it).toFieldInfo(),
+            FieldDefinition.fromUnknown(it).toFieldInfo(),
           ) as FieldInfo[]
         }
       }
@@ -134,7 +134,7 @@ export class SQLite extends DataSource {
     }) as Record<string, string>[]
 
     return Object.entries(result).map(([name, type]) => {
-      return ColumnDefinition.fromSqliteNameAndType(name, type).toFieldInfo()
+      return FieldDefinition.fromSqliteNameAndType(name, type).toFieldInfo()
     }) as FieldInfo[]
   }
 
