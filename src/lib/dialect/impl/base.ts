@@ -1,6 +1,12 @@
 import type { DSTreeItem } from '@/lib/dialect/interface'
 import type { DataSource } from '@/lib/dataSources/impl/base'
 import type { ColumnDefinitionInfo } from '@/lib/schema/columns/definition/base'
+import type { DatabaseEngine } from '@/lib/engines/enums'
+import {
+  type PartialTableIdentifier,
+  TableDefinition,
+  type TableInfo,
+} from '@/lib/schema/tables/table'
 
 export abstract class SqlDialect {
   protected dataSource: DataSource
@@ -9,10 +15,29 @@ export abstract class SqlDialect {
     this.dataSource = dataSource
   }
 
+  get engine(): DatabaseEngine {
+    return this.dataSource.engine
+  }
+
   abstract getDataSourceTree(): Promise<DSTreeItem[]>
 
-  abstract getPublicTableNames(): Promise<string[]>
-  abstract getTableColumns(tableName: string): Promise<ColumnDefinitionInfo[]>
+  getPublicTableNames(): Promise<string[]> {
+    return Promise.resolve([])
+  }
+
+  getTableColumns(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    identifier: PartialTableIdentifier,
+  ): Promise<ColumnDefinitionInfo[]> {
+    return Promise.resolve([])
+  }
+
+  getTableDefinition(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    identifier: PartialTableIdentifier,
+  ): Promise<TableInfo> {
+    return Promise.resolve(TableDefinition.dummy.getUntypedInfo())
+  }
 
   abstract beginTransaction(): Promise<void>
   abstract commitTransaction(): Promise<void>

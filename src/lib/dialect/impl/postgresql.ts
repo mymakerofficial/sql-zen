@@ -12,6 +12,10 @@ import {
   type ColumnDefinitionInfo,
   type PostgreSQLInformationSchemaColumn,
 } from '@/lib/schema/columns/definition/base'
+import {
+  type PartialTableIdentifier,
+  TableDefinition,
+} from '@/lib/schema/tables/table'
 
 export class PostgreSQLDialect extends SqlDialect {
   async getDataSourceTree() {
@@ -41,17 +45,36 @@ export class PostgreSQLDialect extends SqlDialect {
     return rows.map((it) => it.tablename)
   }
 
-  async getTableColumns(tableName: string) {
+  async getTableColumns(identifier: PartialTableIdentifier) {
+    const filters = Array.from(
+      new Map<string, string>([
+        ['table_catalog', identifier.databaseName ?? ''],
+        ['table_schema', identifier.schemaName ?? ''],
+        ['table_name', identifier.name ?? ''],
+      ]),
+    )
+      .filter(([_, value]) => value !== '')
+      .map(([key, value]) => `${key} = '${value}'`)
+      .join(' AND ')
+
     const { rows } =
       await this.dataSource.query<PostgreSQLInformationSchemaColumn>(
         `SELECT table_schema, table_name, column_name, udt_name, is_nullable
-       FROM information_schema.columns
-       WHERE table_name = '${tableName}'`,
+FROM information_schema.columns
+WHERE ${filters}`,
       )
 
     return rows.map((column) =>
       ColumnDefinition.fromPGInformationSchemaColumn(column).getInfo(),
     ) as ColumnDefinitionInfo[]
+  }
+
+  async getTableDefinition(identifier: PartialTableIdentifier) {
+    const columns = await this.getTableColumns(identifier)
+
+    return TableDefinition.fromEngineAndIdentifier(this.engine, identifier)
+      .withColumns(columns)
+      .getInfo()
   }
 
   async beginTransaction(): Promise<void> {

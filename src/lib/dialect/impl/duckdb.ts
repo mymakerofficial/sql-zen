@@ -52,16 +52,6 @@ export class DuckDBDialect extends SqlDialect {
     )
   }
 
-  async getPublicTableNames() {
-    // TODO
-    return []
-  }
-
-  async getTableColumns(_tableName: string) {
-    // TODO
-    return []
-  }
-
   async beginTransaction(): Promise<void> {
     await this.dataSource.query(`BEGIN TRANSACTION`)
   }

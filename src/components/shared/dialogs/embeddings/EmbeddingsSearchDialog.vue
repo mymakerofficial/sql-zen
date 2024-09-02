@@ -69,7 +69,8 @@ const { data: tables } = useQuery({
 
 const { data: columns } = useQuery({
   queryKey: [runner.key, tableName, 'columns'],
-  queryFn: () => runner.dataSource.dialect.getTableColumns(tableName.value),
+  queryFn: () =>
+    runner.dataSource.dialect.getTableColumns({ name: tableName.value }),
   initialData: [],
 })
 
