@@ -29,6 +29,10 @@ export function isSettledQuery(query: QueryInfo) {
   return isSuccessQuery(query) || isErrorQuery(query) || isCancelledQuery(query)
 }
 
+export function hasResultRows(query: QueryInfo) {
+  return query.hasResultRows
+}
+
 export function isPaginatedQueryResult<T extends object>(
   result?: QueryResult<T> | PaginatedQueryResult<T> | null,
 ): result is PaginatedQueryResult<T> {
