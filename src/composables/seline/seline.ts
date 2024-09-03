@@ -13,6 +13,8 @@ const useAnalyticsUser = createGlobalState(() => {
 })
 
 export function initSeline()  {
+  const user = useAnalyticsUser()
+  console.debug("seline user:", user)
   seline.init();
-  seline.setUser(useAnalyticsUser())
+  seline.setUser(user)
 }
