@@ -10,6 +10,7 @@ export function registryAnalytics(registry: Registry) {
     const dataSource = registry.getDataSource(key)
     track('data-source: registered', {
       ...dataSource.getAnonymizedAnalyticsData(),
+      createdWithDump: dataSource.getHasInitDump(),
     })
   })
 
