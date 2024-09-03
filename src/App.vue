@@ -4,6 +4,7 @@ import DialogProvider from '@/components/shared/dialog/DialogProvider.vue'
 import { useQueryClient } from '@tanstack/vue-query'
 import AppHeader from '@/components/shared/appHeader/AppHeader.vue'
 import { isTauri } from '@tauri-apps/api/core'
+import { Toaster } from '@/components/ui/sonner'
 
 const queryClient = useQueryClient()
 
@@ -23,6 +24,7 @@ if (isTauri() && route.path === '/') {
 
 <template>
   <DialogProvider />
+  <Toaster />
   <div vaul-drawer-wrapper class="bg-background h-screen flex flex-col">
     <AppHeader :active-data-source="null" />
     <main class="flex-1 overflow-auto">
