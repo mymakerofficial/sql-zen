@@ -140,6 +140,10 @@ export abstract class DataSource
     return this.#initDump
   }
 
+  getHasInitDump(): boolean {
+    return this.getInitDump() !== null
+  }
+
   abstract init(): Promise<void>
 
   abstract query<T extends object = object>(
