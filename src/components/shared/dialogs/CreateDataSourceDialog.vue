@@ -22,7 +22,7 @@ import ResponsiveDialogTitle from '@/components/shared/responsiveDialog/Responsi
 import ResponsiveDialogDescription from '@/components/shared/responsiveDialog/ResponsiveDialogDescription.vue'
 import type { DataSourceData } from '@/lib/dataSources/types'
 import { useEngineSupports } from '@/composables/engines/useEngineSupports'
-import * as seline from '@seline-analytics/web'
+import { useSeline } from '@/composables/seline/seline'
 
 const props = withDefaults(
   defineProps<{
@@ -32,6 +32,8 @@ const props = withDefaults(
     engine: DatabaseEngine.PostgreSQL,
   },
 )
+
+const { track } = useSeline()
 
 const { close, open } = useDialogContext()
 const registry = useRegistry()
@@ -91,7 +93,7 @@ const { mutate: create, error } = useMutation({
 
     registry.register(data)
 
-    seline.track('data-source: created', {
+    track('data-source: created', {
       dataSourceEngine: data.engine,
       dataSourceMode: data.mode,
     })
