@@ -21,6 +21,7 @@ export function runnerAnalytics(runner: Runner) {
     const hasResultRowsCount = queries.filter(hasResultRows).length
 
     track('queries: batch-completed', {
+      ...runner.dataSource.getAnonymizedAnalyticsData(),
       queryCount,
       successCount,
       errorCount,
