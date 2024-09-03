@@ -52,6 +52,11 @@ const { open, close } = useDialogContext()
 const registry = useRegistry()
 const dataSource = registry.getDataSource(props.dataSourceKey)
 
+track('embeddings: open-search-dialog', {
+  dataSourceEngine: dataSource.engine,
+  dataSourceMode: dataSource.mode,
+})
+
 const {
   pipeline,
   isLoading: pipelineIsLoading,

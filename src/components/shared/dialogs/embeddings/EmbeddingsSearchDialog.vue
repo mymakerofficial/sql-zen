@@ -40,6 +40,11 @@ const { open, close } = useDialogContext()
 const registry = useRegistry()
 const runner = registry.getRunner(props.dataSourceKey)
 
+track('embeddings: open-generate-dialog', {
+  dataSourceEngine: runner.dataSource.engine,
+  dataSourceMode: runner.dataSource.mode,
+})
+
 const {
   pipeline,
   isLoading: pipelineIsLoading,

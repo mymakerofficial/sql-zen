@@ -93,7 +93,8 @@ const track = useDebounceFn(rawTrack, 1000)
 export function useSeline() {
   return {
     init,
-    track: (name: string, data?: Record<string, unknown> | null) =>
-      track(name, data).then(),
+    track: (name: string, data?: Record<string, unknown> | null) => {
+      track(name, data).then()
+    },
   }
 }
