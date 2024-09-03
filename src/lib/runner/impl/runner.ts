@@ -16,6 +16,10 @@ export class Runner extends EventPublisher<RunnerEventMap> {
     this.#dataSource = dataSource
   }
 
+  use<T>(plugin: (runner: Runner) => T): T {
+    return plugin(this)
+  }
+
   static for(dataSource: DataSource): Runner {
     return new Runner(dataSource)
   }
@@ -119,7 +123,13 @@ export class Runner extends EventPublisher<RunnerEventMap> {
     this.clear()
 
     statements.forEach((it) => this.#createQuery(it))
-    this.#runAllIdle(transacting && statements.length > 1).then()
+    this.emit(RunnerEvent.BatchStarted, statements)
+    this.#runAllIdle(transacting && statements.length > 1).then(() => {
+      this.emit(
+        RunnerEvent.BatchCompleted,
+        this.#queries.map((it) => it.getInfo()),
+      )
+    })
   }
 
   removeQuery(queryId: string): void {

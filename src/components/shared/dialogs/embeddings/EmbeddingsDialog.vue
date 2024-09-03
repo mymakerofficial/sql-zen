@@ -53,8 +53,7 @@ const registry = useRegistry()
 const dataSource = registry.getDataSource(props.dataSourceKey)
 
 track('embeddings: open-search-dialog', {
-  dataSourceEngine: dataSource.engine,
-  dataSourceMode: dataSource.mode,
+  ...dataSource.getAnonymizedAnalyticsData(),
 })
 
 const {
@@ -170,8 +169,7 @@ async function generateEmbeddings() {
   await dataSource.deleteFile(`/var/${fileName}`)
 
   track('embeddings: generated', {
-    dataSourceEngine: dataSource.engine,
-    dataSourceMode: dataSource.mode,
+    ...dataSource.getAnonymizedAnalyticsData(),
   })
 }
 

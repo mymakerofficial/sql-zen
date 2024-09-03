@@ -41,8 +41,7 @@ const registry = useRegistry()
 const runner = registry.getRunner(props.dataSourceKey)
 
 track('embeddings: open-generate-dialog', {
-  dataSourceEngine: runner.dataSource.engine,
-  dataSourceMode: runner.dataSource.mode,
+  ...runner.dataSource.getAnonymizedAnalyticsData(),
 })
 
 const {
@@ -102,8 +101,7 @@ ORDER BY distance`
   ])
 
   track('embeddings: search', {
-    dataSourceEngine: runner.dataSource.engine,
-    dataSourceMode: runner.dataSource.mode,
+    ...runner.dataSource.getAnonymizedAnalyticsData(),
     searchTermHash: djb2(searchTerm.value),
   })
 }

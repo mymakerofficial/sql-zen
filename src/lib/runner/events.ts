@@ -1,4 +1,5 @@
 import type { QueryInfo } from '@/lib/queries/interface'
+import type { Statement } from '@/lib/statements/interface'
 
 export const RunnerEvent = {
   QueryCreated: 'query-created',
@@ -6,6 +7,8 @@ export const RunnerEvent = {
   QueryHasCompletedInitialResult: 'query-has-completed-initial-result',
   ClearedAll: 'cleared-all',
   QueriesUpdated: 'queries-updated',
+  BatchStarted: 'batch-started',
+  BatchCompleted: 'batch-completed',
 } as const
 export type RunnerEvent = (typeof RunnerEvent)[keyof typeof RunnerEvent]
 
@@ -15,4 +18,6 @@ export type RunnerEventMap = {
   [RunnerEvent.QueryHasCompletedInitialResult]: [QueryInfo]
   [RunnerEvent.ClearedAll]: []
   [RunnerEvent.QueriesUpdated]: []
+  [RunnerEvent.BatchStarted]: [Statement[]]
+  [RunnerEvent.BatchCompleted]: [QueryInfo[]]
 }

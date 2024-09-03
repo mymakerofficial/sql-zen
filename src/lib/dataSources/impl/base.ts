@@ -129,6 +129,13 @@ export abstract class DataSource
     }
   }
 
+  getAnonymizedAnalyticsData(): object {
+    return {
+      dataSourceEngine: this.engine,
+      dataSourceMode: this.mode,
+    }
+  }
+
   protected getInitDump(): FileAccessor | null {
     return this.#initDump
   }

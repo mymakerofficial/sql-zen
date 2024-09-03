@@ -38,6 +38,8 @@ const { track } = useSeline()
 const { close, open } = useDialogContext()
 const registry = useRegistry()
 
+track('create-data-source: open')
+
 const engine = ref<DatabaseEngine>(props.engine)
 const identifier = ref<string>('')
 const mode = ref<DataSourceMode>(DataSourceMode.Memory)
@@ -92,11 +94,6 @@ const { mutate: create, error } = useMutation({
     }
 
     registry.register(data)
-
-    track('data-source: created', {
-      dataSourceEngine: data.engine,
-      dataSourceMode: data.mode,
-    })
 
     return Promise.resolve()
   },
