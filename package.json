@@ -38,7 +38,8 @@
     "tailwindcss-animate": "^1.0.7",
     "vaul-vue": "^0.2.0",
     "vue": "^3.4.29",
-    "vue-router": "^4.3.3"
+    "vue-router": "^4.3.3",
+    "vue-sonner": "^1.1.5"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",
