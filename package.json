@@ -18,6 +18,7 @@
   "dependencies": {
     "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
     "@electric-sql/pglite": "0.2.4",
+    "@seline-analytics/web": "^0.0.15",
     "@sqlite.org/sqlite-wasm": "^3.46.0-build2",
     "@tanstack/vue-query": "^5.51.9",
     "@tanstack/vue-table": "^8.19.3",
