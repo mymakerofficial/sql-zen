@@ -5,7 +5,6 @@ import { useEditor } from '@/composables/editor/useEditor'
 import MonacoEditor from '@/components/shared/monaco/MonacoEditor.vue'
 import { Label } from '@/components/ui/label'
 import * as monaco from 'monaco-editor'
-import { Input } from '@/components/ui/input'
 import { ref, watch } from 'vue'
 import { SparklesIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
@@ -40,11 +39,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import * as seline from '@seline-analytics/web'
+import { useSeline } from '@/composables/seline/seline'
 
 const props = defineProps<{
   dataSourceKey: string
 }>()
+
+const { track } = useSeline()
 
 const { open, close } = useDialogContext()
 
@@ -163,7 +164,7 @@ async function generateEmbeddings() {
   )
   await dataSource.deleteFile(`/var/${fileName}`)
 
-  seline.track('embeddings: generated', {
+  track('embeddings: generated', {
     dataSourceEngine: dataSource.engine,
     dataSourceMode: dataSource.mode,
   })

@@ -3,7 +3,7 @@ import { useRegistry } from '@/composables/useRegistry'
 import { useDialogContext } from '@/composables/useDialog'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { env } from '@xenova/transformers'
 import { LoaderCircleIcon, SearchIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
@@ -25,13 +25,15 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { djb2 } from '@/lib/hash'
-import * as seline from '@seline-analytics/web'
+import { useSeline } from '@/composables/seline/seline'
 
 env.allowLocalModels = false
 
 const props = defineProps<{
   dataSourceKey: string
 }>()
+
+const { track } = useSeline()
 
 const { open, close } = useDialogContext()
 
@@ -94,7 +96,7 @@ ORDER BY distance`
     },
   ])
 
-  seline.track('embeddings: search', {
+  track('embeddings: search', {
     dataSourceEngine: runner.dataSource.engine,
     dataSourceMode: runner.dataSource.mode,
     searchTermHash: djb2(searchTerm.value),

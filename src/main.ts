@@ -15,13 +15,14 @@ import { RegistryEvent } from '@/lib/registry/events'
 import { TabType } from '@/lib/tabs/enums'
 import persistTabs from '@/lib/tabs/plugins/persistTabs'
 import { inject } from '@vercel/analytics'
-import { initSeline } from '@/composables/seline/seline'
+import { useSeline } from '@/composables/seline/seline'
 
 // inject vercel analytics
 // TODO: remove after fully switching to seline
 inject()
 
 // init seline analytics
+const { init: initSeline } = useSeline()
 initSeline()
 
 const app = createApp(App)
