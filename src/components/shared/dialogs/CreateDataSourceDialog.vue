@@ -22,6 +22,7 @@ import ResponsiveDialogTitle from '@/components/shared/responsiveDialog/Responsi
 import ResponsiveDialogDescription from '@/components/shared/responsiveDialog/ResponsiveDialogDescription.vue'
 import type { DataSourceData } from '@/lib/dataSources/types'
 import { useEngineSupports } from '@/composables/engines/useEngineSupports'
+import * as seline from '@seline-analytics/web'
 
 const props = withDefaults(
   defineProps<{
@@ -89,6 +90,12 @@ const { mutate: create, error } = useMutation({
     }
 
     registry.register(data)
+
+    seline.track('data-source: created', {
+      dataSourceEngine: data.engine,
+      dataSourceMode: data.mode,
+    })
+
     return Promise.resolve()
   },
   onSuccess: close,

@@ -13,6 +13,8 @@ import highlightStatements from '@/composables/editor/highlightStatements'
 import { useRunSuggestions } from '@/composables/editor/useRunSuggestions'
 import type { Statement } from '@/lib/statements/interface'
 import { useIsRunning } from '@/composables/useIsRunning'
+import * as seline from '@seline-analytics/web'
+import { useDebounceFn } from '@vueuse/core'
 
 const props = defineProps<{
   editor: UseEditor
@@ -44,6 +46,22 @@ function handleHover(statements: Statement[]) {
 function handleRun(statements: Statement[]) {
   close()
   props.editor.runner?.batch(statements, props.transacting)
+  track(statements.length)
+}
+
+const batchSizeHistory: number[] = []
+const debouncedTrack = useDebounceFn(() => {
+  seline.track('editor: run', {
+    dataSourceEngine: props.editor.runner?.dataSource.engine,
+    dataSourceMode: props.editor.runner?.dataSource.mode,
+    batchSizes: batchSizeHistory,
+  })
+  batchSizeHistory.length = 0
+}, 60000) // 1 minute
+
+function track(batchSize: number) {
+  batchSizeHistory.push(batchSize)
+  debouncedTrack()
 }
 </script>
 

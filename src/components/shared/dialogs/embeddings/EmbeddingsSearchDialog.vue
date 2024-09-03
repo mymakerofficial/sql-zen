@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { djb2 } from '@/lib/hash'
+import * as seline from '@seline-analytics/web'
 
 env.allowLocalModels = false
 
@@ -92,6 +93,12 @@ ORDER BY distance`
       key: `stmt_auto_${djb2(statement)}`,
     },
   ])
+
+  seline.track('embeddings: search', {
+    dataSourceEngine: runner.dataSource.engine,
+    dataSourceMode: runner.dataSource.mode,
+    searchTermHash: djb2(searchTerm.value),
+  })
 }
 
 const {

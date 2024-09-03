@@ -40,6 +40,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import * as seline from '@seline-analytics/web'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -161,6 +162,11 @@ async function generateEmbeddings() {
     `COPY ${embeddingsTableName} FROM '/var/${fileName}' DELIMITER ';' CSV HEADER ENCODING 'UTF8'`,
   )
   await dataSource.deleteFile(`/var/${fileName}`)
+
+  seline.track('embeddings: generated', {
+    dataSourceEngine: dataSource.engine,
+    dataSourceMode: dataSource.mode,
+  })
 }
 
 const {
