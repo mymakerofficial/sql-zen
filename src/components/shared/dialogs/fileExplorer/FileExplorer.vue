@@ -19,6 +19,7 @@ import ResponsiveDialogTitle from '@/components/shared/responsiveDialog/Responsi
 import ResponsiveDialogDescription from '@/components/shared/responsiveDialog/ResponsiveDialogDescription.vue'
 import ResponsiveDialogFooter from '@/components/shared/responsiveDialog/ResponsiveDialogFooter.vue'
 import type { FileInfo } from '@/lib/files/interface'
+import * as seline from '@seline-analytics/web'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -29,6 +30,11 @@ const { open: openFileViewer } = useDialog(FileViewerDialog)
 
 const registry = useRegistry()
 const dataSource = registry.getDataSource(props.dataSourceKey)
+
+seline.track('file-explorer: open', {
+  dataSourceEngine: dataSource.engine,
+  dataSourceMode: dataSource.mode,
+})
 
 const {
   data,
@@ -42,18 +48,33 @@ const {
 })
 
 const { mutate: handleRegisterFile, error: registerError } = useMutation({
-  mutationFn: (file: FileAccessor) =>
-    dataSource.writeFile(file.getName(), file),
+  mutationFn: async (file: FileAccessor) => {
+    seline.track('file-explorer: register-file', {
+      dataSourceEngine: dataSource.engine,
+      dataSourceMode: dataSource.mode,
+    })
+    await dataSource.writeFile(file.getName(), file)
+  },
   onSuccess: () => refetch(),
 })
 
 const { mutate: handleDeleteFile, error: deleteError } = useMutation({
-  mutationFn: (item: FileInfo) => dataSource.deleteFile(item.path),
+  mutationFn: async (item: FileInfo) => {
+    seline.track('file-explorer: delete-file', {
+      dataSourceEngine: dataSource.engine,
+      dataSourceMode: dataSource.mode,
+    })
+    await dataSource.deleteFile(item.path)
+  },
   onSuccess: () => refetch(),
 })
 
 const { mutateAsync: readFile, error: readError } = useMutation({
   mutationFn: async (item: FileInfo) => {
+    seline.track('file-explorer: read-file', {
+      dataSourceEngine: dataSource.engine,
+      dataSourceMode: dataSource.mode,
+    })
     return await dataSource.readFile(item.path)
   },
 })
