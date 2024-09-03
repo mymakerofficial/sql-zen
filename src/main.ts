@@ -16,6 +16,7 @@ import { TabType } from '@/lib/tabs/enums'
 import persistTabs from '@/lib/tabs/plugins/persistTabs'
 import { inject } from '@vercel/analytics'
 import { useSeline } from '@/composables/seline/seline'
+import { registryAnalytics } from '@/lib/registry/plugins/analytics'
 
 // inject vercel analytics
 // TODO: remove after fully switching to seline
@@ -67,6 +68,8 @@ registry.on(RegistryEvent.Unregistered, (dataSourceKey) => {
 registry.use(findPostgresDatabases)
 registry.use(findSqliteDatabases)
 registry.use(storeInMemorySources)
+
+registry.use(registryAnalytics)
 
 // @ts-ignore
 globalThis.registry = registry

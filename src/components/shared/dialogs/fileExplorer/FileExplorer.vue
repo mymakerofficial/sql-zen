@@ -19,7 +19,6 @@ import ResponsiveDialogTitle from '@/components/shared/responsiveDialog/Responsi
 import ResponsiveDialogDescription from '@/components/shared/responsiveDialog/ResponsiveDialogDescription.vue'
 import ResponsiveDialogFooter from '@/components/shared/responsiveDialog/ResponsiveDialogFooter.vue'
 import type { FileInfo } from '@/lib/files/interface'
-import * as seline from '@seline-analytics/web'
 import { useSeline } from '@/composables/seline/seline'
 
 const props = defineProps<{
@@ -35,8 +34,7 @@ const registry = useRegistry()
 const dataSource = registry.getDataSource(props.dataSourceKey)
 
 track('file-explorer: open', {
-  dataSourceEngine: dataSource.engine,
-  dataSourceMode: dataSource.mode,
+  ...dataSource.getAnonymizedAnalyticsData(),
 })
 
 const {
@@ -53,8 +51,7 @@ const {
 const { mutate: handleRegisterFile, error: registerError } = useMutation({
   mutationFn: async (file: FileAccessor) => {
     track('file-explorer: register-file', {
-      dataSourceEngine: dataSource.engine,
-      dataSourceMode: dataSource.mode,
+      ...dataSource.getAnonymizedAnalyticsData(),
     })
     await dataSource.writeFile(file.getName(), file)
   },
@@ -64,8 +61,7 @@ const { mutate: handleRegisterFile, error: registerError } = useMutation({
 const { mutate: handleDeleteFile, error: deleteError } = useMutation({
   mutationFn: async (item: FileInfo) => {
     track('file-explorer: delete-file', {
-      dataSourceEngine: dataSource.engine,
-      dataSourceMode: dataSource.mode,
+      ...dataSource.getAnonymizedAnalyticsData(),
     })
     await dataSource.deleteFile(item.path)
   },
@@ -75,8 +71,7 @@ const { mutate: handleDeleteFile, error: deleteError } = useMutation({
 const { mutateAsync: readFile, error: readError } = useMutation({
   mutationFn: async (item: FileInfo) => {
     track('file-explorer: read-file', {
-      dataSourceEngine: dataSource.engine,
-      dataSourceMode: dataSource.mode,
+      ...dataSource.getAnonymizedAnalyticsData(),
     })
     return await dataSource.readFile(item.path)
   },
