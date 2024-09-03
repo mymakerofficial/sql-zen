@@ -21,10 +21,6 @@ import { useSeline } from '@/composables/seline/seline'
 // TODO: remove after fully switching to seline
 inject()
 
-// init seline analytics
-const { init: initSeline } = useSeline()
-initSeline()
-
 const app = createApp(App)
 
 const router = createRouter({
@@ -48,6 +44,11 @@ app.use(vueQuery, {
 })
 
 app.mount('#app')
+
+// init seline analytics
+//  must happen after app is mounted
+const { init: initSeline } = useSeline()
+initSeline()
 
 const registry = useRegistry()
 const tabManager = useTabManager()
