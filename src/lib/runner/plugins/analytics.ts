@@ -1,20 +1,30 @@
 import type { Runner } from '@/lib/runner/impl/runner'
 import { RunnerEvent } from '@/lib/runner/events'
 import { useSeline } from '@/composables/seline/seline'
+import {
+  hasResultRows,
+  isErrorQuery,
+  isSuccessQuery,
+} from '@/lib/queries/helpers'
 
 const { track } = useSeline()
 
 export function runnerAnalytics(runner: Runner) {
   // runner.on(RunnerEvent.BatchStarted, (batchSize) => {
-  //   track('runner: batch started', { batchSize })
+  //   track('runner: batch-started', { batchSize })
   // })
 
   runner.on(RunnerEvent.BatchCompleted, (queries) => {
-    track('queries: batch completed', {
-      queries: queries.map((it) => ({
-        state: it.state,
-        hasResultRows: it.hasResultRows,
-      })),
+    const queryCount = queries.length
+    const successCount = queries.filter(isSuccessQuery).length
+    const errorCount = queries.filter(isErrorQuery).length
+    const hasResultRowsCount = queries.filter(hasResultRows).length
+
+    track('queries: batch-completed', {
+      queryCount,
+      successCount,
+      errorCount,
+      hasResultRowsCount,
     })
   })
 }
