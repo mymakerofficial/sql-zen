@@ -31,6 +31,9 @@ function isConsentGranted() {
 
 function handleConsent() {
   localStorage.setItem(CONSENT_STORAGE_KEY, AnalyticsConsent.Granted)
+  toast.message('Thanks ❤️', {
+    duration: 1000,
+  })
   init()
 }
 
