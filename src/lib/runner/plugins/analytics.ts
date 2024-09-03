@@ -14,7 +14,7 @@ export function runnerAnalytics(runner: Runner) {
   //   track('runner: batch-started', { batchSize })
   // })
 
-  runner.on(RunnerEvent.BatchCompleted, (queries) => {
+  runner.on(RunnerEvent.BatchCompleted, (queries, transacting) => {
     const queryCount = queries.length
     const successCount = queries.filter(isSuccessQuery).length
     const errorCount = queries.filter(isErrorQuery).length
@@ -26,6 +26,7 @@ export function runnerAnalytics(runner: Runner) {
       successCount,
       errorCount,
       hasResultRowsCount,
+      transacting,
     })
   })
 }

@@ -123,11 +123,12 @@ export class Runner extends EventPublisher<RunnerEventMap> {
     this.clear()
 
     statements.forEach((it) => this.#createQuery(it))
-    this.emit(RunnerEvent.BatchStarted, statements)
+    this.emit(RunnerEvent.BatchStarted, statements, transacting)
     this.#runAllIdle(transacting && statements.length > 1).then(() => {
       this.emit(
         RunnerEvent.BatchCompleted,
         this.#queries.map((it) => it.getInfo()),
+        transacting,
       )
     })
   }

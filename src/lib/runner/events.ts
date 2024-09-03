@@ -18,6 +18,6 @@ export type RunnerEventMap = {
   [RunnerEvent.QueryHasCompletedInitialResult]: [QueryInfo]
   [RunnerEvent.ClearedAll]: []
   [RunnerEvent.QueriesUpdated]: []
-  [RunnerEvent.BatchStarted]: [Statement[]]
-  [RunnerEvent.BatchCompleted]: [QueryInfo[]]
+  [RunnerEvent.BatchStarted]: [statements: Statement[], transacting: boolean]
+  [RunnerEvent.BatchCompleted]: [queries: QueryInfo[], transacting: boolean]
 }
