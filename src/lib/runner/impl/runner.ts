@@ -112,7 +112,10 @@ export class Runner extends EventPublisher<RunnerEventMap> {
     })
   }
 
-  batch(statements: Array<Statement>, transacting: boolean = false): void {
+  async asyncBatch(
+    statements: Array<Statement>,
+    transacting: boolean = false,
+  ): Promise<void> {
     const allSettled = this.#queries.every(isSettledQuery)
     if (!allSettled) {
       throw new Error(
@@ -124,9 +127,13 @@ export class Runner extends EventPublisher<RunnerEventMap> {
 
     statements.forEach((it) => this.#createQuery(it))
     this.emit(RunnerEvent.BatchStarted, statements, transacting)
-    this.#runAllIdle(transacting && statements.length > 1).finally(() => {
+    await this.#runAllIdle(transacting && statements.length > 1).finally(() => {
       this.emit(RunnerEvent.BatchCompleted, this.getQueries(), transacting)
     })
+  }
+
+  batch(statements: Array<Statement>, transacting: boolean = false): void {
+    this.asyncBatch(statements, transacting).then()
   }
 
   removeQuery(queryId: string): void {
