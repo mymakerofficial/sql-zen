@@ -33,10 +33,6 @@ const { open: openFileViewer } = useDialog(FileViewerDialog)
 const registry = useRegistry()
 const dataSource = registry.getDataSource(props.dataSourceKey)
 
-track('file-explorer: open', {
-  ...dataSource.getAnonymizedAnalyticsData(),
-})
-
 const {
   data,
   refetch,

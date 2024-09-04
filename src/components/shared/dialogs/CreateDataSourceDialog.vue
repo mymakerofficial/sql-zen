@@ -22,7 +22,6 @@ import ResponsiveDialogTitle from '@/components/shared/responsiveDialog/Responsi
 import ResponsiveDialogDescription from '@/components/shared/responsiveDialog/ResponsiveDialogDescription.vue'
 import type { DataSourceData } from '@/lib/dataSources/types'
 import { useEngineSupports } from '@/composables/engines/useEngineSupports'
-import { useSeline } from '@/composables/seline/seline'
 
 const props = withDefaults(
   defineProps<{
@@ -33,12 +32,8 @@ const props = withDefaults(
   },
 )
 
-const { track } = useSeline()
-
 const { close, open } = useDialogContext()
 const registry = useRegistry()
-
-track('create-data-source: open')
 
 const engine = ref<DatabaseEngine>(props.engine)
 const identifier = ref<string>('')

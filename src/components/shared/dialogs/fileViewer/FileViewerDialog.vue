@@ -3,7 +3,6 @@ import { FileAccessor } from '@/lib/files/fileAccessor'
 import { useDialogContext } from '@/composables/useDialog'
 import { computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
-import MonacoEditor from '@/components/shared/monaco/MonacoEditor.vue'
 import { DownloadIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import {
