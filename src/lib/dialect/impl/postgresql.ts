@@ -28,14 +28,18 @@ export class PostgreSQLDialect extends SqlDialect {
     )
 
     const { rows: tables } = await this.dataSource.query<Table>(
-      `SELECT schemaname, tablename, tableowner FROM pg_catalog.pg_tables`,
+      `SELECT schemaname, tablename FROM pg_catalog.pg_tables`,
+    )
+
+    const { rows: views } = await this.dataSource.query<View>(
+      `SELECT table_schema, table_name FROM information_schema.views`,
     )
 
     const { rows: columns } = await this.dataSource.query<Column>(
       `SELECT table_schema, table_name, column_name, udt_name, is_nullable FROM information_schema.columns`,
     )
 
-    return genBase(extensions, schemas, tables, columns)
+    return genBase(extensions, schemas, tables, views, columns)
   }
 
   #queryFiltersFromIdentifier(
@@ -164,7 +168,11 @@ type Schema = {
 type Table = {
   schemaname: string
   tablename: string
-  tableowner: string
+}
+
+type View = {
+  table_schema: string
+  table_name: string
 }
 
 type Column = {
@@ -180,6 +188,7 @@ function genBase(
   extensions: Extension[],
   schemas: Schema[],
   tables: Table[],
+  views: View[],
   columns: Column[],
 ) {
   return [
@@ -188,7 +197,7 @@ function genBase(
       name: 'schemas',
       type: DSTreeItemType.Collection,
       for: DSTreeItemType.Schema,
-      children: genSchemas(schemas, tables, columns),
+      children: genSchemas(schemas, tables, views, columns),
     },
     {
       key: `__extensions__`,
@@ -214,6 +223,7 @@ function genExtensions(extensions: Extension[]): DSTreeExtensionItem[] {
 function genSchemas(
   schemas: Schema[],
   tables: Table[],
+  views: View[],
   columns: Column[],
 ): DSTreeSchemaItem[] {
   return schemas.map((schema) => ({
@@ -227,6 +237,13 @@ function genSchemas(
         type: DSTreeItemType.Collection,
         for: DSTreeItemType.Table,
         children: genTables(schema.nspname, tables, columns),
+      },
+      {
+        key: `${schema.nspname}__views__`,
+        name: 'views',
+        type: DSTreeItemType.Collection,
+        for: DSTreeItemType.Table,
+        children: genViews(schema.nspname, views, columns),
       },
     ],
   }))
@@ -244,6 +261,21 @@ function genTables(
       name: table.tablename,
       type: DSTreeItemType.Table,
       children: genColumns(schema, table.tablename, columns),
+    }))
+}
+
+function genViews(
+  schema: string,
+  views: View[],
+  columns: Column[],
+): DSTreeTableItem[] {
+  return views
+    .filter((it) => it.table_schema === schema)
+    .map((table) => ({
+      key: `${schema}-${table.table_name}`,
+      name: table.table_name,
+      type: DSTreeItemType.Table,
+      children: genColumns(schema, table.table_name, columns),
     }))
 }
 
