@@ -72,7 +72,7 @@ const primaryColumnName = ref('id')
 const { data: tables } = useQuery({
   queryKey: [dataSource.key, 'tables'],
   queryFn: async () => {
-    const allTables = await dataSource.dialect.getPublicTableNames()
+    const allTables = await dataSource.dialect.getTableNames()
     const filteredTables = allTables.filter(
       (table) => !table.endsWith('_embeddings'),
     )

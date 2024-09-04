@@ -12,7 +12,7 @@ import {
   type PostgreSQLInformationSchemaColumn,
 } from '@/lib/schema/columns/definition/base'
 import {
-  type PartialTableIdentifier,
+  type TableIdentifierCriterion,
   TableDefinition,
   type TableIdentifier,
 } from '@/lib/schema/tables/table'
@@ -43,9 +43,13 @@ export class PostgreSQLDialect extends SqlDialect {
   }
 
   #queryFiltersFromIdentifier(
-    identifier: PartialTableIdentifier,
+    identifier: TableIdentifierCriterion = {},
     columnNames: {
       [K in keyof TableIdentifier]: string
+    } = {
+      databaseName: 'table_catalog',
+      schemaName: 'table_schema',
+      name: 'table_name',
     },
   ) {
     const parts = []
@@ -58,6 +62,10 @@ export class PostgreSQLDialect extends SqlDialect {
 
     if (identifier.schemaName) {
       parts.push(`${columnNames.schemaName} = '${identifier.schemaName}'`)
+    } else if (!identifier.includeSystemTables) {
+      parts.push(
+        `${columnNames.schemaName} NOT IN ('pg_catalog', 'pg_toast', 'information_schema')`,
+      )
     }
 
     if (identifier.name) {
@@ -67,17 +75,13 @@ export class PostgreSQLDialect extends SqlDialect {
     return parts.join('\n    AND ')
   }
 
-  async getTableIdentifiers(identifier: PartialTableIdentifier) {
-    const filters = this.#queryFiltersFromIdentifier(identifier, {
-      databaseName: 'table_catalog',
-      schemaName: 'table_schema',
-      name: 'table_name',
-    })
+  async getTableIdentifiers(identifier: TableIdentifierCriterion = {}) {
+    const filters = this.#queryFiltersFromIdentifier(identifier)
 
     const { rows } = await this.dataSource.query<{
-      tablename: string
-      schemaname: string
-      catalog_name: string
+      table_catalog: string
+      table_schema: string
+      table_name: string
     }>(
       `SELECT
     table_catalog,
@@ -88,17 +92,13 @@ WHERE ${filters}`,
     )
 
     return rows.map((it) => ({
-      databaseName: it.catalog_name,
-      schemaName: it.schemaname,
-      name: it.tablename,
+      databaseName: it.table_catalog,
+      schemaName: it.table_schema,
+      name: it.table_name,
     }))
   }
 
-  getPublicTableIdentifiers() {
-    return this.getTableIdentifiers({ schemaName: 'public' })
-  }
-
-  async getTableColumnDefinitions(identifier: PartialTableIdentifier) {
+  async getTableColumnDefinitions(identifier: TableIdentifierCriterion) {
     if (!identifier.name) {
       // no table name is specified
       //  querying the database would result in meaningless data
@@ -106,11 +106,7 @@ WHERE ${filters}`,
       return []
     }
 
-    const filters = this.#queryFiltersFromIdentifier(identifier, {
-      databaseName: 'table_catalog',
-      schemaName: 'table_schema',
-      name: 'table_name',
-    })
+    const filters = this.#queryFiltersFromIdentifier(identifier)
 
     const { rows } =
       await this.dataSource.query<PostgreSQLInformationSchemaColumn>(
@@ -130,7 +126,7 @@ WHERE ${filters}`,
     ) as ColumnDefinition[]
   }
 
-  async getTableDefinition(identifier: PartialTableIdentifier) {
+  async getTableDefinition(identifier: TableIdentifierCriterion = {}) {
     const columns = await this.getTableColumnDefinitions(identifier)
 
     return TableDefinition.fromEngineAndIdentifier(
