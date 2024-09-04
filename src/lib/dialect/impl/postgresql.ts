@@ -28,7 +28,7 @@ export class PostgreSQLDialect extends SqlDialect {
     )
 
     const { rows: tables } = await this.dataSource.query<Table>(
-      `SELECT table_schema, table_name FROM information_schema.tables`,
+      `SELECT table_schema, table_name FROM information_schema.tables where table_type = 'BASE TABLE'`,
     )
 
     const { rows: views } = await this.dataSource.query<View>(
