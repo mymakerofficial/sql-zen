@@ -75,15 +75,7 @@ function initSeline() {
     return
   }
 
-  seline.init({
-    autoPageView: false,
-  })
-  seline.setUser({
-    gitBranch: import.meta.env.VERCEL_GIT_COMMIT_REF || 'unknown',
-    gitCommitSha: import.meta.env.VERCEL_GIT_COMMIT_SHA || 'unknown',
-  })
-  // to prevent automatic page view tracking before user data is set
-  seline.enableAutoPageView()
+  seline.init()
 
   log('Thank you for helping us improve SqlZen! 🤗')
 }
