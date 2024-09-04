@@ -89,7 +89,7 @@ LEFT JOIN ${tableName.value} as t
 ON t.${primaryColumnName.value} = e.${primaryColumnName.value}
 ORDER BY distance`
 
-  runner.batch([
+  await runner.asyncBatch([
     {
       sql: statement,
       key: `stmt_auto_${djb2(statement)}`,
