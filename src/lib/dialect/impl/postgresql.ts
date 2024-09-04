@@ -14,6 +14,7 @@ import {
 import {
   type PartialTableIdentifier,
   TableDefinition,
+  type TableIdentifier,
 } from '@/lib/schema/tables/table'
 
 export class PostgreSQLDialect extends SqlDialect {
@@ -39,34 +40,35 @@ export class PostgreSQLDialect extends SqlDialect {
 
   #queryFiltersFromIdentifier(
     identifier: PartialTableIdentifier,
-    columnNames: [databaseName: string, schemaName: string, tableName: string],
+    columnNames: {
+      [K in keyof TableIdentifier]: string
+    },
   ) {
-    return Array.from(
-      new Map<string, string>([
-        [
-          columnNames[0],
-          identifier.databaseName
-            ? `'${identifier.databaseName}'`
-            : 'current_database()',
-        ],
-        [
-          columnNames[1],
-          identifier.schemaName ? `'${identifier.schemaName}'` : '',
-        ],
-        [columnNames[2], identifier.name ? `'${identifier.name}'` : ''],
-      ]),
-    )
-      .filter(([_, value]) => value !== '')
-      .map(([key, value]) => `${key} = ${value}`)
-      .join('\n    AND ')
+    const parts = []
+
+    if (identifier.databaseName) {
+      parts.push(`${columnNames.databaseName} = '${identifier.databaseName}'`)
+    } else {
+      parts.push(`${columnNames.databaseName} = current_database()`)
+    }
+
+    if (identifier.schemaName) {
+      parts.push(`${columnNames.schemaName} = '${identifier.schemaName}'`)
+    }
+
+    if (identifier.name) {
+      parts.push(`${columnNames.name} = '${identifier.name}'`)
+    }
+
+    return parts.join('\n    AND ')
   }
 
   async getTableIdentifiers(identifier: PartialTableIdentifier) {
-    const filters = this.#queryFiltersFromIdentifier(identifier, [
-      'catalog_name',
-      'schemaname',
-      'tablename',
-    ])
+    const filters = this.#queryFiltersFromIdentifier(identifier, {
+      databaseName: 'catalog_name',
+      schemaName: 'schemaname',
+      name: 'tablename',
+    })
 
     const { rows } = await this.dataSource.query<{
       tablename: string
@@ -102,11 +104,11 @@ WHERE ${filters}`,
       return []
     }
 
-    const filters = this.#queryFiltersFromIdentifier(identifier, [
-      'table_catalog',
-      'table_schema',
-      'table_name',
-    ])
+    const filters = this.#queryFiltersFromIdentifier(identifier, {
+      databaseName: 'table_catalog',
+      schemaName: 'table_schema',
+      name: 'table_name',
+    })
 
     const { rows } =
       await this.dataSource.query<PostgreSQLInformationSchemaColumn>(
