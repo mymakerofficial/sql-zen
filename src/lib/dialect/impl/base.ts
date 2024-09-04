@@ -1,11 +1,11 @@
 import type { DSTreeItem } from '@/lib/dialect/interface'
 import type { DataSource } from '@/lib/dataSources/impl/base'
-import type { ColumnDefinitionInfo } from '@/lib/schema/columns/definition/base'
+import { ColumnDefinition } from '@/lib/schema/columns/definition/base'
 import type { DatabaseEngine } from '@/lib/engines/enums'
 import {
   type PartialTableIdentifier,
   TableDefinition,
-  type TableInfo,
+  type TableIdentifier,
 } from '@/lib/schema/tables/table'
 
 export abstract class SqlDialect {
@@ -21,22 +21,53 @@ export abstract class SqlDialect {
 
   abstract getDataSourceTree(): Promise<DSTreeItem[]>
 
-  getPublicTableNames(): Promise<string[]> {
+  /***
+   * Gets a list of identifiers for all tables that match the provided criteria.
+   */
+  getTableIdentifiers(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    identifier: PartialTableIdentifier,
+  ): Promise<TableIdentifier[]> {
     return Promise.resolve([])
   }
 
-  getTableColumns(
+  /***
+   * Gets a list of table names that match the provided criteria.
+   */
+  async getTableNames(identifier: PartialTableIdentifier): Promise<string[]> {
+    return this.getTableIdentifiers(identifier).then((identifiers) =>
+      identifiers.map((identifier) => identifier.name),
+    )
+  }
+
+  /***
+   * Gets a list of identifiers for all tables that are in the default schema.
+   */
+  getPublicTableIdentifiers(): Promise<TableIdentifier[]> {
+    return Promise.resolve([])
+  }
+
+  /***
+   * Gets a list of table names that are in the default schema.
+   */
+  async getPublicTableNames(): Promise<string[]> {
+    return this.getPublicTableIdentifiers().then((identifiers) =>
+      identifiers.map((identifier) => identifier.name),
+    )
+  }
+
+  getTableColumnDefinitions(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     identifier: PartialTableIdentifier,
-  ): Promise<ColumnDefinitionInfo[]> {
+  ): Promise<ColumnDefinition[]> {
     return Promise.resolve([])
   }
 
   getTableDefinition(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     identifier: PartialTableIdentifier,
-  ): Promise<TableInfo> {
-    return Promise.resolve(TableDefinition.dummy.getUntypedInfo())
+  ): Promise<TableDefinition> {
+    return Promise.resolve(TableDefinition.dummy as TableDefinition)
   }
 
   abstract beginTransaction(): Promise<void>
