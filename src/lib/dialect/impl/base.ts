@@ -3,7 +3,7 @@ import type { DataSource } from '@/lib/dataSources/impl/base'
 import { ColumnDefinition } from '@/lib/schema/columns/definition/base'
 import type { DatabaseEngine } from '@/lib/engines/enums'
 import {
-  type PartialTableIdentifier,
+  type TableIdentifierCriterion,
   TableDefinition,
   type TableIdentifier,
 } from '@/lib/schema/tables/table'
@@ -26,7 +26,7 @@ export abstract class SqlDialect {
    */
   getTableIdentifiers(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    identifier: PartialTableIdentifier,
+    identifier?: TableIdentifierCriterion,
   ): Promise<TableIdentifier[]> {
     return Promise.resolve([])
   }
@@ -34,38 +34,24 @@ export abstract class SqlDialect {
   /***
    * Gets a list of table names that match the provided criteria.
    */
-  async getTableNames(identifier: PartialTableIdentifier): Promise<string[]> {
+  async getTableNames(
+    identifier?: TableIdentifierCriterion,
+  ): Promise<string[]> {
     return this.getTableIdentifiers(identifier).then((identifiers) =>
-      identifiers.map((identifier) => identifier.name),
-    )
-  }
-
-  /***
-   * Gets a list of identifiers for all tables that are in the default schema.
-   */
-  getPublicTableIdentifiers(): Promise<TableIdentifier[]> {
-    return Promise.resolve([])
-  }
-
-  /***
-   * Gets a list of table names that are in the default schema.
-   */
-  async getPublicTableNames(): Promise<string[]> {
-    return this.getPublicTableIdentifiers().then((identifiers) =>
       identifiers.map((identifier) => identifier.name),
     )
   }
 
   getTableColumnDefinitions(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    identifier: PartialTableIdentifier,
+    identifier?: TableIdentifierCriterion,
   ): Promise<ColumnDefinition[]> {
     return Promise.resolve([])
   }
 
   getTableDefinition(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    identifier: PartialTableIdentifier,
+    identifier?: TableIdentifierCriterion,
   ): Promise<TableDefinition> {
     return Promise.resolve(TableDefinition.dummy as TableDefinition)
   }

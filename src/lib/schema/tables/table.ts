@@ -10,7 +10,11 @@ export type TableIdentifier = {
   name: string
 }
 
-export type PartialTableIdentifier = Partial<TableIdentifier>
+export type TableIdentifierCriterion = Partial<
+  TableIdentifier & {
+    includeSystemTables: boolean
+  }
+>
 
 export type TableDefinitionInfo<T extends DatabaseEngine = DatabaseEngine> =
   TableIdentifier & {
@@ -51,7 +55,7 @@ export class TableDefinition<T extends DatabaseEngine = DatabaseEngine>
 
   static fromEngineAndIdentifier<
     T extends DatabaseEngine = typeof DatabaseEngine.None,
-  >(engine: T, identifier: PartialTableIdentifier) {
+  >(engine: T, identifier: TableIdentifierCriterion) {
     const { databaseName = '', schemaName = '', name = '' } = identifier
     return this.from({
       engine,
