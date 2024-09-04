@@ -14,11 +14,11 @@ export function registryAnalytics(registry: Registry) {
     })
   })
 
-  registry.on(RegistryEvent.Initialized, (key, duration) => {
+  registry.on(RegistryEvent.Initialized, (key, durationMs) => {
     const dataSource = registry.getDataSource(key)
     track('data-source: initialized', {
       ...dataSource.getAnonymizedAnalyticsData(),
-      duration,
+      durationRounded: Math.round(durationMs / 1000) + 's',
     })
 
     dataSource.runner.use(runnerAnalytics)
