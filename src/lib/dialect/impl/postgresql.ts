@@ -20,23 +20,35 @@ import {
 export class PostgreSQLDialect extends SqlDialect {
   async getDataSourceTree() {
     const { rows: extensions } = await this.dataSource.query<Extension>(
-      `SELECT e.extname, e.extversion, d.description FROM pg_catalog.pg_extension as e LEFT JOIN pg_catalog.pg_description as d ON e.oid = d.objoid`,
+      `SELECT 
+    e.extname, 
+    e.extversion, 
+    d.description 
+FROM pg_catalog.pg_extension AS e 
+LEFT JOIN pg_catalog.pg_description AS d 
+ON e.oid = d.objoid`,
     )
 
     const { rows: schemas } = await this.dataSource.query<Schema>(
-      `SELECT nspname, oid FROM pg_catalog.pg_namespace ORDER BY oid DESC`,
+      `SELECT nspname, oid 
+FROM pg_catalog.pg_namespace 
+ORDER BY oid DESC`,
     )
 
     const { rows: tables } = await this.dataSource.query<Table>(
-      `SELECT table_schema, table_name FROM information_schema.tables where table_type = 'BASE TABLE'`,
+      `SELECT table_schema, table_name 
+FROM information_schema.tables 
+WHERE table_type = 'BASE TABLE'`,
     )
 
     const { rows: views } = await this.dataSource.query<View>(
-      `SELECT table_schema, table_name FROM information_schema.views`,
+      `SELECT table_schema, table_name 
+FROM information_schema.views`,
     )
 
     const { rows: columns } = await this.dataSource.query<Column>(
-      `SELECT table_schema, table_name, column_name, udt_name, is_nullable FROM information_schema.columns`,
+      `SELECT table_schema, table_name, column_name, udt_name, is_nullable 
+FROM information_schema.columns`,
     )
 
     return genBase(extensions, schemas, tables, views, columns)
