@@ -86,7 +86,12 @@ const { data: tables } = useQuery({
 
 const { data: columns } = useQuery({
   queryKey: [dataSource.key, tableName, 'columns'],
-  queryFn: () => dataSource.dialect.getTableColumns({ name: tableName.value }),
+  queryFn: () =>
+    dataSource.dialect
+      .getTableColumnDefinitions({
+        name: tableName.value,
+      })
+      .then((data) => data.map((column) => column.getInfo())),
   initialData: [],
 })
 

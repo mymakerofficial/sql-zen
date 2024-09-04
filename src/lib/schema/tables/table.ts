@@ -12,14 +12,14 @@ export type TableIdentifier = {
 
 export type PartialTableIdentifier = Partial<TableIdentifier>
 
-export type TableInfo<T extends DatabaseEngine = DatabaseEngine> =
+export type TableDefinitionInfo<T extends DatabaseEngine = DatabaseEngine> =
   TableIdentifier & {
     engine: T
     columns: ColumnDefinitionInfo<T>[]
   }
 
 export class TableDefinition<T extends DatabaseEngine = DatabaseEngine>
-  implements TableInfo<T>
+  implements TableDefinitionInfo<T>
 {
   static #dummy = TableDefinition.fromEngineAndIdentifier(DatabaseEngine.None, {
     name: '',
@@ -31,7 +31,7 @@ export class TableDefinition<T extends DatabaseEngine = DatabaseEngine>
   #name: string
   #columns: ColumnDefinition<T>[]
 
-  constructor(info: TableInfo<T>) {
+  constructor(info: TableDefinitionInfo<T>) {
     this.#engine = info.engine
     this.#databaseName = info.databaseName
     this.#schemaName = info.schemaName
@@ -44,7 +44,7 @@ export class TableDefinition<T extends DatabaseEngine = DatabaseEngine>
   }
 
   static from<T extends DatabaseEngine = typeof DatabaseEngine.None>(
-    info: TableInfo<T>,
+    info: TableDefinitionInfo<T>,
   ) {
     return new TableDefinition(info)
   }
@@ -89,7 +89,7 @@ export class TableDefinition<T extends DatabaseEngine = DatabaseEngine>
     return this.#columns
   }
 
-  getInfo(): TableInfo<T> {
+  getInfo(): TableDefinitionInfo<T> {
     return {
       engine: this.engine,
       databaseName: this.databaseName,
@@ -99,7 +99,7 @@ export class TableDefinition<T extends DatabaseEngine = DatabaseEngine>
     }
   }
 
-  getUntypedInfo(): TableInfo {
-    return this.getInfo() as unknown as TableInfo
+  getUntypedInfo(): TableDefinitionInfo {
+    return this.getInfo() as unknown as TableDefinitionInfo
   }
 }

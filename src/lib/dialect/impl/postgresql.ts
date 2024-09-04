@@ -9,7 +9,6 @@ import { DSTreeItemType } from '@/lib/dialect/enums'
 import { SqlDialect } from '@/lib/dialect/impl/base'
 import {
   ColumnDefinition,
-  type ColumnDefinitionInfo,
   type PostgreSQLInformationSchemaColumn,
 } from '@/lib/schema/columns/definition/base'
 import {
@@ -38,43 +37,102 @@ export class PostgreSQLDialect extends SqlDialect {
     return genBase(extensions, schemas, tables, columns)
   }
 
-  async getPublicTableNames() {
-    const { rows } = await this.dataSource.query<{ tablename: string }>(
-      `SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public'`,
-    )
-    return rows.map((it) => it.tablename)
-  }
-
-  async getTableColumns(identifier: PartialTableIdentifier) {
-    const filters = Array.from(
+  #queryFiltersFromIdentifier(
+    identifier: PartialTableIdentifier,
+    columnNames: [databaseName: string, schemaName: string, tableName: string],
+  ) {
+    return Array.from(
       new Map<string, string>([
-        ['table_catalog', identifier.databaseName ?? ''],
-        ['table_schema', identifier.schemaName ?? ''],
-        ['table_name', identifier.name ?? ''],
+        [
+          columnNames[0],
+          identifier.databaseName
+            ? `'${identifier.databaseName}'`
+            : 'current_database()',
+        ],
+        [
+          columnNames[1],
+          identifier.schemaName ? `'${identifier.schemaName}'` : '',
+        ],
+        [columnNames[2], identifier.name ? `'${identifier.name}'` : ''],
       ]),
     )
       .filter(([_, value]) => value !== '')
-      .map(([key, value]) => `${key} = '${value}'`)
-      .join(' AND ')
+      .map(([key, value]) => `${key} = ${value}`)
+      .join('\n    AND ')
+  }
+
+  async getTableIdentifiers(identifier: PartialTableIdentifier) {
+    const filters = this.#queryFiltersFromIdentifier(identifier, [
+      'catalog_name',
+      'schemaname',
+      'tablename',
+    ])
+
+    const { rows } = await this.dataSource.query<{
+      tablename: string
+      schemaname: string
+      catalog_name: string
+    }>(
+      `SELECT
+    t.tablename,
+    t.schemaname,
+    s.catalog_name
+FROM pg_catalog.pg_tables AS t
+JOIN information_schema.schemata AS s
+ON t.schemaname = s.schema_name
+WHERE ${filters}`,
+    )
+
+    return rows.map((it) => ({
+      databaseName: it.catalog_name,
+      schemaName: it.schemaname,
+      name: it.tablename,
+    }))
+  }
+
+  getPublicTableIdentifiers() {
+    return this.getTableIdentifiers({ schemaName: 'public' })
+  }
+
+  async getTableColumnDefinitions(identifier: PartialTableIdentifier) {
+    if (!identifier.name) {
+      // no table name is specified
+      //  querying the database would result in meaningless data
+      //  so just return an empty array
+      return []
+    }
+
+    const filters = this.#queryFiltersFromIdentifier(identifier, [
+      'table_catalog',
+      'table_schema',
+      'table_name',
+    ])
 
     const { rows } =
       await this.dataSource.query<PostgreSQLInformationSchemaColumn>(
-        `SELECT table_schema, table_name, column_name, udt_name, is_nullable
+        `SELECT 
+    table_catalog,
+    table_schema, 
+    table_name, 
+    column_name,
+    udt_name, 
+    is_nullable
 FROM information_schema.columns
 WHERE ${filters}`,
       )
 
     return rows.map((column) =>
-      ColumnDefinition.fromPGInformationSchemaColumn(column).getInfo(),
-    ) as ColumnDefinitionInfo[]
+      ColumnDefinition.fromPGInformationSchemaColumn(column),
+    ) as ColumnDefinition[]
   }
 
   async getTableDefinition(identifier: PartialTableIdentifier) {
-    const columns = await this.getTableColumns(identifier)
+    const columns = await this.getTableColumnDefinitions(identifier)
 
-    return TableDefinition.fromEngineAndIdentifier(this.engine, identifier)
-      .withColumns(columns)
-      .getInfo()
+    return TableDefinition.fromEngineAndIdentifier(
+      this.engine,
+      identifier,
+    ).withColumns(columns)
   }
 
   async beginTransaction(): Promise<void> {
