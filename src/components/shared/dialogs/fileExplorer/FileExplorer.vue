@@ -48,6 +48,7 @@ const { mutate: handleRegisterFile, error: registerError } = useMutation({
   mutationFn: async (file: FileAccessor) => {
     track('file-explorer: register-file', {
       ...dataSource.getAnonymizedAnalyticsData(),
+      fileSizeRounded: Math.round(((await file.getSize()) ?? 0) / 1024) + 'KB',
     })
     await dataSource.writeFile(file.getName(), file)
   },
@@ -68,6 +69,7 @@ const { mutateAsync: readFile, error: readError } = useMutation({
   mutationFn: async (item: FileInfo) => {
     track('file-explorer: read-file', {
       ...dataSource.getAnonymizedAnalyticsData(),
+      fileSizeRounded: Math.round(item.size / 1024) + 'KB',
     })
     return await dataSource.readFile(item.path)
   },
