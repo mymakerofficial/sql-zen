@@ -28,7 +28,7 @@ export class PostgreSQLDialect extends SqlDialect {
     )
 
     const { rows: tables } = await this.dataSource.query<Table>(
-      `SELECT schemaname, tablename FROM pg_catalog.pg_tables`,
+      `SELECT table_schema, table_name FROM information_schema.tables`,
     )
 
     const { rows: views } = await this.dataSource.query<View>(
@@ -69,9 +69,9 @@ export class PostgreSQLDialect extends SqlDialect {
 
   async getTableIdentifiers(identifier: PartialTableIdentifier) {
     const filters = this.#queryFiltersFromIdentifier(identifier, {
-      databaseName: 'catalog_name',
-      schemaName: 'schemaname',
-      name: 'tablename',
+      databaseName: 'table_catalog',
+      schemaName: 'table_schema',
+      name: 'table_name',
     })
 
     const { rows } = await this.dataSource.query<{
@@ -80,12 +80,10 @@ export class PostgreSQLDialect extends SqlDialect {
       catalog_name: string
     }>(
       `SELECT
-    t.tablename,
-    t.schemaname,
-    s.catalog_name
-FROM pg_catalog.pg_tables AS t
-JOIN information_schema.schemata AS s
-ON t.schemaname = s.schema_name
+    table_catalog,
+    table_schema,
+    table_name
+FROM information_schema.tables
 WHERE ${filters}`,
     )
 
@@ -166,8 +164,8 @@ type Schema = {
 }
 
 type Table = {
-  schemaname: string
-  tablename: string
+  table_schema: string
+  table_name: string
 }
 
 type View = {
@@ -255,12 +253,12 @@ function genTables(
   columns: Column[],
 ): DSTreeTableItem[] {
   return tables
-    .filter((it) => it.schemaname === schema)
+    .filter((it) => it.table_schema === schema)
     .map((table) => ({
-      key: `${schema}-${table.tablename}`,
-      name: table.tablename,
+      key: `${schema}-${table.table_name}`,
+      name: table.table_name,
       type: DSTreeItemType.Table,
-      children: genColumns(schema, table.tablename, columns),
+      children: genColumns(schema, table.table_name, columns),
     }))
 }
 
