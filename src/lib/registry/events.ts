@@ -9,10 +9,10 @@ export const RegistryEvent = {
 export type RegistryEvent = (typeof RegistryEvent)[keyof typeof RegistryEvent]
 
 export type RegistryEventMap = {
-  [RegistryEvent.Registered]: [string]
-  [RegistryEvent.Unregistered]: [string]
-  [RegistryEvent.Initializing]: [string]
-  [RegistryEvent.Initialized]: [string]
-  [RegistryEvent.Closing]: [string]
-  [RegistryEvent.Closed]: [string]
+  [RegistryEvent.Registered]: [dataSourceKey: string]
+  [RegistryEvent.Unregistered]: [dataSourceKey: string]
+  [RegistryEvent.Initializing]: [dataSourceKey: string]
+  [RegistryEvent.Initialized]: [dataSourceKey: string, durationMs: number]
+  [RegistryEvent.Closing]: [dataSourceKey: string]
+  [RegistryEvent.Closed]: [dataSourceKey: string]
 }
