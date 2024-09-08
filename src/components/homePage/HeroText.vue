@@ -17,10 +17,6 @@ import ClickTheButton from '@/assets/click-the-button.svg?raw'
           class="bg-gradient-to-br from-blue-200 to-blue-600 inline-block text-transparent bg-clip-text leading-normal font-black"
           >SqlZen</span
         >
-        <small
-          class="text-sm font-medium text-neutral-900 bg-gradient-to-r from-amber-300 to-amber-500 px-2 py-0.5 rounded-sm self-baseline"
-          >Early Access</small
-        >
       </h1>
       <h2 class="text-2xl md:text-4xl font-bold leading-10">
         Database tooling that runs everywhere.
