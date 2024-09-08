@@ -65,6 +65,10 @@ export abstract class SqlDialect {
     return trimmed.startsWith('SELECT') || trimmed.startsWith('WITH')
   }
 
+  #trimSql(sql: string): string {
+    return sql.trimStart().replace(/\s+;?$/g, '')
+  }
+
   #indentSql(sql: string): string {
     if (sql.includes('\n')) {
       const indented = sql
@@ -78,10 +82,7 @@ export abstract class SqlDialect {
   }
 
   makeSelectCountFromStatement(original: string): string {
-    if (original.endsWith(';')) {
-      throw new Error('original sql statement may not include semicolon.')
-    }
-    return `SELECT count(*) as count FROM (${this.#indentSql(original)})`
+    return `SELECT count(*) as count FROM (${this.#indentSql(this.#trimSql(original))})`
   }
 
   makePaginatedStatement(
@@ -89,13 +90,9 @@ export abstract class SqlDialect {
     offset: number,
     limit: number,
   ): string {
-    const trimmed = original.trim().toUpperCase()
-    if (trimmed.endsWith(';')) {
-      throw new Error('original sql statement may not include semicolon.')
-    }
     if (limit === Infinity) {
       return original
     }
-    return `SELECT * FROM (${this.#indentSql(original)}) LIMIT ${limit} OFFSET ${offset}`
+    return `SELECT * FROM (${this.#indentSql(this.#trimSql(original))}) LIMIT ${limit} OFFSET ${offset}`
   }
 }
