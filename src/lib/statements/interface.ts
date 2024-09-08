@@ -1,12 +1,18 @@
 export type Position = {
+  // 1 based
   lineNumber: number
+  // 0 based
   column: number
 }
 
 export type Range = {
+  // 1 based
   startLineNumber: number
+  // 0 based
   startColumn: number
+  // 1 based
   endLineNumber: number
+  // 0 based
   endColumn: number
 }
 
