@@ -42,6 +42,9 @@ editor.use(inlineRun({ enabled: isRunning }))
 editor.use(highlightSelected)
 
 const cursor = useEditorCursorPosition(editor.editor)
+const eol = ['LF', 'CRLF', '?'][
+  editor.editor.getModel()?.getEndOfLineSequence() ?? 3
+]
 </script>
 
 <template>
@@ -55,9 +58,10 @@ const cursor = useEditorCursorPosition(editor.editor)
       />
       <MonacoEditor :editor="editor" />
       <div
-        class="absolute bottom-0 right-0 p-2 bg-background text-muted-foreground text-xs border-l border-t border-border"
+        class="flex gap-2 absolute bottom-0 right-0 p-2 bg-background text-muted-foreground text-xs border-l border-t border-border"
       >
-        {{ cursor }}
+        <span>{{ cursor }}</span>
+        <span>{{ eol }}</span>
       </div>
     </ResizablePanel>
     <ResizableHandle />
