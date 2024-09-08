@@ -34,7 +34,7 @@ function handleConsent() {
   toast.message('Thanks ❤️', {
     duration: 1000,
   })
-  init()
+  rawTrack('analytics-consent-granted')
 }
 
 function handleDenial() {
@@ -57,27 +57,30 @@ function askForConsent() {
 }
 
 function init() {
+  // Always track page views, we do this to know how many users are using the app.
+  //  Only track more detailed events if the user consents!
+
+  initSeline()
+
   const userConsent = getConsent()
-  if (userConsent === AnalyticsConsent.Granted) {
-    initSeline()
-  } else if (userConsent === AnalyticsConsent.NotAsked) {
+  if (userConsent === AnalyticsConsent.NotAsked) {
     askForConsent()
   }
 }
 
 function initSeline() {
-  if (!isProd) {
-    log('Skipping analytics init in development')
-    return
-  }
-
-  if (!isConsentGranted()) {
-    return
-  }
+  // if (!isProd) {
+  //   log('Skipping analytics init in development')
+  //   return
+  // }
 
   seline.init()
 
-  log('Thank you for helping us improve SqlZen! 🤗')
+  if (isConsentGranted()) {
+    log('Thank you for helping us improve SqlZen! 🤗')
+  } else {
+    log('Only tracking page views. No detailed information will be sent.')
+  }
 }
 
 function rawTrack(name: string, data?: Record<string, unknown> | null) {
@@ -96,6 +99,7 @@ const track = useDebounceFn(rawTrack, 1000)
 export function useSeline() {
   return {
     init,
+    // never include strings that could contain sensitive data in the data object!
     track: (name: string, data?: Record<string, unknown> | null) => {
       track(name, data).then()
     },
