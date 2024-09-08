@@ -173,8 +173,14 @@ export class StatementExtractor {
   #escapeString(quote: string) {
     while (this.#hasRemaining()) {
       const char = this.#next()
-      if (char === quote && this.#peek() !== quote) {
-        break
+      if (char === quote) {
+        if (this.#get() === quote) {
+          // escaped quote, skip
+          this.#next()
+        } else {
+          // end of string
+          break
+        }
       }
     }
   }
