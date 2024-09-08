@@ -15,6 +15,11 @@ import { useRegistry } from '@/composables/useRegistry'
 import highlightSelected from '@/composables/editor/highlightSelected'
 import { useIsRunning } from '@/composables/useIsRunning'
 import { ref } from 'vue'
+import {
+  useEditorCursorPosition,
+  useEditorCursorSelection,
+  useEditorSelectionStart,
+} from '@/composables/editor/useEditorCursorPosition'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -35,11 +40,13 @@ const editor = useEditor({
 editor.use(inlineRun({ enabled: isRunning }))
 // editor.use(inlineResults({ enabled: enableInlineResults }))
 editor.use(highlightSelected)
+
+const cursor = useEditorCursorPosition(editor.editor)
 </script>
 
 <template>
   <ResizablePanelGroup direction="vertical">
-    <ResizablePanel>
+    <ResizablePanel class="relative">
       <ConsoleToolbar
         :runner="runner"
         :editor="editor"
@@ -47,6 +54,11 @@ editor.use(highlightSelected)
         v-model:run-transacting="runTransacting"
       />
       <MonacoEditor :editor="editor" />
+      <div
+        class="absolute bottom-0 right-0 p-2 bg-background text-muted-foreground text-xs border-l border-t border-border"
+      >
+        {{ cursor }}
+      </div>
     </ResizablePanel>
     <ResizableHandle />
     <ResizablePanel :default-size="33">
