@@ -30,10 +30,10 @@ export class QueryTab extends Tab implements QueryTabInfo {
   }
 
   get displayName() {
-    const index = registry
-      .getDataSource(this.dataSourceKey)
-      .runner.getQueryIndex(this.queryId)
-    return `Query ${index + 1}`
+    const runner = registry.getRunner(this.dataSourceKey)
+    const comment = runner.getQuery(this.queryId).statement.comment
+    const index = runner.getQueryIndex(this.queryId)
+    return comment ?? `Query ${index + 1}`
   }
 
   get dataSourceKey() {

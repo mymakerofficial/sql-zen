@@ -39,7 +39,7 @@ function handleClose() {
       class="size-4 min-h-max"
     />
     <FlowerIcon v-else class="size-4 min-h-max" />
-    <span>{{ info.displayName }}</span>
+    <span class="max-w-52 truncate">{{ info.displayName }}</span>
     <Button
       v-if="!info.preventClose"
       @click="handleClose"
