@@ -1,6 +1,6 @@
 import type { DSTreeItem } from '@/lib/dialect/interface'
 import type { DataSource } from '@/lib/dataSources/impl/base'
-import { ColumnDefinition } from '@/lib/schema/columns/definition/base'
+import { ColumnDefinition } from '@/lib/schema/columns/column'
 import type { DatabaseEngine } from '@/lib/engines/enums'
 import {
   type TableIdentifierCriterion,

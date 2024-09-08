@@ -9,7 +9,7 @@ import type { FileInfo } from '@/lib/files/interface'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import { PGliteWorkerFS } from '@/lib/dataSources/impl/lib/PGliteWorkerFS'
-import { FieldDefinition } from '@/lib/schema/columns/definition/base'
+import { FieldDefinition } from '@/lib/schema/columns/column'
 
 const BASE_PATH = '/var'
 

@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {
-  ColumnDefinition,
-  type FieldInfo,
-} from '@/lib/schema/columns/definition/base'
+import { ColumnDefinition, type FieldInfo } from '@/lib/schema/columns/column'
 import { PseudoDataType } from '@/lib/schema/columns/types/base'
 
 defineProps<{

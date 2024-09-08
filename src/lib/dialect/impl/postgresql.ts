@@ -10,7 +10,7 @@ import { SqlDialect } from '@/lib/dialect/impl/base'
 import {
   ColumnDefinition,
   type PostgreSQLInformationSchemaColumn,
-} from '@/lib/schema/columns/definition/base'
+} from '@/lib/schema/columns/column'
 import {
   type TableIdentifierCriterion,
   TableDefinition,
