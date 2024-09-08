@@ -69,10 +69,10 @@ function init() {
 }
 
 function initSeline() {
-  // if (!isProd) {
-  //   log('Skipping analytics init in development')
-  //   return
-  // }
+  if (!isProd) {
+    log('Skipping analytics init in development')
+    return
+  }
 
   seline.init()
 
