@@ -53,7 +53,7 @@ const primaryColumnName = ref('id')
 const { data: tables } = useQuery({
   queryKey: [runner.key, 'tables'],
   queryFn: async () => {
-    const allTables = await runner.dataSource.dialect.getPublicTableNames()
+    const allTables = await runner.dataSource.dialect.getTableNames()
     const filteredTables = allTables.filter(
       (table) =>
         !table.endsWith('_embeddings') &&
