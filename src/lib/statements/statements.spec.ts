@@ -168,22 +168,21 @@ describe('extract statements', () => {
     ])(
       'should correctly handle escaped quotes in strings with %s',
       (_name, quote) => {
-        model.setValue(
-          `SELECT ${quote}foo${quote}${quote};bar${quote};${nl}SELECT 1;`,
-        )
+        const stmts = [
+          `SELECT ${quote}${quote}${quote}hello world;${quote}${quote}${quote}`,
+          `SELECT ${quote}hello ${quote}${quote}world;${quote}`,
+          `SELECT 1`,
+        ]
+        model.setValue(stmts.map((stmt) => `${stmt};`).join(nl))
         const statements = extractor.extract()
-        expect(statements).toEqual([
-          expect.objectContaining({
-            sql: `SELECT ${quote}foo${quote}${quote};bar${quote}`,
-          }),
-          expect.objectContaining({
-            sql: `SELECT 1`,
-          }),
-        ])
+        console.log(statements)
+        expect(statements).toEqual(
+          stmts.map((sql) => expect.objectContaining({ sql })),
+        )
       },
     )
 
-    it('should escape postgres dollar-quoted strings', () => {
+    it('should escape dollar-quoted string literals', () => {
       model.setValue(`SELECT $$"hello world;"$$ AS msg;${nl}SELECT 1;`)
       const statements = extractor.extract()
       expect(statements).toEqual([
