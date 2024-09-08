@@ -111,6 +111,22 @@ describe('extract statements', () => {
       ])
     })
 
+    it('should find statement with multiple single line comments', () => {
+      model.setValue(
+        `SELECT * FROM table1;${nl}-- hello${nl}--  world!${nl}SELECT "hello world!";`,
+      )
+      const statements = extractor.extract()
+      expect(statements).toEqual([
+        expect.objectContaining({
+          sql: 'SELECT * FROM table1',
+        }),
+        expect.objectContaining({
+          comment: 'hello world!',
+          sql: 'SELECT "hello world!"',
+        }),
+      ])
+    })
+
     it('should find statement with multi line comment', () => {
       model.setValue(
         `SELECT * FROM table1;${nl}/* hello${nl} world*/SELECT * FROM table2;`,

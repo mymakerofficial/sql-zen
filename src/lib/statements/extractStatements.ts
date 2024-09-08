@@ -90,23 +90,32 @@ export class StatementExtractor {
     )
   }
 
-  #scanSingleLineComment() {
-    const start = this.#index
+  #scanSingleLineComment(start: number = this.#index) {
     while (this.#hasRemaining()) {
       const char = this.#next()
+      if (char === '\r') {
+        this.#next() // skip line feed
+        break
+      }
       if (char === '\n') {
         break
       }
     }
 
+    // check if comment continues to the next line
+    if (this.#get() === '-' && this.#peek() === '-') {
+      this.#scanSingleLineComment(start)
+      return
+    }
+
     const comment = this.#value
       .slice(
-        start + 2, // +2 to skip the --
+        start + 2, // +2 to skip the first --
         this.#index - 1,
       )
       .trim()
+      .replace(/\s+?--\s/g, '')
     const { lineNumber } = this.#getPosition(this.#index - 2) // -2 to move before the line break
-    console.log('found single line comment:', comment, lineNumber)
     this.#comments.set(lineNumber, comment)
   }
 
@@ -126,7 +135,6 @@ export class StatementExtractor {
       )
       .trim()
     const { lineNumber } = this.#getPosition(this.#index - 2) // -2 to move before the line break
-    console.log('found multi line comment:', comment, lineNumber)
     this.#comments.set(lineNumber, comment)
   }
 
@@ -187,9 +195,6 @@ export class StatementExtractor {
     this.#comments.clear()
 
     this.#scan()
-
-    console.log('comments:', this.#comments)
-    console.log('statements:', this.#statements)
 
     return this.#statements
   }
