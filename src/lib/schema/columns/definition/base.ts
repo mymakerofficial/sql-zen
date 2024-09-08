@@ -119,8 +119,6 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
 export type ColumnDefinitionInfo<T extends DatabaseEngine = DatabaseEngine> =
   FieldInfo<T> & {
     isNullable: boolean
-    isPrimaryKey: boolean
-    isUnique: boolean
   }
 
 export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
@@ -128,14 +126,10 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
   implements ColumnDefinitionInfo<T>
 {
   readonly #isNullable: boolean
-  readonly #isPrimaryKey: boolean
-  readonly #isUnique: boolean
 
   constructor(info: ColumnDefinitionInfo<T>) {
     super(info)
     this.#isNullable = info.isNullable
-    this.#isPrimaryKey = info.isPrimaryKey
-    this.#isUnique = info.isUnique
   }
 
   static from<T extends DatabaseEngine = typeof DatabaseEngine.None>(
@@ -150,8 +144,6 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
     return this.from({
       ...info,
       isNullable: true,
-      isPrimaryKey: false,
-      isUnique: false,
     })
   }
 
@@ -163,8 +155,6 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
       name: column.column_name,
       dataType: pgUdtNameToDataType(column.udt_name),
       isNullable: column.is_nullable === 'YES',
-      isPrimaryKey: false,
-      isUnique: false,
     })
   }
 
@@ -180,20 +170,10 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
     return this.#isNullable
   }
 
-  get isPrimaryKey() {
-    return this.#isPrimaryKey
-  }
-
-  get isUnique() {
-    return this.#isUnique
-  }
-
   getInfo(): ColumnDefinitionInfo<T> {
     return {
       ...this.toFieldInfo(),
       isNullable: this.isNullable,
-      isPrimaryKey: this.isPrimaryKey,
-      isUnique: this.isUnique,
     }
   }
 }
