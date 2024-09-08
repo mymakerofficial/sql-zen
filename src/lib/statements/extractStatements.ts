@@ -1,54 +1,32 @@
-import type {
-  Position,
-  Statement,
-  StatementRange,
-} from '@/lib/statements/interface'
+import type { Statement, StatementRange } from '@/lib/statements/interface'
 import { getStatementKey } from '@/lib/statements/helpers'
+import * as monaco from 'monaco-editor'
 
 export class StatementExtractor {
-  #original: string
+  #model: monaco.editor.ITextModel
+  // copy of the model value
+  #value: string = ''
   #statements: Statement[] = []
   // map of comment end line number to comment
   #comments: Map<number, string> = new Map()
 
   #index = 0
 
-  #lineFeedIndices: number[] = []
-
-  constructor(original: string) {
-    this.#original = original
+  constructor(model: monaco.editor.ITextModel) {
+    this.#model = model
   }
 
-  // prepares the line feed indices
-  #prepare() {
-    this.#lineFeedIndices = []
-    for (let i = 0; i < this.#original.length; i++) {
-      if (this.#original[i] === '\n') {
-        this.#lineFeedIndices.push(i)
-      }
-    }
+  static fromModel(model: monaco.editor.ITextModel) {
+    return new StatementExtractor(model)
   }
 
-  // gets the line number and column of a character index
-  //  column is -1 if the character is a line break
-  #getPosition(index: number): Position {
-    let previousLineBreakIndex = -1
+  static fromValue(value: string) {
+    const model = monaco.editor.createModel(value, 'sql')
+    return new StatementExtractor(model)
+  }
 
-    for (let i = 0; i < this.#lineFeedIndices.length; i++) {
-      if (this.#lineFeedIndices[i] > index) {
-        break
-      }
-      previousLineBreakIndex = i
-    }
-
-    return {
-      lineNumber: previousLineBreakIndex + 2,
-      column:
-        index -
-        (previousLineBreakIndex !== -1
-          ? this.#lineFeedIndices[previousLineBreakIndex] + 1 // to skip the line break
-          : 0),
-    }
+  #getPosition(index: number) {
+    return this.#model.getPositionAt(index)
   }
 
   #getRange(startIndex: number, endIndex: number): StatementRange {
@@ -66,19 +44,19 @@ export class StatementExtractor {
   }
 
   #next(): string {
-    return this.#original[this.#index++]
+    return this.#value[this.#index++]
   }
 
   #get(): string {
-    return this.#original[this.#index]
+    return this.#value[this.#index]
   }
 
   #peek(): string {
-    return this.#original[this.#index + 1]
+    return this.#value[this.#index + 1]
   }
 
   #hasRemaining(): boolean {
-    return this.#index < this.#original.length
+    return this.#index < this.#value.length
   }
 
   #scan() {
@@ -121,7 +99,7 @@ export class StatementExtractor {
       }
     }
 
-    const comment = this.#original
+    const comment = this.#value
       .slice(
         start + 2, // +2 to skip the --
         this.#index - 1,
@@ -141,7 +119,7 @@ export class StatementExtractor {
       }
     }
 
-    const comment = this.#original
+    const comment = this.#value
       .slice(
         start + 2, // +2 to skip the /*
         this.#index - 2,
@@ -172,11 +150,10 @@ export class StatementExtractor {
       }
     }
 
-    const sql = this.#original
+    const sql = this.#value
       .slice(start, this.#index - (endsWithSemicolon ? 1 : 0))
-      .trim()
+      .trimStart()
     const range = this.#getRange(start, this.#index)
-    console.log('found statement:', sql, range)
     this.#statements.push({
       sql,
       comment: this.#getComment(range),
@@ -204,7 +181,10 @@ export class StatementExtractor {
   }
 
   extract(): Statement[] {
-    this.#prepare()
+    this.#value = this.#model.getValue()
+    this.#index = 0
+    this.#statements = []
+    this.#comments.clear()
 
     this.#scan()
 

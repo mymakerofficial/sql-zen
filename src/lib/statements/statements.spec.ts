@@ -1,43 +1,105 @@
 import { describe, expect, it } from 'vitest'
 import { StatementExtractor } from '@/lib/statements/extractStatements'
+import * as monaco from 'monaco-editor'
 
 describe('extract statements', () => {
   describe.each([
     ['crlf', '\r\n'],
     ['lf', '\n'],
-  ])('with new line mode %s', (_nlname, nl) => {
+  ])('%s', (_eol, nl) => {
+    const model = monaco.editor.createModel(nl, 'sql')
+    const extractor = StatementExtractor.fromModel(model)
+
     it('should find simple statements', () => {
-      const sql = 'SELECT * FROM table1; SELECT * FROM table2;'
-      const statements = new StatementExtractor(sql).extract()
+      model.setValue('SELECT * FROM table1; SELECT * FROM table2;')
+      const statements = extractor.extract()
       expect(statements).toEqual([
         expect.objectContaining({
           sql: 'SELECT * FROM table1',
+          range: {
+            startLineNumber: 1,
+            startColumn: 1,
+            endLineNumber: 1,
+            endColumn: 22,
+            startIndex: 0,
+            endIndex: 21,
+          },
         }),
         expect.objectContaining({
           sql: 'SELECT * FROM table2',
+          range: {
+            startLineNumber: 1,
+            startColumn: 23,
+            endLineNumber: 1,
+            endColumn: 44,
+            startIndex: 22,
+            endIndex: 43,
+          },
         }),
       ])
     })
 
     it('should find simple statements in multiple lines', () => {
-      const sql = `SELECT * FROM table1;${nl}SELECT * FROM table2;${nl}SELECT * FROM table3;`
-      const statements = new StatementExtractor(sql).extract()
+      const stmts = [
+        'SELECT * FROM table1',
+        'SELECT now() AS current_time',
+        'SELECT id, name FROM table3',
+      ]
+      model.setValue(stmts.map((stmt) => `${stmt};`).join(nl))
+
+      const statements = extractor.extract()
+
       expect(statements).toEqual([
         expect.objectContaining({
-          sql: 'SELECT * FROM table1',
+          sql: stmts[0],
+          range: {
+            startLineNumber: 1,
+            startColumn: 1,
+            endLineNumber: 1,
+            endColumn: stmts[0].length + 2,
+            startIndex: 0,
+            endIndex: stmts[0].length + 1,
+          },
         }),
         expect.objectContaining({
-          sql: 'SELECT * FROM table2',
+          sql: stmts[1],
+          range: {
+            startLineNumber: 2,
+            startColumn: 1,
+            endLineNumber: 2,
+            endColumn: stmts[1].length + 2,
+            startIndex: stmts[0].length + 1 + nl.length,
+            endIndex: stmts[0].length + 1 + nl.length + stmts[1].length + 1,
+          },
         }),
         expect.objectContaining({
-          sql: 'SELECT * FROM table3',
+          sql: stmts[2],
+          range: {
+            startLineNumber: 3,
+            startColumn: 1,
+            endLineNumber: 3,
+            endColumn: stmts[2].length + 2,
+            startIndex:
+              stmts[0].length + 1 + nl.length + stmts[1].length + 1 + nl.length,
+            endIndex:
+              stmts[0].length +
+              1 +
+              nl.length +
+              stmts[1].length +
+              1 +
+              nl.length +
+              stmts[2].length +
+              1,
+          },
         }),
       ])
     })
 
     it('should find statement with single line comment', () => {
-      const sql = `SELECT * FROM table1;${nl}-- hello world${nl}SELECT * FROM table2;`
-      const statements = new StatementExtractor(sql).extract()
+      model.setValue(
+        `SELECT * FROM table1;${nl}-- hello world${nl}SELECT * FROM table2;`,
+      )
+      const statements = extractor.extract()
       expect(statements).toEqual([
         expect.objectContaining({
           sql: 'SELECT * FROM table1',
@@ -50,8 +112,10 @@ describe('extract statements', () => {
     })
 
     it('should find statement with multi line comment', () => {
-      const sql = `SELECT * FROM table1;${nl}/* hello${nl} world*/SELECT * FROM table2;`
-      const statements = new StatementExtractor(sql).extract()
+      model.setValue(
+        `SELECT * FROM table1;${nl}/* hello${nl} world*/SELECT * FROM table2;`,
+      )
+      const statements = extractor.extract()
       expect(statements).toEqual([
         expect.objectContaining({
           sql: 'SELECT * FROM table1',
@@ -69,8 +133,8 @@ describe('extract statements', () => {
     ])(
       'should correctly handle semicolons in strings with %s',
       (_name, quote) => {
-        const sql = `SELECT ${quote}hello world;${quote};${nl}SELECT 1;`
-        const statements = new StatementExtractor(sql).extract()
+        model.setValue(`SELECT ${quote}hello world;${quote};${nl}SELECT 1;`)
+        const statements = extractor.extract()
         expect(statements).toEqual([
           expect.objectContaining({
             sql: `SELECT ${quote}hello world;${quote}`,
@@ -88,8 +152,10 @@ describe('extract statements', () => {
     ])(
       'should correctly handle escaped quotes in strings with %s',
       (_name, quote) => {
-        const sql = `SELECT ${quote}foo${quote}${quote};bar${quote};${nl}SELECT 1;`
-        const statements = new StatementExtractor(sql).extract()
+        model.setValue(
+          `SELECT ${quote}foo${quote}${quote};bar${quote};${nl}SELECT 1;`,
+        )
+        const statements = extractor.extract()
         expect(statements).toEqual([
           expect.objectContaining({
             sql: `SELECT ${quote}foo${quote}${quote};bar${quote}`,
@@ -102,8 +168,8 @@ describe('extract statements', () => {
     )
 
     it('should escape postgres dollar-quoted strings', () => {
-      const sql = `SELECT $$"hello world;"$$ AS msg;${nl}SELECT 1;`
-      const statements = new StatementExtractor(sql).extract()
+      model.setValue(`SELECT $$"hello world;"$$ AS msg;${nl}SELECT 1;`)
+      const statements = extractor.extract()
       expect(statements).toEqual([
         expect.objectContaining({
           sql: `SELECT $$"hello world;"$$ AS msg`,

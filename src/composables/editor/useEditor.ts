@@ -12,6 +12,8 @@ import { useEditorContent } from '@/composables/editor/useEditorContent'
 import { findStatements } from '@/lib/statements/findStatements'
 import type { Statement } from '@/lib/statements/interface'
 import type { Runner } from '@/lib/runner/impl/runner'
+import { StatementExtractor } from '@/lib/statements/extractStatements'
+import { useState } from '@/composables/useState'
 
 type UseEditorPlugin<T> = (editor: UseEditor) => T
 
@@ -75,7 +77,7 @@ export class UseEditor {
     this.use(themePlugin)
 
     this.content = useEditorContent(this.editor)
-    this.statements = getStatements ? getStatements(this) : computed(() => [])
+    this.statements = useStatements(model)
   }
 
   mount(el: MaybeRefOrGetter<HTMLElement | null>) {
@@ -95,6 +97,18 @@ export function useEditor(props: UseEditorProps): UseEditor {
   return new UseEditor(props)
 }
 
+function useStatements(model: monaco.editor.ITextModel) {
+  const extractor = StatementExtractor.fromModel(model)
+  const [statements, setStatements] = useState<Statement[]>(extractor.extract())
+
+  model.onDidChangeContent(() => {
+    setStatements(extractor.extract())
+  })
+
+  return statements
+}
+
+// @deprecated
 export function getStatements({
   content,
 }: UseEditor): ComputedRef<Array<Statement>> {
