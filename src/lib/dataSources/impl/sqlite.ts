@@ -11,10 +11,7 @@ import { DataSource } from '@/lib/dataSources/impl/base'
 import { runPromised } from '@/lib/runPromised'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
-import {
-  FieldDefinition,
-  type FieldInfo,
-} from '@/lib/schema/columns/definition/base'
+import { FieldDefinition, type FieldInfo } from '@/lib/schema/columns/column'
 
 export class SQLite extends DataSource {
   #sqlite3: Sqlite3Static | null = null

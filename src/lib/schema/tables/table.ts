@@ -2,7 +2,7 @@ import { DatabaseEngine } from '@/lib/engines/enums'
 import {
   ColumnDefinition,
   type ColumnDefinitionInfo,
-} from '@/lib/schema/columns/definition/base'
+} from '@/lib/schema/columns/column'
 
 export type TableIdentifier = {
   databaseName: string

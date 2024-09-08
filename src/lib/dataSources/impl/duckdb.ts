@@ -10,8 +10,8 @@ import { DataSource } from '@/lib/dataSources/impl/base'
 import type { FileInfo } from '@/lib/files/interface'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
-import type { FieldInfo } from '@/lib/schema/columns/definition/base'
-import { FieldDefinition } from '@/lib/schema/columns/definition/base'
+import type { FieldInfo } from '@/lib/schema/columns/column'
+import { FieldDefinition } from '@/lib/schema/columns/column'
 
 export class DuckDB extends DataSource {
   #worker: Worker | null = null
