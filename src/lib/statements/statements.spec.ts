@@ -121,7 +121,7 @@ describe('extract statements', () => {
           sql: 'SELECT * FROM table1',
         }),
         expect.objectContaining({
-          comment: 'hello world!',
+          comment: `hello${nl} world!`,
           sql: 'SELECT "hello world!"',
         }),
       ])

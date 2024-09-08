@@ -114,7 +114,7 @@ export class StatementExtractor {
         this.#index - 1,
       )
       .trim()
-      .replace(/\s+?--\s/g, '')
+      .replace(/\s+?--\s/g, this.#model.getEOL())
     const { lineNumber } = this.#getPosition(this.#index - 2) // -2 to move before the line break
     this.#comments.set(lineNumber, comment)
   }
