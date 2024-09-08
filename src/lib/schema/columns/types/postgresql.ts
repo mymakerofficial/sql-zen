@@ -182,7 +182,8 @@ export const PostgresDataTypeDefinitions = {
   },
   [PostgresDataType.TimeWithTimezone]: {
     name: 'time with timezone',
-    aliases: ['timez'],
+    aliases: ['timetz'],
+    displayName: 'timetz',
   },
   [PostgresDataType.Timestamp]: {
     name: 'timestamp',
@@ -191,6 +192,7 @@ export const PostgresDataTypeDefinitions = {
   [PostgresDataType.TimestampWithTimezone]: {
     name: 'timestamp with timezone',
     aliases: ['timestamptz'],
+    displayName: 'timestamptz',
   },
   [PostgresDataType.TsQuery]: {
     name: 'tsquery',
