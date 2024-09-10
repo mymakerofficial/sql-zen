@@ -6,9 +6,9 @@ import type { DataSource } from '@/lib/dataSources/impl/base'
 import type { DataSourceStatus } from '@/lib/dataSources/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import { generateDataSourceKey } from '@/lib/dataSources/helpers'
-import { Extendable } from '@/lib/extendable/extendable'
+import { Singleton } from '@/lib/extendable/singleton'
 
-export class Registry extends Extendable<RegistryEventMap> {
+export class Registry extends Singleton<RegistryEventMap> {
   #dataSources: Map<string, DataSource> = new Map()
 
   getDataSourceKeys(): Array<string> {

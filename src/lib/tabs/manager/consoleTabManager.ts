@@ -1,20 +1,18 @@
 import { TabManager } from '@/lib/tabs/manager/manager'
 import type { DataSource } from '@/lib/dataSources/impl/base'
-import { useRegistry } from '@/composables/useRegistry'
 import { TabType } from '@/lib/tabs/enums'
 import { RunnerEvent } from '@/lib/runner/events'
 import type { QueryInfo } from '@/lib/queries/interface'
 import { isQueryTabInfo } from '@/lib/tabs/tabs/query'
 import { TabFactory } from '@/lib/tabs/tabs/factory'
-
-const registry = useRegistry()
+import { Registry } from '@/lib/registry/impl/registry'
 
 export class ConsoleTabManager extends TabManager {
   #dataSource: DataSource
 
   constructor(dataSourceKey: string) {
     super()
-    this.#dataSource = registry.getDataSource(dataSourceKey)
+    this.#dataSource = Registry.getInstance().getDataSource(dataSourceKey)
     this.createTab({
       type: TabType.Logger,
       loggerId: this.dataSource.logger.id,

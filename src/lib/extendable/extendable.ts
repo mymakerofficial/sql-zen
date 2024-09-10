@@ -1,4 +1,4 @@
-import { EventPublisher } from '@/lib/events/publisher'
+import { EventMap, EventPublisher } from '@/lib/events/publisher'
 
 type DismountCallback = () => void
 type OnDismount = (dismountCallback: DismountCallback) => void
@@ -12,7 +12,7 @@ export type Plugin<TClass extends Extendable, TResult> = (extendable: TClass) =>
 
 export type PluginSetup<TClass extends Extendable, TResult> = (extendable: TClass, onDismount: OnDismount) => TResult
 
-export abstract class Extendable<TEvents> extends EventPublisher<TEvents> {
+export abstract class Extendable<TEvents extends EventMap = {}> extends EventPublisher<TEvents> {
   // set containing dismount callbacks for all registered plugins
   #plugins: Set<DismountCallback> = new Set()
 

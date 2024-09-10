@@ -3,24 +3,26 @@ export const EventType = {
 } as const
 export type EventType = (typeof EventType)[keyof typeof EventType]
 
-type EventMap<T> = {
+type ResolvedEventMap<T> = {
   [EventType.Any]: T[keyof T]
 } & {
   [K in keyof T]: T[K]
 }
 
+export type EventMap = {
+  [key: string]: unknown[]
+}
+
 export class EventPublisher<
-  T extends {
-    [key: string]: unknown[]
-  } = {},
+  T extends EventMap = {},
 > {
   #listeners: {
-    [K in keyof EventMap<T>]?: Array<(...args: EventMap<T>[K]) => void>
+    [K in keyof ResolvedEventMap<T>]?: Array<(...args: ResolvedEventMap<T>[K]) => void>
   } = {}
 
-  on<K extends keyof EventMap<T>>(
+  on<K extends keyof ResolvedEventMap<T>>(
     event: K,
-    callback: (...args: EventMap<T>[K]) => void,
+    callback: (...args: ResolvedEventMap<T>[K]) => void,
   ) {
     if (!this.#listeners[event]) {
       this.#listeners[event] = []
@@ -28,20 +30,20 @@ export class EventPublisher<
     this.#listeners[event]!.push(callback)
   }
 
-  once<K extends keyof EventMap<T>>(
+  once<K extends keyof ResolvedEventMap<T>>(
     event: K,
-    callback: (...args: EventMap<T>[K]) => void,
+    callback: (...args: ResolvedEventMap<T>[K]) => void,
   ) {
-    const onceCallback = (...args: EventMap<T>[K]) => {
+    const onceCallback = (...args: ResolvedEventMap<T>[K]) => {
       this.off(event, onceCallback)
       callback(...args)
     }
     this.on(event, onceCallback)
   }
 
-  off<K extends keyof EventMap<T>>(
+  off<K extends keyof ResolvedEventMap<T>>(
     event: K,
-    callback: (...args: EventMap<T>[K]) => void,
+    callback: (...args: ResolvedEventMap<T>[K]) => void,
   ) {
     if (!this.#listeners[event]) {
       return
@@ -57,9 +59,9 @@ export class EventPublisher<
     this.#listeners[event]!.splice(index, 1)
   }
 
-  protected emit<K extends keyof EventMap<T>>(
+  protected emit<K extends keyof ResolvedEventMap<T>>(
     event: K,
-    ...args: EventMap<T>[K]
+    ...args: ResolvedEventMap<T>[K]
   ) {
     if (this.#listeners[EventType.Any]) {
       this.#listeners[EventType.Any]!.forEach((listener) =>
