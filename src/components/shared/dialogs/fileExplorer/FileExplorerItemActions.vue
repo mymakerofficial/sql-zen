@@ -67,7 +67,7 @@ function handleCreateAsTable() {
         <ClipboardIcon class="size-4 min-h-max" />
         <span>Copy Name</span>
       </DropdownMenuItem>
-      <DropdownMenuItem @click="handleCreateAsTable" class="gap-2">
+      <DropdownMenuItem v-if="canCreateAsTable" @click="handleCreateAsTable" class="gap-2">
         <TableIcon class="size-4 min-h-max" />
         <span>Create Table from File</span>
       </DropdownMenuItem>
