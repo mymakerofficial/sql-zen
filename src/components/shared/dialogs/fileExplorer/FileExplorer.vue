@@ -20,6 +20,10 @@ import ResponsiveDialogDescription from '@/components/shared/responsiveDialog/Re
 import ResponsiveDialogFooter from '@/components/shared/responsiveDialog/ResponsiveDialogFooter.vue'
 import type { FileInfo } from '@/lib/files/interface'
 import { useSeline } from '@/composables/seline/seline'
+import { DatabaseEngine } from '@/lib/engines/enums'
+import { useTabManager } from '@/composables/tabs/useTabManager'
+import { TabType } from '@/lib/tabs/enums'
+import { StatementExtractor } from '@/lib/statements/extractStatements'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -27,11 +31,16 @@ const props = defineProps<{
 
 const { track } = useSeline()
 
-const { open } = useDialogContext()
+const { open, close } = useDialogContext()
 const { open: openFileViewer } = useDialog(FileViewerDialog)
+
+const tabManager = useTabManager()
 
 const registry = useRegistry()
 const dataSource = registry.getDataSource(props.dataSourceKey)
+
+// TODO: use engine capabilities config for this
+const canCreateAsTable = dataSource.engine === DatabaseEngine.DuckDB
 
 const {
   data,
@@ -85,6 +94,37 @@ async function handleOpenFileViewer(item: FileInfo) {
   openFileViewer({ fileAccessor })
 }
 
+// TODO: extract to a helper
+function handleCreateAsTable(item: FileInfo) {
+  const fileName = item.path
+  const tableName = fileName
+    .replace(/\.[^/.]+$/, '')
+    .replace(/[^a-zA-Z0-9]/g, '_')
+    .replace(/_+/g, '_')
+    .toLowerCase()
+
+  const sql = `-- Create the table from the file
+CREATE TABLE ${tableName} AS
+FROM '${fileName}';
+
+-- Summary of the table
+SUMMARIZE ${tableName};
+
+-- Display everything in the table
+SELECT * FROM ${tableName};`
+
+  close()
+
+  tabManager.createTab({
+    type: TabType.Console,
+    dataSourceKey: props.dataSourceKey,
+    displayName: `Table from ${fileName}`,
+    modelValue: sql,
+  })
+
+  dataSource.runner.batch(StatementExtractor.fromValue(sql).extract(), true)
+}
+
 const errors = computed(() =>
   [
     fetchError.value,
@@ -119,9 +159,11 @@ const columns = [
     cell: (ctx) =>
       h(DuckDbExplorerItemActions, {
         item: ctx.row.original,
+        canCreateAsTable,
         onOpenFile: handleOpenFileViewer,
         onDeleteFile: handleDeleteFile,
         onDownloadFile: handleDownloadFile,
+        onCreateAsTable: handleCreateAsTable,
       }),
     meta: {
       className: 'w-0',

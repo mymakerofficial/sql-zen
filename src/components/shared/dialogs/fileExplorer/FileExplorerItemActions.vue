@@ -4,28 +4,23 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import {
-  ClipboardIcon,
-  DatabaseIcon,
-  DownloadIcon,
-  EyeIcon,
-  MenuIcon,
-  Trash2Icon,
-} from 'lucide-vue-next'
+import { ClipboardIcon, DownloadIcon, EyeIcon, MenuIcon, Trash2Icon, TableIcon } from 'lucide-vue-next'
 import { copyToClipboard } from '@/lib/copyToClipboard'
 import type { FileInfo } from '@/lib/files/interface'
 
 const props = defineProps<{
-  item: FileInfo
+  item: FileInfo,
+  canCreateAsTable: boolean,
 }>()
 
 const emit = defineEmits<{
   openFile: [file: FileInfo]
   deleteFile: [file: FileInfo]
   downloadFile: [file: FileInfo]
+  createAsTable: [file: FileInfo]
 }>()
 
 function handleOpenFile() {
@@ -42,6 +37,10 @@ function handleDownloadFile() {
 
 function handleCopyName() {
   copyToClipboard(props.item.path)
+}
+
+function handleCreateAsTable() {
+  emit('createAsTable', props.item)
 }
 </script>
 
@@ -67,6 +66,10 @@ function handleCopyName() {
       <DropdownMenuItem @click="handleCopyName" class="gap-2">
         <ClipboardIcon class="size-4 min-h-max" />
         <span>Copy Name</span>
+      </DropdownMenuItem>
+      <DropdownMenuItem @click="handleCreateAsTable" class="gap-2">
+        <TableIcon class="size-4 min-h-max" />
+        <span>Create Table from File</span>
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
