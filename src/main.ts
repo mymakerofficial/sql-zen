@@ -16,6 +16,7 @@ import { useSeline } from '@/composables/seline/seline'
 import { registryAnalytics } from '@/lib/registry/plugins/analytics'
 import { findPostgresDatabases } from '@/lib/registry/plugins/findPostgres'
 import { findSqliteDatabases } from '@/lib/registry/plugins/findSqlite'
+import { Registry } from '@/lib/registry/impl/registry'
 
 const app = createApp(App)
 
@@ -46,7 +47,7 @@ app.mount('#app')
 const { init: initSeline } = useSeline()
 initSeline()
 
-const registry = useRegistry()
+const registry = Registry.getInstance()
 const tabManager = useTabManager()
 
 tabManager.use(persistTabs)

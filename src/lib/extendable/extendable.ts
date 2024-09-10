@@ -1,4 +1,4 @@
-import { EventMap, EventPublisher } from '@/lib/events/publisher'
+import { type EventMap, EventPublisher } from '@/lib/events/publisher'
 
 type DismountCallback = () => void
 type OnDismount = (dismountCallback: DismountCallback) => void

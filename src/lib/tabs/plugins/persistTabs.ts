@@ -1,4 +1,4 @@
-import type { TabManager } from '@/lib/tabs/manager/manager'
+import { TabManager } from '@/lib/tabs/manager/manager'
 import { EventType } from '@/lib/events/publisher'
 import type { TabData } from '@/lib/tabs/types'
 
