@@ -4,7 +4,7 @@ import type { TabData } from '@/lib/tabs/types'
 
 const STORAGE_KEY = 'sql-zen-tabs'
 
-export default function persistTabs(manager: TabManager) {
+export const persistTabs = TabManager.definePlugin((manager) => {
   const serializedData = localStorage.getItem(STORAGE_KEY)
 
   if (serializedData) {
@@ -18,4 +18,4 @@ export default function persistTabs(manager: TabManager) {
   }
 
   manager.on(EventType.Any, handleChange)
-}
+})

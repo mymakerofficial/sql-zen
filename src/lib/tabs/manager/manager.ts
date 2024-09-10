@@ -1,5 +1,4 @@
 import { Tab } from '@/lib/tabs/tabs/base'
-import { EventPublisher } from '@/lib/events/publisher'
 import {
   TabEvent,
   TabManagerEvent,
@@ -8,8 +7,9 @@ import {
 import { TabFactory } from '@/lib/tabs/tabs/factory'
 import { TabType } from '@/lib/tabs/enums'
 import type { TabClass, TabData, TabInfo } from '@/lib/tabs/types'
+import { Extendable } from '@/lib/extendable/extendable'
 
-export class TabManager extends EventPublisher<TabManagerEventMap> {
+export class TabManager extends Extendable<TabManagerEventMap> {
   #tabs: Map<string, Tab> = new Map()
   // array of tab ids in the order they should be displayed
   #tabSortOrder: string[] = []
@@ -25,10 +25,6 @@ export class TabManager extends EventPublisher<TabManagerEventMap> {
     }
     this.#tabHistory = this.#tabHistory.filter((it) => it !== this.#activeTabId)
     this.#tabHistory.unshift(this.#activeTabId)
-  }
-
-  use<T>(plugin: (manager: TabManager) => T): T {
-    return plugin(this)
   }
 
   getTabIds(): string[] {

@@ -11,7 +11,7 @@ import { storeInMemorySources } from '@/lib/registry/plugins/storeInMemorySource
 import { useTabManager } from '@/composables/tabs/useTabManager'
 import { RegistryEvent } from '@/lib/registry/events'
 import { TabType } from '@/lib/tabs/enums'
-import persistTabs from '@/lib/tabs/plugins/persistTabs'
+import { persistTabs } from '@/lib/tabs/plugins/persistTabs'
 import { useSeline } from '@/composables/seline/seline'
 import { registryAnalytics } from '@/lib/registry/plugins/analytics'
 import { findPostgresDatabases } from '@/lib/registry/plugins/findPostgres'
