@@ -1,4 +1,4 @@
-import type { Runner } from '@/lib/runner/impl/runner'
+import { Runner } from '@/lib/runner/impl/runner'
 import { RunnerEvent } from '@/lib/runner/events'
 import { useSeline } from '@/composables/seline/seline'
 import {
@@ -9,7 +9,7 @@ import {
 
 const { track } = useSeline()
 
-export function runnerAnalytics(runner: Runner) {
+export const runnerAnalytics = Runner.definePlugin((runner) => {
   runner.on(RunnerEvent.BatchCompleted, (queries, transacting) => {
     const queryCount = queries.length
     const successCount = queries.filter(isSuccessQuery).length
@@ -27,4 +27,4 @@ export function runnerAnalytics(runner: Runner) {
       transacting,
     })
   })
-}
+})

@@ -1,4 +1,3 @@
-import { EventPublisher } from '@/lib/events/publisher'
 import { RegistryEvent, type RegistryEventMap } from '@/lib/registry/events'
 import { Runner } from '@/lib/runner/impl/runner'
 import { DataSourceFactory } from '@/lib/dataSources/factory'
@@ -7,13 +6,10 @@ import type { DataSource } from '@/lib/dataSources/impl/base'
 import type { DataSourceStatus } from '@/lib/dataSources/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import { generateDataSourceKey } from '@/lib/dataSources/helpers'
+import { Extendable } from '@/lib/extendable/extendable'
 
-export class Registry extends EventPublisher<RegistryEventMap> {
+export class Registry extends Extendable<RegistryEventMap> {
   #dataSources: Map<string, DataSource> = new Map()
-
-  use<T>(plugin: (registry: Registry) => T): T {
-    return plugin(this)
-  }
 
   getDataSourceKeys(): Array<string> {
     return Array.from(this.#dataSources.keys())

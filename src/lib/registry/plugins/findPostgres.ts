@@ -1,8 +1,8 @@
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceMode } from '@/lib/dataSources/enums'
-import type { Registry } from '@/lib/registry/impl/registry'
+import { Registry } from '@/lib/registry/impl/registry'
 
-export default function findPostgresDatabases(registry: Registry) {
+export const findPostgresDatabases = Registry.definePlugin((registry) => {
   if (!('indexedDB' in globalThis)) {
     return
   }
@@ -18,7 +18,7 @@ export default function findPostgresDatabases(registry: Registry) {
       })
     })
   })
-}
+})
 
 function isPostgresDatabase(database: IDBDatabaseInfo) {
   return database.name?.startsWith('/pglite/') ?? false

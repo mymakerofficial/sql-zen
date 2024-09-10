@@ -1,13 +1,13 @@
 import { DataSourceMode } from '@/lib/dataSources/enums'
 import { RegistryEvent } from '@/lib/registry/events'
 import type { DataSourceInfo } from '@/lib/dataSources/types'
-import type { Registry } from '@/lib/registry/impl/registry'
+import { Registry } from '@/lib/registry/impl/registry'
 
 type Data = Pick<DataSourceInfo, 'engine' | 'identifier'>
 
 const storageKey = 'sql-zen-in-memory-sources'
 
-export function storeInMemorySources(registry: Registry) {
+export const storeInMemorySources = Registry.definePlugin((registry: Registry) => {
   const stored = localStorage.getItem(storageKey)
 
   if (stored) {
@@ -35,4 +35,4 @@ export function storeInMemorySources(registry: Registry) {
 
   registry.on(RegistryEvent.Registered, update)
   registry.on(RegistryEvent.Unregistered, update)
-}
+})

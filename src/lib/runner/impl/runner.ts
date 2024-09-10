@@ -1,4 +1,4 @@
-import { EventPublisher, EventType } from '@/lib/events/publisher'
+import { EventType } from '@/lib/events/publisher'
 import { RunnerEvent, type RunnerEventMap } from '@/lib/runner/events'
 import type { Statement } from '@/lib/statements/interface'
 import type { QueryInfo } from '@/lib/queries/interface'
@@ -6,18 +6,15 @@ import { isIdleQuery, isSettledQuery } from '@/lib/queries/helpers'
 import { Query } from '@/lib/queries/impl/query'
 import type { DataSource } from '@/lib/dataSources/impl/base'
 import { QueryEvent } from '@/lib/queries/events'
+import { Extendable } from '@/lib/extendable/extendable'
 
-export class Runner extends EventPublisher<RunnerEventMap> {
+export class Runner extends Extendable<RunnerEventMap> {
   #queries: Array<Query> = []
   #dataSource: DataSource
 
   constructor(dataSource: DataSource) {
     super()
     this.#dataSource = dataSource
-  }
-
-  use<T>(plugin: (runner: Runner) => T): T {
-    return plugin(this)
   }
 
   static for(dataSource: DataSource): Runner {
