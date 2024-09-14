@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 import vueRouter from 'unplugin-vue-router/vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import { VitePWA as vitePWA } from 'vite-plugin-pwa'
 
 const host = process.env.TAURI_DEV_HOST
 
@@ -16,7 +17,27 @@ export default defineConfig({
       '@duckdb/duckdb-wasm',
     ],
   },
-  plugins: [vueRouter(), vue(), vueDevTools()],
+  plugins: [
+    vueRouter(),
+    vue(),
+    vueDevTools(),
+    vitePWA({
+      // prompt the user to update the app when a new version is available
+      registerType: 'prompt',
+      // inline to ensure the service worker immediately caches the app
+      injectRegister: 'inline',
+      strategies: 'generateSW',
+      workbox: {
+        cleanupOutdatedCaches: true,
+        globPatterns: [
+          '**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2,ttf,data,wasm}',
+        ],
+        maximumFileSizeToCacheInBytes: 5000000,
+      },
+      // use custom manifest
+      manifest: false,
+    }),
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

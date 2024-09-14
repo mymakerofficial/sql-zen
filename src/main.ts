@@ -16,6 +16,7 @@ import { TabType } from '@/lib/tabs/enums'
 import persistTabs from '@/lib/tabs/plugins/persistTabs'
 import { useSeline } from '@/composables/seline/seline'
 import { registryAnalytics } from '@/lib/registry/plugins/analytics'
+import { usePwa } from '@/composables/pwa/pwa'
 
 const app = createApp(App)
 
@@ -41,9 +42,10 @@ app.use(vueQuery, {
 
 app.mount('#app')
 
-// init seline analytics
-//  must happen after app is mounted
+const { init: initPwa } = usePwa()
 const { init: initSeline } = useSeline()
+
+initPwa()
 initSeline()
 
 const registry = useRegistry()
