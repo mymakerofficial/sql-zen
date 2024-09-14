@@ -1,6 +1,7 @@
 import { describe, it, expect, afterEach } from 'vitest'
 import { TabManager } from '@/lib/tabs/manager/manager'
 import { TabType } from '@/lib/tabs/enums'
+import type { TestTabData } from '@/lib/tabs/types'
 
 function lastOf<T>(arr: T[]): T {
   return arr[arr.length - 1]
@@ -17,16 +18,17 @@ function secondOf<T>(arr: T[]): T {
 describe('Tabs', () => {
   const manager = new TabManager()
 
-  function createTestTab() {
+  function createTab(data: Partial<TestTabData> = {}) {
     return manager.createTab({
       type: TabType.Test,
       displayName: 'Test',
       defaultDisplayName: 'Default',
+      ...data,
     })
   }
 
-  function createMultipleTestTabs(count: number) {
-    return Array.from({ length: count }, (_) => createTestTab())
+  function createTabs(count: number, data: Partial<TestTabData> = {}) {
+    return Array.from({ length: count }, (_) => createTab(data))
   }
 
   afterEach(() => {
@@ -54,7 +56,7 @@ describe('Tabs', () => {
 
   describe('tabs should always have unique display names', () => {
     it('should append a number to the display name if it is not unique', () => {
-      createMultipleTestTabs(3)
+      createTabs(3)
 
       expect(manager.getTabInfos()).toEqual([
         expect.objectContaining({ displayName: 'Test' }),
@@ -64,11 +66,11 @@ describe('Tabs', () => {
     })
 
     it('should handle last of duplicate names being removed', () => {
-      const tabs = createMultipleTestTabs(3)
+      const tabs = createTabs(3)
 
       manager.removeTab(lastOf(tabs).id)
 
-      const newTab = createTestTab()
+      const newTab = createTab()
 
       expect(newTab.displayName).toBe('Test (3)')
       expect(manager.getTabInfos()).toEqual([
@@ -79,26 +81,36 @@ describe('Tabs', () => {
     })
 
     it('should handle middle of duplicate names being removed', () => {
-      const tabs = createMultipleTestTabs(3)
+      createTabs(3, {
+        displayName: 'Test',
+      })
 
-      manager.removeTab(secondOf(tabs).id)
+      expect(manager.getTabInfos()).toEqual([
+        expect.objectContaining({ displayName: 'Test' }),
+        expect.objectContaining({ displayName: 'Test (2)' }),
+        expect.objectContaining({ displayName: 'Test (3)' }),
+      ])
 
-      const newTab = createTestTab()
+      manager.removeTab(secondOf(manager.getTabIds()))
 
-      expect(newTab.displayName).toBe('Test (2)')
+      createTabs(2, {
+        displayName: 'Test',
+      })
+
       expect(manager.getTabInfos()).toEqual([
         expect.objectContaining({ displayName: 'Test' }),
         expect.objectContaining({ displayName: 'Test (3)' }),
         expect.objectContaining({ displayName: 'Test (2)' }),
+        expect.objectContaining({ displayName: 'Test (4)' }),
       ])
     })
 
     it('should handle first of duplicate names being removed', () => {
-      const tabs = createMultipleTestTabs(3)
+      const tabs = createTabs(3)
 
       manager.removeTab(firstOf(tabs).id)
 
-      createMultipleTestTabs(3)
+      createTabs(3)
 
       expect(manager.getTabInfos()).toEqual([
         expect.objectContaining({ displayName: 'Test (2)' }),
@@ -106,16 +118,15 @@ describe('Tabs', () => {
         expect.objectContaining({ displayName: 'Test' }),
         expect.objectContaining({ displayName: 'Test (4)' }),
         expect.objectContaining({ displayName: 'Test (5)' }),
-        expect.objectContaining({ displayName: 'Test (6)' }),
       ])
     })
 
     it('should handle duplicate names being renamed', () => {
-      const tabs = createMultipleTestTabs(3)
+      const tabs = createTabs(3)
 
       secondOf(tabs).displayName = 'Custom'
 
-      createMultipleTestTabs(2)
+      createTabs(2)
 
       expect(manager.getTabInfos()).toEqual([
         expect.objectContaining({ displayName: 'Test' }),
@@ -127,7 +138,7 @@ describe('Tabs', () => {
     })
 
     it('should handle duplicate names being renamed to the same name', () => {
-      const tabs = createMultipleTestTabs(3)
+      const tabs = createTabs(3)
 
       secondOf(tabs).displayName = 'Test'
 
