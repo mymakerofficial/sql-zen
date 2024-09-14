@@ -1,11 +1,13 @@
-import { useState } from '@/composables/useState'
+import { useExternalStore } from '@/composables/useExternalStore'
 import { onMounted, onUnmounted } from 'vue'
 import { useRegistry } from '@/composables/useRegistry'
 import { RegistryEvent } from '@/lib/registry/events'
 
 export function useDataSourceKeys() {
   const registry = useRegistry()
-  const [datSources, setDatSources] = useState(registry.getDataSourceKeys())
+  const [datSources, setDatSources] = useExternalStore(
+    registry.getDataSourceKeys(),
+  )
 
   function handleChange() {
     setDatSources(registry.getDataSourceKeys())

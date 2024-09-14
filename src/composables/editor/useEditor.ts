@@ -13,7 +13,7 @@ import { findStatements } from '@/lib/statements/findStatements'
 import type { Statement } from '@/lib/statements/interface'
 import type { Runner } from '@/lib/runner/impl/runner'
 import { StatementExtractor } from '@/lib/statements/extractStatements'
-import { useState } from '@/composables/useState'
+import { useExternalStore } from '@/composables/useExternalStore'
 
 type UseEditorPlugin<T> = (editor: UseEditor) => T
 
@@ -99,7 +99,9 @@ export function useEditor(props: UseEditorProps): UseEditor {
 
 function useStatements(model: monaco.editor.ITextModel) {
   const extractor = StatementExtractor.fromModel(model)
-  const [statements, setStatements] = useState<Statement[]>(extractor.extract())
+  const [statements, setStatements] = useExternalStore<Statement[]>(
+    extractor.extract(),
+  )
 
   model.onDidChangeContent(() => {
     setStatements(extractor.extract())
