@@ -18,7 +18,7 @@ export function useFlushableRef<T>(
       return
     }
 
-    value.value = target.value
+    target.value = value.value
   }
 
   if (options.debounce) {
