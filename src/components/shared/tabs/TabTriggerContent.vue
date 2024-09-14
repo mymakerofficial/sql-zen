@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { TabType } from '@/lib/tabs/enums'
 import { useTabManager } from '@/composables/tabs/useTabManager'
+import TabTriggerDisplayName from '@/components/shared/tabs/TabTriggerDisplayName.vue'
 
 const props = defineProps<{
   tabId: string
@@ -39,7 +40,7 @@ function handleClose() {
       class="size-4 min-h-max"
     />
     <FlowerIcon v-else class="size-4 min-h-max" />
-    <span class="max-w-52 truncate">{{ info.displayName }}</span>
+    <TabTriggerDisplayName :tab-id="tabId" />
     <Button
       v-if="!info.preventClose"
       @click="handleClose"
