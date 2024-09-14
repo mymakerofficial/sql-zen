@@ -1,6 +1,6 @@
 import { TransformerPipeline } from '@/lib/transformers/pipeline'
 import type { PipelineType } from '@xenova/transformers/types/pipelines'
-import { useState } from '@/composables/useState'
+import { useExternalStore } from '@/composables/useExternalStore'
 import { PipelineEvent } from '@/lib/transformers/events'
 import { computed, onMounted, onUnmounted } from 'vue'
 import { PipelineState } from '@/lib/transformers/enums'
@@ -8,8 +8,8 @@ import { PipelineState } from '@/lib/transformers/enums'
 export function useTransformerPipeline<T extends PipelineType>(
   singleton: TransformerPipeline<T>,
 ) {
-  const [progress, setProgress] = useState(singleton.progress)
-  const [state, setState] = useState(singleton.state)
+  const [progress, setProgress] = useExternalStore(singleton.progress)
+  const [state, setState] = useExternalStore(singleton.state)
 
   function handleStateChange() {
     setState(singleton.state)

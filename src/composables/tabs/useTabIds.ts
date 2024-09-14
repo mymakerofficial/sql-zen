@@ -1,11 +1,11 @@
-import { useState } from '@/composables/useState'
+import { useExternalStore } from '@/composables/useExternalStore'
 import { TabManagerEvent } from '@/lib/tabs/events'
 import { onMounted, onUnmounted } from 'vue'
 import { useTabManager } from '@/composables/tabs/useTabManager'
 
 export function useTabIds() {
   const tabManager = useTabManager()
-  const [tabs, setTabs] = useState(tabManager.getTabIds())
+  const [tabs, setTabs] = useExternalStore(tabManager.getTabIds())
 
   function handleChange() {
     setTabs(tabManager.getTabIds())

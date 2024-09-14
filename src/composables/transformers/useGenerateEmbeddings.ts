@@ -1,4 +1,4 @@
-import { useState } from '@/composables/useState'
+import { useExternalStore } from '@/composables/useExternalStore'
 import { useMutation } from '@tanstack/vue-query'
 import type { FeatureExtractionPipeline } from '@/lib/transformers/interface'
 
@@ -13,7 +13,7 @@ export type GenerateEmbeddingsOutput = {
 }
 
 export function useGenerateEmbeddings(pipeline: FeatureExtractionPipeline) {
-  const [progress, setProgress] = useState(0)
+  const [progress, setProgress] = useExternalStore(0)
 
   const { mutate, mutateAsync, ...mutation } = useMutation({
     mutationFn: async (rows: GenerateEmbeddingsInput[]) => {
