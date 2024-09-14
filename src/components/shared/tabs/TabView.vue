@@ -25,6 +25,8 @@ const activeTab = useActiveTabId()
         <TabTriggerContent :tab-id="tabId" />
       </TabsTrigger>
     </TabsList>
-    <TabContentRenderer :tab-id="activeTab" :key="activeTab" />
+    <KeepAlive>
+      <TabContentRenderer :tab-id="activeTab" :key="activeTab" />
+    </KeepAlive>
   </Tabs>
 </template>
