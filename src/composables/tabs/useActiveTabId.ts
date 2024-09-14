@@ -22,3 +22,8 @@ export function useActiveTabId() {
     set: (id) => tabManager.setActiveTabId(id),
   })
 }
+
+export function useIsActiveTab(tabId: string) {
+  const activeTabId = useActiveTabId()
+  return computed(() => activeTabId.value === tabId)
+}
