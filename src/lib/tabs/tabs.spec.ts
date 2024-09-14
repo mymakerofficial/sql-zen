@@ -148,5 +148,45 @@ describe('Tabs', () => {
         expect.objectContaining({ displayName: 'Test (3)' }),
       ])
     })
+
+    it('should handle names already containing a number', () => {
+      createTab({
+        displayName: 'Test (4)',
+      })
+
+      createTab({
+        displayName: 'Test (4)',
+      })
+
+      expect(manager.getTabInfos()).toEqual([
+        expect.objectContaining({ displayName: 'Test (4)' }),
+        expect.objectContaining({ displayName: 'Test' }),
+      ])
+    })
+
+    it('should handle names already containing multiple numbers', () => {
+      createTab({
+        displayName: 'Test (4) (4)',
+      })
+
+      createTab({
+        displayName: 'Test (4)',
+      })
+
+      createTab({
+        displayName: 'Test',
+      })
+
+      createTab({
+        displayName: 'Test (4) (4)',
+      })
+
+      expect(manager.getTabInfos()).toEqual([
+        expect.objectContaining({ displayName: 'Test (4) (4)' }),
+        expect.objectContaining({ displayName: 'Test (4)' }),
+        expect.objectContaining({ displayName: 'Test' }),
+        expect.objectContaining({ displayName: 'Test (2)' }),
+      ])
+    })
   })
 })

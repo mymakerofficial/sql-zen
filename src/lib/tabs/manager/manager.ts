@@ -140,6 +140,9 @@ export class TabManager extends EventPublisher<TabManagerEventMap> {
    * @param name requested display name
    */
   getAssignedDisplayName(id: string, name: string): string {
+    // always trim the name
+    name = name.trim()
+
     this.#removeDisplayName(id)
     const match = name.match(/^(?<name>.+)\s\((?<number>\d+)\)$/)
 
@@ -168,6 +171,15 @@ export class TabManager extends EventPublisher<TabManagerEventMap> {
       .sort((a, b) => a - b)
       .reduce((acc, cur) => (acc === cur ? acc + 1 : acc), 1)
 
-    return this.getAssignedDisplayName(id, `${baseName} (${newNumber})`)
+    const newName = newNumber === 1 ? baseName : `${baseName} (${newNumber})`
+
+    if (this.#displayNames.has(newName)) {
+      // new name matches another baseName
+      //  this happens when a name has multiple numbers e.g. 'Name (4) (5)'
+      return this.getAssignedDisplayName(id, newName)
+    }
+
+    duplicates.set(newNumber, id)
+    return newName
   }
 }
