@@ -77,11 +77,7 @@ export abstract class Tab
   }
 
   protected silentSetDisplayName(value: string) {
-    this.#displayName = this.#manager.getAssignedDisplayName(
-      this.id,
-      value,
-      this.#displayName,
-    )
+    this.#displayName = this.#manager.getAssignedDisplayName(this.id, value)
   }
 
   getBaseInfo(): BaseTabInfo {

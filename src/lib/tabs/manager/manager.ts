@@ -16,9 +16,10 @@ export class TabManager extends EventPublisher<TabManagerEventMap> {
   // array of tab ids in the order they were last active (most recent first)
   #tabHistory: string[] = []
   #activeTabId: string = TabFactory.empty.id
-  // map of display names to set of tab ids that either have that name or tried to use it
-  //  e.g. { 'name' -> Set('id1', 'id2'), 'name (1)' -> Set('id2') }
-  #duplicateNamesMap: Map<string, Set<string>> = new Map()
+  #displayNames: Map<
+    string /* baseName */,
+    Map<number /* number */, string /* tabId */>
+  > = new Map()
 
   // called *after* setting the activeTabId to make sure
   //  the active tab is at the front of the history
@@ -85,7 +86,7 @@ export class TabManager extends EventPublisher<TabManagerEventMap> {
     this.#tabs.delete(id)
     this.#tabSortOrder = this.#tabSortOrder.filter((it) => it !== id)
     this.#tabHistory = this.#tabHistory.filter((it) => it !== id)
-    this.#removeDisplayName(id, tab.displayName)
+    this.#removeDisplayName(id)
     this.emit(TabManagerEvent.TabAdded, tab.getInfo())
     this.setActiveTabId(this.#tabHistory[0] ?? TabFactory.empty.id)
   }
@@ -123,51 +124,50 @@ export class TabManager extends EventPublisher<TabManagerEventMap> {
     return this.#tabSortOrder.indexOf(id)
   }
 
-  #removeDisplayName(id: string, name: string) {
-    this.#duplicateNamesMap.delete(name)
-    this.#duplicateNamesMap.forEach((duplicates, key) => {
-      duplicates.delete(id)
-      if (duplicates.size === 0) {
-        this.#duplicateNamesMap.delete(key)
-      }
+  #removeDisplayName(id: string) {
+    this.#displayNames.forEach((duplicates, key) => {
+      duplicates.forEach((tabId, number) => {
+        if (tabId === id) {
+          duplicates.delete(number)
+        }
+      })
     })
-  }
-
-  #addDisplayName(id: string, name: string) {
-    const duplicates = this.#duplicateNamesMap.get(name)
-    if (duplicates === undefined) {
-      const newSet = new Set([id])
-      this.#duplicateNamesMap.set(name, newSet)
-      return newSet
-    } else {
-      duplicates.add(id)
-      return duplicates
-    }
   }
 
   /***
    * Ensures that the display name is unique among all tabs
    * @param id id of the tab requesting the name
    * @param name requested display name
-   * @param previousName previous display name of the tab
    */
-  getAssignedDisplayName(
-    id: string,
-    name: string,
-    previousName?: string,
-  ): string {
-    if (previousName) {
-      this.#removeDisplayName(id, previousName)
-    }
+  getAssignedDisplayName(id: string, name: string): string {
+    this.#removeDisplayName(id)
+    const match = name.match(/^(?<name>.+)\s\((?<number>\d+)\)$/)
 
-    const duplicates = this.#addDisplayName(id, name)
-    // subtract 1 because the current tab is already counted
-    const count = duplicates.size - 1
+    const number = Number(match?.groups?.number ?? 1)
+    const baseName = match?.groups?.name ?? name
 
-    if (count === 0) {
+    const duplicates = this.#displayNames.get(baseName)
+    if (duplicates === undefined) {
+      this.#displayNames.set(baseName, new Map([[number, id]]))
       return name
     }
 
-    return this.getAssignedDisplayName(id, `${name} (${count + 1})`)
+    // baseName already exists
+    //  check if number is already taken
+
+    const existingId = duplicates.get(number)
+    if (existingId === undefined || existingId === id) {
+      duplicates.set(number, id)
+      return name
+    }
+
+    // baseName with number already exists
+    //  find next available number
+
+    const newNumber = [...duplicates.keys()]
+      .sort((a, b) => a - b)
+      .reduce((acc, cur) => (acc === cur ? acc + 1 : acc), 1)
+
+    return this.getAssignedDisplayName(id, `${baseName} (${newNumber})`)
   }
 }
