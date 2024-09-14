@@ -32,7 +32,7 @@ export default defineConfig({
         globPatterns: [
           '**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2,ttf,data,wasm}',
         ],
-        maximumFileSizeToCacheInBytes: 5000000,
+        maximumFileSizeToCacheInBytes: 40000000,
       },
       // use custom manifest
       manifest: false,
