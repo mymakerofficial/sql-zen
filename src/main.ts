@@ -68,3 +68,5 @@ registry.use(registryAnalytics)
 
 // @ts-ignore
 globalThis.registry = registry
+// @ts-ignore
+globalThis.tabManager = tabManager

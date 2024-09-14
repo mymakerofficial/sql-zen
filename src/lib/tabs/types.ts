@@ -3,10 +3,18 @@ import type { EmptyTab } from '@/lib/tabs/tabs/empty'
 import type { ConsoleTab } from '@/lib/tabs/tabs/console'
 import type { LoggerTab } from '@/lib/tabs/tabs/logger'
 import type { QueryTab } from '@/lib/tabs/tabs/query'
+import type { TestTab } from '@/lib/tabs/tabs/test'
 
 export type BaseTabData = {
   type: TabType
   displayName?: string
+}
+
+export type TestTabData = Omit<BaseTabData, 'type'> & {
+  type: typeof TabType.Test
+  preventClose?: boolean
+  canRename?: boolean
+  defaultDisplayName?: string
 }
 
 export type EmptyTabData = Omit<BaseTabData, 'type'> & {
@@ -31,6 +39,7 @@ export type QueryTabData = Omit<BaseTabData, 'type'> & {
 }
 
 export type TabData =
+  | TestTabData
   | EmptyTabData
   | ConsoleTabData
   | LoggerTabData
@@ -41,6 +50,13 @@ export type BaseTabInfo = BaseTabData & {
   displayName: string
   preventClose: boolean
   canRename: boolean
+}
+
+export type TestTabInfo = Omit<BaseTabInfo, 'type'> & {
+  type: typeof TabType.Test
+  preventClose: boolean
+  canRename: boolean
+  defaultDisplayName: string
 }
 
 export type EmptyTabInfo = Omit<BaseTabInfo, 'type'> & {
@@ -66,12 +82,14 @@ export type QueryTabInfo = Omit<BaseTabInfo, 'type'> & {
 }
 
 export type TabInfo =
+  | TestTabInfo
   | EmptyTabInfo
   | ConsoleTabInfo
   | LoggerTabInfo
   | QueryTabInfo
 
 export type TabInfoMap = {
+  [TabType.Test]: TestTabInfo
   [TabType.Empty]: EmptyTabInfo
   [TabType.Console]: ConsoleTabInfo
   [TabType.Logger]: LoggerTabInfo
@@ -79,10 +97,11 @@ export type TabInfoMap = {
 }
 
 export type TabClassMap = {
+  [TabType.Test]: TestTab
   [TabType.Empty]: EmptyTab
   [TabType.Console]: ConsoleTab
   [TabType.Logger]: LoggerTab
   [TabType.Query]: QueryTab
 }
 
-export type TabClass<T extends TabInfo> = TabClassMap[T['type']]
+export type TabClass<T extends TabType> = TabClassMap[T]

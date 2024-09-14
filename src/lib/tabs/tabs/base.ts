@@ -22,7 +22,16 @@ export abstract class Tab
     super()
     this.#manager = manager
     this.#id = getId('tab')
-    this.#displayName = tab.displayName ?? ''
+    if (tab.displayName === undefined) {
+      // setting the display name to '' will cause it to become the default value
+      this.#displayName = ''
+    } else {
+      // ensure the display name is unique
+      this.#displayName = this.#manager.getAssignedDisplayName(
+        this.#id,
+        tab.displayName,
+      )
+    }
 
     this.#manager.on(TabManagerEvent.TabRemoved, this.#onRemove)
   }
@@ -44,7 +53,14 @@ export abstract class Tab
 
   abstract get canRename(): boolean
 
+  getDefaultDisplayName() {
+    return ''
+  }
+
   get displayName() {
+    if (this.#displayName === '') {
+      this.silentSetDisplayName(this.getDefaultDisplayName())
+    }
     return this.#displayName
   }
 
@@ -52,9 +68,20 @@ export abstract class Tab
     if (!this.canRename) {
       return
     }
-    this.#displayName = value
-    this.emit(TabEvent.DisplayNameChanged, value)
+    if (value === '') {
+      value = this.getDefaultDisplayName()
+    }
+    this.silentSetDisplayName(value)
+    this.emit(TabEvent.DisplayNameChanged, this.#displayName)
     this.emit(TabEvent.RequestSave)
+  }
+
+  protected silentSetDisplayName(value: string) {
+    this.#displayName = this.#manager.getAssignedDisplayName(
+      this.id,
+      value,
+      this.#displayName,
+    )
   }
 
   getBaseInfo(): BaseTabInfo {

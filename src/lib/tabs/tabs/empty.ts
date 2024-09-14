@@ -2,16 +2,19 @@ import { Tab } from '@/lib/tabs/tabs/base'
 import { TabType } from '@/lib/tabs/enums'
 import type { EmptyTabInfo } from '@/lib/tabs/types'
 
+const DISPLAY_NAME = 'Welcome to SqlZen'
+
 export class EmptyTab extends Tab implements EmptyTabInfo {
   constructor() {
     super(
       {
         type: TabType.Empty,
       },
-      // @ts-ignore
+      // @ts-ignore fake manager
       {
         on: () => {},
         off: () => {},
+        getAssignedDisplayName: () => DISPLAY_NAME,
       },
     )
   }
@@ -28,7 +31,7 @@ export class EmptyTab extends Tab implements EmptyTabInfo {
     return false
   }
 
-  get displayName() {
-    return 'Welcome to SqlZen'
+  getDefaultDisplayName(): string {
+    return DISPLAY_NAME
   }
 }

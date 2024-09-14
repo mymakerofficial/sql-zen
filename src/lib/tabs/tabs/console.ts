@@ -45,12 +45,9 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
     return true
   }
 
-  get displayName() {
-    if (super.displayName === '') {
-      const descriptor = this.getDataSourceInfo()
-      return getDataSourceDisplayName(descriptor)
-    }
-    return super.displayName
+  getDefaultDisplayName() {
+    const descriptor = this.getDataSourceInfo()
+    return getDataSourceDisplayName(descriptor)
   }
 
   get dataSourceKey() {

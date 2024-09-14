@@ -1,4 +1,5 @@
 export const TabType = {
+  Test: 'test',
   Empty: 'empty',
   Console: 'console',
   Logger: 'logger',
