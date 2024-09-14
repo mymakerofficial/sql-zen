@@ -29,6 +29,10 @@ export class QueryTab extends Tab implements QueryTabInfo {
     return false
   }
 
+  get canRename() {
+    return true
+  }
+
   get displayName() {
     const runner = registry.getRunner(this.dataSourceKey)
     const comment = runner

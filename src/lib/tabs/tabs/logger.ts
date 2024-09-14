@@ -20,6 +20,10 @@ export class LoggerTab extends Tab implements LoggerTabInfo {
     return true
   }
 
+  get canRename() {
+    return false
+  }
+
   get displayName() {
     return 'Output'
   }
