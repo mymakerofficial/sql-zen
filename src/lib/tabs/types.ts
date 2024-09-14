@@ -40,6 +40,7 @@ export type BaseTabInfo = BaseTabData & {
   id: string
   displayName: string
   preventClose: boolean
+  canRename: boolean
 }
 
 export type EmptyTabInfo = Omit<BaseTabInfo, 'type'> & {

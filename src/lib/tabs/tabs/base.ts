@@ -42,11 +42,16 @@ export abstract class Tab
 
   abstract get preventClose(): boolean
 
+  abstract get canRename(): boolean
+
   get displayName() {
     return this.#displayName
   }
 
   set displayName(value: string) {
+    if (!this.canRename) {
+      return
+    }
     this.#displayName = value
     this.emit(TabEvent.DisplayNameChanged, value)
     this.emit(TabEvent.RequestSave)
@@ -56,6 +61,7 @@ export abstract class Tab
     return {
       id: this.id,
       preventClose: this.preventClose,
+      canRename: this.canRename,
       type: this.type,
       displayName: this.displayName,
     }
