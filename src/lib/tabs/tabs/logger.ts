@@ -24,7 +24,7 @@ export class LoggerTab extends Tab implements LoggerTabInfo {
     return false
   }
 
-  get displayName() {
+  getDefaultDisplayName(): string {
     return 'Output'
   }
 

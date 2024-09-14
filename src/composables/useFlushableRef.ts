@@ -1,5 +1,5 @@
 import { ref, type Ref } from 'vue'
-import { makeDestructurable, watchDebounced } from '@vueuse/core'
+import { makeDestructurable, syncRefs, watchDebounced } from '@vueuse/core'
 
 export type FlushableOptions<T> = {
   validate?: (value: T) => boolean
@@ -12,6 +12,8 @@ export function useFlushableRef<T>(
 ) {
   const value = ref(target.value) as Ref<T>
 
+  syncRefs(target, value)
+
   function flush() {
     if (options.validate && !options.validate(value.value)) {
       value.value = target.value
@@ -22,7 +24,7 @@ export function useFlushableRef<T>(
   }
 
   if (options.debounce) {
-    watchDebounced(target, flush, options)
+    watchDebounced(value, flush, options)
   }
 
   return makeDestructurable({ value, flush } as const, [value, flush] as const)

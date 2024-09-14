@@ -33,13 +33,12 @@ export class QueryTab extends Tab implements QueryTabInfo {
     return true
   }
 
-  get displayName() {
+  getDefaultDisplayName(): string {
     const runner = registry.getRunner(this.dataSourceKey)
     const comment = runner
       .getQuery(this.queryId)
       .statement.comment?.replace(/\s/g, ' ')
-    const index = runner.getQueryIndex(this.queryId)
-    return comment ?? `Query ${index + 1}`
+    return comment ?? 'Query'
   }
 
   get dataSourceKey() {

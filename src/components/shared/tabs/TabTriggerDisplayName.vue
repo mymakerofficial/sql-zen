@@ -13,9 +13,6 @@ const isActive = useIsActiveTab(props.tabId)
 const info = useTabInfo(props.tabId)
 const [displayName, flushDisplayName] = useFlushableRef(
   useTabDisplayName(props.tabId),
-  {
-    validate: (value) => value !== '',
-  },
 )
 
 const isEditable = computed(() => isActive.value && info.value.canRename)
