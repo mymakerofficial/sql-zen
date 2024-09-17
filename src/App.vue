@@ -11,6 +11,7 @@ import type { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceMode } from '@/lib/dataSources/enums'
 import { TabType } from '@/lib/tabs/enums'
 import { watchEffect } from 'vue'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 const queryClient = useQueryClient()
 
@@ -32,7 +33,11 @@ const registry = useRegistry()
 const tabManager = useTabManager()
 
 watchEffect(() => {
-  if (typeof route.query === 'object' && 'createDataSource' in route.query && 'engine' in route.query) {
+  if (
+    typeof route.query === 'object' &&
+    'createDataSource' in route.query &&
+    'engine' in route.query
+  ) {
     const { createDataSource, engine, ...query } = route.query as {
       createDataSource: string
       engine: DatabaseEngine
@@ -61,12 +66,14 @@ watchEffect(() => {
 </script>
 
 <template>
-  <DialogProvider />
-  <Toaster />
-  <div vaul-drawer-wrapper class="bg-background h-screen flex flex-col">
-    <AppHeader :active-data-source="null" />
-    <main class="flex-1 overflow-auto">
-      <RouterView />
-    </main>
-  </div>
+  <TooltipProvider>
+    <DialogProvider />
+    <Toaster />
+    <div vaul-drawer-wrapper class="bg-background h-screen flex flex-col">
+      <AppHeader :active-data-source="null" />
+      <main class="flex-1 overflow-auto">
+        <RouterView />
+      </main>
+    </div>
+  </TooltipProvider>
 </template>
