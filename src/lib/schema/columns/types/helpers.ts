@@ -34,8 +34,13 @@ export function getDataTypeDefinition(
 
 export function getDataTypeDisplayName(
   engine: DatabaseEngine,
-  type: WithPseudoTypes<DataType>,
+  dataType: WithPseudoTypes<DataType>,
+  typeName: string,
 ): string {
-  const def = getDataTypeDefinition(engine, type)
+  if (dataType === PseudoDataType.Unknown) {
+    return typeName
+  }
+
+  const def = getDataTypeDefinition(engine, dataType)
   return def.displayName ?? def.name
 }
