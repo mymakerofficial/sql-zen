@@ -20,19 +20,22 @@ export type FieldInfo<T extends DatabaseEngine = DatabaseEngine> = {
   engine: T
   name: string
   dataType: WithPseudoTypes<DataTypeFromEngine<T>>
+  isNullable: boolean
 }
 
 export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
   implements FieldInfo<T>
 {
-  readonly #engine: T
-  readonly #name: string
-  readonly #dataType: WithPseudoTypes<DataTypeFromEngine<T>>
+  #engine: T
+  #name: string
+  #dataType: WithPseudoTypes<DataTypeFromEngine<T>>
+  #isNullable: boolean
 
   constructor(info: FieldInfo<T>) {
     this.#engine = info.engine
     this.#name = info.name
     this.#dataType = info.dataType
+    this.#isNullable = info.isNullable
   }
 
   static from<T extends DatabaseEngine = typeof DatabaseEngine.None>(
@@ -46,6 +49,7 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
       engine: DatabaseEngine.None,
       name,
       dataType: PseudoDataType.Unknown,
+      isNullable: false,
     })
   }
 
@@ -54,6 +58,7 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
       engine: DatabaseEngine.PostgreSQL,
       name,
       dataType: pgUdtNameToDataType(udtName),
+      isNullable: false,
     })
   }
 
@@ -63,6 +68,7 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
       name,
       // @ts-expect-error
       dataType: SqliteTypeMap[type.toLowerCase()] ?? PseudoDataType.Unknown,
+      isNullable: false,
     })
   }
 
@@ -72,6 +78,7 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
       name,
       // @ts-expect-error
       dataType: DuckDBTypeMap[type.toUpperCase()] ?? PseudoDataType.Unknown,
+      isNullable: false,
     })
   }
 
@@ -81,6 +88,7 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
       name,
       // @ts-expect-error
       dataType: ArrowTypeToDuckDBTypeMap[type] ?? PseudoDataType.Unknown,
+      isNullable: false,
     })
   }
 
@@ -96,6 +104,10 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
     return this.#dataType
   }
 
+  get isNullable() {
+    return this.#isNullable
+  }
+
   getDataTypeDisplayName() {
     return getDataTypeDisplayName(
       this.engine,
@@ -108,6 +120,7 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
       engine: this.engine,
       name: this.name,
       dataType: this.dataType,
+      isNullable: this.isNullable,
     }
   }
 
@@ -118,18 +131,24 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
 
 export type ColumnDefinitionInfo<T extends DatabaseEngine = DatabaseEngine> =
   FieldInfo<T> & {
-    isNullable: boolean
+    databaseName: string
+    schemaName: string
+    tableName: string
   }
 
 export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
   extends FieldDefinition<T>
   implements ColumnDefinitionInfo<T>
 {
-  readonly #isNullable: boolean
+  readonly #databaseName: string
+  readonly #schemaName: string
+  readonly #tableName: string
 
   constructor(info: ColumnDefinitionInfo<T>) {
     super(info)
-    this.#isNullable = info.isNullable
+    this.#databaseName = info.databaseName
+    this.#schemaName = info.schemaName
+    this.#tableName = info.tableName
   }
 
   static from<T extends DatabaseEngine = typeof DatabaseEngine.None>(
@@ -143,7 +162,9 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
   ) {
     return this.from({
       ...info,
-      isNullable: true,
+      databaseName: '',
+      schemaName: '',
+      tableName: '',
     })
   }
 
@@ -152,6 +173,9 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
   ) {
     return this.from({
       engine: DatabaseEngine.PostgreSQL,
+      databaseName: column.table_catalog,
+      schemaName: column.table_schema,
+      tableName: column.table_name,
       name: column.column_name,
       dataType: pgUdtNameToDataType(column.udt_name),
       isNullable: column.is_nullable === 'YES',
@@ -163,17 +187,28 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
       engine: DatabaseEngine.None,
       name,
       dataType: PseudoDataType.Unknown,
+      isNullable: false,
     })
   }
 
-  get isNullable() {
-    return this.#isNullable
+  get databaseName() {
+    return this.#databaseName
+  }
+
+  get schemaName() {
+    return this.#schemaName
+  }
+
+  get tableName() {
+    return this.#tableName
   }
 
   getInfo(): ColumnDefinitionInfo<T> {
     return {
       ...this.toFieldInfo(),
-      isNullable: this.isNullable,
+      databaseName: this.databaseName,
+      schemaName: this.schemaName,
+      tableName: this.tableName,
     }
   }
 }
