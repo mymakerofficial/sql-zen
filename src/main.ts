@@ -2,7 +2,7 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import App from './App.vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, useRoute } from 'vue-router'
 import { VueQueryPlugin as vueQuery } from '@tanstack/vue-query'
 import { handleHotUpdate, routes } from 'vue-router/auto-routes'
 import '@/lib/monaco/setup'
@@ -16,6 +16,7 @@ import { TabType } from '@/lib/tabs/enums'
 import persistTabs from '@/lib/tabs/plugins/persistTabs'
 import { useSeline } from '@/composables/seline/seline'
 import { registryAnalytics } from '@/lib/registry/plugins/analytics'
+import { selectableDatabaseEngines } from '@/lib/engines/constants'
 
 const app = createApp(App)
 
@@ -23,9 +24,21 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     ...routes,
+    ...selectableDatabaseEngines.map(({ engine }) => ({
+      path: `/${engine}`,
+      redirect: () => `/app?createDataSource=true&engine=${engine}`,
+    })),
     {
-      path: '/postgresql',
-      redirect: () => '/pg',
+      path: '/duck',
+      redirect: () => '/duckdb',
+    },
+    {
+      path: '/postgres',
+      redirect: () => '/postgresql',
+    },
+    {
+      path: '/pg',
+      redirect: () => '/postgresql',
     },
   ],
 })

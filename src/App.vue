@@ -5,6 +5,12 @@ import { useQueryClient } from '@tanstack/vue-query'
 import AppHeader from '@/components/shared/appHeader/AppHeader.vue'
 import { isTauri } from '@tauri-apps/api/core'
 import { Toaster } from '@/components/ui/sonner'
+import { useRegistry } from '@/composables/useRegistry'
+import { useTabManager } from '@/composables/tabs/useTabManager'
+import type { DatabaseEngine } from '@/lib/engines/enums'
+import { DataSourceMode } from '@/lib/dataSources/enums'
+import { TabType } from '@/lib/tabs/enums'
+import { watchEffect } from 'vue'
 
 const queryClient = useQueryClient()
 
@@ -17,9 +23,41 @@ queryClient.setDefaultOptions({
 
 const route = useRoute()
 const router = useRouter()
+
 if (isTauri() && route.path === '/') {
   router.replace('/app')
 }
+
+const registry = useRegistry()
+const tabManager = useTabManager()
+
+watchEffect(() => {
+  if (typeof route.query === 'object' && 'createDataSource' in route.query && 'engine' in route.query) {
+    const { createDataSource, engine, ...query } = route.query as {
+      createDataSource: string
+      engine: DatabaseEngine
+    } & Record<string, string>
+
+    if (createDataSource !== 'true') {
+      return
+    }
+
+    const dataSourceKey = registry.register({
+      engine,
+      mode: DataSourceMode.Memory,
+      identifier: 'default',
+    })
+
+    tabManager.createTab({
+      type: TabType.Console,
+      dataSourceKey,
+    })
+
+    router.replace({
+      query,
+    })
+  }
+})
 </script>
 
 <template>
