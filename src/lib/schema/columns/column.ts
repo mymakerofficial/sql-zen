@@ -3,6 +3,7 @@ import {
   DataType,
   type DataTypeFromEngine,
   PseudoDataType,
+  PseudoDataTypeDefinition,
   type WithPseudoTypes,
 } from '@/lib/schema/columns/types/base'
 import { SqliteTypeMap } from '@/lib/schema/columns/types/sqlite'
@@ -16,12 +17,19 @@ import {
 } from '@/lib/schema/columns/types/duckdb'
 import { getDataTypeDisplayName } from '@/lib/schema/columns/types/helpers'
 
-export type FieldInfo<T extends DatabaseEngine = DatabaseEngine> = {
+export type TypeInfo<T extends DatabaseEngine = DatabaseEngine> = {
   engine: T
-  name: string
+  // internal data type, UNKNOWN if the type is not recognized
   dataType: WithPseudoTypes<DataTypeFromEngine<T>>
+  // the name of the type as it would appear in the database
+  typeName: string
   isNullable: boolean
 }
+
+export type FieldInfo<T extends DatabaseEngine = DatabaseEngine> =
+  TypeInfo<T> & {
+    name: string
+  }
 
 export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
   implements FieldInfo<T>
@@ -29,12 +37,14 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
   #engine: T
   #name: string
   #dataType: WithPseudoTypes<DataTypeFromEngine<T>>
+  #typeName: string
   #isNullable: boolean
 
   constructor(info: FieldInfo<T>) {
     this.#engine = info.engine
     this.#name = info.name
     this.#dataType = info.dataType
+    this.#typeName = info.typeName
     this.#isNullable = info.isNullable
   }
 
@@ -49,6 +59,7 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
       engine: DatabaseEngine.None,
       name,
       dataType: PseudoDataType.Unknown,
+      typeName: PseudoDataTypeDefinition[PseudoDataType.Unknown].name,
       isNullable: false,
     })
   }
@@ -58,6 +69,7 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
       engine: DatabaseEngine.PostgreSQL,
       name,
       dataType: pgUdtNameToDataType(udtName),
+      typeName: udtName,
       isNullable: false,
     })
   }
@@ -68,6 +80,7 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
       name,
       // @ts-expect-error
       dataType: SqliteTypeMap[type.toLowerCase()] ?? PseudoDataType.Unknown,
+      typeName: type,
       isNullable: false,
     })
   }
@@ -78,6 +91,7 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
       name,
       // @ts-expect-error
       dataType: DuckDBTypeMap[type.toUpperCase()] ?? PseudoDataType.Unknown,
+      typeName: type,
       isNullable: false,
     })
   }
@@ -88,6 +102,7 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
       name,
       // @ts-expect-error
       dataType: ArrowTypeToDuckDBTypeMap[type] ?? PseudoDataType.Unknown,
+      typeName: type,
       isNullable: false,
     })
   }
@@ -104,6 +119,10 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
     return this.#dataType
   }
 
+  get typeName() {
+    return this.#typeName
+  }
+
   get isNullable() {
     return this.#isNullable
   }
@@ -112,6 +131,7 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
     return getDataTypeDisplayName(
       this.engine,
       this.dataType as WithPseudoTypes<DataType>,
+      this.typeName,
     )
   }
 
@@ -120,6 +140,7 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
       engine: this.engine,
       name: this.name,
       dataType: this.dataType,
+      typeName: this.typeName,
       isNullable: this.isNullable,
     }
   }
@@ -178,6 +199,7 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
       tableName: column.table_name,
       name: column.column_name,
       dataType: pgUdtNameToDataType(column.udt_name),
+      typeName: column.udt_name,
       isNullable: column.is_nullable === 'YES',
     })
   }
@@ -187,6 +209,7 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
       engine: DatabaseEngine.None,
       name,
       dataType: PseudoDataType.Unknown,
+      typeName: PseudoDataTypeDefinition[PseudoDataType.Unknown].name,
       isNullable: false,
     })
   }
