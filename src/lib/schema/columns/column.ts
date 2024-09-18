@@ -15,6 +15,8 @@ import {
   DuckDBTypeMap,
 } from '@/lib/schema/columns/types/duckdb'
 import { getDataTypeDisplayName } from '@/lib/schema/columns/types/helpers'
+import { arrowTypeToTypeDefinition } from '@/lib/schema/columns/helpers/duckdb'
+import * as arrow from 'apache-arrow'
 
 export type TypeInfo = {
   engine: DatabaseEngine
@@ -23,6 +25,15 @@ export type TypeInfo = {
   // the name of the type as it would appear in the database
   typeName: string
   isNullable: boolean
+  // the precision of the type, if applicable
+  precision?: number
+  // the scale of the type, if applicable
+  scale?: number
+  // - if the type is a map, the type of the keys
+  keyType?: TypeInfo
+  // - if the type is a collection, the type of the elements
+  // - if the type is a map, the type of the values
+  valueType?: TypeInfo
 }
 
 export class TypeDefinition implements TypeInfo {
@@ -30,12 +41,40 @@ export class TypeDefinition implements TypeInfo {
   #dataType: WithPseudoTypes<DataType>
   #typeName: string
   #isNullable: boolean
+  #precision: number | undefined
+  #scale: number | undefined
+  #keyType: TypeDefinition | undefined
+  #valueType: TypeDefinition | undefined
 
   constructor(info: TypeInfo) {
     this.#engine = info.engine
     this.#dataType = info.dataType
     this.#typeName = info.typeName
     this.#isNullable = info.isNullable
+    this.#precision = info.precision
+    this.#scale = info.scale
+    this.#keyType = info.keyType ? TypeDefinition.from(info.keyType) : undefined
+    this.#valueType = info.valueType
+      ? TypeDefinition.from(info.valueType)
+      : undefined
+  }
+
+  static from(info: TypeInfo) {
+    return new TypeDefinition(info)
+  }
+
+  static createDuckDBType(partialInfo: Omit<Partial<TypeInfo>, 'engine'>) {
+    return new TypeDefinition({
+      engine: DatabaseEngine.DuckDB,
+      dataType: PseudoDataType.Unknown,
+      typeName: '',
+      isNullable: false,
+      ...partialInfo,
+    })
+  }
+
+  static fromArrowType(type: arrow.DataType): TypeDefinition {
+    return arrowTypeToTypeDefinition(type)
   }
 
   get engine() {
@@ -54,6 +93,22 @@ export class TypeDefinition implements TypeInfo {
     return this.#isNullable
   }
 
+  get precision() {
+    return this.#precision
+  }
+
+  get scale() {
+    return this.#scale
+  }
+
+  get keyType() {
+    return this.#keyType
+  }
+
+  get valueType() {
+    return this.#valueType
+  }
+
   getDataTypeDisplayName() {
     return getDataTypeDisplayName(this.engine, this.dataType, this.typeName)
   }
@@ -64,6 +119,10 @@ export class TypeDefinition implements TypeInfo {
       dataType: this.dataType,
       typeName: this.typeName,
       isNullable: this.isNullable,
+      precision: this.precision,
+      scale: this.scale,
+      keyType: this.keyType?.toTypeInfo(),
+      valueType: this.valueType?.toTypeInfo(),
     }
   }
 
@@ -119,6 +178,14 @@ export class FieldDefinition extends TypeDefinition implements FieldInfo {
     })
   }
 
+  static fromArrowField(field: arrow.Field) {
+    return this.from({
+      ...TypeDefinition.fromArrowType(field.type).toTypeInfo(),
+      name: field.name,
+    })
+  }
+
+  // @deprecated
   static fromDuckDBNameAndType(name: string, type: string) {
     return this.from({
       engine: DatabaseEngine.DuckDB,
@@ -130,6 +197,7 @@ export class FieldDefinition extends TypeDefinition implements FieldInfo {
     })
   }
 
+  // @deprecated
   static fromDuckDBNameAndArrowType(name: string, type: string) {
     return this.from({
       engine: DatabaseEngine.DuckDB,

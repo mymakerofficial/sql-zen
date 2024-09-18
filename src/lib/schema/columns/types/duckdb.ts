@@ -24,6 +24,13 @@ export const DuckDBDataType = {
   UTinyInt: 'UTINYINT',
   Uuid: 'UUID',
   Varchar: 'VARCHAR',
+  // composite types
+  Array: 'ARRAY',
+  List: 'LIST',
+  Map: 'MAP',
+  Struct: 'STRUCT',
+  Union: 'UNION',
+  Enum: 'ENUM',
 } as const
 export type DuckDBDataType =
   (typeof DuckDBDataType)[keyof typeof DuckDBDataType]
@@ -80,6 +87,7 @@ export const DuckDBTypeDefinition = {
   [DuckDBDataType.TimestampWithTimezone]: {
     name: 'timestamp with timezone',
     aliases: ['timestamptz'],
+    displayName: 'timestamptz',
   },
   [DuckDBDataType.Timestamp]: {
     name: 'timestamp',
@@ -111,6 +119,24 @@ export const DuckDBTypeDefinition = {
     name: 'varchar',
     aliases: ['char', 'bpchar', 'text', 'string'],
   },
+  [DuckDBDataType.Array]: {
+    name: 'array',
+  },
+  [DuckDBDataType.List]: {
+    name: 'list',
+  },
+  [DuckDBDataType.Map]: {
+    name: 'map',
+  },
+  [DuckDBDataType.Struct]: {
+    name: 'struct',
+  },
+  [DuckDBDataType.Union]: {
+    name: 'union',
+  },
+  [DuckDBDataType.Enum]: {
+    name: 'enum',
+  },
 } as const satisfies Record<DuckDBDataType, DataTypeDefinition>
 
 export const DuckDBTypeMap = {
@@ -127,7 +153,7 @@ export const DuckDBTypeMap = {
   ['INTERVAL']: DuckDBDataType.Interval,
   ['SMALLINT']: DuckDBDataType.SmallInt,
   ['TIME']: DuckDBDataType.Time,
-  ['TIMESTAMPZ']: DuckDBDataType.TimestampWithTimezone,
+  ['TIMESTAMP WITH TIME ZONE']: DuckDBDataType.TimestampWithTimezone,
   ['TIMESTAMP']: DuckDBDataType.Timestamp,
   ['TINYINT']: DuckDBDataType.TinyInt,
   ['UBIGINT']: DuckDBDataType.UBigInt,
@@ -139,6 +165,7 @@ export const DuckDBTypeMap = {
   ['VARCHAR']: DuckDBDataType.Varchar,
 } as const satisfies Record<string, DuckDBDataType>
 
+// @deprecated
 export const ArrowTypeToDuckDBTypeMap = {
   ['Int8']: DuckDBDataType.BigInt,
   ['Int16']: DuckDBDataType.SmallInt,
