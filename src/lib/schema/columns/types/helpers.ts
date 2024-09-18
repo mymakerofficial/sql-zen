@@ -31,16 +31,3 @@ export function getDataTypeDefinition(
     }
   )
 }
-
-export function getDataTypeDisplayName(
-  engine: DatabaseEngine,
-  dataType: WithPseudoTypes<DataType>,
-  typeName: string,
-): string {
-  if (dataType === PseudoDataType.Unknown) {
-    return typeName
-  }
-
-  const def = getDataTypeDefinition(engine, dataType)
-  return def.displayName ?? def.name
-}

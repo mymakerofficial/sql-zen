@@ -14,7 +14,7 @@ import {
   ArrowTypeToDuckDBTypeMap,
   DuckDBTypeMap,
 } from '@/lib/schema/columns/types/duckdb'
-import { getDataTypeDisplayName } from '@/lib/schema/columns/types/helpers'
+import { getDataTypeDefinition } from '@/lib/schema/columns/types/helpers'
 import { arrowTypeToTypeDefinition } from '@/lib/schema/columns/helpers/duckdb'
 import * as arrow from 'apache-arrow'
 
@@ -109,8 +109,22 @@ export class TypeDefinition implements TypeInfo {
     return this.#valueType
   }
 
-  getDataTypeDisplayName() {
-    return getDataTypeDisplayName(this.engine, this.dataType, this.typeName)
+  getTypeDisplayName() {
+    if (this.dataType === PseudoDataType.Unknown) {
+      return this.typeName
+    }
+
+    const def = getDataTypeDefinition(this.engine, this.dataType)
+
+    if (!def.displayName) {
+      return def.name
+    }
+
+    if (typeof def.displayName === 'function') {
+      return def.displayName(this)
+    }
+
+    return def.displayName
   }
 
   toTypeInfo(): TypeInfo {
@@ -128,6 +142,10 @@ export class TypeDefinition implements TypeInfo {
 
   getInfo(): TypeInfo {
     return this.toTypeInfo()
+  }
+
+  toString() {
+    return this.getTypeDisplayName()
   }
 }
 
@@ -223,6 +241,10 @@ export class FieldDefinition extends TypeDefinition implements FieldInfo {
   getInfo(): FieldInfo {
     return this.toFieldInfo()
   }
+
+  toString() {
+    return `${this.name} ${this.getTypeDisplayName()}`
+  }
 }
 
 export type ColumnDefinitionInfo = FieldInfo & {
@@ -307,6 +329,10 @@ export class ColumnDefinition
 
   getInfo(): ColumnDefinitionInfo {
     return this.toColumnDefinitionInfo()
+  }
+
+  toString() {
+    return `${this.tableName}.${this.name} ${this.getTypeDisplayName()}`
   }
 }
 

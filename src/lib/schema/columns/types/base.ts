@@ -11,11 +11,12 @@ import {
   DuckDBDataType,
   DuckDBTypeDefinition,
 } from '@/lib/schema/columns/types/duckdb'
+import { TypeDefinition } from '@/lib/schema/columns/column'
 
 export type DataTypeDefinition = {
   name: string
   aliases?: string[]
-  displayName?: string
+  displayName?: string | ((def: TypeDefinition) => string)
 }
 
 export const PseudoDataType = {
