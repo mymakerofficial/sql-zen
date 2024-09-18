@@ -99,7 +99,6 @@ export const DatabaseEngineDataTypesMap = {
   [DatabaseEngine.PostgreSQL]: PostgresDataType,
   [DatabaseEngine.DuckDB]: DuckDBDataType,
 } as const satisfies Record<DatabaseEngine, Record<string, Partial<DataType>>>
-export type DatabaseEngineDataTypesMap = typeof DatabaseEngineDataTypesMap
 
 export const DatabaseEngineDataTypeDefinitionMap = {
   [DatabaseEngine.None]: BasicDataTypeDefinition,
@@ -107,8 +106,5 @@ export const DatabaseEngineDataTypeDefinitionMap = {
   [DatabaseEngine.PostgreSQL]: PostgresDataTypeDefinitions,
   [DatabaseEngine.DuckDB]: DuckDBTypeDefinition,
 } as const satisfies Record<DatabaseEngine, Record<string, DataTypeDefinition>>
-
-export type DataTypeFromEngine<T extends DatabaseEngine = DatabaseEngine> =
-  (typeof DatabaseEngineDataTypesMap)[T][keyof (typeof DatabaseEngineDataTypesMap)[T]]
 
 export type WithPseudoTypes<T> = PseudoDataType | T

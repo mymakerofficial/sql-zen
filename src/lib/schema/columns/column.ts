@@ -1,7 +1,6 @@
 import { DatabaseEngine } from '@/lib/engines/enums'
 import {
   DataType,
-  type DataTypeFromEngine,
   PseudoDataType,
   PseudoDataTypeDefinition,
   type WithPseudoTypes,
@@ -17,24 +16,22 @@ import {
 } from '@/lib/schema/columns/types/duckdb'
 import { getDataTypeDisplayName } from '@/lib/schema/columns/types/helpers'
 
-export type TypeInfo<T extends DatabaseEngine> = {
-  engine: T
+export type TypeInfo = {
+  engine: DatabaseEngine
   // internal data type, UNKNOWN if the type is not recognized
-  dataType: WithPseudoTypes<DataTypeFromEngine<T>>
+  dataType: WithPseudoTypes<DataType>
   // the name of the type as it would appear in the database
   typeName: string
   isNullable: boolean
 }
 
-export class TypeDefinition<T extends DatabaseEngine = DatabaseEngine>
-  implements TypeInfo<T>
-{
-  #engine: T
-  #dataType: WithPseudoTypes<DataTypeFromEngine<T>>
+export class TypeDefinition implements TypeInfo {
+  #engine: DatabaseEngine
+  #dataType: WithPseudoTypes<DataType>
   #typeName: string
   #isNullable: boolean
 
-  constructor(info: TypeInfo<T>) {
+  constructor(info: TypeInfo) {
     this.#engine = info.engine
     this.#dataType = info.dataType
     this.#typeName = info.typeName
@@ -58,14 +55,10 @@ export class TypeDefinition<T extends DatabaseEngine = DatabaseEngine>
   }
 
   getDataTypeDisplayName() {
-    return getDataTypeDisplayName(
-      this.engine,
-      this.dataType as WithPseudoTypes<DataType>,
-      this.typeName,
-    )
+    return getDataTypeDisplayName(this.engine, this.dataType, this.typeName)
   }
 
-  toTypeInfo(): TypeInfo<T> {
+  toTypeInfo(): TypeInfo {
     return {
       engine: this.engine,
       dataType: this.dataType,
@@ -74,30 +67,24 @@ export class TypeDefinition<T extends DatabaseEngine = DatabaseEngine>
     }
   }
 
-  getInfo(): TypeInfo<T> {
+  getInfo(): TypeInfo {
     return this.toTypeInfo()
   }
 }
 
-export type FieldInfo<T extends DatabaseEngine = DatabaseEngine> =
-  TypeInfo<T> & {
-    name: string
-  }
+export type FieldInfo = TypeInfo & {
+  name: string
+}
 
-export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
-  extends TypeDefinition<T>
-  implements FieldInfo<T>
-{
+export class FieldDefinition extends TypeDefinition implements FieldInfo {
   #name: string
 
-  constructor(info: FieldInfo<T>) {
+  constructor(info: FieldInfo) {
     super(info)
     this.#name = info.name
   }
 
-  static from<T extends DatabaseEngine = typeof DatabaseEngine.None>(
-    info: FieldInfo<T>,
-  ) {
+  static from(info: FieldInfo) {
     return new FieldDefinition(info)
   }
 
@@ -158,49 +145,44 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
     return this.#name
   }
 
-  toFieldInfo(): FieldInfo<T> {
+  toFieldInfo(): FieldInfo {
     return {
       ...this.toTypeInfo(),
       name: this.name,
     }
   }
 
-  getInfo(): FieldInfo<T> {
+  getInfo(): FieldInfo {
     return this.toFieldInfo()
   }
 }
 
-export type ColumnDefinitionInfo<T extends DatabaseEngine = DatabaseEngine> =
-  FieldInfo<T> & {
-    databaseName: string
-    schemaName: string
-    tableName: string
-  }
+export type ColumnDefinitionInfo = FieldInfo & {
+  databaseName: string
+  schemaName: string
+  tableName: string
+}
 
-export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
-  extends FieldDefinition<T>
-  implements ColumnDefinitionInfo<T>
+export class ColumnDefinition
+  extends FieldDefinition
+  implements ColumnDefinitionInfo
 {
   readonly #databaseName: string
   readonly #schemaName: string
   readonly #tableName: string
 
-  constructor(info: ColumnDefinitionInfo<T>) {
+  constructor(info: ColumnDefinitionInfo) {
     super(info)
     this.#databaseName = info.databaseName
     this.#schemaName = info.schemaName
     this.#tableName = info.tableName
   }
 
-  static from<T extends DatabaseEngine = typeof DatabaseEngine.None>(
-    info: ColumnDefinitionInfo<T>,
-  ) {
+  static from(info: ColumnDefinitionInfo) {
     return new ColumnDefinition(info)
   }
 
-  static fromField<T extends DatabaseEngine = typeof DatabaseEngine.None>(
-    info: FieldInfo<T>,
-  ) {
+  static fromField(info: FieldInfo) {
     return this.from({
       ...info,
       databaseName: '',
@@ -246,7 +228,7 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
     return this.#tableName
   }
 
-  toColumnDefinitionInfo(): ColumnDefinitionInfo<T> {
+  toColumnDefinitionInfo(): ColumnDefinitionInfo {
     return {
       ...this.toFieldInfo(),
       databaseName: this.databaseName,
@@ -255,7 +237,7 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
     }
   }
 
-  getInfo(): ColumnDefinitionInfo<T> {
+  getInfo(): ColumnDefinitionInfo {
     return this.toColumnDefinitionInfo()
   }
 }
