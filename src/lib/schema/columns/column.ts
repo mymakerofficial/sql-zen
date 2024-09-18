@@ -17,7 +17,7 @@ import {
 } from '@/lib/schema/columns/types/duckdb'
 import { getDataTypeDisplayName } from '@/lib/schema/columns/types/helpers'
 
-export type TypeInfo<T extends DatabaseEngine = DatabaseEngine> = {
+export type TypeInfo<T extends DatabaseEngine> = {
   engine: T
   // internal data type, UNKNOWN if the type is not recognized
   dataType: WithPseudoTypes<DataTypeFromEngine<T>>
@@ -26,26 +26,73 @@ export type TypeInfo<T extends DatabaseEngine = DatabaseEngine> = {
   isNullable: boolean
 }
 
+export class TypeDefinition<T extends DatabaseEngine = DatabaseEngine>
+  implements TypeInfo<T>
+{
+  #engine: T
+  #dataType: WithPseudoTypes<DataTypeFromEngine<T>>
+  #typeName: string
+  #isNullable: boolean
+
+  constructor(info: TypeInfo<T>) {
+    this.#engine = info.engine
+    this.#dataType = info.dataType
+    this.#typeName = info.typeName
+    this.#isNullable = info.isNullable
+  }
+
+  get engine() {
+    return this.#engine
+  }
+
+  get dataType() {
+    return this.#dataType
+  }
+
+  get typeName() {
+    return this.#typeName
+  }
+
+  get isNullable() {
+    return this.#isNullable
+  }
+
+  getDataTypeDisplayName() {
+    return getDataTypeDisplayName(
+      this.engine,
+      this.dataType as WithPseudoTypes<DataType>,
+      this.typeName,
+    )
+  }
+
+  toTypeInfo(): TypeInfo<T> {
+    return {
+      engine: this.engine,
+      dataType: this.dataType,
+      typeName: this.typeName,
+      isNullable: this.isNullable,
+    }
+  }
+
+  getInfo(): TypeInfo<T> {
+    return this.toTypeInfo()
+  }
+}
+
 export type FieldInfo<T extends DatabaseEngine = DatabaseEngine> =
   TypeInfo<T> & {
     name: string
   }
 
 export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
+  extends TypeDefinition<T>
   implements FieldInfo<T>
 {
-  #engine: T
   #name: string
-  #dataType: WithPseudoTypes<DataTypeFromEngine<T>>
-  #typeName: string
-  #isNullable: boolean
 
   constructor(info: FieldInfo<T>) {
-    this.#engine = info.engine
+    super(info)
     this.#name = info.name
-    this.#dataType = info.dataType
-    this.#typeName = info.typeName
-    this.#isNullable = info.isNullable
   }
 
   static from<T extends DatabaseEngine = typeof DatabaseEngine.None>(
@@ -107,41 +154,14 @@ export class FieldDefinition<T extends DatabaseEngine = DatabaseEngine>
     })
   }
 
-  get engine() {
-    return this.#engine
-  }
-
   get name() {
     return this.#name
   }
 
-  get dataType() {
-    return this.#dataType
-  }
-
-  get typeName() {
-    return this.#typeName
-  }
-
-  get isNullable() {
-    return this.#isNullable
-  }
-
-  getDataTypeDisplayName() {
-    return getDataTypeDisplayName(
-      this.engine,
-      this.dataType as WithPseudoTypes<DataType>,
-      this.typeName,
-    )
-  }
-
   toFieldInfo(): FieldInfo<T> {
     return {
-      engine: this.engine,
+      ...this.toTypeInfo(),
       name: this.name,
-      dataType: this.dataType,
-      typeName: this.typeName,
-      isNullable: this.isNullable,
     }
   }
 
@@ -226,13 +246,17 @@ export class ColumnDefinition<T extends DatabaseEngine = DatabaseEngine>
     return this.#tableName
   }
 
-  getInfo(): ColumnDefinitionInfo<T> {
+  toColumnDefinitionInfo(): ColumnDefinitionInfo<T> {
     return {
       ...this.toFieldInfo(),
       databaseName: this.databaseName,
       schemaName: this.schemaName,
       tableName: this.tableName,
     }
+  }
+
+  getInfo(): ColumnDefinitionInfo<T> {
+    return this.toColumnDefinitionInfo()
   }
 }
 
