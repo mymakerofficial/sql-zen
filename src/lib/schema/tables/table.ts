@@ -16,26 +16,23 @@ export type TableIdentifierCriterion = Partial<
   }
 >
 
-export type TableDefinitionInfo<T extends DatabaseEngine = DatabaseEngine> =
-  TableIdentifier & {
-    engine: T
-    columns: ColumnDefinitionInfo<T>[]
-  }
+export type TableDefinitionInfo = TableIdentifier & {
+  engine: DatabaseEngine
+  columns: ColumnDefinitionInfo[]
+}
 
-export class TableDefinition<T extends DatabaseEngine = DatabaseEngine>
-  implements TableDefinitionInfo<T>
-{
+export class TableDefinition implements TableDefinitionInfo {
   static #dummy = TableDefinition.fromEngineAndIdentifier(DatabaseEngine.None, {
     name: '',
   })
 
-  #engine: T
+  #engine: DatabaseEngine
   #databaseName: string
   #schemaName: string
   #name: string
-  #columns: ColumnDefinition<T>[]
+  #columns: ColumnDefinition[]
 
-  constructor(info: TableDefinitionInfo<T>) {
+  constructor(info: TableDefinitionInfo) {
     this.#engine = info.engine
     this.#databaseName = info.databaseName
     this.#schemaName = info.schemaName
@@ -47,15 +44,14 @@ export class TableDefinition<T extends DatabaseEngine = DatabaseEngine>
     return this.#dummy
   }
 
-  static from<T extends DatabaseEngine = typeof DatabaseEngine.None>(
-    info: TableDefinitionInfo<T>,
-  ) {
+  static from(info: TableDefinitionInfo) {
     return new TableDefinition(info)
   }
 
-  static fromEngineAndIdentifier<
-    T extends DatabaseEngine = typeof DatabaseEngine.None,
-  >(engine: T, identifier: TableIdentifierCriterion) {
+  static fromEngineAndIdentifier(
+    engine: DatabaseEngine,
+    identifier: TableIdentifierCriterion,
+  ) {
     const { databaseName = '', schemaName = '', name = '' } = identifier
     return this.from({
       engine,
@@ -66,7 +62,7 @@ export class TableDefinition<T extends DatabaseEngine = DatabaseEngine>
     })
   }
 
-  withColumns(columns: ColumnDefinitionInfo<T>[]) {
+  withColumns(columns: ColumnDefinitionInfo[]) {
     return TableDefinition.from({
       ...this.getInfo(),
       columns,
@@ -93,7 +89,7 @@ export class TableDefinition<T extends DatabaseEngine = DatabaseEngine>
     return this.#columns
   }
 
-  getInfo(): TableDefinitionInfo<T> {
+  getInfo(): TableDefinitionInfo {
     return {
       engine: this.engine,
       databaseName: this.databaseName,
@@ -101,9 +97,5 @@ export class TableDefinition<T extends DatabaseEngine = DatabaseEngine>
       name: this.name,
       columns: this.columns.map((column) => column.getInfo()),
     }
-  }
-
-  getUntypedInfo(): TableDefinitionInfo {
-    return this.getInfo() as unknown as TableDefinitionInfo
   }
 }

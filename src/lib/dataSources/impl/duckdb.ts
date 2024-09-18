@@ -131,7 +131,7 @@ export class DuckDB extends DataSource {
   async #getTypes(
     originalSql: string,
     originalResult: Table,
-  ): Promise<FieldInfo<typeof DatabaseEngine.DuckDB>[]> {
+  ): Promise<FieldInfo[]> {
     if (
       originalResult.toArray().length === 0 ||
       originalSql.substring(0, 6).toUpperCase() !== 'SELECT'
