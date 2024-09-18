@@ -58,6 +58,9 @@ export const DuckDBTypeDefinition = {
   [DuckDBDataType.Decimal]: {
     name: 'decimal',
     aliases: ['numeric'],
+    displayName: (def) => {
+      return `decimal(${def.precision}, ${def.scale})`
+    },
   },
   [DuckDBDataType.Double]: {
     name: 'double',
@@ -124,9 +127,15 @@ export const DuckDBTypeDefinition = {
   },
   [DuckDBDataType.List]: {
     name: 'list',
+    displayName: (def) => {
+      return `${def.valueType}[]`
+    },
   },
   [DuckDBDataType.Map]: {
     name: 'map',
+    displayName: (def) => {
+      return `map(${def.keyType}, ${def.valueType})`
+    },
   },
   [DuckDBDataType.Struct]: {
     name: 'struct',
@@ -136,6 +145,9 @@ export const DuckDBTypeDefinition = {
   },
   [DuckDBDataType.Enum]: {
     name: 'enum',
+    displayName: (def) => {
+      return `enum(${def.valueType})`
+    },
   },
 } as const satisfies Record<DuckDBDataType, DataTypeDefinition>
 

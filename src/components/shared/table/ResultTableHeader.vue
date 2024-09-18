@@ -17,7 +17,7 @@ defineProps<{
   <span class="flex items-center gap-3">
     <span>{{ field.name }}</span>
     <span class="text-xs font-normal">{{
-      ColumnDefinition.fromField(field).getDataTypeDisplayName()
+      ColumnDefinition.fromField(field).getTypeDisplayName()
     }}</span>
     <Tooltip v-if="field.dataType === PseudoDataType.Unknown">
       <TooltipTrigger>
