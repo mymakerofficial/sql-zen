@@ -115,7 +115,11 @@ export class DuckDB extends DataSource {
       const arrowResult = await this.#connection.query(sql)
       const end = performance.now()
 
-      const fields = await this.#getTypes(sql, arrowResult)
+      // const fields = await this.#getTypes(sql, arrowResult)
+
+      const fields = arrowResult.schema.fields.map((it) =>
+        FieldDefinition.fromArrowField(it).toFieldInfo(),
+      )
       const rows = this.#unwrapRawResponse<T>(arrowResult)
 
       return {
@@ -128,6 +132,7 @@ export class DuckDB extends DataSource {
     })
   }
 
+  // @deprecated
   async #getTypes(
     originalSql: string,
     originalResult: Table,
