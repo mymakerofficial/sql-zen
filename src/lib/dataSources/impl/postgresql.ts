@@ -116,16 +116,19 @@ export class PostgreSQL extends DataSource {
       const rawResponse = await this.#database.query<T>(sql)
       const end = performance.now()
 
+      const sysStart = performance.now()
       await this.fetchOIDs(rawResponse.fields.map((field) => field.dataTypeID))
-      const fields = rawResponse.fields.map(({ dataTypeID, name }) =>
-        this.getTypeByOID(dataTypeID).toField({ name }).toFieldInfo(),
-      )
+      const fields = rawResponse.fields.map(({ dataTypeID, name }) => {
+        return this.getTypeByOID(dataTypeID).toField({ name }).toFieldInfo()
+      })
+      const sysEnd = performance.now()
 
       return {
         fields,
         rows: rawResponse.rows,
         affectedRows: rawResponse.affectedRows,
         duration: end - start,
+        systemDuration: sysEnd - sysStart,
         id: getId('result'),
       } as QueryResult<T>
     })

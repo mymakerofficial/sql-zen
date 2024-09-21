@@ -117,7 +117,14 @@ class NullQuery<T extends object = object> extends QueryBase<T> {
   }
 
   getResult(): QueryResult<T> | PaginatedQueryResult<T> {
-    return { fields: [], rows: [], affectedRows: null, duration: 0, id: '' }
+    return {
+      fields: [],
+      rows: [],
+      affectedRows: null,
+      duration: 0,
+      systemDuration: 0,
+      id: '',
+    }
   }
 
   getStatement(): Statement {

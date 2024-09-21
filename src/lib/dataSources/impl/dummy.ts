@@ -29,6 +29,7 @@ export class DataSourceDummy extends DataSource {
         rows: [],
         affectedRows: null,
         duration: 0,
+        systemDuration: 0,
         id: getId('result'),
       } as QueryResult<T>
     })

@@ -115,18 +115,19 @@ export class DuckDB extends DataSource {
       const arrowResult = await this.#connection.query(sql)
       const end = performance.now()
 
-      // const fields = await this.#getTypes(sql, arrowResult)
-
+      const sysStart = performance.now()
       const fields = arrowResult.schema.fields.map((it) =>
         FieldDefinition.fromArrowField(it).toFieldInfo(),
       )
       const rows = this.#unwrapRawResponse<T>(arrowResult)
+      const sysEnd = performance.now()
 
       return {
         fields,
         rows,
         affectedRows: 0,
         duration: end - start,
+        systemDuration: sysEnd - sysStart,
         id: getId('result'),
       } as QueryResult<T>
     })

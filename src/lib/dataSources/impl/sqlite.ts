@@ -97,6 +97,7 @@ export class SQLite extends DataSource {
       })
       const end = performance.now()
 
+      const sysStart = performance.now()
       let fields: FieldInfo[] = []
       if (rows.length > 0) {
         try {
@@ -107,12 +108,14 @@ export class SQLite extends DataSource {
           ) as FieldInfo[]
         }
       }
+      const sysEnd = performance.now()
 
       return {
         fields,
         rows: rows as T,
         affectedRows: null,
         duration: end - start,
+        systemDuration: sysEnd - sysStart,
         id: getId('result'),
       } as QueryResult<T>
     })

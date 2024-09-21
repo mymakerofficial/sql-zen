@@ -87,6 +87,13 @@ const { mutateAsync: computeTotalRowCount } = useMutation({
       >
         <ArrowRightIcon class="size-4 min-h-max" />
       </Button>
+      <span class="ml-auto mx-2 text-xs text-muted-foreground space-x-2">
+        <span>{{ Math.round(query.getResult().duration * 100) / 100 }}ms</span>
+        <span
+          >({{ Math.round(query.getResult().systemDuration * 100) / 100 }}ms
+          sys)</span
+        >
+      </span>
     </div>
     <ResultTable v-if="result" :data="result" />
   </div>

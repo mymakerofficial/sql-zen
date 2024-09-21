@@ -11,6 +11,7 @@ export type QueryResult<T extends object = object> = {
   rows: Array<T>
   affectedRows: number | null
   duration: number
+  systemDuration: number
   id: string
 }
 

@@ -81,6 +81,7 @@ export class Query<T extends object = object>
         rows: [],
         affectedRows: null,
         duration: 0,
+        systemDuration: 0,
         id: '',
       }
     )
