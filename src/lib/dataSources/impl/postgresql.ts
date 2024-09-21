@@ -9,7 +9,11 @@ import type { FileInfo } from '@/lib/files/interface'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import { PGliteWorkerFS } from '@/lib/dataSources/impl/lib/PGliteWorkerFS'
-import { FieldDefinition } from '@/lib/schema/columns/column'
+import { TypeDefinition } from '@/lib/schema/columns/column'
+import {
+  type PGCatalogPGType,
+  pgCatalogTypeToTypeDefinition,
+} from '@/lib/schema/columns/helpers/postgresql'
 
 const BASE_PATH = '/var'
 
@@ -17,7 +21,7 @@ export class PostgreSQL extends DataSource {
   #worker: Worker | null = null
   #fs: PGliteWorkerFS | null = null
   #database: PGliteInterface | null = null
-  #types: Map<number, string> = new Map()
+  #types: Map<number, TypeDefinition> = new Map()
 
   getEngine(): DatabaseEngine {
     return DatabaseEngine.PostgreSQL
@@ -113,11 +117,8 @@ export class PostgreSQL extends DataSource {
       const end = performance.now()
 
       await this.fetchOIDs(rawResponse.fields.map((field) => field.dataTypeID))
-      const fields = rawResponse.fields.map((field) =>
-        FieldDefinition.fromPGNameAndUDTName(
-          field.name,
-          this.getUDTByOID(field.dataTypeID),
-        ).toFieldInfo(),
+      const fields = rawResponse.fields.map(({ dataTypeID, name }) =>
+        this.getTypeByOID(dataTypeID).toField({ name }).toFieldInfo(),
       )
 
       return {
@@ -130,10 +131,10 @@ export class PostgreSQL extends DataSource {
     })
   }
 
-  // returns the type name for the given OID
+  // returns the TypeDefinition for the given OID
   //  be sure to call fetchOIDs first
-  getUDTByOID(oid: number) {
-    return this.#types.get(oid) ?? ''
+  getTypeByOID(oid: number) {
+    return this.#types.get(oid) ?? TypeDefinition.Unknown
   }
 
   // Fetches the type names for the given OIDs and caches them
@@ -149,15 +150,22 @@ export class PostgreSQL extends DataSource {
       return
     }
 
-    const { rows } = await this.#database.query<{
-      oid: number
-      typname: string
-    }>(`SELECT oid, typname FROM pg_catalog.pg_type WHERE oid = ANY($1)`, [
-      missingOIDs,
-    ])
+    const { rows } = await this.#database.query<PGCatalogPGType>(
+      `SELECT 
+    oid, 
+    typname,
+    typtype,
+    typcategory,
+    typrelid,
+    typelem
+FROM pg_catalog.pg_type 
+WHERE oid = ANY($1) OR typarray = ANY($1)`,
+      [missingOIDs],
+    )
 
     for (const row of rows) {
-      this.#types.set(row.oid, row.typname)
+      const typeDef = pgCatalogTypeToTypeDefinition(row, this.#types)
+      this.#types.set(row.oid, typeDef)
     }
   }
 
