@@ -186,7 +186,10 @@ FULL OUTER JOIN attr
     ON attr.attrelid = t.typrelid
 FULL OUTER JOIN enm
     ON enm.enumtypid = t.oid
-WHERE oid = ANY($1) OR typarray = ANY($1)`,
+WHERE 
+    oid = ANY($1) 
+    OR typarray = ANY($1)
+ORDER BY typcategory = 'A'`,
       [missingOIDs],
     )
 
