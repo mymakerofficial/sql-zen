@@ -1,8 +1,10 @@
 import { TypeDefinition } from '@/lib/schema/columns/column'
 import type { WithPseudoTypes } from '@/lib/schema/columns/types/base'
-import { PostgresDataType } from '@/lib/schema/columns/types/postgresql'
-import { PostgresUDTNameDataTypeMap } from '@/lib/schema/columns/types/postgresql'
 import { PseudoDataType } from '@/lib/schema/columns/types/base'
+import {
+  PostgresDataType,
+  PostgresUDTNameDataTypeMap,
+} from '@/lib/schema/columns/types/postgresql'
 
 export const PGTypeType = {
   Base: 'b',
@@ -49,6 +51,12 @@ export type PGCatalogPGType = {
   typelem: number
 }
 
+export type PGCatalogCompleteType = Omit<PGCatalogPGType, 'typarray'> & {
+  column_names: string[]
+  column_typeids: number[]
+  enum_labels: string[]
+}
+
 export function pgUdtNameToDataType(
   udtName: string,
 ): WithPseudoTypes<PostgresDataType> {
@@ -63,24 +71,37 @@ export function pgUdtNameToDataType(
   return dataType
 }
 
-export function pgCatalogTypeToTypeDefinition(
-  type: PGCatalogPGType,
-  existingTypes: Map<number, TypeDefinition>,
-): TypeDefinition {
-  if (type.typcategory === PGTypeCategory.Array) {
-    // get the element type
-    //  this relies on the fact, that postgres returns the element type first
-    const valueType = existingTypes.get(type.typelem) ?? TypeDefinition.Unknown
+export async function pgCatalogTypeToTypeDefinition(
+  type: PGCatalogCompleteType,
+  getTypes: (oids: number[]) => Promise<TypeDefinition[]>,
+): Promise<TypeDefinition> {
+  switch (type.typcategory) {
+    case PGTypeCategory.Array: {
+      const [valueType] = await getTypes([type.typelem])
 
-    return TypeDefinition.createPostgresType({
-      dataType: PostgresDataType.Array,
-      typeName: type.typname,
-      valueType,
-    })
+      return TypeDefinition.createPostgresType({
+        dataType: PostgresDataType.Array,
+        typeName: type.typname,
+        valueType,
+      })
+    }
+    case PGTypeCategory.Composite: {
+      const fieldTypes = await getTypes(type.column_typeids)
+      const fields = fieldTypes.map((def, index) => {
+        return def.toField({ name: type.column_names[index] })
+      })
+
+      return TypeDefinition.createPostgresType({
+        dataType: PostgresDataType.Composite,
+        typeName: type.typname,
+        fields,
+      })
+    }
+    default: {
+      return TypeDefinition.createPostgresType({
+        dataType: pgUdtNameToDataType(type.typname),
+        typeName: type.typname,
+      })
+    }
   }
-
-  return TypeDefinition.createPostgresType({
-    dataType: pgUdtNameToDataType(type.typname),
-    typeName: type.typname,
-  })
 }

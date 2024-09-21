@@ -11,7 +11,7 @@ import { DataSourceEvent } from '@/lib/dataSources/events'
 import { PGliteWorkerFS } from '@/lib/dataSources/impl/lib/PGliteWorkerFS'
 import { TypeDefinition } from '@/lib/schema/columns/column'
 import {
-  type PGCatalogPGType,
+  type PGCatalogCompleteType,
   pgCatalogTypeToTypeDefinition,
 } from '@/lib/schema/columns/helpers/postgresql'
 
@@ -137,6 +137,11 @@ export class PostgreSQL extends DataSource {
     return this.#types.get(oid) ?? TypeDefinition.Unknown
   }
 
+  async asyncGetTypes(oids: number[]) {
+    await this.fetchOIDs(oids)
+    return oids.map((oid) => this.getTypeByOID(oid))
+  }
+
   // Fetches the type names for the given OIDs and caches them
   async fetchOIDs(oids: number[]) {
     if (!this.#database) {
@@ -150,21 +155,45 @@ export class PostgreSQL extends DataSource {
       return
     }
 
-    const { rows } = await this.#database.query<PGCatalogPGType>(
-      `SELECT 
-    oid, 
+    const { rows } = await this.#database.query<PGCatalogCompleteType>(
+      `WITH attr AS (
+    SELECT
+        attrelid,
+        array_agg(attname::text) AS column_names,
+        array_agg(atttypid) AS column_typeids
+    FROM pg_catalog.pg_attribute
+    GROUP BY attrelid
+),
+enm AS (
+    SELECT
+        enumtypid,
+        array_agg(enumlabel::text) AS enum_labels
+    FROM pg_catalog.pg_enum
+    GROUP BY enumtypid
+)
+SELECT
+    oid,
     typname,
     typtype,
     typcategory,
     typrelid,
-    typelem
-FROM pg_catalog.pg_type 
+    typelem,
+    attr.column_names,
+    attr.column_typeids,
+    enm.enum_labels
+FROM pg_catalog.pg_type AS t
+FULL OUTER JOIN attr
+    ON attr.attrelid = t.typrelid
+FULL OUTER JOIN enm
+    ON enm.enumtypid = t.oid
 WHERE oid = ANY($1) OR typarray = ANY($1)`,
       [missingOIDs],
     )
 
     for (const row of rows) {
-      const typeDef = pgCatalogTypeToTypeDefinition(row, this.#types)
+      const typeDef = await pgCatalogTypeToTypeDefinition(row, (oids) => {
+        return this.asyncGetTypes(oids)
+      })
       this.#types.set(row.oid, typeDef)
     }
   }

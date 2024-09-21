@@ -14,7 +14,7 @@ import {
 import { TypeDefinition } from '@/lib/schema/columns/column'
 
 export type DataTypeDefinition = {
-  name: string
+  name?: string
   aliases?: string[]
   displayName?: string | ((def: TypeDefinition) => string)
 }
