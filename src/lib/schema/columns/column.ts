@@ -7,36 +7,62 @@ import {
 } from '@/lib/schema/columns/types/base'
 import { SqliteTypeMap } from '@/lib/schema/columns/types/sqlite'
 import {
-  type PostgresDataType,
-  PostgresUDTNameDataTypeMap,
-} from '@/lib/schema/columns/types/postgresql'
-import {
   ArrowTypeToDuckDBTypeMap,
   DuckDBTypeMap,
 } from '@/lib/schema/columns/types/duckdb'
 import { getDataTypeDefinition } from '@/lib/schema/columns/types/helpers'
 import { arrowTypeToTypeDefinition } from '@/lib/schema/columns/helpers/duckdb'
 import * as arrow from 'apache-arrow'
+import { pgUdtNameToDataType } from '@/lib/schema/columns/helpers/postgresql'
 
 export type TypeInfo = {
   engine: DatabaseEngine
-  // internal data type, UNKNOWN if the type is not recognized
+  /***
+   * The internal data type, UNKNOWN if the type is not recognized.
+   */
   dataType: WithPseudoTypes<DataType>
-  // the name of the type as it would appear in the database
+  /***
+   * The name of the type as it would appear in the database.
+   *
+   * **Equivalent to**
+   * | Database   |                            |
+   * |------------|----------------------------|
+   * | PostgreSQL | pg_catalog.pg_type.typname |
+   * | DuckDB     | duckdb_types.type_name     |
+   */
   typeName: string
   isNullable: boolean
-  // the precision of the type, if applicable
+  /***
+   * The precision of numeric types, if applicable.
+   */
   precision?: number
-  // the scale of the type, if applicable
+  /***
+   * The scale of numeric types, if applicable.
+   */
   scale?: number
-  // - if the type is a map, the type of the keys
+  /***
+   *  - if the type is a map, the type of the keys
+   */
   keyType?: TypeInfo
-  // - if the type is a collection, the type of the elements
-  // - if the type is a map, the type of the values
+  /***
+   * - if the type is a collection, the type of the elements
+   * - if the type is a map, the type of the values
+   */
   valueType?: TypeInfo
+  /***
+   *
+   */
+  fields?: FieldInfo[]
 }
 
 export class TypeDefinition implements TypeInfo {
+  static #theUnknown = TypeDefinition.from({
+    engine: DatabaseEngine.None,
+    dataType: PseudoDataType.Unknown,
+    typeName: PseudoDataTypeDefinition[PseudoDataType.Unknown].name,
+    isNullable: false,
+  })
+
   #engine: DatabaseEngine
   #dataType: WithPseudoTypes<DataType>
   #typeName: string
@@ -59,12 +85,26 @@ export class TypeDefinition implements TypeInfo {
       : undefined
   }
 
+  static get Unknown() {
+    return this.#theUnknown
+  }
+
   static from(info: TypeInfo) {
     return new TypeDefinition(info)
   }
 
+  static createPostgresType(partialInfo: Omit<Partial<TypeInfo>, 'engine'>) {
+    return this.from({
+      engine: DatabaseEngine.PostgreSQL,
+      dataType: PseudoDataType.Unknown,
+      typeName: '',
+      isNullable: false,
+      ...partialInfo,
+    })
+  }
+
   static createDuckDBType(partialInfo: Omit<Partial<TypeInfo>, 'engine'>) {
-    return new TypeDefinition({
+    return this.from({
       engine: DatabaseEngine.DuckDB,
       dataType: PseudoDataType.Unknown,
       typeName: '',
@@ -75,6 +115,13 @@ export class TypeDefinition implements TypeInfo {
 
   static fromArrowType(type: arrow.DataType): TypeDefinition {
     return arrowTypeToTypeDefinition(type)
+  }
+
+  toField(field: Omit<FieldInfo, keyof TypeInfo>): FieldDefinition {
+    return FieldDefinition.from({
+      ...this.toTypeInfo(),
+      ...field,
+    })
   }
 
   get engine() {
@@ -175,16 +222,6 @@ export class FieldDefinition extends TypeDefinition implements FieldInfo {
     })
   }
 
-  static fromPGNameAndUDTName(name: string, udtName: string) {
-    return this.from({
-      engine: DatabaseEngine.PostgreSQL,
-      name,
-      dataType: pgUdtNameToDataType(udtName),
-      typeName: udtName,
-      isNullable: false,
-    })
-  }
-
   static fromSqliteNameAndType(name: string, type: string) {
     return this.from({
       engine: DatabaseEngine.SQLite,
@@ -197,8 +234,7 @@ export class FieldDefinition extends TypeDefinition implements FieldInfo {
   }
 
   static fromArrowField(field: arrow.Field) {
-    return this.from({
-      ...TypeDefinition.fromArrowType(field.type).toTypeInfo(),
+    return TypeDefinition.fromArrowType(field.type).toField({
       name: field.name,
     })
   }
@@ -343,18 +379,4 @@ export type PostgreSQLInformationSchemaColumn = {
   column_name: string
   udt_name: string
   is_nullable: 'YES' | 'NO'
-}
-
-function pgUdtNameToDataType(
-  udtName: string,
-): WithPseudoTypes<PostgresDataType> {
-  // @ts-expect-error
-  const dataType = PostgresUDTNameDataTypeMap[udtName.toLowerCase()]
-
-  if (!dataType) {
-    console.warn(`Unknown PostgreSQL data type: ${udtName}`)
-    return PseudoDataType.Unknown
-  }
-
-  return dataType
 }

@@ -50,6 +50,8 @@ export const PostgresDataType = {
   XID: 'XID',
   CID: 'CID',
   Vector: 'VECTOR',
+  // container types
+  Array: 'ARRAY',
 } as const
 export type PostgresDataType =
   (typeof PostgresDataType)[keyof typeof PostgresDataType]
@@ -226,6 +228,13 @@ export const PostgresDataTypeDefinitions = {
   },
   [PostgresDataType.Vector]: {
     name: 'vector',
+  },
+  // container types
+  [PostgresDataType.Array]: {
+    name: 'array',
+    displayName: (def) => {
+      return `${def.valueType}[]`
+    },
   },
 } as const satisfies Record<PostgresDataType, DataTypeDefinition>
 
