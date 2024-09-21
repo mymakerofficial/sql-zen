@@ -237,16 +237,35 @@ export const PostgresDataTypeDefinitions = {
     displayName: (def) => {
       return `${def.valueType}[]`
     },
+    getDDLUsage: (def) => {
+      return `${def.valueType}[]`
+    },
   },
   [PostgresDataType.Composite]: {
     name: 'row',
     displayName: (def) => {
       return def.typeName
     },
+    getDDLDeclaration: (def) => {
+      const columns =
+        def.fields
+          ?.map((it) => `    ${it.getDDLFieldDeclaration()}`)
+          .join(',\n') ?? `/* ??? */`
+
+      return `CREATE TYPE ${def.typeName} AS (\n${columns}\n)`
+    },
   },
   [PostgresDataType.Enum]: {
     name: 'enum',
     displayName: (def) => {
+      return def.typeName
+    },
+    getDDLDeclaration: (def) => {
+      const labels =
+        def.enumLabels?.map((it) => `'${it}'`).join(', ') ?? '/* ??? */'
+      return `CREATE TYPE ${def.typeName} AS ENUM (${labels})`
+    },
+    getDDLUsage: (def) => {
       return def.typeName
     },
   },

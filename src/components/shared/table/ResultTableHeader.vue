@@ -1,24 +1,53 @@
 <script setup lang="ts">
-import { ColumnDefinition, type FieldInfo } from '@/lib/schema/columns/column'
+import { FieldDefinition, type FieldInfo } from '@/lib/schema/columns/column'
 import { PseudoDataType } from '@/lib/schema/columns/types/base'
-import { BookDashedIcon } from 'lucide-vue-next'
+import { BadgeInfoIcon, BookDashedIcon } from 'lucide-vue-next'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card'
+import CodeBlock from '@/components/shared/CodeBlock.vue'
+import { computed } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   field: FieldInfo
 }>()
+
+const displayName = computed(() =>
+  FieldDefinition.from(props.field).getTypeDisplayName(),
+)
+const typeDef = computed(() =>
+  FieldDefinition.from(props.field).getRecursiveDDLTypeDeclaration(),
+)
 </script>
 
 <template>
-  <span class="flex items-center gap-3">
+  <span class="flex items-center gap-2">
     <span>{{ field.name }}</span>
-    <span class="text-xs font-normal">{{
-      ColumnDefinition.fromField(field).getTypeDisplayName()
-    }}</span>
+    <HoverCard v-if="typeDef">
+      <HoverCardTrigger
+        class="flex items-center gap-2 text-xs font-normal hover:underline cursor-pointer"
+      >
+        <span>{{ displayName }}</span>
+        <BadgeInfoIcon class="size-4" />
+      </HoverCardTrigger>
+      <HoverCardContent side="top" class="w-min space-y-2">
+        <h3 class="flex items-center gap-2 text-muted-foreground">
+          <BadgeInfoIcon class="size-4" />
+          <span>auto-generated type definition</span>
+        </h3>
+        <CodeBlock :code="typeDef" class="[&_pre]:!bg-transparent" />
+      </HoverCardContent>
+    </HoverCard>
+    <span v-else class="text-xs font-normal">
+      {{ displayName }}
+    </span>
     <Tooltip v-if="field.dataType === PseudoDataType.Unknown">
       <TooltipTrigger>
         <BookDashedIcon class="size-4" />
