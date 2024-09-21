@@ -53,6 +53,7 @@ export const PostgresDataType = {
   // container types
   Array: 'ARRAY',
   Composite: 'COMPOSITE',
+  Enum: 'ENUM',
 } as const
 export type PostgresDataType =
   (typeof PostgresDataType)[keyof typeof PostgresDataType]
@@ -232,11 +233,19 @@ export const PostgresDataTypeDefinitions = {
   },
   // container types
   [PostgresDataType.Array]: {
+    name: 'array',
     displayName: (def) => {
       return `${def.valueType}[]`
     },
   },
   [PostgresDataType.Composite]: {
+    name: 'row',
+    displayName: (def) => {
+      return def.typeName
+    },
+  },
+  [PostgresDataType.Enum]: {
+    name: 'enum',
     displayName: (def) => {
       return def.typeName
     },

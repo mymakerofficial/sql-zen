@@ -53,6 +53,7 @@ export type TypeInfo = {
    * - if the type is a row, list of fields
    */
   fields?: FieldInfo[]
+  enumLabels?: string[]
 }
 
 export class TypeDefinition implements TypeInfo {
@@ -72,6 +73,7 @@ export class TypeDefinition implements TypeInfo {
   #keyType: TypeDefinition | undefined
   #valueType: TypeDefinition | undefined
   #fields: FieldDefinition[] | undefined
+  #enumLabels: string[] | undefined
 
   constructor(info: TypeInfo) {
     this.#engine = info.engine
@@ -87,6 +89,7 @@ export class TypeDefinition implements TypeInfo {
     this.#fields = info.fields
       ? info.fields.map((it) => FieldDefinition.from(it))
       : undefined
+    this.#enumLabels = info.enumLabels
   }
 
   static get Unknown() {
@@ -167,6 +170,10 @@ export class TypeDefinition implements TypeInfo {
     return this.#fields
   }
 
+  get enumLabels() {
+    return this.#enumLabels
+  }
+
   getTypeDisplayName() {
     if (this.dataType === PseudoDataType.Unknown) {
       return this.typeName
@@ -179,7 +186,7 @@ export class TypeDefinition implements TypeInfo {
     }
 
     if (typeof def.displayName === 'function') {
-      return def.displayName(this)
+      return def.displayName(this) ?? this.typeName
     }
 
     return def.displayName
@@ -196,6 +203,7 @@ export class TypeDefinition implements TypeInfo {
       keyType: this.keyType?.toTypeInfo(),
       valueType: this.valueType?.toTypeInfo(),
       fields: this.fields?.map((it) => it.toFieldInfo()),
+      enumLabels: this.enumLabels,
     }
   }
 

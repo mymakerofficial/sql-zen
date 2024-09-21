@@ -97,6 +97,13 @@ export async function pgCatalogTypeToTypeDefinition(
         fields,
       })
     }
+    case PGTypeCategory.Enum: {
+      return TypeDefinition.createPostgresType({
+        dataType: PostgresDataType.Enum,
+        typeName: type.typname,
+        enumLabels: type.enum_labels,
+      })
+    }
     default: {
       return TypeDefinition.createPostgresType({
         dataType: pgUdtNameToDataType(type.typname),
