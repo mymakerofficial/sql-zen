@@ -10,7 +10,10 @@ import {
   ArrowTypeToDuckDBTypeMap,
   DuckDBTypeMap,
 } from '@/lib/schema/columns/types/duckdb'
-import { getDataTypeDefinition } from '@/lib/schema/columns/types/helpers'
+import {
+  getDataTypeDefinition,
+  getRecursiveDDLTypeDeclaration,
+} from '@/lib/schema/columns/types/helpers'
 import { arrowTypeToTypeDefinition } from '@/lib/schema/columns/helpers/duckdb'
 import * as arrow from 'apache-arrow'
 import { pgUdtNameToDataType } from '@/lib/schema/columns/helpers/postgresql'
@@ -174,12 +177,16 @@ export class TypeDefinition implements TypeInfo {
     return this.#enumLabels
   }
 
+  getTypeDefinition() {
+    return getDataTypeDefinition(this.engine, this.dataType)
+  }
+
   getTypeDisplayName() {
     if (this.dataType === PseudoDataType.Unknown) {
       return this.typeName
     }
 
-    const def = getDataTypeDefinition(this.engine, this.dataType)
+    const def = this.getTypeDefinition()
 
     if (!def.displayName) {
       return def.name ?? this.typeName
@@ -190,6 +197,21 @@ export class TypeDefinition implements TypeInfo {
     }
 
     return def.displayName
+  }
+
+  getDDLTypeDeclaration() {
+    const def = this.getTypeDefinition()
+    return def.getDDLDeclaration?.(this) ?? ''
+  }
+
+  getDDLTypeUsage() {
+    const def = this.getTypeDefinition()
+    return def.getDDLUsage?.(this) ?? this.typeName
+  }
+
+  // generates the type declaration for this and any type that is depended upon
+  getRecursiveDDLTypeDeclaration() {
+    return getRecursiveDDLTypeDeclaration(this)
   }
 
   toTypeInfo(): TypeInfo {
@@ -287,6 +309,10 @@ export class FieldDefinition extends TypeDefinition implements FieldInfo {
     return this.#name
   }
 
+  getDDLFieldDeclaration() {
+    return `${this.name} ${this.getDDLTypeUsage()}`
+  }
+
   toFieldInfo(): FieldInfo {
     return {
       ...this.toTypeInfo(),
@@ -299,7 +325,7 @@ export class FieldDefinition extends TypeDefinition implements FieldInfo {
   }
 
   toString() {
-    return `${this.name} ${this.getTypeDisplayName()}`
+    return this.getDDLFieldDeclaration()
   }
 }
 

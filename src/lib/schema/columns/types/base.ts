@@ -17,6 +17,8 @@ export type DataTypeDefinition = {
   name?: string
   aliases?: string[]
   displayName?: string | ((def: TypeDefinition) => string)
+  getDDLDeclaration?: (def: TypeDefinition) => string
+  getDDLUsage?: (def: TypeDefinition) => string
 }
 
 export const PseudoDataType = {
