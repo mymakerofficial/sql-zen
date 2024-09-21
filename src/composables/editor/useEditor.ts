@@ -6,7 +6,7 @@ import {
   onScopeDispose,
   watchEffect,
 } from 'vue'
-import { toValue, useMediaQuery } from '@vueuse/core'
+import { toValue, useMediaQuery, useThrottleFn } from '@vueuse/core'
 import themePlugin from '@/composables/editor/theme'
 import { useEditorContent } from '@/composables/editor/useEditorContent'
 import { findStatements } from '@/lib/statements/findStatements'
@@ -20,6 +20,7 @@ type UseEditorPlugin<T> = (editor: UseEditor) => T
 type UseEditorProps = {
   model: monaco.editor.ITextModel
   runner?: Runner | null
+  // @deprecated
   getStatements?: ((editor: UseEditor) => ComputedRef<Array<Statement>>) | null
   readonly?: MaybeRefOrGetter<boolean>
   glyphMargin?: MaybeRefOrGetter<boolean>
@@ -41,7 +42,7 @@ export class UseEditor {
   constructor({
     model,
     runner,
-    getStatements,
+    getStatements: _getStatements,
     readonly = false,
     glyphMargin = true,
     lineNumbers = true,
@@ -103,9 +104,15 @@ function useStatements(model: monaco.editor.ITextModel) {
     extractor.extract(),
   )
 
-  model.onDidChangeContent(() => {
-    setStatements(extractor.extract())
-  })
+  const throttledUpdate = useThrottleFn(
+    () => {
+      setStatements(extractor.extract())
+    },
+    1000,
+    true,
+  )
+
+  model.onDidChangeContent(throttledUpdate)
 
   return statements
 }

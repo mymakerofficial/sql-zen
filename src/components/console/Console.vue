@@ -7,7 +7,7 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import ConsoleResultPanel from '@/components/console/ConsoleResultPanel.vue'
-import { getStatements, useEditor } from '@/composables/editor/useEditor'
+import { useEditor } from '@/composables/editor/useEditor'
 import inlineRun from '@/composables/editor/inlineRun'
 import * as monaco from 'monaco-editor'
 import { useStorage } from '@vueuse/core'
@@ -15,11 +15,7 @@ import { useRegistry } from '@/composables/useRegistry'
 import highlightSelected from '@/composables/editor/highlightSelected'
 import { useIsRunning } from '@/composables/useIsRunning'
 import { ref } from 'vue'
-import {
-  useEditorCursorPosition,
-  useEditorCursorSelection,
-  useEditorSelectionStart,
-} from '@/composables/editor/useEditorCursorPosition'
+import { useEditorCursorPosition } from '@/composables/editor/useEditorCursorPosition'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -35,7 +31,6 @@ const isRunning = useIsRunning(props.dataSourceKey)
 const editor = useEditor({
   model: props.model,
   runner,
-  getStatements,
 })
 editor.use(inlineRun({ enabled: isRunning }))
 // editor.use(inlineResults({ enabled: enableInlineResults }))

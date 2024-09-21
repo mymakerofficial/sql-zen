@@ -7,10 +7,10 @@ export function useEditorCursorSelection(
   return computed(
     () =>
       customRef((track, trigger) => {
-        let value = editor.getSelection() ?? null
+        const value = editor.getSelection()
 
         editor.onDidChangeCursorSelection(() => {
-          value = editor.getSelection() ?? null
+          // selection is stored by reference, no need to set the value again
           trigger()
         })
 
