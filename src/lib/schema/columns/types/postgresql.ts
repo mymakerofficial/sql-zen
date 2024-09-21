@@ -52,6 +52,7 @@ export const PostgresDataType = {
   Vector: 'VECTOR',
   // container types
   Array: 'ARRAY',
+  Composite: 'COMPOSITE',
 } as const
 export type PostgresDataType =
   (typeof PostgresDataType)[keyof typeof PostgresDataType]
@@ -231,9 +232,13 @@ export const PostgresDataTypeDefinitions = {
   },
   // container types
   [PostgresDataType.Array]: {
-    name: 'array',
     displayName: (def) => {
       return `${def.valueType}[]`
+    },
+  },
+  [PostgresDataType.Composite]: {
+    displayName: (def) => {
+      return def.typeName
     },
   },
 } as const satisfies Record<PostgresDataType, DataTypeDefinition>

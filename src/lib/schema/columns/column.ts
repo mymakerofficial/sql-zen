@@ -50,7 +50,7 @@ export type TypeInfo = {
    */
   valueType?: TypeInfo
   /***
-   *
+   * - if the type is a row, list of fields
    */
   fields?: FieldInfo[]
 }
@@ -71,6 +71,7 @@ export class TypeDefinition implements TypeInfo {
   #scale: number | undefined
   #keyType: TypeDefinition | undefined
   #valueType: TypeDefinition | undefined
+  #fields: FieldDefinition[] | undefined
 
   constructor(info: TypeInfo) {
     this.#engine = info.engine
@@ -83,13 +84,19 @@ export class TypeDefinition implements TypeInfo {
     this.#valueType = info.valueType
       ? TypeDefinition.from(info.valueType)
       : undefined
+    this.#fields = info.fields
+      ? info.fields.map((it) => FieldDefinition.from(it))
+      : undefined
   }
 
   static get Unknown() {
     return this.#theUnknown
   }
 
-  static from(info: TypeInfo) {
+  static from(info: TypeInfo | TypeDefinition) {
+    if ('getInfo' in info) {
+      return info
+    }
     return new TypeDefinition(info)
   }
 
@@ -156,6 +163,10 @@ export class TypeDefinition implements TypeInfo {
     return this.#valueType
   }
 
+  get fields() {
+    return this.#fields
+  }
+
   getTypeDisplayName() {
     if (this.dataType === PseudoDataType.Unknown) {
       return this.typeName
@@ -164,7 +175,7 @@ export class TypeDefinition implements TypeInfo {
     const def = getDataTypeDefinition(this.engine, this.dataType)
 
     if (!def.displayName) {
-      return def.name
+      return def.name ?? this.typeName
     }
 
     if (typeof def.displayName === 'function') {
@@ -184,6 +195,7 @@ export class TypeDefinition implements TypeInfo {
       scale: this.scale,
       keyType: this.keyType?.toTypeInfo(),
       valueType: this.valueType?.toTypeInfo(),
+      fields: this.fields?.map((it) => it.toFieldInfo()),
     }
   }
 
