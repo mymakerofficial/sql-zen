@@ -5,7 +5,7 @@ const props = defineProps<{
   code: string
 }>()
 
-const html = useHighlight(props.code)
+const html = useHighlight(() => props.code)
 </script>
 
 <template>
