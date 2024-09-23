@@ -1,4 +1,4 @@
-use postgres::{Client, NoTls, Error};
+use postgres::{Client, NoTls};
 use postgres::types::{to_sql_checked, FromSql, IsNull, ToSql, Type};
 use postgres::types::private::BytesMut;
 
@@ -60,36 +60,35 @@ impl ToSql for RawValue<'_> {
 }
 
 #[derive(serde::Serialize)]
-struct CustomResponse<'a> {
-    rows: Vec<Vec<Option<&'a [u8]>>>
+struct CustomResponse {
+    rows: Vec<Vec<Option<Vec<u8>>>>
 }
 
 #[tauri::command]
-fn query(sql: &str) -> Result<CustomResponse, Error> {
-    let mut client = Client::connect("host=localhost user=postgres password=postgres", NoTls)?;
+fn run_query(sql: &str) -> CustomResponse {
+    let mut client = Client::connect("host=localhost user=postgres password=postgres", NoTls).unwrap();
 
-    let query_res = client.query(sql, &[])?;
+    let query_res = client.query(sql, &[]).unwrap();
 
-    let rows: Vec<Vec<Option<&[u8]>>> = query_res.iter().map(|row| {
+    let rows: Vec<Vec<Option<Vec<u8>>>> = query_res.iter().map(|row| {
         row.columns().iter().enumerate().map(|(i, _column)| {
             let raw_value: RawValue = row.get(i);
-            raw_value.raw
+            raw_value.raw.map(|v| v.to_vec())
         }).collect()
     }).collect();
 
-    client.close()?;
+    client.close().unwrap();
 
-    // TODO: err: returns a value referencing data owned by the current function
-    Ok(CustomResponse {
+    CustomResponse {
         rows
-    })
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![run_query])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -4,6 +4,7 @@ import { DataSourceStatus } from '@/lib/dataSources/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import { getId } from '@/lib/getId'
 import type { QueryResult } from '@/lib/queries/interface'
+import { invoke } from '@tauri-apps/api/core'
 
 export class PostgreSQLProxy extends DataSource {
   getEngine(): DatabaseEngine {
@@ -24,11 +25,30 @@ export class PostgreSQLProxy extends DataSource {
 
   query<T extends object = object>(sql: string) {
     return this.logger.query(sql, async () => {
+      const start = performance.now()
+
+      const res: {
+        rows: Array<Array<Array<number>>>
+      } = await invoke('run_query', { sql })
+
+      res.rows.forEach((row) => {
+        row.forEach((cell) => {
+          new Blob([Uint8Array.from(cell)])
+            .text()
+            .then((it) => this.logger.log(it))
+        })
+      })
+
+      // @ts-expect-error
+      this.logger.log(res.rows)
+
+      const end = performance.now()
+
       return {
         fields: [],
         rows: [],
         affectedRows: null,
-        duration: 0,
+        duration: end - start,
         systemDuration: 0,
         id: getId('result'),
       } as QueryResult<T>
