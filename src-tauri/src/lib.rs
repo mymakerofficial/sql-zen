@@ -65,8 +65,8 @@ struct CustomResponse {
 }
 
 #[tauri::command]
-fn run_query(sql: &str) -> CustomResponse {
-    let mut client = Client::connect("host=localhost user=postgres password=postgres", NoTls).unwrap();
+fn run_query(sql: &str, params: &str) -> CustomResponse {
+    let mut client = Client::connect(params, NoTls).unwrap();
 
     let query_res = client.query(sql, &[]).unwrap();
 
