@@ -31,6 +31,11 @@ export const databaseEnginesMap = {
       'DuckDB is a fast in-process analytical database offering a feature-rich SQL dialect that is compatible with PostgreSQL.',
     icon: duckdbIcon,
   },
+  [DatabaseEngine.PostgreSQLProxy]: {
+    name: 'PostgeSQL (proxy)',
+    description: 'Connect to a remote database.',
+    icon: postgresqlIcon,
+  },
 } as const satisfies Record<DatabaseEngine, Omit<DatabaseEngineInfo, 'engine'>>
 
 export const databaseEngineCapabilities = {
@@ -60,6 +65,13 @@ export const databaseEngineCapabilities = {
     [DatabaseEngineCapability.ExportDump]: false,
     [DatabaseEngineCapability.ImportDump]: false,
     [DatabaseEngineCapability.LocalFileSystems]: true,
+    [DatabaseEngineCapability.Embeddings]: false,
+  },
+  [DatabaseEngine.PostgreSQLProxy]: {
+    [DatabaseEngineCapability.UserSelectable]: true,
+    [DatabaseEngineCapability.ExportDump]: false,
+    [DatabaseEngineCapability.ImportDump]: false,
+    [DatabaseEngineCapability.LocalFileSystems]: false,
     [DatabaseEngineCapability.Embeddings]: false,
   },
 } as const satisfies Record<DatabaseEngine, DatabaseEngineCapabilities>

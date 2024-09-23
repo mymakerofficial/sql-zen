@@ -6,6 +6,7 @@ import { PostgreSQL } from '@/lib/dataSources/impl/postgresql'
 import type { DataSource } from '@/lib/dataSources/impl/base'
 import type { DataSourceData } from '@/lib/dataSources/types'
 import { DataSourceMode } from '@/lib/dataSources/enums'
+import { PostgreSQLProxy } from '@/lib/dataSources/impl/postgresqlproxy'
 
 const dummy = new DataSourceDummy({
   engine: DatabaseEngine.None,
@@ -21,6 +22,8 @@ export class DataSourceFactory {
       return new SQLite(info)
     } else if (info.engine === DatabaseEngine.PostgreSQL) {
       return new PostgreSQL(info)
+    } else if (info.engine === DatabaseEngine.PostgreSQLProxy) {
+      return new PostgreSQLProxy(info)
     } else {
       return new DataSourceDummy(info)
     }
