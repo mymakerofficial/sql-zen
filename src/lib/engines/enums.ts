@@ -3,6 +3,8 @@ export const DatabaseEngine = {
   PostgreSQL: 'postgresql',
   SQLite: 'sqlite',
   DuckDB: 'duckdb',
+  // temporary
+  PostgreSQLProxy: 'postgresql-proxy',
 } as const
 export type DatabaseEngine =
   (typeof DatabaseEngine)[keyof typeof DatabaseEngine]
