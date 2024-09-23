@@ -82,7 +82,7 @@ export abstract class SqlDialect {
   }
 
   makeSelectCountFromStatement(original: string): string {
-    return `SELECT count(*) as count FROM (${this.#indentSql(this.#trimSql(original))})`
+    return `SELECT count(*) AS count FROM (${this.#indentSql(this.#trimSql(original))})`
   }
 
   makePaginatedStatement(
@@ -93,6 +93,6 @@ export abstract class SqlDialect {
     if (limit === Infinity) {
       return original
     }
-    return `SELECT * FROM (${this.#indentSql(this.#trimSql(original))}) LIMIT ${limit} OFFSET ${offset}`
+    return `SELECT * FROM (${this.#indentSql(this.#trimSql(original))}) AS src LIMIT ${limit} OFFSET ${offset}`
   }
 }
