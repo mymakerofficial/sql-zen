@@ -23,8 +23,8 @@ export class PostgreSQLProxy extends DataSource {
     this.#params =
       prompt(
         'Please enter postgres connection string',
-        'host=localhost user=postgres password=postgres',
-      ) ?? 'host=localhost user=postgres password=postgres'
+        'postgres://postgres:postgres@localhost:5432/postgres',
+      ) ?? 'postgres://postgres:postgres@localhost:5432/postgres'
     this.logger.log(`Will connect to "${this.#params}" when query is run.`)
     this.setStatus(DataSourceStatus.Running)
     this.emit(DataSourceEvent.Initialized)
@@ -34,20 +34,14 @@ export class PostgreSQLProxy extends DataSource {
     return this.logger.query(sql, async () => {
       const start = performance.now()
 
-      const res: {
-        rows: Array<Array<Array<number>>>
-      } = await invoke('run_query', { sql, params: this.#params })
-
-      res.rows.forEach((row) => {
-        row.forEach((cell) => {
-          new Blob([Uint8Array.from(cell)])
-            .text()
-            .then((it) => this.logger.log(it))
-        })
+      const res: ArrayBuffer = await invoke('run_query', {
+        sql,
+        params: this.#params,
       })
 
-      // @ts-expect-error
-      this.logger.log(res.rows)
+      console.log(res)
+
+      this.logger.log(await new Blob([res]).text())
 
       const end = performance.now()
 
