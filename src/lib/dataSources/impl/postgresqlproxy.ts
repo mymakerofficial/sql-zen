@@ -6,6 +6,7 @@ import { getId } from '@/lib/getId'
 import type { QueryResult } from '@/lib/queries/interface'
 import { invoke } from '@tauri-apps/api/core'
 import { FieldDefinition } from '@/lib/schema/columns/column'
+import { PseudoDataType } from '@/lib/schema/columns/types/base'
 
 export class PostgreSQLProxy extends DataSource {
   #params: string = ''
@@ -35,7 +36,7 @@ export class PostgreSQLProxy extends DataSource {
     return this.logger.query(sql, async () => {
       const start = performance.now()
       const res: {
-        columns: { name: string }[]
+        columns: { name: string; typeId: number }[]
         rows: string[][]
       } = await invoke('run_query', {
         sql,
@@ -43,8 +44,13 @@ export class PostgreSQLProxy extends DataSource {
       })
       const end = performance.now()
 
-      const fields = res.columns.map(({ name }) =>
-        FieldDefinition.fromUnknown(name).toFieldInfo(),
+      const fields = res.columns.map(({ name, typeId }) =>
+        FieldDefinition.createPostgresType({
+          dataType: PseudoDataType.Unknown,
+          typeName: typeId.toString(),
+        })
+          .toField({ name })
+          .toFieldInfo(),
       )
       const rows = res.rows.map((row) => {
         const obj: Record<string, string> = {}
