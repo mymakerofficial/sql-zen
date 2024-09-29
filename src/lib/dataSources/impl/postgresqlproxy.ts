@@ -5,6 +5,7 @@ import { DataSourceEvent } from '@/lib/dataSources/events'
 import { getId } from '@/lib/getId'
 import type { QueryResult } from '@/lib/queries/interface'
 import { invoke } from '@tauri-apps/api/core'
+import { FieldDefinition } from '@/lib/schema/columns/column'
 
 export class PostgreSQLProxy extends DataSource {
   #params: string = ''
@@ -33,21 +34,30 @@ export class PostgreSQLProxy extends DataSource {
   query<T extends object = object>(sql: string) {
     return this.logger.query(sql, async () => {
       const start = performance.now()
-
-      const res: ArrayBuffer = await invoke('run_query', {
+      const res: {
+        columns: { name: string }[]
+        rows: string[][]
+      } = await invoke('run_query', {
         sql,
         params: this.#params,
       })
-
-      console.log(res)
-
-      this.logger.log(await new Blob([res]).text())
-
       const end = performance.now()
 
+      const fields = res.columns.map(({ name }) =>
+        FieldDefinition.fromUnknown(name).toFieldInfo(),
+      )
+      const rows = res.rows.map((row) => {
+        const obj: Record<string, string> = {}
+        fields.forEach((field, i) => {
+          obj[field.name] = row[i]
+        })
+        return obj as T
+      })
+      console.log(res, fields, rows)
+
       return {
-        fields: [],
-        rows: [],
+        fields,
+        rows,
         affectedRows: null,
         duration: end - start,
         systemDuration: 0,

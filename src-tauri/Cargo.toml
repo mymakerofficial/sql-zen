@@ -20,5 +20,5 @@ tauri-plugin-shell = "2.0.0-rc"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 postgres = "0.19.9"
-sqlx = { version = "0.8.2", features = ["postgres", "runtime-tokio"] }
-
+tokio-postgres = "0.7.12"
+tokio = "1.39.2"
