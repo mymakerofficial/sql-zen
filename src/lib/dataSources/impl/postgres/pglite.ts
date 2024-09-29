@@ -1,37 +1,32 @@
 import type { PGliteInterface } from '@electric-sql/pglite'
 import { DatabaseNotLoadedError } from '@/lib/errors'
 import { DataSourceMode, DataSourceStatus } from '@/lib/dataSources/enums'
-import type { QueryResult } from '@/lib/queries/interface'
-import { getId } from '@/lib/getId'
 import { FileAccessor } from '@/lib/files/fileAccessor'
-import { DataSource } from '@/lib/dataSources/impl/base'
 import type { FileInfo } from '@/lib/files/interface'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
-import { PGliteWorkerFS } from '@/lib/dataSources/impl/lib/PGliteWorkerFS'
-import { TypeDefinition } from '@/lib/schema/columns/column'
+import { PGliteWorkerFS } from '@/lib/dataSources/impl/postgres/lib/PGliteWorkerFS'
 import {
-  type PGCatalogCompleteType,
-  pgCatalogTypeToTypeDefinition,
-} from '@/lib/schema/columns/helpers/postgresql'
+  PostgresBaseDataSource,
+  type PostgresQueryResult,
+} from '@/lib/dataSources/impl/postgres/base'
 
 const BASE_PATH = '/var'
 
-export class PostgreSQL extends DataSource {
+export class PGLiteDataSource extends PostgresBaseDataSource {
   #worker: Worker | null = null
   #fs: PGliteWorkerFS | null = null
   #database: PGliteInterface | null = null
-  #types: Map<number, TypeDefinition> = new Map()
 
   getEngine(): DatabaseEngine {
     return DatabaseEngine.PostgreSQL
   }
 
   #getDataDir() {
-    if (this.getMode() === DataSourceMode.Memory) {
-      return `memory://${this.getIdentifier()}`
-    } else if (this.getMode() === DataSourceMode.BrowserPersisted) {
-      return `idb://${this.getIdentifier()}`
+    if (this.mode === DataSourceMode.Memory) {
+      return `memory://${this.identifier}`
+    } else if (this.mode === DataSourceMode.BrowserPersisted) {
+      return `idb://${this.identifier}`
     }
   }
 
@@ -43,7 +38,7 @@ export class PostgreSQL extends DataSource {
     const { rows } = await this.#database.query<{ version: string }>(
       'SELECT version()',
     )
-    return rows[0]?.version
+    return rows[0]?.version ?? 'Unknown'
   }
 
   async init() {
@@ -117,103 +112,14 @@ export class PostgreSQL extends DataSource {
     this.emit(DataSourceEvent.Initialized)
   }
 
-  query<T extends object = object>(sql: string): Promise<QueryResult<T>> {
-    return this.logger.query(sql, async () => {
-      if (!this.#database) {
-        throw new DatabaseNotLoadedError()
-      }
-
-      const start = performance.now()
-      const rawResponse = await this.#database.query<T>(sql)
-      const end = performance.now()
-
-      const sysStart = performance.now()
-      await this.fetchOIDs(rawResponse.fields.map((field) => field.dataTypeID))
-      const fields = rawResponse.fields.map(({ dataTypeID, name }) => {
-        return this.getTypeByOID(dataTypeID).toField({ name }).toFieldInfo()
-      })
-      const sysEnd = performance.now()
-
-      return {
-        fields,
-        rows: rawResponse.rows,
-        affectedRows: rawResponse.affectedRows,
-        duration: end - start,
-        systemDuration: sysEnd - sysStart,
-        id: getId('result'),
-      } as QueryResult<T>
-    })
-  }
-
-  // returns the TypeDefinition for the given OID
-  //  be sure to call fetchOIDs first
-  getTypeByOID(oid: number) {
-    return this.#types.get(oid) ?? TypeDefinition.Unknown
-  }
-
-  async asyncGetTypes(oids: number[]) {
-    await this.fetchOIDs(oids)
-    return oids.map((oid) => this.getTypeByOID(oid))
-  }
-
-  // Fetches the type names for the given OIDs and caches them
-  async fetchOIDs(oids: number[]) {
+  async queryRaw<T extends object = object>(
+    sql: string,
+  ): Promise<PostgresQueryResult<T>> {
     if (!this.#database) {
       throw new DatabaseNotLoadedError()
     }
 
-    const distinctOIDs = [...new Set(oids)]
-    const missingOIDs = distinctOIDs.filter((oid) => !this.#types.has(oid))
-
-    if (!missingOIDs.length) {
-      return
-    }
-
-    const { rows } = await this.#database.query<PGCatalogCompleteType>(
-      `WITH attr AS (
-    SELECT
-        attrelid,
-        array_agg(attname::text) AS column_names,
-        array_agg(atttypid) AS column_typeids
-    FROM pg_catalog.pg_attribute
-    WHERE attnum >= 1
-    GROUP BY attrelid
-),
-enm AS (
-    SELECT
-        enumtypid,
-        array_agg(enumlabel::text) AS enum_labels
-    FROM pg_catalog.pg_enum
-    GROUP BY enumtypid
-)
-SELECT
-    oid,
-    typname,
-    typtype,
-    typcategory,
-    typrelid,
-    typelem,
-    attr.column_names,
-    attr.column_typeids,
-    enm.enum_labels
-FROM pg_catalog.pg_type AS t
-FULL OUTER JOIN attr
-    ON attr.attrelid = t.typrelid
-FULL OUTER JOIN enm
-    ON enm.enumtypid = t.oid
-WHERE 
-    oid = ANY($1) 
-    OR typarray = ANY($1)
-ORDER BY typcategory = 'A'`,
-      [missingOIDs],
-    )
-
-    for (const row of rows) {
-      const typeDef = await pgCatalogTypeToTypeDefinition(row, (oids) => {
-        return this.asyncGetTypes(oids)
-      })
-      this.#types.set(row.oid, typeDef)
-    }
+    return await this.#database.query<T>(sql, [])
   }
 
   async getFiles() {
