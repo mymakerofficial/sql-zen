@@ -5,6 +5,7 @@ use serde::Serialize;
 #[serde(rename_all = "camelCase")]
 struct Column {
     name: String,
+    #[serde(rename = "dataTypeID")]
     type_id: u32,
 }
 
@@ -16,8 +17,8 @@ struct QueryResult {
 }
 
 #[tauri::command]
-async fn run_query(sql: &str, params: &str) -> Result<QueryResult, ()> {
-    let (client, connection) = tokio_postgres::connect(&params, NoTls).await.unwrap();
+async fn run_query(sql: &str, url: &str) -> Result<QueryResult, ()> {
+    let (client, connection) = tokio_postgres::connect(&url, NoTls).await.unwrap();
     tokio::spawn(async move {
         if let Err(e) = connection.await {
             eprintln!("postgres connection error: {}", e);
