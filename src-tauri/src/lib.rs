@@ -5,6 +5,7 @@ use serde::Serialize;
 #[serde(rename_all = "camelCase")]
 struct Column {
     name: String,
+    type_id: u32,
 }
 
 #[derive(Clone, Serialize)]
@@ -26,6 +27,7 @@ async fn run_query(sql: &str, params: &str) -> Result<QueryResult, ()> {
     let stmt = client.prepare(&sql).await.unwrap();
     let columns = stmt.columns().iter().map(|c| Column {
         name: c.name().to_owned(),
+        type_id: c.type_().oid().to_owned(),
     }).collect::<Vec<_>>();
     let columns_len = columns.len();
 
