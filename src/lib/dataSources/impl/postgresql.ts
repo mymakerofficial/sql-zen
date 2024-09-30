@@ -50,6 +50,8 @@ export class PostgreSQL extends DataSource {
     if (this.#database) {
       return
     }
+    this.#worker = null
+    this.#fs = null
 
     this.setStatus(DataSourceStatus.Pending)
     this.emit(DataSourceEvent.Initializing)
@@ -80,14 +82,23 @@ export class PostgreSQL extends DataSource {
       const dataDir = this.#getDataDir()
       const loadDataDir = await this.getInitDump()?.readBlob()
 
-      const database = await PGliteWorker.create(this.#worker, {
+      const pglitePromise = PGliteWorker.create(this.#worker, {
         dataDir,
         loadDataDir,
+      }).then(async (pglite) => {
+        await pglite.waitReady
+        return pglite
       })
 
-      await database.waitReady
+      const timeout = setTimeout(() => {
+        this.logger.log(
+          'Loading Postgres is taking longer than expected. You may need to refresh the page.',
+        )
+      }, 30000)
 
-      return database
+      return await pglitePromise.finally(() => {
+        clearTimeout(timeout)
+      })
     })
 
     await this.logger.step('Creating Directories', async () => {

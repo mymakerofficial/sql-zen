@@ -118,7 +118,7 @@ export class Logger extends EventPublisher<LoggerEventMap> {
       (error) => {
         this.#update(eventId, {
           state: PromiseState.Error,
-          errorMessage: error.message,
+          errorMessage: error.message ?? error,
         })
         throw error
       },
