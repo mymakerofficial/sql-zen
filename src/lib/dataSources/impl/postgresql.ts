@@ -94,7 +94,7 @@ export class PostgreSQL extends DataSource {
         this.logger.log(
           'Loading Postgres is taking longer than expected. You may need to refresh the page.',
         )
-      }, 30000)
+      }, 15000)
 
       return await pglitePromise.finally(() => {
         clearTimeout(timeout)
