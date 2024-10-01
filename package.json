@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
-    "@electric-sql/pglite": "0.2.4",
+    "@electric-sql/pglite": "0.2.9",
     "@seline-analytics/web": "^0.0.15",
     "@sqlite.org/sqlite-wasm": "^3.46.0-build2",
     "@tanstack/vue-query": "^5.51.9",
@@ -49,6 +49,7 @@
     "@types/jsdom": "^21.1.7",
     "@types/node": "^20.14.5",
     "@vitejs/plugin-vue": "^5.0.5",
+    "@vitest/ui": "^2.0.5",
     "@vue/eslint-config-prettier": "^9.0.0",
     "@vue/eslint-config-typescript": "^13.0.0",
     "@vue/test-utils": "^2.4.6",
@@ -68,7 +69,6 @@
     "vite": "^5.3.1",
     "vite-plugin-vue-devtools": "^7.3.1",
     "vitest": "^2.0.5",
-    "@vitest/ui": "^2.0.5",
     "vue-tsc": "^2.0.21"
   }
 }
