@@ -12,6 +12,7 @@ import {
 } from '@/lib/dataSources/impl/postgres/base'
 
 const BASE_PATH = '/var'
+const TO_STRING = (value: string) => value
 
 export class PGLiteDataSource extends PostgresBaseDataSource {
   #worker: Worker | null = null
@@ -107,6 +108,17 @@ export class PGLiteDataSource extends PostgresBaseDataSource {
 
     const version = await this.#getVersion()
     this.logger.log(`Running PostgreSQL version: ${version}`)
+
+    // PGLite always tries to parse values. We want to keep them as strings.
+    // @ts-expect-error - PGLite does not expose parsers
+    this.#database.parsers = Object.keys(this.#database.parsers).reduce(
+      (acc, key) => {
+        // @ts-expect-error
+        acc[key] = TO_STRING
+        return acc
+      },
+      {},
+    )
 
     this.setStatus(DataSourceStatus.Running)
     this.emit(DataSourceEvent.Initialized)
