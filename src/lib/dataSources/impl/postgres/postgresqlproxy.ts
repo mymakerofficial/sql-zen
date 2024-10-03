@@ -33,12 +33,14 @@ export class PostgreSQLProxy extends PostgresDataSource {
   async queryRaw<T extends object = object>(
     sql: string,
   ): Promise<PostgresQueryResult<T>> {
-    const res: {
+    const res = await invoke<{
       columns: { name: string; dataTypeID: number }[]
       rows: string[][]
-    } = await invoke('run_query', {
+    }>('run_query', {
       sql,
       url: this.connectionString,
+    }).catch((e) => {
+      throw new Error(e)
     })
 
     const rows = res.rows.map((row) => {
