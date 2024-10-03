@@ -13,18 +13,15 @@ const route = useRoute()
 <template>
   <nav
     data-tauri-drag-region
-    :class="
-      cn(
-        'relative px-3 flex items-center justify-between border-b border-border',
-        isTauri() ? 'h-12' : 'h-16',
-      )
-    "
+    class="relative px-3 flex items-center justify-between border-b border-border h-16"
   >
     <div class="h-full flex items-center gap-3">
       <LogoButton />
       <AppHeaderMenu v-if="route.path !== '/'" />
     </div>
-    <div class="h-full flex items-center gap-3">
+    <div
+      :class="cn('h-full flex items-center gap-3', isTauri() ? '-mr-3' : '')"
+    >
       <ColorModeSelect />
       <TitleBarControls v-if="isTauri()" />
     </div>
