@@ -2963,6 +2963,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-shell",
+ "thiserror",
  "tokio",
  "tokio-postgres",
 ]

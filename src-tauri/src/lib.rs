@@ -1,5 +1,5 @@
 use tokio_postgres::{NoTls};
-use serde::Serialize;
+use serde::{Serialize, Serializer};
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -16,23 +16,38 @@ struct QueryResult {
     rows: Vec<Vec<String>>,
 }
 
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("{0}")]
+    Postgres(#[from] tokio_postgres::Error),
+}
+
+impl Serialize for Error {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(self.to_string().as_ref())
+    }
+}
+
 #[tauri::command]
-async fn run_query(sql: &str, url: &str) -> Result<QueryResult, ()> {
-    let (client, connection) = tokio_postgres::connect(&url, NoTls).await.unwrap();
+async fn run_query(sql: &str, url: &str) -> Result<QueryResult, Error> {
+    let (client, connection) = tokio_postgres::connect(&url, NoTls).await?;
     tokio::spawn(async move {
         if let Err(e) = connection.await {
             eprintln!("postgres connection error: {}", e);
         }
     });
 
-    let stmt = client.prepare(&sql).await.unwrap();
+    let stmt = client.prepare(&sql).await?;
     let columns = stmt.columns().iter().map(|c| Column {
         name: c.name().to_owned(),
         type_id: c.type_().oid().to_owned(),
     }).collect::<Vec<_>>();
     let columns_len = columns.len();
 
-    let rows = client.simple_query(&sql).await.unwrap();
+    let rows = client.simple_query(&sql).await?;
     let rows = rows.into_iter().filter_map(|r| {
         if let tokio_postgres::SimpleQueryMessage::Row(row) = r {
             Some(row)
