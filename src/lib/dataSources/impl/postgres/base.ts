@@ -11,6 +11,7 @@ import {
   parsePostgresResult,
 } from '@/lib/dataSources/impl/postgres/lib/parse'
 import { DataSourceEvent } from '@/lib/dataSources/events'
+import type { DataSourceData } from '@/lib/dataSources/types'
 
 export type PostgresField = {
   name: string
@@ -125,6 +126,20 @@ ORDER BY typcategory = 'A'`,
 
 export abstract class PostgresDataSource extends DataSource {
   #typeManager: PostgresTypeManager = new PostgresTypeManager(this)
+
+  constructor(data: DataSourceData) {
+    super(data)
+
+    this.on(DataSourceEvent.Initialized, async () => {
+      const { rows } = await this.queryRaw<{
+        version: string
+        database: string
+      }>('SELECT version() AS version, current_database() AS database')
+
+      this.logger.log(`Connected to PostgreSQL version: ${rows[0].version}`)
+      this.logger.log(`Current Database: ${rows[0].database}`)
+    })
+  }
 
   get types() {
     return this.#typeManager
