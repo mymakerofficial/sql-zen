@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRegistry } from '@/composables/useRegistry'
-import { DatabaseEngine } from '@/lib/engines/enums'
+import { DatabaseEngine, DataSourceDriver } from '@/lib/engines/enums'
 import { DataSourceMode } from '@/lib/dataSources/enums'
 import { getExampleSql } from '@/lib/examples/getExampleSql'
 import * as monaco from 'monaco-editor'
@@ -17,14 +17,18 @@ import inlineRun from '@/composables/editor/inlineRun'
 import highlightSelected from '@/composables/editor/highlightSelected'
 import { whenever } from '@vueuse/core'
 import { useQueryClient } from '@tanstack/vue-query'
+import { FileAccessor } from '@/lib/files/fileAccessor'
 
 const queryClient = useQueryClient()
 const registry = useRegistry()
 
 const dataSourceKey = registry.register({
   engine: DatabaseEngine.SQLite,
+  driver: DataSourceDriver.SQLiteWASM,
   mode: DataSourceMode.Memory,
-  identifier: 'default',
+  displayName: 'Demo SQLite',
+  connectionString: '',
+  fileAccessor: FileAccessor.Dummy,
 })
 const model = monaco.editor.createModel(
   getExampleSql(DatabaseEngine.SQLite),

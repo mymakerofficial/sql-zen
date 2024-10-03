@@ -1,22 +1,21 @@
-import { DataSourceMode } from '@/lib/dataSources/enums'
 import { RegistryEvent } from '@/lib/registry/events'
 import type { DataSourceInfo } from '@/lib/dataSources/types'
 import type { Registry } from '@/lib/registry/impl/registry'
+import { FileAccessor } from '@/lib/files/fileAccessor'
 
-type Data = Pick<DataSourceInfo, 'engine' | 'identifier'>
+type Data = Omit<DataSourceInfo, 'fileAccessor' | 'key' | 'status'>
 
-const storageKey = 'sql-zen-in-memory-sources'
+const storageKey = 'sql-zen-stored-data-sources'
 
-export function storeInMemorySources(registry: Registry) {
+export function storeDataSources(registry: Registry) {
   const stored = localStorage.getItem(storageKey)
 
   if (stored) {
     const data = JSON.parse(stored) as Data[]
     data.forEach((it) => {
       registry.register({
-        engine: it.engine,
-        mode: DataSourceMode.Memory,
-        identifier: it.identifier,
+        fileAccessor: FileAccessor.Dummy,
+        ...it,
       })
     })
   }
@@ -24,11 +23,7 @@ export function storeInMemorySources(registry: Registry) {
   function update() {
     const data = registry
       .getDataSources()
-      .filter((it) => it.mode === DataSourceMode.Memory)
-      .map((it) => ({
-        engine: it.engine,
-        identifier: it.identifier,
-      })) as Data[]
+      .map(({ fileAccessor: _f, key: _k, status: _s, ...it }) => it) as Data[]
 
     localStorage.setItem(storageKey, JSON.stringify(data))
   }

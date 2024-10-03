@@ -1,4 +1,6 @@
 export abstract class FileAccessor {
+  static #theDummy: FileAccessor | null = null
+
   static fromFileSystemFileHandle(handle: FileSystemFileHandle) {
     return new FileSystemFileHandleAccessor(handle)
   }
@@ -27,7 +29,11 @@ export abstract class FileAccessor {
   }
 
   static get Dummy() {
-    return new DummyFileAccessor('dummy')
+    if (!this.#theDummy) {
+      this.#theDummy = new DummyFileAccessor('dummy')
+    }
+
+    return this.#theDummy
   }
 
   abstract readBlob(): Promise<Blob>
@@ -50,6 +56,15 @@ export abstract class FileAccessor {
   abstract getName(): string
 
   abstract getSize(): Promise<number | undefined>
+
+  get isDummy(): boolean {
+    return this instanceof DummyFileAccessor
+  }
+
+  // returns undefined if this is a dummy file accessor, otherwise returns this
+  getOrUndefined() {
+    return this.isDummy ? undefined : this
+  }
 }
 
 export abstract class WritableFileAccessor extends FileAccessor {

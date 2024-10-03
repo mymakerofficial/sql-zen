@@ -2,14 +2,12 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import App from './App.vue'
-import { createRouter, createWebHistory, useRoute } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import { VueQueryPlugin as vueQuery } from '@tanstack/vue-query'
 import { handleHotUpdate, routes } from 'vue-router/auto-routes'
 import '@/lib/monaco/setup'
 import { useRegistry } from '@/composables/useRegistry'
-import findPostgresDatabases from '@/lib/registry/plugins/findPostgres'
-import findSqliteDatabases from '@/lib/registry/plugins/findSqlite'
-import { storeInMemorySources } from '@/lib/registry/plugins/storeInMemorySources'
+import { storeDataSources } from '@/lib/registry/plugins/storeDataSources'
 import { useTabManager } from '@/composables/tabs/useTabManager'
 import { RegistryEvent } from '@/lib/registry/events'
 import { TabType } from '@/lib/tabs/enums'
@@ -73,9 +71,7 @@ registry.on(RegistryEvent.Unregistered, (dataSourceKey) => {
   })
 })
 
-registry.use(findPostgresDatabases)
-registry.use(findSqliteDatabases)
-registry.use(storeInMemorySources)
+registry.use(storeDataSources)
 
 registry.use(registryAnalytics)
 

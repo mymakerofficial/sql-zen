@@ -1,9 +1,9 @@
 import type { PGliteInterface } from '@electric-sql/pglite'
 import { DatabaseNotLoadedError } from '@/lib/errors'
-import { DataSourceMode, DataSourceStatus } from '@/lib/dataSources/enums'
+import { DataSourceStatus } from '@/lib/dataSources/enums'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import type { FileInfo } from '@/lib/files/interface'
-import { DatabaseEngine } from '@/lib/engines/enums'
+import { DatabaseEngine, DataSourceDriver } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import { PGliteWorkerFS } from '@/lib/dataSources/impl/postgres/lib/PGliteWorkerFS'
 import {
@@ -19,27 +19,12 @@ export class PGLiteDataSource extends PostgresDataSource {
   #fs: PGliteWorkerFS | null = null
   #database: PGliteInterface | null = null
 
-  getEngine(): DatabaseEngine {
+  get engine() {
     return DatabaseEngine.PostgreSQL
   }
 
-  #getDataDir() {
-    if (this.mode === DataSourceMode.Memory) {
-      return `memory://${this.identifier}`
-    } else if (this.mode === DataSourceMode.BrowserPersisted) {
-      return `idb://${this.identifier}`
-    }
-  }
-
-  async #getVersion() {
-    if (!this.#database) {
-      throw new DatabaseNotLoadedError()
-    }
-
-    const { rows } = await this.#database.query<{ version: string }>(
-      'SELECT version()',
-    )
-    return rows[0]?.version ?? 'Unknown'
+  get driver() {
+    return DataSourceDriver.PGLite
   }
 
   async init() {
@@ -75,8 +60,8 @@ export class PGLiteDataSource extends PostgresDataSource {
         throw new Error('Worker does not exist')
       }
 
-      const dataDir = this.#getDataDir()
-      const loadDataDir = await this.getInitDump()?.readBlob()
+      const dataDir = this.connectionString
+      const loadDataDir = await this.fileAccessor.getOrUndefined()?.readBlob()
 
       const pglitePromise = PGliteWorker.create(this.#worker, {
         dataDir,
@@ -105,9 +90,6 @@ export class PGLiteDataSource extends PostgresDataSource {
       // Create the base directory for user files
       await this.#fs.mkdir(BASE_PATH)
     })
-
-    const version = await this.#getVersion()
-    this.logger.log(`Running PostgreSQL version: ${version}`)
 
     // PGLite always tries to parse values. We want to keep them as strings.
     // @ts-expect-error - PGLite does not expose parsers
@@ -189,7 +171,8 @@ export class PGLiteDataSource extends PostgresDataSource {
     this.logger.log(`Created database dump: ${blob.size} bytes`)
     return FileAccessor.fromBlob(
       blob,
-      `${this.getIdentifier() ?? 'database'}.tar.gz`,
+      // TODO: store file name with datasource
+      `database.tar.gz`,
     )
   }
 

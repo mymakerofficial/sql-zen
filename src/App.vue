@@ -7,11 +7,13 @@ import { isTauri } from '@tauri-apps/api/core'
 import { Toaster } from '@/components/ui/sonner'
 import { useRegistry } from '@/composables/useRegistry'
 import { useTabManager } from '@/composables/tabs/useTabManager'
-import type { DatabaseEngine } from '@/lib/engines/enums'
+import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceMode } from '@/lib/dataSources/enums'
 import { TabType } from '@/lib/tabs/enums'
 import { watchEffect } from 'vue'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { getEngineInfo } from '@/lib/engines/helpers'
+import { FileAccessor } from '@/lib/files/fileAccessor'
 
 const queryClient = useQueryClient()
 
@@ -47,10 +49,15 @@ watchEffect(() => {
       return
     }
 
+    const engineInfo = getEngineInfo(engine)
     const dataSourceKey = registry.register({
       engine,
+      driver: engineInfo.defaultDriver,
       mode: DataSourceMode.Memory,
-      identifier: 'default',
+      displayName: engineInfo.name,
+      connectionString:
+        engine === DatabaseEngine.PostgreSQL ? 'memory://default' : '',
+      fileAccessor: FileAccessor.Dummy,
     })
 
     tabManager.createTab({
