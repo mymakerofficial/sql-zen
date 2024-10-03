@@ -9,7 +9,7 @@ import { getId } from '@/lib/getId'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { DataSource } from '@/lib/dataSources/impl/base'
 import { runPromised } from '@/lib/runPromised'
-import { DatabaseEngine } from '@/lib/engines/enums'
+import { DatabaseEngine, DataSourceDriver } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import { FieldDefinition, type FieldInfo } from '@/lib/schema/columns/column'
 
@@ -17,8 +17,12 @@ export class SQLite extends DataSource {
   #sqlite3: Sqlite3Static | null = null
   #database: SqliteWasmDatabase | null = null
 
-  getEngine(): DatabaseEngine {
+  get engine() {
     return DatabaseEngine.SQLite
+  }
+
+  get driver() {
+    return DataSourceDriver.SQLiteWASM
   }
 
   async init() {
@@ -29,12 +33,7 @@ export class SQLite extends DataSource {
     this.setStatus(DataSourceStatus.Pending)
     this.emit(DataSourceEvent.Initializing)
 
-    if (
-      this.getMode() === DataSourceMode.BrowserPersisted &&
-      this.getIdentifier()
-    ) {
-      throw new Error(`SQLite persisted databases do not support identifiers`)
-    }
+    // TODO: check only one browser persisted sqlite instance exists
 
     const sqlite3InitModule = await this.logger.step(
       'Loading SQLite3',
@@ -54,19 +53,16 @@ export class SQLite extends DataSource {
     this.logger.log(`Running SQLite3 version: ${version}`)
 
     this.#database = await this.logger.step('Creating Database', async () => {
-      if (this.getMode() === DataSourceMode.BrowserPersisted) {
+      if (this.mode === DataSourceMode.BrowserPersisted) {
         return new this.#sqlite3!.oo1.JsStorageDb('local')
       } else {
-        return new this.#sqlite3!.oo1.DB(
-          `/${this.getIdentifier()}.sqlite3`,
-          'c',
-        )
+        return new this.#sqlite3!.oo1.DB(`/${this.key}.sqlite3`, 'c')
       }
     })
 
-    if (this.getInitDump()) {
+    if (!this.fileAccessor.isDummy) {
       await this.logger.step('Importing Database File', async () => {
-        const arrayBuffer = await this.getInitDump()!.readArrayBuffer()
+        const arrayBuffer = await this.fileAccessor.readArrayBuffer()
         const bufferPointer =
           this.#sqlite3!.wasm.allocFromTypedArray(arrayBuffer)
         this.#sqlite3!.capi.sqlite3_deserialize(
@@ -148,7 +144,8 @@ export class SQLite extends DataSource {
       this.logger.log(`Created database dump: ${data.byteLength} bytes`)
       return FileAccessor.fromUint8Array(
         data,
-        `${this.getIdentifier() ?? 'database'}.sqlite3`,
+        // TODO: store file name with datasource
+        `database.sqlite3`,
       )
     })
   }

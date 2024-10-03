@@ -1,4 +1,4 @@
-import { DatabaseEngine } from '@/lib/engines/enums'
+import { DatabaseEngine, DataSourceDriver } from '@/lib/engines/enums'
 import { DuckDB } from '@/lib/dataSources/impl/duckdb'
 import { DataSourceDummy } from '@/lib/dataSources/impl/dummy'
 import { SQLite } from '@/lib/dataSources/impl/sqlite'
@@ -7,25 +7,30 @@ import type { DataSource } from '@/lib/dataSources/impl/base'
 import type { DataSourceData } from '@/lib/dataSources/types'
 import { DataSourceMode } from '@/lib/dataSources/enums'
 import { PostgreSQLProxy } from '@/lib/dataSources/impl/postgres/postgresqlproxy'
+import { FileAccessor } from '@/lib/files/fileAccessor'
 
 const dummy = new DataSourceDummy({
   engine: DatabaseEngine.None,
+  driver: DataSourceDriver.None,
   mode: DataSourceMode.None,
-  identifier: 'default',
+  displayName: 'Dummy',
+  connectionString: '',
+  fileAccessor: FileAccessor.Dummy,
 })
 
 export class DataSourceFactory {
   static create(info: DataSourceData): DataSource {
-    if (info.engine === DatabaseEngine.DuckDB) {
-      return new DuckDB(info)
-    } else if (info.engine === DatabaseEngine.SQLite) {
-      return new SQLite(info)
-    } else if (info.engine === DatabaseEngine.PostgreSQL) {
-      return new PGLiteDataSource(info)
-    } else if (info.engine === DatabaseEngine.PostgreSQLProxy) {
-      return new PostgreSQLProxy(info)
-    } else {
-      return new DataSourceDummy(info)
+    switch (info.driver) {
+      case 'postgresql':
+        return new PostgreSQLProxy(info)
+      case 'pglite':
+        return new PGLiteDataSource(info)
+      case 'sqlite-wasm':
+        return new SQLite(info)
+      case 'duckdb-wasm':
+        return new DuckDB(info)
+      default:
+        return new DataSourceDummy(info)
     }
   }
 

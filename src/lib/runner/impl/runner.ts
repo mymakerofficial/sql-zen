@@ -33,7 +33,7 @@ export class Runner extends EventPublisher<RunnerEventMap> {
   }
 
   getKey(): string {
-    return this.#dataSource.getKey()
+    return this.#dataSource.key
   }
 
   get key(): string {

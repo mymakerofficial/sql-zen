@@ -8,7 +8,7 @@ import type { QueryResult } from '@/lib/queries/interface'
 import { getId } from '@/lib/getId'
 import { DataSource } from '@/lib/dataSources/impl/base'
 import type { FileInfo } from '@/lib/files/interface'
-import { DatabaseEngine } from '@/lib/engines/enums'
+import { DatabaseEngine, DataSourceDriver } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import type { FieldInfo } from '@/lib/schema/columns/column'
 import { FieldDefinition } from '@/lib/schema/columns/column'
@@ -18,8 +18,12 @@ export class DuckDB extends DataSource {
   #database: duckdb.AsyncDuckDB | null = null
   #connection: duckdb.AsyncDuckDBConnection | null = null
 
-  getEngine(): DatabaseEngine {
+  get engine() {
     return DatabaseEngine.DuckDB
+  }
+
+  get driver() {
+    return DataSourceDriver.DuckDBWASM
   }
 
   async init() {

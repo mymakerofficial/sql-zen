@@ -2,6 +2,7 @@ import { djb2 } from '@/lib/hash'
 import type { DataSourceBase } from '@/lib/dataSources/types'
 import { getEngineInfo } from '@/lib/engines/helpers'
 
+// @deprecated
 export function simplifyIdentifier(identifier: string) {
   if (!identifier) {
     return 'default'
@@ -12,7 +13,7 @@ export function simplifyIdentifier(identifier: string) {
 
 export function generateDataSourceKey(info: DataSourceBase): string {
   const hash = djb2(
-    `${info.engine}-${info.mode}-${simplifyIdentifier(info.identifier)}`,
+    [info.engine, info.driver, info.mode, info.connectionString].join(':'),
   )
   return `ds_${hash}`
 }
@@ -22,13 +23,9 @@ export function getDataSourceEngineInfo(info: DataSourceBase) {
   return getEngineInfo(info.engine)
 }
 
+// @deprecated
 export function getDataSourceDisplayName(info: DataSourceBase): string {
   const engineInfo = getDataSourceEngineInfo(info)
-  const identifier = simplifyIdentifier(info.identifier)
 
-  if (identifier === 'default') {
-    return engineInfo.name
-  }
-
-  return identifier
+  return engineInfo.name
 }

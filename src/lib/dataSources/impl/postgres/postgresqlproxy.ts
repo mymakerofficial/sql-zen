@@ -1,4 +1,4 @@
-import { DatabaseEngine } from '@/lib/engines/enums'
+import { DatabaseEngine, DataSourceDriver } from '@/lib/engines/enums'
 import { DataSourceStatus } from '@/lib/dataSources/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import { invoke } from '@tauri-apps/api/core'
@@ -8,21 +8,24 @@ import {
 } from '@/lib/dataSources/impl/postgres/base'
 
 export class PostgreSQLProxy extends PostgresDataSource {
-  #url: string = ''
+  get engine() {
+    return DatabaseEngine.PostgreSQL
+  }
 
-  getEngine(): DatabaseEngine {
-    return DatabaseEngine.PostgreSQLProxy
+  get driver() {
+    return DataSourceDriver.PostgreSQL
   }
 
   async init() {
     this.setStatus(DataSourceStatus.Pending)
     this.emit(DataSourceEvent.Initializing)
-    this.#url =
-      prompt(
-        'Please enter postgres connection string',
-        'postgres://postgres:postgres@localhost:5432/postgres',
-      ) ?? 'postgres://postgres:postgres@localhost:5432/postgres'
-    this.logger.log(`Will connect to "${this.#url}" when query is run.`)
+    await this.logger.step('Testing connection...', async () => {
+      const { rows } = await this.queryRaw('SELECT 1')
+
+      if (rows.length !== 1) {
+        throw new Error('Failed to connect to the database')
+      }
+    })
     this.setStatus(DataSourceStatus.Running)
     this.emit(DataSourceEvent.Initialized)
   }
@@ -35,7 +38,7 @@ export class PostgreSQLProxy extends PostgresDataSource {
       rows: string[][]
     } = await invoke('run_query', {
       sql,
-      url: this.#url,
+      url: this.connectionString,
     })
 
     const rows = res.rows.map((row) => {

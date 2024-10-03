@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { DatabaseEngineInfo } from '@/lib/engines/interface'
+import type { DataSourceDriverInfo } from '@/lib/engines/interface'
 
-defineProps<DatabaseEngineInfo>()
+defineProps<DataSourceDriverInfo>()
 </script>
 
 <template>

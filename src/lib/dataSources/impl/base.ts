@@ -1,11 +1,7 @@
-import { DatabaseEngine } from '@/lib/engines/enums'
+import { DatabaseEngine, DataSourceDriver } from '@/lib/engines/enums'
 import { type DataSourceMode, DataSourceStatus } from '@/lib/dataSources/enums'
 import { FileAccessor } from '@/lib/files/fileAccessor'
-import {
-  generateDataSourceKey,
-  getDataSourceDisplayName,
-  simplifyIdentifier,
-} from '@/lib/dataSources/helpers'
+import { generateDataSourceKey } from '@/lib/dataSources/helpers'
 import type { QueryResult } from '@/lib/queries/interface'
 import { SqlDialectFactory } from '@/lib/dialect/factory'
 import type { FileInfo } from '@/lib/files/interface'
@@ -21,13 +17,13 @@ export abstract class DataSource
   extends EventPublisher<DataSourceEventMap>
   implements Readonly<DataSourceInfo>
 {
-  readonly #mode: DataSourceMode
-  readonly #identifier: string
   readonly #key: string
+  readonly #mode: DataSourceMode
+  #displayName: string
+  readonly #connectionString: string
+  readonly #fileAccessor: FileAccessor
 
   #status: DataSourceStatus = DataSourceStatus.Stopped
-
-  readonly #initDump: FileAccessor | null
 
   readonly #runner: Runner
   readonly #logger: Logger
@@ -35,35 +31,15 @@ export abstract class DataSource
 
   constructor(data: DataSourceData) {
     super()
+    this.#key = generateDataSourceKey(this)
     this.#mode = data.mode
-    this.#identifier = simplifyIdentifier(data.identifier)
-    this.#initDump = data.dump || null
-    this.#key = generateDataSourceKey(this.getInfo())
+    this.#displayName = data.displayName
+    this.#connectionString = data.connectionString
+    this.#fileAccessor = data.fileAccessor
+
     this.#runner = Runner.for(this)
     this.#logger = new Logger()
     this.#dialect = SqlDialectFactory.create(this)
-  }
-
-  abstract getEngine(): DatabaseEngine
-
-  get engine(): DatabaseEngine {
-    return this.getEngine()
-  }
-
-  getMode(): DataSourceMode {
-    return this.#mode
-  }
-
-  get mode(): DataSourceMode {
-    return this.getMode()
-  }
-
-  getIdentifier(): string {
-    return this.#identifier
-  }
-
-  get identifier(): string {
-    return this.getIdentifier()
   }
 
   getKey(): string {
@@ -71,7 +47,27 @@ export abstract class DataSource
   }
 
   get key(): string {
-    return this.getKey()
+    return this.#key
+  }
+
+  abstract get engine(): DatabaseEngine
+
+  abstract get driver(): DataSourceDriver
+
+  get mode(): DataSourceMode {
+    return this.#mode
+  }
+
+  get displayName(): string {
+    return this.#displayName
+  }
+
+  get connectionString(): string {
+    return this.#connectionString
+  }
+
+  get fileAccessor(): FileAccessor {
+    return this.#fileAccessor
   }
 
   getStatus(): DataSourceStatus {
@@ -79,19 +75,11 @@ export abstract class DataSource
   }
 
   get status(): DataSourceStatus {
-    return this.getStatus()
+    return this.#status
   }
 
   protected setStatus(status: DataSourceStatus): void {
     this.#status = status
-  }
-
-  getDisplayName(): string {
-    return getDataSourceDisplayName(this)
-  }
-
-  get displayName(): string {
-    return this.getDisplayName()
   }
 
   getRunner(): Runner {
@@ -122,9 +110,11 @@ export abstract class DataSource
     return {
       key: this.key,
       engine: this.engine,
+      driver: this.driver,
       mode: this.mode,
-      identifier: this.identifier,
       displayName: this.displayName,
+      connectionString: this.connectionString,
+      fileAccessor: this.fileAccessor,
       status: this.status,
     }
   }
@@ -134,14 +124,6 @@ export abstract class DataSource
       dataSourceEngine: this.engine,
       dataSourceMode: this.mode,
     }
-  }
-
-  protected getInitDump(): FileAccessor | null {
-    return this.#initDump
-  }
-
-  getHasInitDump(): boolean {
-    return this.getInitDump() !== null
   }
 
   abstract init(): Promise<void>

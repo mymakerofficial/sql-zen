@@ -1,7 +1,9 @@
-import { DatabaseEngine } from '@/lib/engines/enums'
+import { DatabaseEngine, DataSourceDriver } from '@/lib/engines/enums'
 import { DataSourceMode } from '@/lib/dataSources/enums'
 import type { Registry } from '@/lib/registry/impl/registry'
+import { FileAccessor } from '@/lib/files/fileAccessor'
 
+// @deprecated
 export default function findPostgresDatabases(registry: Registry) {
   if (!('indexedDB' in globalThis)) {
     return
@@ -11,10 +13,14 @@ export default function findPostgresDatabases(registry: Registry) {
   }
   indexedDB.databases().then((databases) => {
     databases.filter(isPostgresDatabase).forEach((database) => {
+      const identifier = extractIdentifier(database)
       registry.register({
         engine: DatabaseEngine.PostgreSQL,
+        driver: DataSourceDriver.PGLite,
         mode: DataSourceMode.BrowserPersisted,
-        identifier: extractIdentifier(database),
+        displayName: identifier,
+        connectionString: `idb://${identifier}`,
+        fileAccessor: FileAccessor.Dummy,
       })
     })
   })

@@ -7,11 +7,11 @@ import { DataSource } from '@/lib/dataSources/impl/base'
 
 export class SqlDialectFactory {
   static create(dataSource: DataSource) {
-    if (dataSource.getEngine() === DatabaseEngine.DuckDB) {
+    if (dataSource.engine === DatabaseEngine.DuckDB) {
       return new DuckDBDialect(dataSource)
-    } else if (dataSource.getEngine() === DatabaseEngine.PostgreSQL) {
+    } else if (dataSource.engine === DatabaseEngine.PostgreSQL) {
       return new PostgreSQLDialect(dataSource)
-    } else if (dataSource.getEngine() === DatabaseEngine.SQLite) {
+    } else if (dataSource.engine === DatabaseEngine.SQLite) {
       return new SQLiteDialect(dataSource)
     } else {
       return new DummyDialect(dataSource)
