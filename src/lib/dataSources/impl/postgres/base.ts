@@ -6,30 +6,45 @@ import {
 } from '@/lib/schema/columns/helpers/postgresql'
 import type { QueryResult } from '@/lib/queries/interface'
 import { getId } from '@/lib/getId'
+import {
+  buildParsers,
+  parsePostgresResult,
+} from '@/lib/dataSources/impl/postgres/lib/parse'
+import { DataSourceEvent } from '@/lib/dataSources/events'
+
+export type PostgresField = {
+  name: string
+  dataTypeID: number
+}
 
 export type PostgresQueryResult<T extends object = object> = {
   rows: T[]
   affectedRows?: number
-  fields: {
-    name: string
-    dataTypeID: number
-  }[]
-}
-
-function isString(value: unknown): value is string {
-  return typeof value === 'string'
+  fields: PostgresField[]
 }
 
 class PostgresTypeManager {
-  #dataSource: PostgresBaseDataSource
+  #dataSource: PostgresDataSource
   #types: Map<number, TypeDefinition> = new Map()
 
-  constructor(dataSource: PostgresBaseDataSource) {
+  #parsers: { [key: number]: (x: string, typeId?: number) => any } = {}
+
+  constructor(dataSource: PostgresDataSource) {
     this.#dataSource = dataSource
+
+    // temporary fix: build parsers for array types
+    this.#dataSource.on(DataSourceEvent.Initialized, async () => {
+      this.#parsers = await buildParsers(this.#dataSource)
+    })
   }
 
   get dataSource() {
     return this.#dataSource
+  }
+
+  // temporary fix
+  parseResult<T extends object>(result: PostgresQueryResult<T>) {
+    return parsePostgresResult(result, this.#parsers)
   }
 
   async getFieldsFromResponse(response: PostgresQueryResult<any>) {
@@ -59,8 +74,9 @@ class PostgresTypeManager {
       return
     }
 
-    let { rows } = await this.dataSource.queryRaw<PGCatalogCompleteType>(
-      `WITH attr AS (
+    const { rows } = await this.dataSource
+      .queryRaw<PGCatalogCompleteType>(
+        `WITH attr AS (
     SELECT
         attrelid,
         array_agg(attname::text) AS column_names,
@@ -95,44 +111,8 @@ WHERE
     oid = ANY('{${missingOIDs.join(',')}}') 
     OR typarray = ANY('{${missingOIDs.join(',')}}')
 ORDER BY typcategory = 'A'`,
-    )
-
-    // TODO: temporary fix because pg proxy doesnt deserialize arrays
-    rows = rows.map((row) => {
-      row.oid = Number(row.oid)
-      row.typrelid = Number(row.typrelid)
-      row.typelem = Number(row.typelem)
-
-      if (isString(row.column_names)) {
-        if (row.column_names.length > 0) {
-          row.column_names = row.column_names
-            .substring(1, row.column_names.length - 1)
-            .split(',')
-        } else {
-          row.column_names = []
-        }
-      }
-      if (isString(row.column_typeids)) {
-        if (row.column_typeids.length > 0) {
-          row.column_typeids = row.column_typeids
-            .substring(1, row.column_typeids.length - 1)
-            .split(',')
-            .map(Number)
-        } else {
-          row.column_typeids = []
-        }
-      }
-      if (isString(row.enum_labels)) {
-        if (row.enum_labels.length > 0) {
-          row.enum_labels = row.enum_labels
-            .substring(1, row.enum_labels.length - 1)
-            .split(',')
-        } else {
-          row.enum_labels = []
-        }
-      }
-      return row
-    })
+      )
+      .then((res) => this.parseResult(res))
 
     for (const row of rows) {
       const typeDef = await pgCatalogTypeToTypeDefinition(row, (oids) => {
@@ -143,13 +123,14 @@ ORDER BY typcategory = 'A'`,
   }
 }
 
-export abstract class PostgresBaseDataSource extends DataSource {
+export abstract class PostgresDataSource extends DataSource {
   #typeManager: PostgresTypeManager = new PostgresTypeManager(this)
 
   get types() {
     return this.#typeManager
   }
 
+  // note: this method does not parse the result
   abstract queryRaw<T extends object = object>(
     sql: string,
   ): Promise<PostgresQueryResult<T>>
@@ -161,13 +142,14 @@ export abstract class PostgresBaseDataSource extends DataSource {
       const end = performance.now()
 
       const sysStart = performance.now()
-      const fields = await this.types.getFieldsFromResponse(rawResponse)
+      const parsedResponse = this.types.parseResult(rawResponse)
+      const fields = await this.types.getFieldsFromResponse(parsedResponse)
       const sysEnd = performance.now()
 
       return {
         fields,
-        rows: rawResponse.rows,
-        affectedRows: rawResponse.affectedRows,
+        rows: parsedResponse.rows,
+        affectedRows: parsedResponse.affectedRows,
         duration: end - start,
         systemDuration: sysEnd - sysStart,
         id: getId('result'),

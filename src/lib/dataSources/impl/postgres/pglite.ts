@@ -7,14 +7,14 @@ import { DatabaseEngine } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import { PGliteWorkerFS } from '@/lib/dataSources/impl/postgres/lib/PGliteWorkerFS'
 import {
-  PostgresBaseDataSource,
+  PostgresDataSource,
   type PostgresQueryResult,
 } from '@/lib/dataSources/impl/postgres/base'
 
 const BASE_PATH = '/var'
 const TO_STRING = (value: string) => value
 
-export class PGLiteDataSource extends PostgresBaseDataSource {
+export class PGLiteDataSource extends PostgresDataSource {
   #worker: Worker | null = null
   #fs: PGliteWorkerFS | null = null
   #database: PGliteInterface | null = null
