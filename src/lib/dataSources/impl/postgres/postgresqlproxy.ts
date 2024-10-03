@@ -3,11 +3,11 @@ import { DataSourceStatus } from '@/lib/dataSources/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import { invoke } from '@tauri-apps/api/core'
 import {
-  PostgresBaseDataSource,
+  PostgresDataSource,
   type PostgresQueryResult,
 } from '@/lib/dataSources/impl/postgres/base'
 
-export class PostgreSQLProxy extends PostgresBaseDataSource {
+export class PostgreSQLProxy extends PostgresDataSource {
   #url: string = ''
 
   getEngine(): DatabaseEngine {
