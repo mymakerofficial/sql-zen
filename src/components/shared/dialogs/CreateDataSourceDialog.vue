@@ -108,15 +108,12 @@ const { mutate: create, error } = useMutation({
       </ResponsiveDialogHeader>
       <div class="grid gap-4 py-4 mx-4 md:mx-0">
         <div class="grid grid-cols-4 items-center gap-x-4 gap-y-2">
-          <Label for="identifier" class="text-right">Name</Label>
+          <Label for="identifier" class="text-right">Display Name</Label>
           <Input
             v-model="data.displayName"
             id="displayName"
             class="col-span-3"
           />
-          <p class="col-span-3 col-start-2 text-xs text-muted-foreground">
-            The display name of this connection.
-          </p>
         </div>
         <Separator />
         <div class="grid grid-cols-4 items-center gap-x-4 gap-y-2">
@@ -135,6 +132,9 @@ const { mutate: create, error } = useMutation({
             id="driver"
             class="col-span-3"
           />
+          <p class="col-span-3 col-start-2 text-xs text-muted-foreground">
+            The driver changes how to connect and what features are available.
+          </p>
         </div>
         <div
           v-if="enableMode"
