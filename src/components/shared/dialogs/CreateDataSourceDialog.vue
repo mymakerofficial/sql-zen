@@ -28,6 +28,8 @@ import { getEngineInfo } from '@/lib/engines/helpers'
 import DataSourceDriverSelect from '@/components/shared/dataSourceDriverSelect/DataSourceDriverSelect.vue'
 import { useDriverSupports } from '@/composables/engines/useDriverSupports'
 import { isTauri } from '@tauri-apps/api/core'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AppWindowIcon } from 'lucide-vue-next'
 
 const props = withDefaults(
   defineProps<{
@@ -86,6 +88,15 @@ const enableMode = useDriverSupports(
   () => data.driver,
   DataSourceDriverCapability.Mode,
 )
+
+const requiresDesktop = useDriverSupports(
+  () => data.driver,
+  DataSourceDriverCapability.RequiresDesktopApp,
+)
+
+const showRequiresDesktop = computed(() => {
+  return requiresDesktop.value && !isTauri()
+})
 
 async function handleFileSelected(value: FileAccessor) {
   data.fileAccessor = value
@@ -184,12 +195,21 @@ const { mutate: create, error } = useMutation({
           </p>
         </div>
       </div>
+      <Alert v-if="showRequiresDesktop">
+        <AppWindowIcon class="size-4 min-h-max" />
+        <AlertTitle>Ready for more?</AlertTitle>
+        <AlertDescription>
+          This driver only works with the desktop app.
+        </AlertDescription>
+      </Alert>
       <div v-if="error" class="text-red-500 text-sm mt-2">
         {{ error.message }}
       </div>
       <ResponsiveDialogFooter>
         <Button @click="close" variant="ghost">Cancel</Button>
-        <Button @click="create" type="submit">Create</Button>
+        <Button :disabled="showRequiresDesktop" @click="create" type="submit"
+          >Create</Button
+        >
       </ResponsiveDialogFooter>
     </ResponsiveDialogContent>
   </ResponsiveDialog>

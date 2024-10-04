@@ -22,6 +22,7 @@ export const DataSourceDriverCapability = {
   ExportDump: 'export-dump',
   LocalFileSystems: 'local-file-systems',
   Embeddings: 'embeddings',
+  RequiresDesktopApp: 'requires-desktop-app',
   // show the 'connection string' option in the connection dialog
   ConnectionString: 'uses-connection-string',
   // temporary: show the 'mode' option in the connection dialog
