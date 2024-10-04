@@ -29,7 +29,7 @@ import DataSourceDriverSelect from '@/components/shared/dataSourceDriverSelect/D
 import { useDriverSupports } from '@/composables/engines/useDriverSupports'
 import { isTauri } from '@tauri-apps/api/core'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { AppWindowIcon } from 'lucide-vue-next'
+import { AppWindowIcon, InfoIcon } from 'lucide-vue-next'
 
 const props = withDefaults(
   defineProps<{
@@ -94,8 +94,17 @@ const requiresDesktop = useDriverSupports(
   DataSourceDriverCapability.RequiresDesktopApp,
 )
 
+const worksInBrowser = useDriverSupports(
+  () => data.driver,
+  DataSourceDriverCapability.WorksInBrowser,
+)
+
 const showRequiresDesktop = computed(() => {
   return requiresDesktop.value && !isTauri()
+})
+
+const canCreate = computed(() => {
+  return !showRequiresDesktop.value
 })
 
 async function handleFileSelected(value: FileAccessor) {
@@ -191,7 +200,13 @@ const { mutate: create, error } = useMutation({
             </Button>
           </FileInput>
           <p class="col-span-3 col-start-2 text-xs text-muted-foreground">
-            The dump file to create the database from.
+            <template v-if="data.driver === DataSourceDriver.SQLiteWASM">
+              You can open any SQLite file like .db, .sqlite, or .sqlite3.
+            </template>
+            <template v-if="data.driver === DataSourceDriver.PGLite">
+              Upload a .tar.gz file containing a PostgreSQL data directory. This
+              feature is only designed to import dumps created by PGLite.
+            </template>
           </p>
         </div>
       </div>
@@ -205,9 +220,22 @@ const { mutate: create, error } = useMutation({
       <div v-if="error" class="text-red-500 text-sm mt-2">
         {{ error.message }}
       </div>
+      <div
+        v-if="canCreate"
+        class="bg-foreground/10 p-2 rounded-md flex gap-2 text-muted-foreground text-xs"
+      >
+        <InfoIcon class="size-4" />
+        <p>
+          <template v-if="worksInBrowser">
+            This database lives in your browser. No data is ever sent to our
+            servers.
+          </template>
+          <template v-else>No data is ever sent to our servers.</template>
+        </p>
+      </div>
       <ResponsiveDialogFooter>
         <Button @click="close" variant="ghost">Cancel</Button>
-        <Button :disabled="showRequiresDesktop" @click="create" type="submit"
+        <Button :disabled="!canCreate" @click="create" type="submit"
           >Create</Button
         >
       </ResponsiveDialogFooter>

@@ -64,22 +64,19 @@ export const dataSourceDriversMap = {
   [DataSourceDriver.PGLite]: {
     engine: DatabaseEngine.PostgreSQL,
     name: 'PGLite',
-    description:
-      'Run a complete Postgres database in your browser. No data leaves your computer.',
+    description: 'Run a complete Postgres database in your browser.',
     icon: pgliteIcon,
   },
   [DataSourceDriver.SQLiteWASM]: {
     engine: DatabaseEngine.SQLite,
     name: 'sqlite-wasm',
-    description:
-      'Run a SQLite database in your browser. No data leaves your computer.',
+    description: 'Run a SQLite database in your browser.',
     icon: wasmIcon,
   },
   [DataSourceDriver.DuckDBWASM]: {
     engine: DatabaseEngine.DuckDB,
     name: 'duckdb-wasm',
-    description:
-      'Run a DuckDB database in your browser. No data leaves your computer.',
+    description: 'Run a DuckDB database in your browser.',
     icon: wasmIcon,
   },
 } as const satisfies Record<
@@ -94,6 +91,7 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.LocalFileSystems]: false,
     [DataSourceDriverCapability.Embeddings]: false,
     [DataSourceDriverCapability.RequiresDesktopApp]: false,
+    [DataSourceDriverCapability.WorksInBrowser]: false,
     [DataSourceDriverCapability.ConnectionString]: false,
     [DataSourceDriverCapability.Mode]: false,
   },
@@ -103,6 +101,7 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.LocalFileSystems]: false,
     [DataSourceDriverCapability.Embeddings]: false,
     [DataSourceDriverCapability.RequiresDesktopApp]: true,
+    [DataSourceDriverCapability.WorksInBrowser]: false,
     [DataSourceDriverCapability.ConnectionString]: true,
     [DataSourceDriverCapability.Mode]: false,
   },
@@ -112,6 +111,7 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.LocalFileSystems]: true,
     [DataSourceDriverCapability.Embeddings]: true,
     [DataSourceDriverCapability.RequiresDesktopApp]: false,
+    [DataSourceDriverCapability.WorksInBrowser]: true,
     [DataSourceDriverCapability.ConnectionString]: true,
     [DataSourceDriverCapability.Mode]: true,
   },
@@ -121,6 +121,7 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.LocalFileSystems]: false,
     [DataSourceDriverCapability.Embeddings]: false,
     [DataSourceDriverCapability.RequiresDesktopApp]: false,
+    [DataSourceDriverCapability.WorksInBrowser]: true,
     [DataSourceDriverCapability.ConnectionString]: false,
     [DataSourceDriverCapability.Mode]: true,
   },
@@ -130,6 +131,7 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.LocalFileSystems]: true,
     [DataSourceDriverCapability.Embeddings]: false,
     [DataSourceDriverCapability.RequiresDesktopApp]: false,
+    [DataSourceDriverCapability.WorksInBrowser]: true,
     [DataSourceDriverCapability.ConnectionString]: false,
     [DataSourceDriverCapability.Mode]: true,
   },
