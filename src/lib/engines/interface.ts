@@ -1,6 +1,6 @@
 import {
   type DatabaseEngine,
-  DatabaseEngineCapability,
+  DataSourceDriverCapability,
   type DataSourceDriver,
 } from '@/lib/engines/enums'
 
@@ -20,6 +20,6 @@ export type DataSourceDriverInfo = {
   icon: string
 }
 
-export type DatabaseEngineCapabilities = {
-  [key in DatabaseEngineCapability]: boolean
+export type DataSourceDriverCapabilities = {
+  [key in DataSourceDriverCapability]: boolean
 }

@@ -20,12 +20,12 @@ import { useDialog } from '@/composables/useDialog'
 import FileExplorer from '@/components/shared/dialogs/fileExplorer/FileExplorer.vue'
 import EmbeddingsDialog from '@/components/shared/dialogs/embeddings/EmbeddingsDialog.vue'
 import EmbeddingsSearchDialog from '@/components/shared/dialogs/embeddings/EmbeddingsSearchDialog.vue'
-import { DatabaseEngineCapability } from '@/lib/engines/enums'
+import { DataSourceDriverCapability } from '@/lib/engines/enums'
 import { downloadFile } from '@/lib/downloadFile'
 import { useRegistry } from '@/composables/useRegistry'
 import { useDataSourceInfo } from '@/composables/dataSources/useDataSourceInfo'
 import { useActiveDataSourceKey } from '@/composables/dataSources/useActiveDataSourceKey'
-import { useEngineSupports } from '@/composables/engines/useEngineSupports'
+import { useDriverSupports } from '@/composables/engines/useDriverSupports'
 import { DataSourceStatus } from '@/lib/dataSources/enums'
 
 const registry = useRegistry()
@@ -36,19 +36,19 @@ const { open: openFileExplorer } = useDialog(FileExplorer)
 const { open: openEmbeddings } = useDialog(EmbeddingsDialog)
 const { open: openEmbeddingsSearch } = useDialog(EmbeddingsSearchDialog)
 
-const supportsFileExplorer = useEngineSupports(
-  () => info.value.engine,
-  DatabaseEngineCapability.LocalFileSystems,
+const supportsFileExplorer = useDriverSupports(
+  () => info.value.driver,
+  DataSourceDriverCapability.LocalFileSystems,
 )
 
-const supportsDatabaseDump = useEngineSupports(
-  () => info.value.engine,
-  DatabaseEngineCapability.ExportDump,
+const supportsDatabaseDump = useDriverSupports(
+  () => info.value.driver,
+  DataSourceDriverCapability.ExportDump,
 )
 
-const supportsEmbeddings = useEngineSupports(
-  () => info.value.engine,
-  DatabaseEngineCapability.Embeddings,
+const supportsEmbeddings = useDriverSupports(
+  () => info.value.driver,
+  DataSourceDriverCapability.Embeddings,
 )
 
 function handleOpenFileExplorer() {
