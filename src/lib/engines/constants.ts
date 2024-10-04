@@ -5,12 +5,12 @@ import pgliteIcon from '@/assets/icons/pglite.svg'
 import wasmIcon from '@/assets/icons/web-assembly.svg'
 import {
   DatabaseEngine,
-  DatabaseEngineCapability,
   DataSourceDriver,
+  DataSourceDriverCapability,
 } from '@/lib/engines/enums'
 import type {
-  DatabaseEngineCapabilities,
   DatabaseEngineInfo,
+  DataSourceDriverCapabilities,
   DataSourceDriverInfo,
 } from '@/lib/engines/interface'
 import { isTauri } from '@tauri-apps/api/core'
@@ -54,19 +54,19 @@ export const dataSourceDriversMap = {
     description: 'No driver selected.',
     icon: '',
   },
-  [DataSourceDriver.PGLite]: {
-    engine: DatabaseEngine.PostgreSQL,
-    name: 'PGLite',
-    description:
-      'Run a complete Postgres database in your browser. No data leaves your computer.',
-    icon: pgliteIcon,
-  },
   [DataSourceDriver.PostgreSQL]: {
     engine: DatabaseEngine.PostgreSQL,
     name: 'PostgreSQL',
     description:
       'Connect to a local or remote Postgres database using a standard connection string.',
     icon: postgresqlIcon,
+  },
+  [DataSourceDriver.PGLite]: {
+    engine: DatabaseEngine.PostgreSQL,
+    name: 'PGLite',
+    description:
+      'Run a complete Postgres database in your browser. No data leaves your computer.',
+    icon: pgliteIcon,
   },
   [DataSourceDriver.SQLiteWASM]: {
     engine: DatabaseEngine.SQLite,
@@ -87,36 +87,48 @@ export const dataSourceDriversMap = {
   Omit<DataSourceDriverInfo, 'driver'>
 >
 
-export const databaseEngineCapabilities = {
-  [DatabaseEngine.None]: {
-    [DatabaseEngineCapability.UserSelectable]: false,
-    [DatabaseEngineCapability.ExportDump]: false,
-    [DatabaseEngineCapability.ImportDump]: false,
-    [DatabaseEngineCapability.LocalFileSystems]: false,
-    [DatabaseEngineCapability.Embeddings]: false,
+export const dataSourceDriverCapabilities = {
+  [DataSourceDriver.None]: {
+    [DataSourceDriverCapability.ExportDump]: false,
+    [DataSourceDriverCapability.ImportDump]: false,
+    [DataSourceDriverCapability.LocalFileSystems]: false,
+    [DataSourceDriverCapability.Embeddings]: false,
+    [DataSourceDriverCapability.ConnectionString]: false,
+    [DataSourceDriverCapability.Mode]: false,
   },
-  [DatabaseEngine.PostgreSQL]: {
-    [DatabaseEngineCapability.UserSelectable]: true,
-    [DatabaseEngineCapability.ExportDump]: true,
-    [DatabaseEngineCapability.ImportDump]: true,
-    [DatabaseEngineCapability.LocalFileSystems]: true,
-    [DatabaseEngineCapability.Embeddings]: true,
+  [DataSourceDriver.PostgreSQL]: {
+    [DataSourceDriverCapability.ExportDump]: false,
+    [DataSourceDriverCapability.ImportDump]: false,
+    [DataSourceDriverCapability.LocalFileSystems]: false,
+    [DataSourceDriverCapability.Embeddings]: false,
+    [DataSourceDriverCapability.ConnectionString]: true,
+    [DataSourceDriverCapability.Mode]: false,
   },
-  [DatabaseEngine.SQLite]: {
-    [DatabaseEngineCapability.UserSelectable]: true,
-    [DatabaseEngineCapability.ExportDump]: true,
-    [DatabaseEngineCapability.ImportDump]: true,
-    [DatabaseEngineCapability.LocalFileSystems]: false,
-    [DatabaseEngineCapability.Embeddings]: false,
+  [DataSourceDriver.PGLite]: {
+    [DataSourceDriverCapability.ExportDump]: true,
+    [DataSourceDriverCapability.ImportDump]: true,
+    [DataSourceDriverCapability.LocalFileSystems]: true,
+    [DataSourceDriverCapability.Embeddings]: true,
+    [DataSourceDriverCapability.ConnectionString]: true,
+    [DataSourceDriverCapability.Mode]: true,
   },
-  [DatabaseEngine.DuckDB]: {
-    [DatabaseEngineCapability.UserSelectable]: true,
-    [DatabaseEngineCapability.ExportDump]: false,
-    [DatabaseEngineCapability.ImportDump]: false,
-    [DatabaseEngineCapability.LocalFileSystems]: true,
-    [DatabaseEngineCapability.Embeddings]: false,
+  [DataSourceDriver.SQLiteWASM]: {
+    [DataSourceDriverCapability.ExportDump]: true,
+    [DataSourceDriverCapability.ImportDump]: true,
+    [DataSourceDriverCapability.LocalFileSystems]: false,
+    [DataSourceDriverCapability.Embeddings]: false,
+    [DataSourceDriverCapability.ConnectionString]: false,
+    [DataSourceDriverCapability.Mode]: true,
   },
-} as const satisfies Record<DatabaseEngine, DatabaseEngineCapabilities>
+  [DataSourceDriver.DuckDBWASM]: {
+    [DataSourceDriverCapability.ExportDump]: false,
+    [DataSourceDriverCapability.ImportDump]: false,
+    [DataSourceDriverCapability.LocalFileSystems]: true,
+    [DataSourceDriverCapability.Embeddings]: false,
+    [DataSourceDriverCapability.ConnectionString]: false,
+    [DataSourceDriverCapability.Mode]: true,
+  },
+} as const satisfies Record<DataSourceDriver, DataSourceDriverCapabilities>
 
 export const databaseEngines = Object.entries(databaseEnginesMap).map(
   ([engine, info]) => ({
@@ -133,6 +145,5 @@ export const dataSourceDrivers = Object.entries(dataSourceDriversMap).map(
 ) as Array<DataSourceDriverInfo>
 
 export const selectableDatabaseEngines = databaseEngines.filter(
-  ({ engine }) =>
-    databaseEngineCapabilities[engine][DatabaseEngineCapability.UserSelectable],
+  ({ engine }) => engine !== DatabaseEngine.None,
 )

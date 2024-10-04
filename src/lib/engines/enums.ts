@@ -17,12 +17,15 @@ export const DataSourceDriver = {
 export type DataSourceDriver =
   (typeof DataSourceDriver)[keyof typeof DataSourceDriver]
 
-export const DatabaseEngineCapability = {
-  UserSelectable: 'user-selectable',
+export const DataSourceDriverCapability = {
   ImportDump: 'import-dump',
   ExportDump: 'export-dump',
   LocalFileSystems: 'local-file-systems',
   Embeddings: 'embeddings',
+  // show the 'connection string' option in the connection dialog
+  ConnectionString: 'uses-connection-string',
+  // temporary: show the 'mode' option in the connection dialog
+  Mode: 'supports-mode',
 } as const
-export type DatabaseEngineCapability =
-  (typeof DatabaseEngineCapability)[keyof typeof DatabaseEngineCapability]
+export type DataSourceDriverCapability =
+  (typeof DataSourceDriverCapability)[keyof typeof DataSourceDriverCapability]

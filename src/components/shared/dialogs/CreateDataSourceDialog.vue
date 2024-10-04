@@ -11,7 +11,11 @@ import DatabaseEngineSelect from '@/components/shared/databaseEngineSelect/Datab
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { Separator } from '@/components/ui/separator'
 import FileInput from '@/components/shared/FileInput.vue'
-import { DatabaseEngine, DataSourceDriver } from '@/lib/engines/enums'
+import {
+  DatabaseEngine,
+  DataSourceDriver,
+  DataSourceDriverCapability,
+} from '@/lib/engines/enums'
 import { DataSourceMode } from '@/lib/dataSources/enums'
 import ResponsiveDialog from '@/components/shared/responsiveDialog/ResponsiveDialog.vue'
 import ResponsiveDialogContent from '@/components/shared/responsiveDialog/ResponsiveDialogContent.vue'
@@ -22,6 +26,8 @@ import ResponsiveDialogDescription from '@/components/shared/responsiveDialog/Re
 import type { DataSourceData } from '@/lib/dataSources/types'
 import { getEngineInfo } from '@/lib/engines/helpers'
 import DataSourceDriverSelect from '@/components/shared/dataSourceDriverSelect/DataSourceDriverSelect.vue'
+import { useDriverSupports } from '@/composables/engines/useDriverSupports'
+import { isTauri } from '@tauri-apps/api/core'
 
 const props = withDefaults(
   defineProps<{
@@ -66,23 +72,20 @@ watchEffect(() => {
   }
 })
 
-const enableDump = computed(() => {
-  return (
-    data.driver === DataSourceDriver.PGLite ||
-    data.driver === DataSourceDriver.SQLiteWASM
-  )
-})
+const enableDump = useDriverSupports(
+  () => data.driver,
+  DataSourceDriverCapability.ImportDump,
+)
 
-const enableConnectionString = computed(() => {
-  return (
-    data.driver === DataSourceDriver.PGLite ||
-    data.driver === DataSourceDriver.PostgreSQL
-  )
-})
+const enableConnectionString = useDriverSupports(
+  () => data.driver,
+  DataSourceDriverCapability.ConnectionString,
+)
 
-const enableMode = computed(() => {
-  return data.driver !== DataSourceDriver.PostgreSQL
-})
+const enableMode = useDriverSupports(
+  () => data.driver,
+  DataSourceDriverCapability.Mode,
+)
 
 async function handleFileSelected(value: FileAccessor) {
   data.fileAccessor = value
