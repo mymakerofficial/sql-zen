@@ -3,14 +3,11 @@ import { Tab } from '@/lib/tabs/tabs/base'
 import { useRegistry } from '@/composables/useRegistry'
 import { TabType } from '@/lib/tabs/enums'
 import type { ConsoleTabData, ConsoleTabInfo, TabInfo } from '@/lib/tabs/types'
-import {
-  getDataSourceDisplayName,
-  getDataSourceEngineInfo,
-} from '@/lib/dataSources/helpers'
 import type { TabManager } from '@/lib/tabs/manager/manager'
 import { useDebounceFn } from '@vueuse/core'
 import { TabEvent } from '@/lib/tabs/events'
 import { getExampleSql } from '@/lib/examples/getExampleSql'
+import { getEngineInfo } from '@/lib/engines/helpers'
 
 const registry = useRegistry()
 
@@ -46,8 +43,7 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
   }
 
   getDefaultDisplayName() {
-    const descriptor = this.getDataSourceInfo()
-    return getDataSourceDisplayName(descriptor)
+    return this.getDataSourceInfo().displayName
   }
 
   get dataSourceKey() {
@@ -85,12 +81,16 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
     return this.#model
   }
 
+  getDataSource() {
+    return registry.getDataSource(this.dataSourceKey)
+  }
+
   getDataSourceInfo() {
-    return registry.getInfo(this.dataSourceKey)
+    return this.getDataSource().getInfo()
   }
 
   getEngineInfo() {
-    return getDataSourceEngineInfo(this.getDataSourceInfo())
+    return getEngineInfo(this.getDataSource().engine)
   }
 }
 
