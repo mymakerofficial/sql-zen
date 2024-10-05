@@ -213,7 +213,7 @@ const { mutate: create, error } = useMutation({
           Add a new database connection to your workspace.
         </ResponsiveDialogDescription>
       </ResponsiveDialogHeader>
-      <div class="overflow-y-auto">
+      <div class="overflow-y-auto flex flex-col gap-2">
         <div class="grid gap-4 py-4 mx-4 md:mx-0">
           <div class="grid grid-cols-4 items-center gap-x-4 gap-y-2">
             <Label for="identifier" class="text-right">Display Name</Label>
