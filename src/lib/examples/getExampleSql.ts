@@ -5,17 +5,12 @@ import { DatabaseEngine } from '@/lib/engines/enums'
 
 export function getExampleSql(engine: DatabaseEngine) {
   if (engine === DatabaseEngine.PostgreSQL) {
-    return prependBanner(postgresExample)
+    return postgresExample
   } else if (engine === DatabaseEngine.SQLite) {
-    return prependBanner(sqliteExample)
+    return sqliteExample
   } else if (engine === DatabaseEngine.DuckDB) {
-    return prependBanner(duckdbExample)
+    return duckdbExample
   } else {
-    return prependBanner('SELECT 1;')
+    return ''
   }
-}
-
-function prependBanner(sql: string) {
-  return `
-${sql}`
 }
