@@ -31,11 +31,12 @@ export abstract class DataSource
 
   constructor(data: DataSourceData) {
     super()
-    this.#key = generateDataSourceKey(this)
     this.#mode = data.mode
     this.#displayName = data.displayName
     this.#connectionString = data.connectionString
     this.#fileAccessor = data.fileAccessor
+
+    this.#key = generateDataSourceKey(this)
 
     this.#runner = Runner.for(this)
     this.#logger = new Logger()
