@@ -43,7 +43,8 @@ export class Registry extends EventPublisher<RegistryEventMap> {
   register(info: DataSourceData): string {
     const dataSource = DataSourceFactory.create(info)
     if (this.#dataSources.has(dataSource.key)) {
-      throw new Error(`Data source with key ${dataSource.key} already exists`)
+      // ignore duplicate keys
+      return dataSource.key
     }
     // TODO: check for duplicate display names
     this.#dataSources.set(dataSource.key, dataSource)
