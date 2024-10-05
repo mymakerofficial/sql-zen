@@ -19,6 +19,14 @@ export class PostgreSQLProxy extends PostgresDataSource {
   async init() {
     this.setStatus(DataSourceStatus.Pending)
     this.emit(DataSourceEvent.Initializing)
+    await this.logger.step('Connecting', async () => {
+      await invoke('connect', {
+        key: this.key,
+        url: this.connectionString,
+      }).catch((e) => {
+        throw new Error(e)
+      })
+    })
     await this.logger.step('Testing connection...', async () => {
       const { rows } = await this.queryRaw('SELECT 1')
 
@@ -36,9 +44,9 @@ export class PostgreSQLProxy extends PostgresDataSource {
     const res = await invoke<{
       columns: { name: string; dataTypeID: number }[]
       rows: string[][]
-    }>('run_query', {
+    }>('query', {
+      key: this.key,
       sql,
-      url: this.connectionString,
     }).catch((e) => {
       throw new Error(e)
     })
