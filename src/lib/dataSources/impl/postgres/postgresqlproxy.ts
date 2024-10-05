@@ -17,6 +17,10 @@ export class PostgreSQLProxy extends PostgresDataSource {
   }
 
   async init() {
+    if (this.status !== DataSourceStatus.Stopped) {
+      return
+    }
+
     this.setStatus(DataSourceStatus.Pending)
     this.emit(DataSourceEvent.Initializing)
     await this.logger.step('Connecting', async () => {
