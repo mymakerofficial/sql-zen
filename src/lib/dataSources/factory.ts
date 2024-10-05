@@ -8,6 +8,7 @@ import type { DataSourceData } from '@/lib/dataSources/types'
 import { DataSourceMode } from '@/lib/dataSources/enums'
 import { PostgreSQLProxy } from '@/lib/dataSources/impl/postgres/postgresqlproxy'
 import { FileAccessor } from '@/lib/files/fileAccessor'
+import { MySqlDataSource } from '@/lib/dataSources/impl/mysql'
 
 const dummy = new DataSourceDummy({
   engine: DatabaseEngine.None,
@@ -26,6 +27,8 @@ export class DataSourceFactory {
         return new PostgreSQLProxy(info)
       case DataSourceDriver.PGLite:
         return new PGLiteDataSource(info)
+      case DataSourceDriver.MySQL:
+        return new MySqlDataSource(info)
       case DataSourceDriver.SQLiteWASM:
         return new SQLite(info)
       case DataSourceDriver.DuckDBWASM:

@@ -2,6 +2,7 @@ export const DatabaseEngine = {
   None: 'none',
   PostgreSQL: 'postgresql',
   SQLite: 'sqlite',
+  MySQL: 'mysql',
   DuckDB: 'duckdb',
 } as const
 export type DatabaseEngine =
@@ -12,6 +13,7 @@ export const DataSourceDriver = {
   PGLite: 'pglite',
   PostgreSQL: 'postgresql',
   SQLiteWASM: 'sqlite-wasm',
+  MySQL: 'mysql',
   DuckDBWASM: 'duckdb-wasm',
 } as const
 export type DataSourceDriver =

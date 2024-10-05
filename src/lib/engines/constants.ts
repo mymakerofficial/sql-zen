@@ -3,6 +3,7 @@ import sqliteIcon from '@/assets/icons/sqlite.svg'
 import duckdbIcon from '@/assets/icons/duckdb.svg'
 import pgliteIcon from '@/assets/icons/pglite.svg'
 import wasmIcon from '@/assets/icons/web-assembly.svg'
+import mysqlIcon from '@/assets/icons/mysql.svg'
 import {
   DatabaseEngine,
   DataSourceDriver,
@@ -38,6 +39,13 @@ export const databaseEnginesMap = {
     icon: sqliteIcon,
     defaultDriver: DataSourceDriver.SQLiteWASM,
   },
+  [DatabaseEngine.MySQL]: {
+    name: 'MySQL',
+    description:
+      'MySQL is a popular open-source relational database that is widely used in web development.',
+    icon: mysqlIcon,
+    defaultDriver: DataSourceDriver.MySQL,
+  },
   [DatabaseEngine.DuckDB]: {
     name: 'DuckDB',
     description:
@@ -66,6 +74,13 @@ export const dataSourceDriversMap = {
     name: 'PGLite',
     description: 'Run a complete Postgres database in your browser.',
     icon: pgliteIcon,
+  },
+  [DataSourceDriver.MySQL]: {
+    engine: DatabaseEngine.MySQL,
+    name: 'MySQL',
+    description:
+      'Connect to a local or remote MySQL database using a standard connection string.',
+    icon: mysqlIcon,
   },
   [DataSourceDriver.SQLiteWASM]: {
     engine: DatabaseEngine.SQLite,
@@ -128,6 +143,17 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.Identifier]: true,
     [DataSourceDriverCapability.ConnectionString]: false,
     [DataSourceDriverCapability.Mode]: true,
+  },
+  [DataSourceDriver.MySQL]: {
+    [DataSourceDriverCapability.ExportDump]: false,
+    [DataSourceDriverCapability.ImportDump]: false,
+    [DataSourceDriverCapability.LocalFileSystems]: false,
+    [DataSourceDriverCapability.Embeddings]: false,
+    [DataSourceDriverCapability.RequiresDesktopApp]: true,
+    [DataSourceDriverCapability.WorksInBrowser]: false,
+    [DataSourceDriverCapability.Identifier]: false,
+    [DataSourceDriverCapability.ConnectionString]: true,
+    [DataSourceDriverCapability.Mode]: false,
   },
   [DataSourceDriver.DuckDBWASM]: {
     [DataSourceDriverCapability.ExportDump]: false,
