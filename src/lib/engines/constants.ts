@@ -110,6 +110,7 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.Identifier]: false,
     [DataSourceDriverCapability.ConnectionString]: false,
     [DataSourceDriverCapability.Mode]: false,
+    [DataSourceDriverCapability.Experimental]: false,
   },
   [DataSourceDriver.PostgreSQL]: {
     [DataSourceDriverCapability.ExportDump]: false,
@@ -121,6 +122,7 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.Identifier]: false,
     [DataSourceDriverCapability.ConnectionString]: true,
     [DataSourceDriverCapability.Mode]: false,
+    [DataSourceDriverCapability.Experimental]: false,
   },
   [DataSourceDriver.PGLite]: {
     [DataSourceDriverCapability.ExportDump]: true,
@@ -132,6 +134,7 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.Identifier]: true,
     [DataSourceDriverCapability.ConnectionString]: false,
     [DataSourceDriverCapability.Mode]: true,
+    [DataSourceDriverCapability.Experimental]: false,
   },
   [DataSourceDriver.SQLiteWASM]: {
     [DataSourceDriverCapability.ExportDump]: true,
@@ -143,6 +146,7 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.Identifier]: true,
     [DataSourceDriverCapability.ConnectionString]: false,
     [DataSourceDriverCapability.Mode]: true,
+    [DataSourceDriverCapability.Experimental]: false,
   },
   [DataSourceDriver.MySQL]: {
     [DataSourceDriverCapability.ExportDump]: false,
@@ -154,6 +158,7 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.Identifier]: false,
     [DataSourceDriverCapability.ConnectionString]: true,
     [DataSourceDriverCapability.Mode]: false,
+    [DataSourceDriverCapability.Experimental]: true,
   },
   [DataSourceDriver.DuckDBWASM]: {
     [DataSourceDriverCapability.ExportDump]: false,
@@ -165,6 +170,7 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.Identifier]: false,
     [DataSourceDriverCapability.ConnectionString]: false,
     [DataSourceDriverCapability.Mode]: false,
+    [DataSourceDriverCapability.Experimental]: false,
   },
 } as const satisfies Record<DataSourceDriver, DataSourceDriverCapabilities>
 
