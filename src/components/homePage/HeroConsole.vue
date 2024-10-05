@@ -26,7 +26,8 @@ const dataSourceKey = registry.register({
   engine: DatabaseEngine.SQLite,
   driver: DataSourceDriver.SQLiteWASM,
   mode: DataSourceMode.Memory,
-  displayName: 'Demo SQLite',
+  displayName: 'SQLite',
+  identifier: 'sqlite',
   connectionString: '',
   fileAccessor: FileAccessor.Dummy,
 })

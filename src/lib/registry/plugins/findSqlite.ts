@@ -13,6 +13,7 @@ export default function findSqliteDatabases(registry: Registry) {
       driver: DataSourceDriver.SQLiteWASM,
       mode: DataSourceMode.BrowserPersisted,
       displayName: getEngineInfo(DatabaseEngine.SQLite).name,
+      identifier: 'local',
       connectionString: '',
       fileAccessor: FileAccessor.Dummy,
     })

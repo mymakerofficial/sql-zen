@@ -1,6 +1,6 @@
 import type { PGliteInterface } from '@electric-sql/pglite'
 import { DatabaseNotLoadedError } from '@/lib/errors'
-import { DataSourceStatus } from '@/lib/dataSources/enums'
+import { DataSourceMode, DataSourceStatus } from '@/lib/dataSources/enums'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import type { FileInfo } from '@/lib/files/interface'
 import { DatabaseEngine, DataSourceDriver } from '@/lib/engines/enums'
@@ -10,6 +10,7 @@ import {
   PostgresDataSource,
   type PostgresQueryResult,
 } from '@/lib/dataSources/impl/postgres/base'
+import type { DataSourceInfo } from '@/lib/dataSources/types'
 
 const BASE_PATH = '/var'
 const TO_STRING = (value: string) => value
@@ -60,7 +61,7 @@ export class PGLiteDataSource extends PostgresDataSource {
         throw new Error('Worker does not exist')
       }
 
-      const dataDir = this.connectionString
+      const dataDir = getDataDir(this.getInfo())
       const loadDataDir = await this.fileAccessor.getOrUndefined()?.readBlob()
 
       const pglitePromise = PGliteWorker.create(this.#worker, {
@@ -213,4 +214,12 @@ async function readDirectory(fs: PGliteWorkerFS, path: string) {
 
   await traverseDirectory(path)
   return files
+}
+
+function getDataDir(info: DataSourceInfo) {
+  if (info.mode === DataSourceMode.BrowserPersisted) {
+    return `idb://${info.identifier}`
+  } else {
+    return `memory://${info.identifier}`
+  }
 }

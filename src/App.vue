@@ -55,8 +55,8 @@ watchEffect(() => {
       driver: engineInfo.defaultDriver,
       mode: DataSourceMode.Memory,
       displayName: engineInfo.name,
-      connectionString:
-        engine === DatabaseEngine.PostgreSQL ? 'memory://default' : '',
+      identifier: 'identifier',
+      connectionString: '',
       fileAccessor: FileAccessor.Dummy,
     })
 

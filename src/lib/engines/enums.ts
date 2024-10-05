@@ -24,6 +24,8 @@ export const DataSourceDriverCapability = {
   Embeddings: 'embeddings',
   RequiresDesktopApp: 'requires-desktop-app',
   WorksInBrowser: 'works-in-browser',
+  // show the 'identifier' option in the connection dialog
+  Identifier: 'identifier',
   // show the 'connection string' option in the connection dialog
   ConnectionString: 'uses-connection-string',
   // temporary: show the 'mode' option in the connection dialog

@@ -20,6 +20,7 @@ export abstract class DataSource
   readonly #key: string
   readonly #mode: DataSourceMode
   #displayName: string
+  readonly #identifier: string
   readonly #connectionString: string
   readonly #fileAccessor: FileAccessor
 
@@ -33,6 +34,7 @@ export abstract class DataSource
     super()
     this.#mode = data.mode
     this.#displayName = data.displayName
+    this.#identifier = data.identifier
     this.#connectionString = data.connectionString
     this.#fileAccessor = data.fileAccessor
 
@@ -61,6 +63,10 @@ export abstract class DataSource
 
   get displayName(): string {
     return this.#displayName
+  }
+
+  get identifier() {
+    return this.#identifier
   }
 
   get connectionString(): string {
@@ -114,6 +120,7 @@ export abstract class DataSource
       driver: this.driver,
       mode: this.mode,
       displayName: this.displayName,
+      identifier: this.identifier,
       connectionString: this.connectionString,
       fileAccessor: this.fileAccessor,
       status: this.status,
