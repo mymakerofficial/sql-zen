@@ -37,6 +37,14 @@ export class MySqlDataSource extends DataSource {
 
     this.setStatus(DataSourceStatus.Running)
     this.emit(DataSourceEvent.Initialized)
+
+    const { rows } = await this.queryRaw<{
+      database: string
+      version: string
+    }>("SELECT database() AS 'database', version() AS 'version'")
+
+    this.logger.log(`Connected to MySQL version: ${rows[0].version}`)
+    this.logger.log(`Current database: ${rows[0].database}`)
   }
 
   async queryRaw<T extends object = object>(
