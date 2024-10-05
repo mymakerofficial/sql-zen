@@ -213,144 +213,150 @@ const { mutate: create, error } = useMutation({
           Add a new database connection to your workspace.
         </ResponsiveDialogDescription>
       </ResponsiveDialogHeader>
-      <div class="grid gap-4 py-4 mx-4 md:mx-0">
-        <div class="grid grid-cols-4 items-center gap-x-4 gap-y-2">
-          <Label for="identifier" class="text-right">Display Name</Label>
-          <Input
-            v-model="data.displayName"
-            id="displayName"
-            class="col-span-3"
-          />
-        </div>
-        <Separator />
-        <div class="grid grid-cols-4 items-center gap-x-4 gap-y-2">
-          <Label for="engine" class="text-right">
-            <Tooltip>
-              <TooltipTrigger>DBMS</TooltipTrigger>
-              <TooltipContent>Database Management System</TooltipContent>
-            </Tooltip>
-          </Label>
-          <DatabaseEngineSelect
-            v-model="data.engine"
-            id="engine"
-            class="col-span-3"
-          />
-        </div>
-        <div class="grid grid-cols-4 items-center gap-x-4 gap-y-2">
-          <Label for="engine" class="text-right">Driver</Label>
-          <DataSourceDriverSelect
-            v-model="data.driver"
-            :engine="data.engine"
-            id="driver"
-            class="col-span-3"
-          />
-          <p class="col-span-3 col-start-2 text-xs text-muted-foreground">
-            The driver changes how to connect and what features are available.
-          </p>
-        </div>
-        <Separator />
-        <div
-          v-if="enableMode"
-          class="grid grid-cols-4 items-center gap-x-4 gap-y-2"
-        >
-          <Label for="mode" class="text-right">Mode</Label>
-          <DataSourceModeSelect
-            v-model="data.mode"
-            id="mode"
-            class="col-span-3"
-          />
-        </div>
-        <div
-          v-if="enableIdentifier"
-          class="grid grid-cols-4 items-center gap-4"
-        >
-          <Label for="identifier" class="text-right">Identifier</Label>
-          <Input v-model="data.identifier" id="identifier" class="col-span-3" />
-          <p class="col-span-3 col-start-2 text-xs text-muted-foreground">
-            The identifier is used to uniquely identify the database.
-          </p>
-        </div>
-        <div
-          v-if="enableConnectionString"
-          class="grid grid-cols-4 items-center gap-4"
-        >
-          <Label for="identifier" class="text-right">URL</Label>
-          <Input
-            v-model="data.connectionString"
-            id="connectionString"
-            class="col-span-3"
-          />
-          <p class="col-span-3 col-start-2 text-xs text-muted-foreground">
-            The connection string used to connect to the database.
-          </p>
-        </div>
-        <div v-if="enableDump" class="grid grid-cols-4 items-center gap-4">
-          <Label for="file" class="text-right">Import Dump</Label>
-          <FileInput @selected="handleFileSelected">
-            <Button
-              :disabled="!enableDump"
-              id="file"
-              variant="outline"
+      <div class="overflow-y-auto">
+        <div class="grid gap-4 py-4 mx-4 md:mx-0">
+          <div class="grid grid-cols-4 items-center gap-x-4 gap-y-2">
+            <Label for="identifier" class="text-right">Display Name</Label>
+            <Input
+              v-model="data.displayName"
+              id="displayName"
               class="col-span-3"
-            >
-              {{
-                data.fileAccessor.getOrUndefined()?.getName() ?? 'Select File'
-              }}
-            </Button>
-          </FileInput>
-          <p class="col-span-3 col-start-2 text-xs text-muted-foreground">
-            <template v-if="data.driver === DataSourceDriver.SQLiteWASM">
-              You can open any SQLite file like .db, .sqlite, or .sqlite3.
-            </template>
-            <template v-if="data.driver === DataSourceDriver.PGLite">
-              Upload a .tar.gz file containing a PostgreSQL data directory. This
-              feature is only designed to import dumps created by PGLite.
-            </template>
-          </p>
+            />
+          </div>
+          <Separator />
+          <div class="grid grid-cols-4 items-center gap-x-4 gap-y-2">
+            <Label for="engine" class="text-right">
+              <Tooltip>
+                <TooltipTrigger>DBMS</TooltipTrigger>
+                <TooltipContent>Database Management System</TooltipContent>
+              </Tooltip>
+            </Label>
+            <DatabaseEngineSelect
+              v-model="data.engine"
+              id="engine"
+              class="col-span-3"
+            />
+          </div>
+          <div class="grid grid-cols-4 items-center gap-x-4 gap-y-2">
+            <Label for="engine" class="text-right">Driver</Label>
+            <DataSourceDriverSelect
+              v-model="data.driver"
+              :engine="data.engine"
+              id="driver"
+              class="col-span-3"
+            />
+            <p class="col-span-3 col-start-2 text-xs text-muted-foreground">
+              The driver changes how to connect and what features are available.
+            </p>
+          </div>
+          <Separator />
+          <div
+            v-if="enableMode"
+            class="grid grid-cols-4 items-center gap-x-4 gap-y-2"
+          >
+            <Label for="mode" class="text-right">Mode</Label>
+            <DataSourceModeSelect
+              v-model="data.mode"
+              id="mode"
+              class="col-span-3"
+            />
+          </div>
+          <div
+            v-if="enableIdentifier"
+            class="grid grid-cols-4 items-center gap-4"
+          >
+            <Label for="identifier" class="text-right">Identifier</Label>
+            <Input
+              v-model="data.identifier"
+              id="identifier"
+              class="col-span-3"
+            />
+            <p class="col-span-3 col-start-2 text-xs text-muted-foreground">
+              The identifier is used to uniquely identify the database.
+            </p>
+          </div>
+          <div
+            v-if="enableConnectionString"
+            class="grid grid-cols-4 items-center gap-4"
+          >
+            <Label for="identifier" class="text-right">URL</Label>
+            <Input
+              v-model="data.connectionString"
+              id="connectionString"
+              class="col-span-3"
+            />
+            <p class="col-span-3 col-start-2 text-xs text-muted-foreground">
+              The connection string used to connect to the database.
+            </p>
+          </div>
+          <div v-if="enableDump" class="grid grid-cols-4 items-center gap-4">
+            <Label for="file" class="text-right">Import Dump</Label>
+            <FileInput @selected="handleFileSelected">
+              <Button
+                :disabled="!enableDump"
+                id="file"
+                variant="outline"
+                class="col-span-3"
+              >
+                {{
+                  data.fileAccessor.getOrUndefined()?.getName() ?? 'Select File'
+                }}
+              </Button>
+            </FileInput>
+            <p class="col-span-3 col-start-2 text-xs text-muted-foreground">
+              <template v-if="data.driver === DataSourceDriver.SQLiteWASM">
+                You can open any SQLite file like .db, .sqlite, or .sqlite3.
+              </template>
+              <template v-if="data.driver === DataSourceDriver.PGLite">
+                Upload a .tar.gz file containing a PostgreSQL data directory.
+                This feature is only designed to import dumps created by PGLite.
+              </template>
+            </p>
+          </div>
         </div>
-      </div>
-      <div v-if="error" class="text-red-500 text-sm mt-2">
-        {{ error.message }}
-      </div>
-      <div
-        v-if="showRequiresDesktop"
-        class="bg-gradient-to-br from-blue-300 to-blue-600 p-4 rounded-md flex gap-3 text-neutral-900 text-xs"
-      >
-        <AppWindowIcon class="size-5 mt-1" />
-        <div class="space-y-1">
-          <p class="text-lg font-bold">Ready for more?</p>
-          <p class="font-medium">
-            This driver only works using the desktop app of SqlZen.
-          </p>
+        <div v-if="error" class="mx-4 md:mx-0 text-red-500 text-sm mt-2">
+          {{ error.message }}
         </div>
-      </div>
-      <div
-        v-if="canCreate && isExperimental"
-        class="bg-yellow-400/10 p-2 rounded-md"
-      >
-        <span
-          class="w-min flex items-center gap-2 text-sm font-medium text-amber-400"
+        <div
+          v-if="showRequiresDesktop"
+          class="mx-4 md:mx-0 bg-gradient-to-br from-blue-300 to-blue-600 p-4 rounded-md flex gap-3 text-neutral-900 text-xs"
         >
-          <FlaskConicalIcon class="size-4" />
-          <span>Experimental</span>
-        </span>
-        <p class="ml-6 text-xs text-amber-500/80">
-          Support for {{ engineInfo.name }} is still in it's early stages.
-          Expect bugs and missing features.
-        </p>
-      </div>
-      <div
-        v-if="canCreate"
-        class="bg-foreground/10 p-2 rounded-md flex gap-2 text-muted-foreground text-xs"
-      >
-        <InfoIcon class="size-4" />
-        <p>
-          <template v-if="worksInBrowser">
-            This database lives in your browser. No data is ever sent to our
-            servers.
-          </template>
-          <template v-else>No data is ever sent to our servers.</template>
-        </p>
+          <AppWindowIcon class="size-5 mt-1" />
+          <div class="space-y-1">
+            <p class="text-lg font-bold">Ready for more?</p>
+            <p class="font-medium">
+              This driver only works using the desktop app of SqlZen.
+            </p>
+          </div>
+        </div>
+        <div
+          v-if="canCreate && isExperimental"
+          class="mx-4 md:mx-0 bg-yellow-400/10 p-2 rounded-md"
+        >
+          <span
+            class="w-min flex items-center gap-2 text-sm font-medium text-amber-400"
+          >
+            <FlaskConicalIcon class="size-4" />
+            <span>Experimental</span>
+          </span>
+          <p class="ml-6 text-xs text-amber-500/80">
+            Support for {{ engineInfo.name }} is still in it's early stages.
+            Expect bugs and missing features.
+          </p>
+        </div>
+        <div
+          v-if="canCreate"
+          class="mx-4 md:mx-0 bg-foreground/10 p-2 rounded-md flex gap-2 text-muted-foreground text-xs"
+        >
+          <InfoIcon class="size-4" />
+          <p>
+            <template v-if="worksInBrowser">
+              This database lives in your browser. No data is ever sent to our
+              servers.
+            </template>
+            <template v-else>No data is ever sent to our servers.</template>
+          </p>
+        </div>
       </div>
       <ResponsiveDialogFooter>
         <Button @click="close" variant="ghost">Cancel</Button>
