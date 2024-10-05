@@ -4,7 +4,6 @@ mod types;
 mod postgres;
 
 use std::collections::HashMap;
-use serde::{Serialize, Serializer};
 use tauri::{Manager, State};
 use tokio::sync::Mutex;
 use client::Client;
