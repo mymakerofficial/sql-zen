@@ -52,25 +52,98 @@ const data = reactive<DataSourceData>({
   driver: getEngineInfo(props.engine).defaultDriver,
   mode: DataSourceMode.Memory,
   displayName: '',
-  identifier: 'identifier',
+  identifier: '',
   connectionString: '',
   fileAccessor: FileAccessor.Dummy,
 })
 
-watchEffect(() => {
-  data.displayName = getEngineInfo(data.engine).name
-})
+const adjectives = [
+  'awesome',
+  'great',
+  'amazing',
+  'fantastic',
+  'wonderful',
+  'incredible',
+]
 
-watchEffect(() => {
-  switch (data.driver) {
-    case DataSourceDriver.PostgreSQL:
-      data.connectionString = 'postgres://user:password@host:port/database'
-      break
-    default:
-      data.connectionString = ''
-      break
-  }
-})
+const nouns = [
+  'squirrel',
+  'bean',
+  'database',
+  'duck',
+  'elephant',
+  'penguin',
+  'whale',
+]
+
+watchEffect(
+  () => {
+    switch (data.driver) {
+      case DataSourceDriver.PostgreSQL:
+        data.connectionString =
+          'postgres://user:password@localhost:5432/postgres'
+        break
+      case DataSourceDriver.MySQL:
+        data.connectionString = 'mysql://user:password@localhost:3306/mysql'
+        break
+      default:
+        data.connectionString = ''
+        break
+    }
+
+    if (
+      data.driver === DataSourceDriver.SQLiteWASM ||
+      data.driver === DataSourceDriver.PGLite
+    ) {
+      if (data.fileAccessor.isDummy) {
+        const fileName = data.fileAccessor
+          .getOrUndefined()
+          ?.getName()
+          .split('.')[0]
+        const randomAdjective =
+          adjectives[Math.floor(Math.random() * adjectives.length)]
+        const randomNoun = nouns[Math.floor(Math.random() * nouns.length)]
+
+        data.identifier =
+          fileName ?? [randomAdjective, data.engine, randomNoun].join('-')
+      } else {
+        data.identifier = data.fileAccessor.getName().split('.')[0]
+      }
+    } else {
+      data.identifier = ''
+    }
+  },
+  {
+    flush: 'post',
+  },
+)
+
+watchEffect(
+  () => {
+    if (
+      data.driver === DataSourceDriver.PostgreSQL ||
+      data.driver === DataSourceDriver.MySQL
+    ) {
+      const parts = data.connectionString.match(
+        /:\/\/(.*):(.*)@(.*):(.*)\/(.*)/,
+      )
+      const host = parts?.[3]
+      const database = parts?.[5]
+
+      if (!host || !database) {
+        data.displayName = getEngineInfo(data.engine).name
+        return
+      }
+
+      data.displayName = [database, host].join('@')
+    } else {
+      data.displayName = getEngineInfo(data.engine).name
+    }
+  },
+  {
+    flush: 'post',
+  },
+)
 
 const enableDump = useDriverSupports(
   () => data.driver,
@@ -119,6 +192,7 @@ const engineInfo = computed(() => getEngineInfo(data.engine))
 
 async function handleFileSelected(value: FileAccessor) {
   data.fileAccessor = value
+  data.identifier = value.getName().split('.')[0]
 }
 
 const { mutate: create, error } = useMutation({
