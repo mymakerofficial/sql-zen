@@ -223,15 +223,22 @@ const { mutate: create, error } = useMutation({
           </p>
         </div>
       </div>
-      <Alert v-if="showRequiresDesktop">
-        <AppWindowIcon class="size-4 min-h-max" />
-        <AlertTitle>Ready for more?</AlertTitle>
-        <AlertDescription>
-          This driver only works with the desktop app.
-        </AlertDescription>
-      </Alert>
       <div v-if="error" class="text-red-500 text-sm mt-2">
         {{ error.message }}
+      </div>
+      <div
+        v-if="showRequiresDesktop"
+        class="bg-gradient-to-br from-blue-300 to-blue-600 p-4 rounded-md flex gap-3 text-neutral-900 text-xs"
+      >
+        <AppWindowIcon class="size-5 mt-1" />
+        <div class="space-y-1">
+          <p class="text-lg font-bold">
+            Ready for more?
+          </p>
+          <p class="font-medium">
+            This driver only works using the desktop app of SqlZen.
+          </p>
+        </div>
       </div>
       <div
         v-if="canCreate"
