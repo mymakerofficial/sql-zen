@@ -21,13 +21,13 @@ const dummy = new DataSourceDummy({
 export class DataSourceFactory {
   static create(info: DataSourceData): DataSource {
     switch (info.driver) {
-      case 'postgresql':
+      case DataSourceDriver.PostgreSQL:
         return new PostgreSQLProxy(info)
-      case 'pglite':
+      case DataSourceDriver.PGLite:
         return new PGLiteDataSource(info)
-      case 'sqlite-wasm':
+      case DataSourceDriver.SQLiteWASM:
         return new SQLite(info)
-      case 'duckdb-wasm':
+      case DataSourceDriver.DuckDBWASM:
         return new DuckDB(info)
       default:
         return new DataSourceDummy(info)
