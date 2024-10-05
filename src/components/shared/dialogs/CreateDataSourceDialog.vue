@@ -159,6 +159,7 @@ const { mutate: create, error } = useMutation({
             The driver changes how to connect and what features are available.
           </p>
         </div>
+        <Separator />
         <div
           v-if="enableMode"
           class="grid grid-cols-4 items-center gap-x-4 gap-y-2"
@@ -170,7 +171,6 @@ const { mutate: create, error } = useMutation({
             class="col-span-3"
           />
         </div>
-        <Separator />
         <div
           v-if="enableConnectionString"
           class="grid grid-cols-4 items-center gap-4"
