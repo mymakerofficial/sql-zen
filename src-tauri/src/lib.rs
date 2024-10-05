@@ -2,13 +2,16 @@ mod error;
 mod client;
 mod types;
 mod postgres;
+mod mysql;
 
 use std::collections::HashMap;
+use serde::{Deserialize, Serialize};
 use tauri::{Manager, State};
 use tokio::sync::Mutex;
 use client::Client;
 use error::Error;
 use postgres::PostgresClient;
+use mysql::MySQLClient;
 use types::QueryResult;
 
 #[derive(Default)]
@@ -16,12 +19,33 @@ struct AppState {
     clients: HashMap<String, Box<dyn Client>>,
 }
 
-#[tauri::command]
-async fn connect(state: State<'_, Mutex<AppState>>, key: String, url: String) -> Result<(), Error> {
-    let mut state = state.lock().await;
+#[derive(Serialize, Deserialize)]
+enum DatabaseDriver {
+    #[serde(rename = "postgresql")]
+    Postgres,
+    #[serde(rename = "mysql")]
+    MySQL,
+}
+
+async fn connect_postgres(state: &mut AppState, key: String, url: String) -> Result<(), Error> {
     let client = PostgresClient::connect(&url).await?;
     state.clients.insert(key, Box::new(client));
     Ok(())
+}
+
+async fn connect_mysql(state: &mut AppState, key: String, url: String) -> Result<(), Error> {
+    let client = MySQLClient::connect(&url).await?;
+    state.clients.insert(key, Box::new(client));
+    Ok(())
+}
+
+#[tauri::command]
+async fn connect(state: State<'_, Mutex<AppState>>, key: String, driver: DatabaseDriver, url: String) -> Result<(), Error> {
+    let mut state = state.lock().await;
+    match driver {
+        DatabaseDriver::Postgres => connect_postgres(&mut state, key, url).await,
+        DatabaseDriver::MySQL => connect_mysql(&mut state, key, url).await,
+    }
 }
 
 #[tauri::command]

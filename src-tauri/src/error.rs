@@ -5,6 +5,8 @@ pub enum Error {
     #[error("{0}")]
     Postgres(#[from] tokio_postgres::Error),
     #[error("{0}")]
+    MySQL(#[from] mysql_async::Error),
+    #[error("{0}")]
     Io(#[from] std::io::Error),
 }
 
