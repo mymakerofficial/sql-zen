@@ -42,12 +42,14 @@ impl Client for PostgresClient {
                 None
             }
         }).map(|r| {
-            let mut rows = Vec::with_capacity(columns_len);
+            let mut cells = Vec::with_capacity(columns_len);
+
             for i in 0..columns_len {
                 let val = r.get(i).unwrap_or_default();
-                rows.push(val.to_owned());
+                cells.push(val.to_owned());
             }
-            rows
+
+            cells
         }).collect::<Vec<_>>();
 
         Ok(QueryResult {
