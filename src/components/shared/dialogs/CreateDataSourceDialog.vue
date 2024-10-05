@@ -28,8 +28,12 @@ import { getEngineInfo } from '@/lib/engines/helpers'
 import DataSourceDriverSelect from '@/components/shared/dataSourceDriverSelect/DataSourceDriverSelect.vue'
 import { useDriverSupports } from '@/composables/engines/useDriverSupports'
 import { isTauri } from '@tauri-apps/api/core'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { AppWindowIcon, InfoIcon } from 'lucide-vue-next'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 const props = withDefaults(
   defineProps<{
@@ -85,7 +89,7 @@ const enableMode = useDriverSupports(
 
 const enableIdentifier = useDriverSupports(
   () => data.driver,
-  DataSourceDriverCapability.Identifier
+  DataSourceDriverCapability.Identifier,
 )
 
 const requiresDesktop = useDriverSupports(
@@ -139,7 +143,12 @@ const { mutate: create, error } = useMutation({
         </div>
         <Separator />
         <div class="grid grid-cols-4 items-center gap-x-4 gap-y-2">
-          <Label for="engine" class="text-right">Engine</Label>
+          <Label for="engine" class="text-right">
+            <Tooltip>
+              <TooltipTrigger>DBMS</TooltipTrigger>
+              <TooltipContent>Database Management System</TooltipContent>
+            </Tooltip>
+          </Label>
           <DatabaseEngineSelect
             v-model="data.engine"
             id="engine"
@@ -175,11 +184,7 @@ const { mutate: create, error } = useMutation({
           class="grid grid-cols-4 items-center gap-4"
         >
           <Label for="identifier" class="text-right">Identifier</Label>
-          <Input
-            v-model="data.identifier"
-            id="identifier"
-            class="col-span-3"
-          />
+          <Input v-model="data.identifier" id="identifier" class="col-span-3" />
           <p class="col-span-3 col-start-2 text-xs text-muted-foreground">
             The identifier is used to uniquely identify the database.
           </p>
@@ -232,9 +237,7 @@ const { mutate: create, error } = useMutation({
       >
         <AppWindowIcon class="size-5 mt-1" />
         <div class="space-y-1">
-          <p class="text-lg font-bold">
-            Ready for more?
-          </p>
+          <p class="text-lg font-bold">Ready for more?</p>
           <p class="font-medium">
             This driver only works using the desktop app of SqlZen.
           </p>
