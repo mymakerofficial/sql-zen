@@ -26,6 +26,7 @@ export class PostgreSQLProxy extends PostgresDataSource {
     await this.logger.step('Connecting', async () => {
       await invoke('connect', {
         key: this.key,
+        driver: this.driver,
         url: this.connectionString,
       }).catch((e) => {
         throw new Error(e)
