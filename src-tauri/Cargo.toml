@@ -19,7 +19,6 @@ tauri = { version = "2.0.0-rc", features = ["tray-icon"] }
 tauri-plugin-shell = "2.0.0-rc"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-postgres = "0.19.9"
 tokio-postgres = "0.7.12"
 tokio = "1.39.2"
 thiserror = "1.0.63"
