@@ -32,6 +32,7 @@ export const DataSourceDriverCapability = {
   ConnectionString: 'uses-connection-string',
   // temporary: show the 'mode' option in the connection dialog
   Mode: 'supports-mode',
+  Experimental: 'experimental',
 } as const
 export type DataSourceDriverCapability =
   (typeof DataSourceDriverCapability)[keyof typeof DataSourceDriverCapability]

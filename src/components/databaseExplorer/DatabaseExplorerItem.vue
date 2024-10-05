@@ -2,10 +2,12 @@
 import { Button } from '@/components/ui/button'
 import { getEngineInfo } from '@/lib/engines/helpers'
 import { computed } from 'vue'
-import { Trash2Icon } from 'lucide-vue-next'
+import { Trash2Icon, FlaskConicalIcon } from 'lucide-vue-next'
 import DSTree from '@/components/databaseExplorer/DSTree.vue'
 import { useDataSourceInfo } from '@/composables/dataSources/useDataSourceInfo'
 import { DataSourceStatus } from '@/lib/dataSources/enums'
+import { useDriverSupports } from '@/composables/engines/useDriverSupports'
+import { DataSourceDriverCapability } from '@/lib/engines/enums'
 
 const props = defineProps<{
   dataSourceKey: string
@@ -19,6 +21,11 @@ const emit = defineEmits<{
 
 const info = useDataSourceInfo(props.dataSourceKey)
 const engineInfo = computed(() => getEngineInfo(info.value.engine))
+
+const isExperimental = useDriverSupports(
+  () => info.value.driver,
+  DataSourceDriverCapability.Experimental,
+)
 
 function handleSelect() {
   emit('select')
@@ -56,6 +63,18 @@ function handleDelete() {
           <Trash2Icon class="size-4 min-h-max" />
         </Button>
       </div>
+    </div>
+    <div v-if="isExperimental" class="my-2 space-y-1">
+      <span
+        class="w-min flex items-center gap-1 text-sm font-medium text-amber-400"
+      >
+        <FlaskConicalIcon class="size-4" />
+        <span>Experimental</span>
+      </span>
+      <p class="ml-5 text-xs text-amber-500/80">
+        Support for {{ engineInfo.name }} is still in it's early stages. Expect
+        bugs and missing features.
+      </p>
     </div>
     <DSTree
       v-if="info.status === DataSourceStatus.Running"

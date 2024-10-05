@@ -28,7 +28,7 @@ import { getEngineInfo } from '@/lib/engines/helpers'
 import DataSourceDriverSelect from '@/components/shared/dataSourceDriverSelect/DataSourceDriverSelect.vue'
 import { useDriverSupports } from '@/composables/engines/useDriverSupports'
 import { isTauri } from '@tauri-apps/api/core'
-import { AppWindowIcon, InfoIcon } from 'lucide-vue-next'
+import { AppWindowIcon, FlaskConicalIcon, InfoIcon } from 'lucide-vue-next'
 import {
   Tooltip,
   TooltipContent,
@@ -102,6 +102,11 @@ const worksInBrowser = useDriverSupports(
   DataSourceDriverCapability.WorksInBrowser,
 )
 
+const isExperimental = useDriverSupports(
+  () => data.driver,
+  DataSourceDriverCapability.Experimental,
+)
+
 const showRequiresDesktop = computed(() => {
   return requiresDesktop.value && !isTauri()
 })
@@ -109,6 +114,8 @@ const showRequiresDesktop = computed(() => {
 const canCreate = computed(() => {
   return !showRequiresDesktop.value
 })
+
+const engineInfo = computed(() => getEngineInfo(data.engine))
 
 async function handleFileSelected(value: FileAccessor) {
   data.fileAccessor = value
@@ -242,6 +249,21 @@ const { mutate: create, error } = useMutation({
             This driver only works using the desktop app of SqlZen.
           </p>
         </div>
+      </div>
+      <div
+        v-if="canCreate && isExperimental"
+        class="bg-yellow-400/10 p-2 rounded-md"
+      >
+        <span
+          class="w-min flex items-center gap-2 text-sm font-medium text-amber-400"
+        >
+          <FlaskConicalIcon class="size-4" />
+          <span>Experimental</span>
+        </span>
+        <p class="ml-6 text-xs text-amber-500/80">
+          Support for {{ engineInfo.name }} is still in it's early stages.
+          Expect bugs and missing features.
+        </p>
       </div>
       <div
         v-if="canCreate"
