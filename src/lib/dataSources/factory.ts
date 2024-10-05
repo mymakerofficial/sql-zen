@@ -14,6 +14,7 @@ const dummy = new DataSourceDummy({
   driver: DataSourceDriver.None,
   mode: DataSourceMode.None,
   displayName: 'Dummy',
+  identifier: 'dummy',
   connectionString: '',
   fileAccessor: FileAccessor.Dummy,
 })

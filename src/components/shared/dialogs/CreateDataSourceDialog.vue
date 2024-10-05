@@ -48,6 +48,7 @@ const data = reactive<DataSourceData>({
   driver: getEngineInfo(props.engine).defaultDriver,
   mode: DataSourceMode.Memory,
   displayName: '',
+  identifier: 'identifier',
   connectionString: '',
   fileAccessor: FileAccessor.Dummy,
 })
@@ -58,13 +59,6 @@ watchEffect(() => {
 
 watchEffect(() => {
   switch (data.driver) {
-    case DataSourceDriver.PGLite:
-      if (data.mode === DataSourceMode.BrowserPersisted) {
-        data.connectionString = 'idb://identifier'
-      } else {
-        data.connectionString = 'memory://identifier'
-      }
-      break
     case DataSourceDriver.PostgreSQL:
       data.connectionString = 'postgres://user:password@host:port/database'
       break
@@ -87,6 +81,11 @@ const enableConnectionString = useDriverSupports(
 const enableMode = useDriverSupports(
   () => data.driver,
   DataSourceDriverCapability.Mode,
+)
+
+const enableIdentifier = useDriverSupports(
+  () => data.driver,
+  DataSourceDriverCapability.Identifier
 )
 
 const requiresDesktop = useDriverSupports(
@@ -170,6 +169,20 @@ const { mutate: create, error } = useMutation({
             id="mode"
             class="col-span-3"
           />
+        </div>
+        <div
+          v-if="enableIdentifier"
+          class="grid grid-cols-4 items-center gap-4"
+        >
+          <Label for="identifier" class="text-right">Identifier</Label>
+          <Input
+            v-model="data.identifier"
+            id="identifier"
+            class="col-span-3"
+          />
+          <p class="col-span-3 col-start-2 text-xs text-muted-foreground">
+            The identifier is used to uniquely identify the database.
+          </p>
         </div>
         <div
           v-if="enableConnectionString"

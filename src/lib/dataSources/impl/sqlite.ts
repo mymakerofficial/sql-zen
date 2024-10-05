@@ -56,7 +56,7 @@ export class SQLite extends DataSource {
       if (this.mode === DataSourceMode.BrowserPersisted) {
         return new this.#sqlite3!.oo1.JsStorageDb('local')
       } else {
-        return new this.#sqlite3!.oo1.DB(`/${this.key}.sqlite3`, 'c')
+        return new this.#sqlite3!.oo1.DB(`/${this.identifier}.sqlite3`, 'c')
       }
     })
 
@@ -144,8 +144,7 @@ export class SQLite extends DataSource {
       this.logger.log(`Created database dump: ${data.byteLength} bytes`)
       return FileAccessor.fromUint8Array(
         data,
-        // TODO: store file name with datasource
-        `database.sqlite3`,
+        `${this.identifier}.sqlite3`,
       )
     })
   }

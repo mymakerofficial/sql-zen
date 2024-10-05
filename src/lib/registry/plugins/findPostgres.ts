@@ -18,6 +18,7 @@ export default function findPostgresDatabases(registry: Registry) {
         engine: DatabaseEngine.PostgreSQL,
         driver: DataSourceDriver.PGLite,
         mode: DataSourceMode.BrowserPersisted,
+        identifier,
         displayName: identifier,
         connectionString: `idb://${identifier}`,
         fileAccessor: FileAccessor.Dummy,
