@@ -19,6 +19,7 @@ import {
   DownloadIcon,
   FolderIcon,
   PlusIcon,
+  RefreshCwIcon,
   SearchIcon,
 } from 'lucide-vue-next'
 import { useRegistry } from '@/composables/useRegistry'
@@ -34,6 +35,7 @@ import { useArrayEvery } from '@vueuse/core'
 import { DataSourceStatus } from '@/lib/dataSources/enums'
 import { Separator } from '@/components/ui/separator'
 import { downloadFile } from '@/lib/downloadFile'
+import { useQueryClient } from '@tanstack/vue-query'
 
 function useAnd(values: MaybeRefOrGetter<boolean>[]) {
   return useArrayEvery(values, (value) => value)
@@ -46,6 +48,7 @@ function close() {
 
 const { isMacOS, isTauri } = useEnv()
 
+const queryClient = useQueryClient()
 const registry = useRegistry()
 const dataSource = useActiveDataSourceKey()
 const info = useDataSourceInfo(dataSource)
@@ -114,6 +117,12 @@ function handleOpenCreate() {
   close()
   openCreate()
 }
+
+function handleRefresh() {
+  queryClient.invalidateQueries({
+    queryKey: ['schemaTree'],
+  })
+}
 </script>
 
 <template>
@@ -179,14 +188,24 @@ function handleOpenCreate() {
             </Button>
           </div>
           <Separator />
-          <Button
-            @click="handleOpenCreate"
-            variant="ghost"
-            class="justify-start gap-3"
-          >
-            <PlusIcon class="size-4 min-h-max" />
-            <span>Add Data Source</span>
-          </Button>
+          <div class="flex justify-between">
+            <Button
+              @click="handleOpenCreate"
+              variant="ghost"
+              class="justify-start gap-3 flex-1"
+            >
+              <PlusIcon class="size-4 min-h-max" />
+              <span>Add Data Source</span>
+            </Button>
+            <Button
+              @click="handleRefresh"
+              size="sm"
+              variant="ghost"
+              class="my-auto"
+            >
+              <RefreshCwIcon class="size-4" />
+            </Button>
+          </div>
           <DatabaseExplorerContent class="pl-3 w-full h-min" />
         </div>
       </div>
