@@ -19,7 +19,7 @@ function handleClose() {
 </script>
 
 <template>
-  <div class="flex items-center h-full">
+  <div class="flex items-center h-full text-foreground">
     <Button class="h-full rounded-none" variant="ghost" @click="handleMinimize">
       <MinusIcon class="size-4 min-h-max" />
     </Button>

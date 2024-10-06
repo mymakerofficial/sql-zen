@@ -7,12 +7,14 @@ import {
 } from '@/components/ui/resizable'
 import { useEnv } from '@/composables/useEnv'
 
-const { isSmallScreen, isTauri } = useEnv()
+const { isSmallScreen, isTauri, isWindows } = useEnv()
 </script>
 
 <template>
   <div vaul-drawer-wrapper class="bg-background h-screen flex flex-col">
-    <AppHeader v-if="!isSmallScreen && !isTauri" />
+    <AppHeader
+      v-if="(!isSmallScreen && !isTauri) || (isSmallScreen && isWindows)"
+    />
     <main class="flex-1 overflow-auto">
       <ResizablePanelGroup direction="horizontal">
         <template v-if="!isSmallScreen">
