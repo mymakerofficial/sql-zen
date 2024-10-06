@@ -30,7 +30,7 @@ function handleRefresh() {
       class="px-3 h-12 flex items-center justify-between border-b border-border"
     >
       <DatabaseEngineSelect @select="handleCreate">
-        <Button size="sm" variant="ghost" class="gap-3">
+        <Button size="sm" variant="ghost" class="justify-start gap-3 flex-1">
           <PlusIcon class="size-4 min-h-max" />
           <span>Add Data Source</span>
         </Button>
