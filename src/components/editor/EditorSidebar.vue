@@ -11,7 +11,10 @@ import { useDialog } from '@/composables/useDialog'
 import CreateDataSourceDialog from '@/components/shared/dialogs/CreateDataSourceDialog.vue'
 import { Button } from '@/components/ui/button'
 import DatabaseExplorerContent from '@/components/databaseExplorer/DatabaseExplorerContent.vue'
+import { useEnv } from '@/composables/useEnv'
+import { cn } from '@/lib/utils'
 
+const { isTauri } = useEnv()
 const { open: openCreate } = useDialog(CreateDataSourceDialog)
 </script>
 
@@ -19,10 +22,10 @@ const { open: openCreate } = useDialog(CreateDataSourceDialog)
   <Sheet>
     <SheetTrigger><slot /></SheetTrigger>
     <SheetContent side="left" class="h-full flex flex-col">
-      <SheetHeader class="text-left">
+      <SheetHeader v-if="!isTauri" class="text-left">
         <SheetTitle><LogoButton /></SheetTitle>
       </SheetHeader>
-      <div class="-mx-6 -mb-6 px-6 py-3 overflow-y-auto">
+      <div :class="cn('-mx-6 -mb-6 px-6 py-3 overflow-y-auto', isTauri ? 'pt-6' : '')">
         <div class="h-min flex flex-col gap-4">
           <Button @click="openCreate"> Add Data Source </Button>
           <DatabaseExplorerContent class="pl-3 w-full h-min" />
