@@ -10,12 +10,12 @@ use mysql::MySQLClient;
 use postgres::PostgresClient;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tauri::{Manager, State, WebviewWindowBuilder, WebviewUrl};
+use tauri::{Manager, State, WebviewUrl, WebviewWindowBuilder};
 use tokio::sync::Mutex;
 use types::QueryResult;
 
 #[cfg(target_os = "macos")]
-use tauri::{TitleBarStyle};
+use tauri::TitleBarStyle;
 
 #[derive(Default)]
 struct AppState {
@@ -97,6 +97,7 @@ fn setup_window(app: &mut tauri::App) -> Result<(), tauri::Error> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
             setup_state(app);
