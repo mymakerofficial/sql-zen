@@ -25,6 +25,11 @@ queryClient.setDefaultOptions({
 
 const route = useRoute()
 const router = useRouter()
+const { isTauri } = useEnv()
+
+if (isTauri && route.path === '/') {
+  router.replace('/app')
+}
 
 const registry = useRegistry()
 const tabManager = useTabManager()
