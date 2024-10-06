@@ -10,7 +10,7 @@ use mysql::MySQLClient;
 use postgres::PostgresClient;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tauri::{Manager, State};
+use tauri::{Manager, State, WebviewWindowBuilder, WebviewUrl, TitleBarStyle};
 use tokio::sync::Mutex;
 use types::QueryResult;
 
@@ -67,14 +67,37 @@ async fn query(
     client.query(sql).await
 }
 
+fn setup_state(app: &mut tauri::App) {
+    app.manage(Mutex::new(AppState {
+        clients: HashMap::new(),
+    }));
+}
+
+fn setup_window(app: &mut tauri::App) -> Result<(), tauri::Error> {
+    let win_builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
+        .title("SqlZen")
+        .inner_size(800.0, 600.0);
+
+    #[cfg(target_os = "windows")]
+    let win_builder = win_builder.decorations(false);
+
+    #[cfg(target_os = "macos")]
+    let win_builder = win_builder.title_bar_style(TitleBarStyle::Overlay);
+
+    // keep normal title bar on all other operating systems
+
+    win_builder.build()?;
+
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
-            app.manage(Mutex::new(AppState {
-                clients: HashMap::new(),
-            }));
+            setup_state(app);
+            setup_window(app)?;
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![connect, query])

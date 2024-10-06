@@ -9,14 +9,6 @@
     "frontendDist": "../dist"
   },
   "app": {
-    "windows": [
-      {
-        "title": "SqlZen",
-        "width": 800,
-        "height": 600,
-        "decorations": false
-      }
-    ],
     "trayIcon": {
       "iconPath": "icons/icon.png"
     },
