@@ -6,8 +6,16 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { useEnv } from '@/composables/useEnv'
+import { useWindowSize } from '@vueuse/core'
+import { computed } from 'vue'
 
 const { isSmallScreen, isTauri, isWindows } = useEnv()
+
+const minWidth = 240
+const { width } = useWindowSize()
+const minSize = computed(() => {
+  return (minWidth / width.value) * 100
+})
 </script>
 
 <template>
@@ -18,7 +26,7 @@ const { isSmallScreen, isTauri, isWindows } = useEnv()
     <main class="flex-1 overflow-auto">
       <ResizablePanelGroup direction="horizontal">
         <template v-if="!isSmallScreen">
-          <ResizablePanel :default-size="18" class="min-w-60">
+          <ResizablePanel :default-size="18" :min-size="minSize">
             <slot name="aside" />
           </ResizablePanel>
           <ResizableHandle />
