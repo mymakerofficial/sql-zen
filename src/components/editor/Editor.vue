@@ -7,24 +7,32 @@ import { useEnv } from '@/composables/useEnv'
 import EditorSidebar from '@/components/editor/EditorSidebar.vue'
 import { MenuIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
+import TitleBarControls from '@/components/shared/appHeader/TitleBarControls.vue'
+import EditorHeader from '@/components/editor/EditorHeader.vue'
 
-const { isSmallScreen } = useEnv()
+const { isSmallScreen, isMacOS, isWindows } = useEnv()
 </script>
 
 <template>
   <EditorLayout>
     <template #aside>
+      <EditorHeader />
       <DatabaseExplorer />
     </template>
     <template #main>
       <TabView>
         <template #beforeTabs v-if="isSmallScreen">
+          <div v-if="isMacOS" class="w-24 border-r border-border" />
           <EditorSidebar>
             <Button variant="ghost" class="h-full rounded-none">
               <MenuIcon class="size-4 min-h-max" />
             </Button>
           </EditorSidebar>
           <Separator orientation="vertical" />
+        </template>
+        <template #afterTabs v-if="isWindows">
+          <Separator orientation="vertical" />
+          <TitleBarControls />
         </template>
       </TabView>
     </template>
