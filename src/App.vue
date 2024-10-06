@@ -14,6 +14,7 @@ import { getEngineInfo } from '@/lib/engines/helpers'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { useEnv } from '@/composables/useEnv'
 import { RegistryEvent } from '@/lib/registry/events'
+import { isConsoleTab } from '@/lib/tabs/tabs/console'
 
 const queryClient = useQueryClient()
 
@@ -51,7 +52,7 @@ watchEffect(() => {
     }
 
     const engineInfo = getEngineInfo(engine)
-    const dataSourceKey = registry.register({
+    registry.register({
       engine,
       driver: engineInfo.defaultDriver,
       mode: DataSourceMode.Memory,
@@ -61,10 +62,7 @@ watchEffect(() => {
       fileAccessor: FileAccessor.Dummy,
     })
 
-    tabManager.createTab({
-      type: TabType.Console,
-      dataSourceKey,
-    })
+    // tab gets created by event handler
 
     router.replace({
       query,
@@ -75,6 +73,22 @@ watchEffect(() => {
 registry.on(RegistryEvent.Initialized, (key) => {
   queryClient.invalidateQueries({
     queryKey: ['schemaTree', key],
+  })
+})
+
+registry.on(RegistryEvent.Registered, (key) => {
+  const existing = tabManager
+    .getTabs()
+    .find((tab) => isConsoleTab(tab) && tab.dataSourceKey === key)
+
+  if (existing) {
+    tabManager.setActiveTabId(existing.id)
+    return
+  }
+
+  tabManager.createTab({
+    type: TabType.Console,
+    dataSourceKey: key,
   })
 })
 </script>
