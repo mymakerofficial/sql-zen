@@ -20,6 +20,7 @@ const { data, isFetching, error } = useQuery({
     const sqlDialect = dataSource.getDialect()
     return await sqlDialect.getDataSourceTree()
   },
+  refetchOnMount: false,
   initialData: [],
 })
 </script>
