@@ -13,6 +13,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { getEngineInfo } from '@/lib/engines/helpers'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { useEnv } from '@/composables/useEnv'
+import { RegistryEvent } from '@/lib/registry/events'
 
 const queryClient = useQueryClient()
 
@@ -69,6 +70,12 @@ watchEffect(() => {
       query,
     })
   }
+})
+
+registry.on(RegistryEvent.Initialized, (key) => {
+  queryClient.invalidateQueries({
+    queryKey: ['schemaTree', key],
+  })
 })
 </script>
 
