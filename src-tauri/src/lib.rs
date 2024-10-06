@@ -15,7 +15,7 @@ use tokio::sync::Mutex;
 use types::QueryResult;
 
 #[cfg(target_os = "macos")]
-use tauri::TitleBarStyle;
+use tauri::{TitleBarStyle, WebviewWindow};
 
 #[derive(Default)]
 struct AppState {
@@ -76,6 +76,65 @@ fn setup_state(app: &mut tauri::App) {
     }));
 }
 
+// https://gist.github.com/charrondev/43150e940bd2771b1ea88256d491c7a9
+#[cfg(target_os = "macos")]
+fn position_traffic_lights(window: WebviewWindow, x: f64, y: f64) {
+    use cocoa::appkit::{NSView, NSWindow, NSWindowButton};
+    use cocoa::foundation::NSRect;
+    use objc::{msg_send, sel, sel_impl};
+
+    unsafe {
+        let ns_window = window
+            .ns_window()
+            .expect("Failed to get ns window handle")
+            as cocoa::base::id;
+
+        let close = ns_window.standardWindowButton_(NSWindowButton::NSWindowCloseButton);
+        let miniaturize =
+            ns_window.standardWindowButton_(NSWindowButton::NSWindowMiniaturizeButton);
+        let zoom = ns_window.standardWindowButton_(NSWindowButton::NSWindowZoomButton);
+
+        let title_bar_container_view = close.superview().superview();
+
+        let close_rect: NSRect = msg_send![close, frame];
+        let button_height = close_rect.size.height;
+
+        let title_bar_frame_height = button_height + y;
+        let mut title_bar_rect = NSView::frame(title_bar_container_view);
+        title_bar_rect.size.height = title_bar_frame_height;
+        title_bar_rect.origin.y = NSView::frame(ns_window).size.height - title_bar_frame_height;
+        let _: () = msg_send![title_bar_container_view, setFrame: title_bar_rect];
+
+        let window_buttons = vec![close, miniaturize, zoom];
+        let space_between = NSView::frame(miniaturize).origin.x - NSView::frame(close).origin.x;
+
+        for (i, button) in window_buttons.into_iter().enumerate() {
+            let mut rect: NSRect = NSView::frame(button);
+            rect.origin.x = x + (i as f64 * space_between);
+            button.setFrameOrigin(rect.origin);
+        }
+    }
+}
+
+#[cfg(target_os = "macos")]
+fn setup_macos_window(window: WebviewWindow) {
+    use tauri::WindowEvent;
+
+    position_traffic_lights(window.clone(), 22.0, 22.0);
+
+    window.clone().on_window_event(move |event| {
+        let set_traffic_lights = || {
+            position_traffic_lights(window.clone(), 22.0, 22.0);
+        };
+
+        match event {
+            WindowEvent::Resized(..) => set_traffic_lights(),
+            WindowEvent::ThemeChanged(..) => set_traffic_lights(),
+            _ => {}
+        }
+    })
+}
+
 fn setup_window(app: &mut tauri::App) -> Result<(), tauri::Error> {
     let win_builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
         .title("SqlZen")
@@ -85,11 +144,16 @@ fn setup_window(app: &mut tauri::App) -> Result<(), tauri::Error> {
     let win_builder = win_builder.decorations(false);
 
     #[cfg(target_os = "macos")]
-    let win_builder = win_builder.title_bar_style(TitleBarStyle::Overlay);
+    let win_builder = win_builder
+        .title_bar_style(TitleBarStyle::Overlay)
+        .hidden_title(true);
 
     // keep normal title bar on all other operating systems
 
-    win_builder.build()?;
+    let window = win_builder.build()?;
+
+    #[cfg(target_os = "macos")]
+    setup_macos_window(window);
 
     Ok(())
 }
