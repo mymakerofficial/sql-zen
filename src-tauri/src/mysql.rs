@@ -1,9 +1,9 @@
-use std::sync::Arc;
-use async_trait::async_trait;
-use crate::error::Error;
-use mysql_async::{prelude::*, Pool};
 use crate::client::Client;
+use crate::error::Error;
 use crate::types::{Column, QueryResult};
+use async_trait::async_trait;
+use mysql_async::{prelude::*, Pool};
+use std::sync::Arc;
 
 pub struct MySQLClient {
     pool: Arc<Pool>,
@@ -35,20 +35,19 @@ impl Client for MySQLClient {
         let columns_len = columns.len();
 
         let rows = conn.query_iter(sql).await?;
-        let rows = rows.map_and_drop(|mut r| {
-            let mut cells = Vec::with_capacity(columns_len);
+        let rows = rows
+            .map_and_drop(|mut r| {
+                let mut cells = Vec::with_capacity(columns_len);
 
-            for i in 0..columns_len {
-                let val = r.take(i).unwrap_or_default();
-                cells.push(val)
-            }
+                for i in 0..columns_len {
+                    let val = r.take(i).unwrap_or_default();
+                    cells.push(val)
+                }
 
-            cells
-        }).await?;
+                cells
+            })
+            .await?;
 
-        Ok(QueryResult {
-            columns,
-            rows
-        })
+        Ok(QueryResult { columns, rows })
     }
 }
