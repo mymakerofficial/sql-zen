@@ -3709,7 +3709,9 @@ name = "sql-zen"
 version = "0.0.0"
 dependencies = [
  "async-trait",
+ "cocoa 0.26.0",
  "mysql_async",
+ "objc",
  "serde",
  "serde_json",
  "tauri",

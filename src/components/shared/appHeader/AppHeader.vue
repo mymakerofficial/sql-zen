@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 import { useEnv } from '@/composables/useEnv'
 import AppLogo from '@/components/shared/appHeader/AppLogo.vue'
 
-const { isWindows, isTauri, isSmallScreen } = useEnv()
+const { isWindows, isMacOS, isTauri, isSmallScreen } = useEnv()
 </script>
 
 <template>
@@ -17,12 +17,13 @@ const { isWindows, isTauri, isSmallScreen } = useEnv()
       cn(
         'relative flex items-center justify-between border-b border-border',
         isTauri ? 'h-12' : 'px-3 h-16',
+        isMacOS ? 'pl-24' : ''
       )
     "
   >
     <div class="h-full flex items-center gap-3">
-      <AppLogo v-if="isTauri" class="ml-5" />
-      <LogoButton v-else />
+      <LogoButton v-if="!isTauri" />
+      <AppLogo v-else-if="!isMacOS" class="ml-5" />
       <AppHeaderMenu v-if="!isSmallScreen" />
     </div>
     <div class="h-full flex items-center gap-3">
