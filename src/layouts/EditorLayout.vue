@@ -12,11 +12,11 @@ const { isSmallScreen, isTauri } = useEnv()
 
 <template>
   <div vaul-drawer-wrapper class="bg-background h-screen flex flex-col">
-    <AppHeader v-if="!isSmallScreen || isTauri" />
+    <AppHeader v-if="!isSmallScreen && !isTauri" />
     <main class="flex-1 overflow-auto">
       <ResizablePanelGroup direction="horizontal">
         <template v-if="!isSmallScreen">
-          <ResizablePanel :default-size="18">
+          <ResizablePanel :default-size="18" class="min-w-60">
             <slot name="aside" />
           </ResizablePanel>
           <ResizableHandle />

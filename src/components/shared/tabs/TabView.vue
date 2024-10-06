@@ -12,6 +12,7 @@ const activeTab = useActiveTabId()
 <template>
   <Tabs v-model="activeTab" class="h-full flex flex-col">
     <TabsList
+      data-tauri-drag-region
       class="w-full min-h-12 border-b overflow-x-auto"
       :key="tabs.join()"
     >
