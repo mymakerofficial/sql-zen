@@ -5,6 +5,10 @@ import { useActiveTabId } from '@/composables/tabs/useActiveTabId'
 import TabContentRenderer from '@/components/shared/tabs/TabContentRenderer.vue'
 import TabTriggerContent from '@/components/shared/tabs/TabTriggerContent.vue'
 
+defineProps<{
+  dataTauriDragRegion?: boolean
+}>()
+
 const tabs = useTabIds()
 const activeTab = useActiveTabId()
 </script>
@@ -12,7 +16,7 @@ const activeTab = useActiveTabId()
 <template>
   <Tabs v-model="activeTab" class="h-full flex flex-col">
     <TabsList
-      data-tauri-drag-region
+      :data-tauri-drag-region="dataTauriDragRegion ? true : undefined"
       class="w-full min-h-12 border-b overflow-x-auto"
       :key="tabs.join()"
     >

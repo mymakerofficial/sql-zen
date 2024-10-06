@@ -20,7 +20,7 @@ const { isSmallScreen, isMacOS, isWindows } = useEnv()
       <DatabaseExplorer />
     </template>
     <template #main>
-      <TabView>
+      <TabView data-tauri-drag-region>
         <template #beforeTabs v-if="isSmallScreen">
           <div
             v-if="isMacOS"
