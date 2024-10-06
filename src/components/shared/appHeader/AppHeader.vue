@@ -3,27 +3,31 @@ import ColorModeSelect from '@/components/shared/ColorModeSelect.vue'
 import AppHeaderMenu from '@/components/shared/appHeader/AppHeaderMenu.vue'
 import LogoButton from '@/components/shared/appHeader/LogoButton.vue'
 import TitleBarControls from '@/components/shared/appHeader/TitleBarControls.vue'
-import { isTauri } from '@tauri-apps/api/core'
 import { cn } from '@/lib/utils'
-import { useRoute } from 'vue-router'
+import { useEnv } from '@/composables/useEnv'
+import AppLogo from '@/components/shared/appHeader/AppLogo.vue'
 
-const route = useRoute()
+const { isWindows, isTauri, isSmallScreen } = useEnv()
 </script>
 
 <template>
   <nav
     data-tauri-drag-region
-    class="relative px-3 flex items-center justify-between border-b border-border h-16"
+    :class="
+      cn(
+        'relative flex items-center justify-between border-b border-border',
+        isTauri ? 'h-12' : 'px-3 h-16',
+      )
+    "
   >
     <div class="h-full flex items-center gap-3">
-      <LogoButton />
-      <AppHeaderMenu v-if="route.path !== '/'" />
+      <AppLogo v-if="isTauri" class="ml-5" />
+      <LogoButton v-else />
+      <AppHeaderMenu v-if="!isSmallScreen" />
     </div>
-    <div
-      :class="cn('h-full flex items-center gap-3', isTauri() ? '-mr-3' : '')"
-    >
-      <ColorModeSelect />
-      <TitleBarControls v-if="isTauri()" />
+    <div class="h-full flex items-center gap-3">
+      <ColorModeSelect v-if="!isSmallScreen" />
+      <TitleBarControls v-if="isWindows" />
     </div>
   </nav>
 </template>
