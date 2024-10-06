@@ -14,7 +14,7 @@ import DatabaseExplorerContent from '@/components/databaseExplorer/DatabaseExplo
 import { useEnv } from '@/composables/useEnv'
 import { cn } from '@/lib/utils'
 
-const { isTauri } = useEnv()
+const { isMacOS } = useEnv()
 const { open: openCreate } = useDialog(CreateDataSourceDialog)
 </script>
 
@@ -22,10 +22,14 @@ const { open: openCreate } = useDialog(CreateDataSourceDialog)
   <Sheet>
     <SheetTrigger><slot /></SheetTrigger>
     <SheetContent side="left" class="h-full flex flex-col">
-      <SheetHeader v-if="!isTauri" class="text-left">
+      <SheetHeader v-if="!isMacOS" class="text-left">
         <SheetTitle><LogoButton /></SheetTitle>
       </SheetHeader>
-      <div :class="cn('-mx-6 -mb-6 px-6 py-3 overflow-y-auto', isTauri ? 'pt-6' : '')">
+      <div
+        :class="
+          cn('-mx-6 -mb-6 px-6 py-3 overflow-y-auto', isMacOS ? 'pt-6' : '')
+        "
+      >
         <div class="h-min flex flex-col gap-4">
           <Button @click="openCreate"> Add Data Source </Button>
           <DatabaseExplorerContent class="pl-3 w-full h-min" />
