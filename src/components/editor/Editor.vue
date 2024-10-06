@@ -10,20 +10,20 @@ import { Button } from '@/components/ui/button'
 import TitleBarControls from '@/components/shared/appHeader/TitleBarControls.vue'
 import EditorHeader from '@/components/editor/EditorHeader.vue'
 
-const { isSmallScreen, isMacOS, isWindows } = useEnv()
+const { isMacOS, isWindows } = useEnv()
 </script>
 
 <template>
   <EditorLayout>
-    <template #aside>
-      <EditorHeader />
+    <template #aside="{ compactHeader }">
+      <EditorHeader v-if="compactHeader" />
       <DatabaseExplorer />
     </template>
-    <template #main>
-      <TabView data-tauri-drag-region>
-        <template #beforeTabs v-if="isSmallScreen">
+    <template #main="{ compactHeader, noAside }">
+      <TabView :data-tauri-drag-region="compactHeader">
+        <template #beforeTabs v-if="noAside">
           <div
-            v-if="isMacOS"
+            v-if="compactHeader && isMacOS"
             data-tauri-drag-region
             class="w-24 border-r border-border"
           />
@@ -34,7 +34,7 @@ const { isSmallScreen, isMacOS, isWindows } = useEnv()
           </EditorSidebar>
           <Separator orientation="vertical" />
         </template>
-        <template #afterTabs v-if="isWindows && !isSmallScreen">
+        <template #afterTabs v-if="compactHeader && isWindows">
           <TitleBarControls />
         </template>
       </TabView>

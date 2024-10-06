@@ -16,23 +16,34 @@ const { width } = useWindowSize()
 const minSize = computed(() => {
   return (minWidth / width.value) * 100
 })
+
+const showHeader = computed(() => {
+  return (
+    // don't show the header on small screens or when running in Tauri
+    (!isSmallScreen.value && !isTauri) ||
+    // always show header for small screens on Windows to ensure the window can be moved
+    (isSmallScreen.value && isWindows)
+  )
+})
 </script>
 
 <template>
   <div vaul-drawer-wrapper class="bg-background h-screen flex flex-col">
-    <AppHeader
-      v-if="(!isSmallScreen && !isTauri) || (isSmallScreen && isWindows)"
-    />
+    <AppHeader v-if="showHeader" />
     <main class="flex-1 overflow-auto">
       <ResizablePanelGroup direction="horizontal">
         <template v-if="!isSmallScreen">
           <ResizablePanel :default-size="18" :min-size="minSize">
-            <slot name="aside" />
+            <slot name="aside" :compact-header="!showHeader" />
           </ResizablePanel>
           <ResizableHandle />
         </template>
         <ResizablePanel>
-          <slot name="main" />
+          <slot
+            name="main"
+            :compact-header="!showHeader"
+            :no-aside="isSmallScreen"
+          />
         </ResizablePanel>
       </ResizablePanelGroup>
     </main>
