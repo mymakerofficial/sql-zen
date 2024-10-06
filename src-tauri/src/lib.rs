@@ -10,9 +10,12 @@ use mysql::MySQLClient;
 use postgres::PostgresClient;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tauri::{Manager, State, WebviewWindowBuilder, WebviewUrl, TitleBarStyle};
+use tauri::{Manager, State, WebviewWindowBuilder, WebviewUrl};
 use tokio::sync::Mutex;
 use types::QueryResult;
+
+#[cfg(target_os = "macos")]
+use tauri::{TitleBarStyle};
 
 #[derive(Default)]
 struct AppState {
