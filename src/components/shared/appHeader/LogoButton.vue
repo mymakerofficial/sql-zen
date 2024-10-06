@@ -1,22 +1,12 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
-import { isTauri } from '@tauri-apps/api/core'
-
-const to = isTauri() ? '/app' : '/'
+import AppLogo from '@/components/shared/appHeader/AppLogo.vue'
 </script>
 
 <template>
   <Button as-child variant="ghost" class="min-w-max">
-    <RouterLink :to="to">
-      <img
-        src="@/assets/sql-zen-logo.svg"
-        alt="SqlZen"
-        class="inline size-6 min-h-max mr-3"
-      />
-      <span
-        class="inline-block text-xl bg-gradient-to-br from-blue-200 to-blue-600 text-transparent bg-clip-text font-black"
-        >SqlZen</span
-      >
+    <RouterLink to="/">
+      <AppLogo />
     </RouterLink>
   </Button>
 </template>

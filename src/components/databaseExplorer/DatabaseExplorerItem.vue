@@ -37,7 +37,7 @@ function handleDelete() {
 </script>
 
 <template>
-  <article class="py-4 pl-6 pr-3 flex flex-col">
+  <article class="flex flex-col">
     <div class="flex items-center justify-between text-sm">
       <Button
         @click="handleSelect"

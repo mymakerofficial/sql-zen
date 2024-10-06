@@ -39,6 +39,6 @@ function handleRefresh() {
         <RefreshCwIcon class="size-4 min-h-max" />
       </Button>
     </div>
-    <DatabaseExplorerContent />
+    <DatabaseExplorerContent class="py-4 pl-6 pr-3 overflow-y-auto" />
   </section>
 </template>

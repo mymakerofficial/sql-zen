@@ -2,8 +2,6 @@
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import DialogProvider from '@/components/shared/dialog/DialogProvider.vue'
 import { useQueryClient } from '@tanstack/vue-query'
-import AppHeader from '@/components/shared/appHeader/AppHeader.vue'
-import { isTauri } from '@tauri-apps/api/core'
 import { Toaster } from '@/components/ui/sonner'
 import { useRegistry } from '@/composables/useRegistry'
 import { useTabManager } from '@/composables/tabs/useTabManager'
@@ -14,6 +12,7 @@ import { watchEffect } from 'vue'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { getEngineInfo } from '@/lib/engines/helpers'
 import { FileAccessor } from '@/lib/files/fileAccessor'
+import { useEnv } from '@/composables/useEnv'
 
 const queryClient = useQueryClient()
 
@@ -26,10 +25,6 @@ queryClient.setDefaultOptions({
 
 const route = useRoute()
 const router = useRouter()
-
-if (isTauri() && route.path === '/') {
-  router.replace('/app')
-}
 
 const registry = useRegistry()
 const tabManager = useTabManager()
@@ -76,11 +71,6 @@ watchEffect(() => {
   <TooltipProvider>
     <DialogProvider />
     <Toaster />
-    <div vaul-drawer-wrapper class="bg-background h-screen flex flex-col">
-      <AppHeader :active-data-source="null" />
-      <main class="flex-1 overflow-auto">
-        <RouterView />
-      </main>
-    </div>
+    <RouterView />
   </TooltipProvider>
 </template>

@@ -17,13 +17,19 @@ const activeTab = useActiveTabId()
     >
       <div
         v-if="!!$slots.beforeTabs"
-        class="h-full sticky left-0 bg-background flex"
+        class="h-full sticky left-0 bg-background flex z-10"
       >
         <slot name="beforeTabs" />
       </div>
       <TabsTrigger v-for="tabId in tabs" :value="tabId" :key="tabId" as-child>
         <TabTriggerContent :tab-id="tabId" />
       </TabsTrigger>
+      <div
+        v-if="!!$slots.afterTabs"
+        class="ml-auto h-full sticky right-0 bg-background flex z-10"
+      >
+        <slot name="afterTabs" />
+      </div>
     </TabsList>
     <KeepAlive :max="6">
       <TabContentRenderer :tab-id="activeTab" :key="activeTab" />

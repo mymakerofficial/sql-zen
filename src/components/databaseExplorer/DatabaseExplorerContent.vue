@@ -22,7 +22,7 @@ function handleSelect(key: string) {
 </script>
 
 <template>
-  <div class="flex-1 flex flex-col overflow-auto">
+  <div class="flex-1 flex flex-col gap-4">
     <DatabaseExplorerItem
       v-for="dataSource in dataSources"
       :key="dataSource"
