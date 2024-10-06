@@ -14,14 +14,110 @@ import DatabaseExplorerContent from '@/components/databaseExplorer/DatabaseExplo
 import { useEnv } from '@/composables/useEnv'
 import { cn } from '@/lib/utils'
 import AppLogo from '@/components/shared/appHeader/AppLogo.vue'
-import { PlusIcon } from 'lucide-vue-next'
+import {
+  BrainIcon,
+  DownloadIcon,
+  FolderIcon,
+  PlusIcon,
+  SearchIcon,
+} from 'lucide-vue-next'
+import { useRegistry } from '@/composables/useRegistry'
+import { useActiveDataSourceKey } from '@/composables/dataSources/useActiveDataSourceKey'
+import { useDataSourceInfo } from '@/composables/dataSources/useDataSourceInfo'
+import FileExplorer from '@/components/shared/dialogs/fileExplorer/FileExplorer.vue'
+import EmbeddingsDialog from '@/components/shared/dialogs/embeddings/EmbeddingsDialog.vue'
+import EmbeddingsSearchDialog from '@/components/shared/dialogs/embeddings/EmbeddingsSearchDialog.vue'
+import { useDriverSupports } from '@/composables/engines/useDriverSupports'
+import { DataSourceDriverCapability } from '@/lib/engines/enums'
+import { computed, type MaybeRefOrGetter, ref } from 'vue'
+import { useArrayEvery } from '@vueuse/core'
+import { DataSourceStatus } from '@/lib/dataSources/enums'
+import { Separator } from '@/components/ui/separator'
+import { downloadFile } from '@/lib/downloadFile'
+
+function useAnd(values: MaybeRefOrGetter<boolean>[]) {
+  return useArrayEvery(values, (value) => value)
+}
+
+const isOpen = ref(false)
+function close() {
+  isOpen.value = false
+}
 
 const { isMacOS, isTauri } = useEnv()
+
+const registry = useRegistry()
+const dataSource = useActiveDataSourceKey()
+const info = useDataSourceInfo(dataSource)
+
 const { open: openCreate } = useDialog(CreateDataSourceDialog)
+const { open: openFileExplorer } = useDialog(FileExplorer)
+const { open: openEmbeddings } = useDialog(EmbeddingsDialog)
+const { open: openEmbeddingsSearch } = useDialog(EmbeddingsSearchDialog)
+
+const isRunning = computed(() => {
+  return info.value.status === DataSourceStatus.Running
+})
+
+const supportsFileExplorer = useDriverSupports(
+  () => info.value.driver,
+  DataSourceDriverCapability.LocalFileSystems,
+)
+const enableFileExplorer = useAnd([isRunning, supportsFileExplorer])
+
+const supportsDatabaseDump = useDriverSupports(
+  () => info.value.driver,
+  DataSourceDriverCapability.ExportDump,
+)
+const enableDatabaseDump = useAnd([isRunning, supportsDatabaseDump])
+
+const supportsEmbeddings = useDriverSupports(
+  () => info.value.driver,
+  DataSourceDriverCapability.Embeddings,
+)
+const enableEmbeddings = useAnd([isRunning, supportsEmbeddings])
+
+function handleOpenFileExplorer() {
+  if (!dataSource.value) {
+    return
+  }
+  close()
+  openFileExplorer({ dataSourceKey: dataSource.value })
+}
+
+function handleOpenEmbeddings() {
+  if (!dataSource.value) {
+    return
+  }
+  close()
+  openEmbeddings({ dataSourceKey: dataSource.value })
+}
+
+function handleOpenEmbeddingsSearch() {
+  if (!dataSource.value) {
+    return
+  }
+  close()
+  openEmbeddingsSearch({ dataSourceKey: dataSource.value })
+}
+
+async function handleDump() {
+  if (!dataSource.value) {
+    return
+  }
+  close()
+  const dump = await registry.getDataSource(dataSource.value).dump()
+  downloadFile(dump)
+}
+
+function handleOpenCreate() {
+  close()
+  openCreate()
+}
 </script>
 
 <template>
-  <Sheet>
+  <Sheet v-model:open="isOpen">
     <SheetTrigger><slot /></SheetTrigger>
     <SheetContent side="left" class="h-full flex flex-col">
       <SheetHeader v-if="!isMacOS" class="text-left">
@@ -36,7 +132,58 @@ const { open: openCreate } = useDialog(CreateDataSourceDialog)
         "
       >
         <div class="h-min flex flex-col gap-4">
-          <Button @click="openCreate" variant="secondary" class="gap-2">
+          <div class="flex flex-col">
+            <Button
+              v-if="enableFileExplorer"
+              @click="handleOpenFileExplorer"
+              variant="ghost"
+              class="justify-start gap-3"
+            >
+              <FolderIcon class="size-4 min-h-max" />
+              <span class="text-sm font-medium leading-none">
+                Explore Files
+              </span>
+            </Button>
+            <Button
+              v-if="enableDatabaseDump"
+              @click="handleDump"
+              variant="ghost"
+              class="justify-start gap-3"
+            >
+              <DownloadIcon class="size-4 min-h-max" />
+              <span class="text-sm font-medium leading-none">
+                Download Dump
+              </span>
+            </Button>
+            <Button
+              v-if="enableEmbeddings"
+              @click="handleOpenEmbeddings"
+              variant="ghost"
+              class="justify-start gap-3"
+            >
+              <BrainIcon class="size-4 min-h-max" />
+              <span class="text-sm font-medium leading-none">
+                Generate Embeddings
+              </span>
+            </Button>
+            <Button
+              v-if="enableEmbeddings"
+              @click="handleOpenEmbeddingsSearch"
+              variant="ghost"
+              class="justify-start gap-3"
+            >
+              <SearchIcon class="size-4 min-h-max" />
+              <span class="text-sm font-medium leading-none"
+                >Semantic Search</span
+              >
+            </Button>
+          </div>
+          <Separator />
+          <Button
+            @click="handleOpenCreate"
+            variant="ghost"
+            class="justify-start gap-3"
+          >
             <PlusIcon class="size-4 min-h-max" />
             <span>Add Data Source</span>
           </Button>
