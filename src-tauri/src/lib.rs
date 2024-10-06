@@ -1,17 +1,17 @@
-mod error;
 mod client;
-mod types;
-mod postgres;
+mod error;
 mod mysql;
+mod postgres;
+mod types;
 
-use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
-use tauri::{Manager, State};
-use tokio::sync::Mutex;
 use client::Client;
 use error::Error;
-use postgres::PostgresClient;
 use mysql::MySQLClient;
+use postgres::PostgresClient;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use tauri::{Manager, State};
+use tokio::sync::Mutex;
 use types::QueryResult;
 
 #[derive(Default)]
@@ -40,7 +40,12 @@ async fn connect_mysql(state: &mut AppState, key: String, url: String) -> Result
 }
 
 #[tauri::command]
-async fn connect(state: State<'_, Mutex<AppState>>, key: String, driver: DatabaseDriver, url: String) -> Result<(), Error> {
+async fn connect(
+    state: State<'_, Mutex<AppState>>,
+    key: String,
+    driver: DatabaseDriver,
+    url: String,
+) -> Result<(), Error> {
     let mut state = state.lock().await;
     match driver {
         DatabaseDriver::Postgres => connect_postgres(&mut state, key, url).await,
@@ -49,16 +54,23 @@ async fn connect(state: State<'_, Mutex<AppState>>, key: String, driver: Databas
 }
 
 #[tauri::command]
-async fn query(state: State<'_, Mutex<AppState>>, key: &str, sql: &str) -> Result<QueryResult, Error> {
+async fn query(
+    state: State<'_, Mutex<AppState>>,
+    key: &str,
+    sql: &str,
+) -> Result<QueryResult, Error> {
     let state = state.lock().await;
-    let client = state.clients.get(key)
-        .ok_or(Error::Io(std::io::Error::new(std::io::ErrorKind::NotFound, "client not found")))?;
+    let client = state.clients.get(key).ok_or(Error::Io(std::io::Error::new(
+        std::io::ErrorKind::NotFound,
+        "client not found",
+    )))?;
     client.query(sql).await
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
         .setup(|app| {
             app.manage(Mutex::new(AppState {
                 clients: HashMap::new(),
