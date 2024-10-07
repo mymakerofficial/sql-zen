@@ -81,7 +81,7 @@ class PostgresTypeManager {
     SELECT
         attrelid,
         array_agg(attname::text) AS column_names,
-        array_agg(atttypid) AS column_typeids
+        array_agg(atttypid::int) AS column_typeids
     FROM pg_catalog.pg_attribute
     WHERE attnum >= 1
     GROUP BY attrelid

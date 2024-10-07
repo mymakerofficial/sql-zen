@@ -92,17 +92,6 @@ export class PGLiteDataSource extends PostgresDataSource {
       await this.#fs.mkdir(BASE_PATH)
     })
 
-    // PGLite always tries to parse values. We want to keep them as strings.
-    // @ts-expect-error - PGLite does not expose parsers
-    this.#database.parsers = Object.keys(this.#database.parsers).reduce(
-      (acc, key) => {
-        // @ts-expect-error
-        acc[key] = TO_STRING
-        return acc
-      },
-      {},
-    )
-
     this.setStatus(DataSourceStatus.Running)
     this.emit(DataSourceEvent.Initialized)
   }
@@ -113,6 +102,18 @@ export class PGLiteDataSource extends PostgresDataSource {
     if (!this.#database) {
       throw new DatabaseNotLoadedError()
     }
+
+    // PGLite always tries to parse values. We want to keep them as strings.
+    // Maybe in the future we just parse the postgres messages ourselves
+    // @ts-expect-error - PGLite does not expose parsers
+    this.#database.parsers = Object.keys(this.#database.parsers).reduce(
+      (acc, key) => {
+        // @ts-expect-error
+        acc[key] = TO_STRING
+        return acc
+      },
+      {},
+    )
 
     return await this.#database.query<T>(sql, [])
   }
