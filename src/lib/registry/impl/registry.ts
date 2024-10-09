@@ -52,21 +52,19 @@ export class Registry extends EventPublisher<RegistryEventMap> {
     return dataSource.key
   }
 
-  start(key: string) {
+  async asyncStart(key: string) {
     const dataSource = this.getDataSource(key)
 
-    let startTime = Date.now()
+    const startTime = Date.now()
+    this.emit(RegistryEvent.Initializing, key)
+    await dataSource.init()
+    const endTime = Date.now()
+    const duration = endTime - startTime
+    this.emit(RegistryEvent.Initialized, key, duration)
+  }
 
-    dataSource.once(DataSourceEvent.Initializing, () => {
-      startTime = Date.now()
-      this.emit(RegistryEvent.Initializing, key)
-    })
-    dataSource.once(DataSourceEvent.Initialized, () => {
-      const endTime = Date.now()
-      const duration = endTime - startTime
-      this.emit(RegistryEvent.Initialized, key, duration)
-    })
-    dataSource.init().then()
+  start(key: string) {
+    this.asyncStart(key).then()
   }
 
   async close(key: string) {
