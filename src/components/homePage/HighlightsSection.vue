@@ -52,7 +52,7 @@ function setDDLExample(value: string) {
         <template #panel>
           <div class="flex items-center justify-center h-full">
             <div class="flex items-center gap-4 z-10">
-              <SparklesIcon class="size-5 min-h-max text-purple-300" />
+              <SparklesIcon class="size-5 text-purple-300" />
               <span
                 class="text-lg font-bold bg-gradient-to-br from-purple-300 to-violet-200 text-transparent bg-clip-text"
                 >Embeddings</span

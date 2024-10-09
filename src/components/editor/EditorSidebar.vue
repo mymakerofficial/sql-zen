@@ -148,7 +148,7 @@ function handleRefresh() {
               variant="ghost"
               class="justify-start gap-3"
             >
-              <FolderIcon class="size-4 min-h-max" />
+              <FolderIcon class="size-4" />
               <span class="text-sm font-medium leading-none">
                 Explore Files
               </span>
@@ -159,7 +159,7 @@ function handleRefresh() {
               variant="ghost"
               class="justify-start gap-3"
             >
-              <DownloadIcon class="size-4 min-h-max" />
+              <DownloadIcon class="size-4" />
               <span class="text-sm font-medium leading-none">
                 Download Dump
               </span>
@@ -170,7 +170,7 @@ function handleRefresh() {
               variant="ghost"
               class="justify-start gap-3"
             >
-              <BrainIcon class="size-4 min-h-max" />
+              <BrainIcon class="size-4" />
               <span class="text-sm font-medium leading-none">
                 Generate Embeddings
               </span>
@@ -181,7 +181,7 @@ function handleRefresh() {
               variant="ghost"
               class="justify-start gap-3"
             >
-              <SearchIcon class="size-4 min-h-max" />
+              <SearchIcon class="size-4" />
               <span class="text-sm font-medium leading-none"
                 >Semantic Search</span
               >
@@ -194,7 +194,7 @@ function handleRefresh() {
               variant="ghost"
               class="justify-start gap-3 flex-1"
             >
-              <PlusIcon class="size-4 min-h-max" />
+              <PlusIcon class="size-4" />
               <span>Add Data Source</span>
             </Button>
             <Button

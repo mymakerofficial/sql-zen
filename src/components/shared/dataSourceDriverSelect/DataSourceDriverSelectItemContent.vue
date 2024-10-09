@@ -21,7 +21,7 @@ const showRequiresDesktop = computed(() => {
 <template>
   <div class="my-1 flex flex-col gap-2">
     <div class="flex items-center gap-3">
-      <img :src="icon" :alt="`${name} Icon`" class="size-4 min-h-max" />
+      <img :src="icon" :alt="`${name} Icon`" class="size-4" />
       <span>{{ name }}</span>
       <span
         v-if="showRequiresDesktop"

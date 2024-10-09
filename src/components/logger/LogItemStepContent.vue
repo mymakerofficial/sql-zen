@@ -12,15 +12,15 @@ defineProps<{
   <div class="flex gap-2 items-center">
     <LoaderCircleIcon
       v-if="event.data.state === PromiseState.Pending"
-      class="size-5 min-h-max text-amber-400 animate-spin"
+      class="size-5 min-w-max text-amber-400 animate-spin"
     />
     <CheckIcon
       v-else-if="event.data.state === PromiseState.Success"
-      class="size-5 min-h-max text-green-500"
+      class="size-5 min-w-max text-green-500"
     />
     <XIcon
       v-else-if="event.data.state === PromiseState.Error"
-      class="size-5 min-h-max text-red-500"
+      class="size-5 min-w-max text-red-500"
     />
     <p class="text-sm">{{ event.data.message }}</p>
     <p

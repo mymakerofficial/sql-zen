@@ -194,7 +194,7 @@ const columns = [
       <ResponsiveDialogFooter>
         <FileInput @selected="handleRegisterFile">
           <Button class="gap-3">
-            <UploadIcon class="size-4 min-h-max" />
+            <UploadIcon class="size-4" />
             <span>Upload</span>
           </Button>
         </FileInput>

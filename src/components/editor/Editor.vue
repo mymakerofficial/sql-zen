@@ -29,7 +29,7 @@ const { isMacOS, isWindows } = useEnv()
           />
           <EditorSidebar>
             <Button variant="ghost" class="h-full rounded-none text-foreground">
-              <MenuIcon class="size-4 min-h-max" />
+              <MenuIcon class="size-4" />
             </Button>
           </EditorSidebar>
           <Separator orientation="vertical" />

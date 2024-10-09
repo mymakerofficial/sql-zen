@@ -47,28 +47,28 @@ function handleCreateAsTable() {
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger>
-      <Button variant="ghost"><MenuIcon class="size-4 min-h-max" /></Button>
+      <Button variant="ghost"><MenuIcon class="size-4" /></Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent>
       <DropdownMenuItem @click="handleOpenFile" class="gap-2">
-        <EyeIcon class="size-4 min-h-max" />
+        <EyeIcon class="size-4" />
         <span>Open</span>
       </DropdownMenuItem>
       <DropdownMenuItem @click="handleDownloadFile" class="gap-2">
-        <DownloadIcon class="size-4 min-h-max" />
+        <DownloadIcon class="size-4" />
         <span>Download</span>
       </DropdownMenuItem>
       <DropdownMenuItem @click="handleDeleteFile" class="gap-2">
-        <Trash2Icon class="size-4 min-h-max" />
+        <Trash2Icon class="size-4" />
         <span>Delete</span>
       </DropdownMenuItem>
       <DropdownMenuSeparator />
       <DropdownMenuItem @click="handleCopyName" class="gap-2">
-        <ClipboardIcon class="size-4 min-h-max" />
+        <ClipboardIcon class="size-4" />
         <span>Copy Name</span>
       </DropdownMenuItem>
       <DropdownMenuItem v-if="canCreateAsTable" @click="handleCreateAsTable" class="gap-2">
-        <TableIcon class="size-4 min-h-max" />
+        <TableIcon class="size-4" />
         <span>Create Table from File</span>
       </DropdownMenuItem>
     </DropdownMenuContent>

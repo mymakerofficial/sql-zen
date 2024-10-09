@@ -55,7 +55,7 @@ const { mutateAsync: computeTotalRowCount } = useMutation({
         size="xs"
         aria-label="Previous page"
       >
-        <ArrowLeftIcon class="size-4 min-h-max" />
+        <ArrowLeftIcon class="size-4" />
       </Button>
       <span class="text-xs text-muted-foreground">
         <LimitSelect v-model="limit">
@@ -85,7 +85,7 @@ const { mutateAsync: computeTotalRowCount } = useMutation({
         size="xs"
         aria-label="Next page"
       >
-        <ArrowRightIcon class="size-4 min-h-max" />
+        <ArrowRightIcon class="size-4" />
       </Button>
       <span class="ml-auto mx-2 text-xs text-muted-foreground space-x-2">
         <span>{{ Math.round(query.getResult().duration * 100) / 100 }}ms</span>

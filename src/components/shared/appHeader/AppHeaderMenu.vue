@@ -86,7 +86,7 @@ async function handleDump() {
     <NavigationMenuList>
       <NavigationMenuItem v-if="supportsFileExplorer || supportsDatabaseDump">
         <NavigationMenuTrigger class="gap-3">
-          <FileIcon class="size-4 min-h-max" />
+          <FileIcon class="size-4" />
           <span>Files</span>
         </NavigationMenuTrigger>
         <NavigationMenuContent>
@@ -98,7 +98,7 @@ async function handleDump() {
                 variant="ghost"
                 class="justify-start gap-3"
               >
-                <FolderIcon class="size-4 min-h-max" />
+                <FolderIcon class="size-4" />
                 <span class="text-sm font-medium leading-none">
                   Explore Files
                 </span>
@@ -111,7 +111,7 @@ async function handleDump() {
                 variant="ghost"
                 class="justify-start gap-3"
               >
-                <DownloadIcon class="size-4 min-h-max" />
+                <DownloadIcon class="size-4" />
                 <span class="text-sm font-medium leading-none">
                   Download Dump
                 </span>
@@ -122,7 +122,7 @@ async function handleDump() {
       </NavigationMenuItem>
       <NavigationMenuItem v-if="supportsEmbeddings">
         <NavigationMenuTrigger class="gap-3">
-          <SparklesIcon class="size-4 min-h-max text-purple-300" />
+          <SparklesIcon class="size-4 text-purple-300" />
           <span
             class="hidden md:block font-bold bg-gradient-to-br from-purple-300 to-violet-200 text-transparent bg-clip-text"
             >Embeddings</span
@@ -137,7 +137,7 @@ async function handleDump() {
                 variant="ghost"
                 class="justify-start gap-3"
               >
-                <BrainIcon class="size-4 min-h-max" />
+                <BrainIcon class="size-4" />
                 <span class="text-sm font-medium leading-none">
                   Generate Embeddings
                 </span>
@@ -150,7 +150,7 @@ async function handleDump() {
                 variant="ghost"
                 class="justify-start gap-3"
               >
-                <SearchIcon class="size-4 min-h-max" />
+                <SearchIcon class="size-4" />
                 <span class="text-sm font-medium leading-none"
                   >Semantic Search</span
                 >
