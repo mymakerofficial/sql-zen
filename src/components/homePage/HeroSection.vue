@@ -10,7 +10,7 @@ const smallScreen = useMediaQuery('(max-width: 1024px)')
   <section
     class="p-6 md:p-0 sm:w-2/3 lg:w-full lg:grid lg:grid-cols-8 lg:gap-12 lg:h-[70vh] max-h-[860px]"
   >
-    <HeroText class="col-span-4 xl:col-span-3" />
+    <HeroText class="col-span-4 xl:col-span-3 mt-6" />
     <LazyHeroConsole v-if="!smallScreen" class="col-span-4 xl:col-span-5" />
   </section>
 </template>

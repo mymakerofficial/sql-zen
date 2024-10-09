@@ -16,7 +16,7 @@ import { selectableDatabaseEngines } from '@/lib/engines/constants.js'
       <div
         v-for="info in selectableDatabaseEngines"
         :key="info.name"
-        class="scroll-ml-6 snap-start relative w-60 min-w-60 h-60 border rounded-md flex flex-col items-center justify-center gap-8 p-4 overflow-hidden"
+        class="scroll-ml-6 snap-start relative w-60 min-w-60 h-60 flex flex-col items-center justify-center gap-8 p-4 overflow-hidden"
       >
         <img :src="info.icon" :alt="info.name" class="size-12 select-none" />
         <h4 class="text-lg font-semibold">{{ info.name }}</h4>
