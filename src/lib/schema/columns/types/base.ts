@@ -102,6 +102,7 @@ export const DatabaseEngineDataTypesMap = {
   [DatabaseEngine.PostgreSQL]: PostgresDataType,
   [DatabaseEngine.DuckDB]: DuckDBDataType,
   [DatabaseEngine.MySQL]: {},
+  [DatabaseEngine.MariaDB]: {},
 } as const satisfies Record<DatabaseEngine, Record<string, Partial<DataType>>>
 
 export const DatabaseEngineDataTypeDefinitionMap = {
@@ -110,6 +111,7 @@ export const DatabaseEngineDataTypeDefinitionMap = {
   [DatabaseEngine.PostgreSQL]: PostgresDataTypeDefinitions,
   [DatabaseEngine.DuckDB]: DuckDBTypeDefinition,
   [DatabaseEngine.MySQL]: {},
+  [DatabaseEngine.MariaDB]: {},
 } as const satisfies Record<DatabaseEngine, Record<string, DataTypeDefinition>>
 
 export type WithPseudoTypes<T> = PseudoDataType | T
