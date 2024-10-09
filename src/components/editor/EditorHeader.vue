@@ -12,7 +12,7 @@ const { isTauri, isMacOS } = useEnv()
   <div
     v-if="isTauri"
     data-tauri-drag-region
-    class="px-3 h-12 flex items-center border-b border-border"
+    class="px-3 min-h-12 flex items-center border-b border-border"
   >
     <AppLogo v-if="!isMacOS" class="ml-2" />
     <div class="ml-auto">

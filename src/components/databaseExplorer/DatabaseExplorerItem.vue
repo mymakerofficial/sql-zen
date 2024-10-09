@@ -43,7 +43,7 @@ function handleDelete() {
         @click="handleSelect"
         size="sm"
         variant="ghost"
-        class="-ml-3 flex-grow gap-3 items-center justify-start"
+        class="flex-grow gap-3 items-center justify-start"
       >
         <span class="relative min-w-max">
           <img
