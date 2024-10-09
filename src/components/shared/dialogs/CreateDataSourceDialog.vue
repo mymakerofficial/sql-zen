@@ -201,11 +201,13 @@ const canCreate = computed(() => {
   return !showRequiresDesktop.value
 })
 
-// special sqlite wasm case
-const showOnlyOnePersistedWarning = computed(() => {
+// only one of this type can be created
+const showOnlyOneWarning = computed(() => {
   return (
     data.driver === DataSourceDriver.SQLiteWASM &&
     data.mode === DataSourceMode.BrowserPersisted
+  ) || (
+    data.driver === DataSourceDriver.DuckDBWASM
   )
 })
 
@@ -283,7 +285,7 @@ const { mutate: create, error } = useMutation({
             />
           </div>
           <div
-            v-if="enableIdentifier && !showOnlyOnePersistedWarning"
+            v-if="enableIdentifier && !showOnlyOneWarning"
             class="grid grid-cols-4 items-center gap-4"
           >
             <Label for="identifier" class="text-right">Identifier</Label>
@@ -351,7 +353,7 @@ const { mutate: create, error } = useMutation({
           </div>
         </div>
         <div
-          v-if="canCreate && showOnlyOnePersistedWarning"
+          v-if="canCreate && showOnlyOneWarning"
           class="mx-4 md:mx-0 bg-yellow-400/10 p-2 rounded-md space-y-1"
         >
           <span
@@ -361,8 +363,8 @@ const { mutate: create, error } = useMutation({
             <span>Watch out!</span>
           </span>
           <p class="ml-8 text-xs text-amber-500/80">
-            Due to technical limitations of the sqlite-wasm library you can
-            only create one persisted sqlite data source.
+            Due to technical limitations you can
+            only create one data source of this type.
           </p>
         </div>
         <div
