@@ -87,7 +87,7 @@ export const dataSourceDriversMap = {
     engines: [DatabaseEngine.MySQL, DatabaseEngine.MariaDB],
     name: 'MySQL Connector',
     description:
-      'Connect to a local or remote MySQL database using a standard connection string.',
+      'Connect to any MySQL or MariaDB database using a standard connection string.',
     icon: mysqlIcon,
   },
   [DataSourceDriver.SQLiteWASM]: {
