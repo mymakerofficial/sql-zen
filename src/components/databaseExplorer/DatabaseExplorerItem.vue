@@ -64,14 +64,14 @@ function handleDelete() {
         </Button>
       </div>
     </div>
-    <div v-if="isExperimental" class="my-2 space-y-1">
+    <div v-if="isExperimental" class="mx-3 my-2 space-y-1">
       <span
-        class="w-min flex items-center gap-1 text-sm font-medium text-amber-400"
+        class="flex items-center gap-3 text-sm font-medium text-amber-400"
       >
-        <FlaskConicalIcon class="size-4" />
+        <FlaskConicalIcon class="size-4 max-w-min" />
         <span>Experimental</span>
       </span>
-      <p class="ml-5 text-xs text-amber-500/80">
+      <p class="ml-7 text-xs text-amber-500/80">
         Support for {{ engineInfo.name }} is still in it's early stages. Expect
         bugs and missing features.
       </p>

@@ -191,6 +191,7 @@ function handleRefresh() {
           <div class="flex justify-between">
             <Button
               @click="handleOpenCreate"
+              size="sm"
               variant="ghost"
               class="justify-start gap-3 flex-1"
             >
@@ -206,7 +207,7 @@ function handleRefresh() {
               <RefreshCwIcon class="size-4" />
             </Button>
           </div>
-          <DatabaseExplorerContent class="pl-3 w-full h-min" />
+          <DatabaseExplorerContent class="w-full h-min" />
         </div>
       </div>
     </SheetContent>
