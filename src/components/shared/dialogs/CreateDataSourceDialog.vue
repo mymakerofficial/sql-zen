@@ -99,7 +99,7 @@ watchEffect(
         break
     }
 
-    if (data.driver === DataSourceDriver.SQLiteWASM && data.mode === DataSourceMode.Persisted) {
+    if (data.driver === DataSourceDriver.SQLiteWASM && data.mode === DataSourceMode.BrowserPersisted) {
       data.identifier = ''
       return
     }
