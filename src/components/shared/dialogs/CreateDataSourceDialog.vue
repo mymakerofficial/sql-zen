@@ -91,6 +91,11 @@ watchEffect(
         break
     }
 
+    if (data.driver === DataSourceDriver.SQLiteWASM && data.mode === DataSourceMode.Persisted) {
+      data.identifier = ''
+      return
+    }
+
     if (
       data.driver === DataSourceDriver.SQLiteWASM ||
       data.driver === DataSourceDriver.PGLite
@@ -188,6 +193,14 @@ const canCreate = computed(() => {
   return !showRequiresDesktop.value
 })
 
+// special sqlite wasm case
+const showOnlyOnePersistedWarning = computed(() => {
+  return (
+    data.driver === DataSourceDriver.SQLiteWASM &&
+    data.mode === DataSourceMode.BrowserPersisted
+  )
+})
+
 const engineInfo = computed(() => getEngineInfo(data.engine))
 
 async function handleFileSelected(value: FileAccessor) {
@@ -262,7 +275,7 @@ const { mutate: create, error } = useMutation({
             />
           </div>
           <div
-            v-if="enableIdentifier"
+            v-if="enableIdentifier && !showOnlyOnePersistedWarning"
             class="grid grid-cols-4 items-center gap-4"
           >
             <Label for="identifier" class="text-right">Identifier</Label>
@@ -279,7 +292,7 @@ const { mutate: create, error } = useMutation({
             v-if="enableConnectionString"
             class="grid grid-cols-4 items-center gap-4"
           >
-            <Label for="identifier" class="text-right">URL</Label>
+            <Label for="connectionString" class="text-right">URL</Label>
             <Input
               v-model="data.connectionString"
               id="connectionString"
@@ -330,16 +343,31 @@ const { mutate: create, error } = useMutation({
           </div>
         </div>
         <div
-          v-if="canCreate && isExperimental"
-          class="mx-4 md:mx-0 bg-yellow-400/10 p-2 rounded-md"
+          v-if="canCreate && showOnlyOnePersistedWarning"
+          class="mx-4 md:mx-0 bg-yellow-400/10 p-2 rounded-md space-y-1"
         >
           <span
-            class="w-min flex items-center gap-2 text-sm font-medium text-amber-400"
+            class="flex items-center gap-2 text-sm font-medium text-amber-400"
           >
-            <FlaskConicalIcon class="size-4" />
+            <InfoIcon class="size-4 min-w-max" />
+            <span>Watch out!</span>
+          </span>
+          <p class="ml-8 text-xs text-amber-500/80">
+            Due to technical limitations of the sqlite-wasm library you can
+            only create one persisted sqlite data source.
+          </p>
+        </div>
+        <div
+          v-if="canCreate && isExperimental"
+          class="mx-4 md:mx-0 bg-yellow-400/10 p-2 rounded-md space-y-1"
+        >
+          <span
+            class="flex items-center gap-2 text-sm font-medium text-amber-400"
+          >
+            <FlaskConicalIcon class="size-4 min-w-max" />
             <span>Experimental</span>
           </span>
-          <p class="ml-6 text-xs text-amber-500/80">
+          <p class="ml-8 text-xs text-amber-500/80">
             Support for {{ engineInfo.name }} is still in it's early stages.
             Expect bugs and missing features.
           </p>
@@ -348,7 +376,7 @@ const { mutate: create, error } = useMutation({
           v-if="canCreate"
           class="mx-4 md:mx-0 bg-foreground/10 p-2 rounded-md flex gap-2 text-muted-foreground text-xs"
         >
-          <InfoIcon class="size-4" />
+          <InfoIcon class="size-4 min-w-max" />
           <p>
             <template v-if="worksInBrowser">
               This database lives in your browser. No data is ever sent to our
