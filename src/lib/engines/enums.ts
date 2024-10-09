@@ -3,6 +3,7 @@ export const DatabaseEngine = {
   PostgreSQL: 'postgresql',
   SQLite: 'sqlite',
   MySQL: 'mysql',
+  MariaDB: 'mariadb',
   DuckDB: 'duckdb',
 } as const
 export type DatabaseEngine =

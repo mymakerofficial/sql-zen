@@ -18,6 +18,8 @@ export abstract class DataSource
   implements Readonly<DataSourceInfo>
 {
   readonly #key: string
+  // some drivers support multiple engines, so store the engine here
+  readonly #engine: DatabaseEngine
   readonly #mode: DataSourceMode
   #displayName: string
   readonly #identifier: string
@@ -32,6 +34,7 @@ export abstract class DataSource
 
   constructor(data: DataSourceData) {
     super()
+    this.#engine = data.engine
     this.#mode = data.mode
     this.#displayName = data.displayName
     this.#identifier = data.identifier
@@ -53,7 +56,9 @@ export abstract class DataSource
     return this.#key
   }
 
-  abstract get engine(): DatabaseEngine
+  get engine(): DatabaseEngine {
+    return this.#engine
+  }
 
   abstract get driver(): DataSourceDriver
 

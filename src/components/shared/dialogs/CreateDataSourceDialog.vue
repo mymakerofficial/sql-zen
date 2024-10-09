@@ -78,13 +78,21 @@ const nouns = [
 
 watchEffect(
   () => {
+    // this effect is becoming a mess
+
     switch (data.driver) {
       case DataSourceDriver.PostgreSQL:
         data.connectionString =
           'postgres://user:password@localhost:5432/postgres'
         break
       case DataSourceDriver.MySQL:
-        data.connectionString = 'mysql://user:password@localhost:3306/mysql'
+        if (data.engine === DatabaseEngine.MariaDB) {
+          data.connectionString =
+            'mysql://user:password@localhost:3306/mariadb'
+        } else {
+          data.connectionString =
+            'mysql://user:password@localhost:3306/mysql'
+        }
         break
       default:
         data.connectionString = ''

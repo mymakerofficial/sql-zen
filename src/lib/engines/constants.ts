@@ -4,6 +4,7 @@ import duckdbIcon from '@/assets/icons/duckdb.svg'
 import pgliteIcon from '@/assets/icons/pglite.svg'
 import wasmIcon from '@/assets/icons/web-assembly.svg'
 import mysqlIcon from '@/assets/icons/mysql.svg'
+import mariadbIcon from '@/assets/icons/mariadb.svg'
 import {
   DatabaseEngine,
   DataSourceDriver,
@@ -46,6 +47,13 @@ export const databaseEnginesMap = {
     icon: mysqlIcon,
     defaultDriver: DataSourceDriver.MySQL,
   },
+  [DatabaseEngine.MariaDB]: {
+    name: 'MariaDB',
+    description:
+      'MariaDB is a community-developed fork of MySQL, designed to remain free and open-source.',
+    icon: mariadbIcon,
+    defaultDriver: DataSourceDriver.MySQL,
+  },
   [DatabaseEngine.DuckDB]: {
     name: 'DuckDB',
     description:
@@ -57,39 +65,39 @@ export const databaseEnginesMap = {
 
 export const dataSourceDriversMap = {
   [DataSourceDriver.None]: {
-    engine: DatabaseEngine.None,
+    engines: [DatabaseEngine.None],
     name: 'None',
     description: 'No driver selected.',
     icon: '',
   },
   [DataSourceDriver.PostgreSQL]: {
-    engine: DatabaseEngine.PostgreSQL,
-    name: 'PostgreSQL',
+    engines: [DatabaseEngine.PostgreSQL],
+    name: 'PostgreSQL Connector',
     description:
       'Connect to a local or remote Postgres database using a standard connection string.',
     icon: postgresqlIcon,
   },
   [DataSourceDriver.PGLite]: {
-    engine: DatabaseEngine.PostgreSQL,
+    engines: [DatabaseEngine.PostgreSQL],
     name: 'PGLite',
     description: 'Run a complete Postgres database in your browser.',
     icon: pgliteIcon,
   },
   [DataSourceDriver.MySQL]: {
-    engine: DatabaseEngine.MySQL,
-    name: 'MySQL',
+    engines: [DatabaseEngine.MySQL, DatabaseEngine.MariaDB],
+    name: 'MySQL Connector',
     description:
       'Connect to a local or remote MySQL database using a standard connection string.',
     icon: mysqlIcon,
   },
   [DataSourceDriver.SQLiteWASM]: {
-    engine: DatabaseEngine.SQLite,
+    engines: [DatabaseEngine.SQLite],
     name: 'sqlite-wasm',
     description: 'Run a SQLite database in your browser.',
     icon: wasmIcon,
   },
   [DataSourceDriver.DuckDBWASM]: {
-    engine: DatabaseEngine.DuckDB,
+    engines: [DatabaseEngine.DuckDB],
     name: 'duckdb-wasm',
     description: 'Run a DuckDB database in your browser.',
     icon: wasmIcon,
