@@ -30,7 +30,7 @@ function handleSelect() {
     <img
       :src="engineInfo.icon"
       :alt="`${engineInfo.name} icon`"
-      class="size-4 min-h-max text-muted-foreground"
+      class="size-4 text-muted-foreground"
     />
     <span class="font-medium">{{ dataSourceInfo.displayName }}</span>
   </Button>

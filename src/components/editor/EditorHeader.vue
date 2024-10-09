@@ -18,7 +18,7 @@ const { isTauri, isMacOS } = useEnv()
     <div class="ml-auto">
       <EditorSidebar>
         <Button variant="ghost" size="sm">
-          <MenuIcon class="size-4 min-h-max" />
+          <MenuIcon class="size-4" />
         </Button>
       </EditorSidebar>
     </div>

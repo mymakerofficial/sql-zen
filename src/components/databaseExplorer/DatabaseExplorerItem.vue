@@ -38,29 +38,29 @@ function handleDelete() {
 
 <template>
   <article class="flex flex-col">
-    <div class="flex items-center justify-between text-sm">
+    <div class="flex items-center justify-between">
       <Button
         @click="handleSelect"
         size="sm"
         variant="ghost"
-        class="-ml-3 gap-3 items-center flex-1 justify-start"
+        class="-ml-3 flex-grow gap-3 items-center justify-start"
       >
         <span class="relative min-w-max">
           <img
             :src="engineInfo.icon"
             :alt="`${engineInfo.name} icon`"
-            class="size-4 min-h-max text-muted-foreground"
+            class="size-4 text-muted-foreground"
           />
           <span
             :data-status="info.status"
             class="block absolute -top-1 -right-1 size-1.5 rounded-full data-[status=running]:bg-green-500 data-[status=pending]:bg-orange-500 data-[status=stopped]:bg-red-500"
           />
         </span>
-        <span class="font-medium">{{ info.displayName }}</span>
+        <span class="font-medium truncate">{{ info.displayName }}</span>
       </Button>
       <div v-if="!hideActions" class="flex items-center">
         <Button @click="handleDelete" size="xs" variant="ghost">
-          <Trash2Icon class="size-4 min-h-max" />
+          <Trash2Icon class="size-4" />
         </Button>
       </div>
     </div>

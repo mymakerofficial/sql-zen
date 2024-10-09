@@ -35,13 +35,13 @@ import ClickTheButton from '@/assets/click-the-button.svg?raw'
         />
         <Button as-child size="lg" class="gap-3">
           <RouterLink to="/app">
-            <MousePointer2Icon class="size-4 min-h-max" />
+            <MousePointer2Icon class="size-4" />
             <span>Get Started</span>
           </RouterLink>
         </Button>
       </div>
       <Button size="lg" variant="secondary" class="gap-3">
-        <DownloadIcon class="size-4 min-h-max" />
+        <DownloadIcon class="size-4" />
         <span>Download for Windows</span>
         <span class="text-xs">soon</span>
       </Button>

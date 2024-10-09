@@ -37,7 +37,7 @@ watchEffect(() => {
       {{ dataSourceInfo.displayName }} is stopped
     </p>
     <Button @click="handleStart" variant="ghost" class="gap-3">
-      <PlayIcon class="size-4 min-h-max" />
+      <PlayIcon class="size-4" />
       <span>Start</span>
     </Button>
   </div>

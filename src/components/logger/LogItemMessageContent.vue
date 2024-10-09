@@ -9,7 +9,7 @@ defineProps<{
 
 <template>
   <div class="flex gap-2 items-center">
-    <InfoIcon class="size-5 min-h-max text-muted-foreground" />
+    <InfoIcon class="size-5 min-w-max text-muted-foreground" />
     <p class="text-sm">{{ event.data.message }}</p>
   </div>
 </template>

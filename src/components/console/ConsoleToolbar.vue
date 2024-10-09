@@ -21,11 +21,11 @@ defineProps<{
       <RunButton :editor="editor" :transacting="runTransacting" />
       <Separator orientation="vertical" />
       <Toggle v-model:pressed="runTransacting" class="gap-3 h-9">
-        <ArrowLeftRightIcon class="size-4 min-h-max" />
+        <ArrowLeftRightIcon class="size-4" />
         <span class="hidden md:block">Transaction</span>
       </Toggle>
       <Toggle v-model:pressed="enableInlineResults" class="gap-3 h-9">
-        <TableRowsSplitIcon class="size-4 min-h-max" />
+        <TableRowsSplitIcon class="size-4" />
         <span class="hidden md:block">Inline Results</span>
       </Toggle>
     </div>
