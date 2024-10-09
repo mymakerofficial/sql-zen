@@ -38,11 +38,11 @@ const typeDef = computed(() =>
         <BadgeInfoIcon class="size-4" />
       </HoverCardTrigger>
       <HoverCardContent side="top" class="w-min space-y-2">
-        <h3 class="flex items-center gap-2 text-muted-foreground">
+        <h3 class="flex items-center gap-2 text-muted-foreground text-sm">
           <BadgeInfoIcon class="size-4" />
           <span>auto-generated type definition</span>
         </h3>
-        <CodeBlock :code="typeDef" class="[&_pre]:!bg-transparent" />
+        <CodeBlock :code="typeDef" class="[&_pre]:!bg-transparent text-xs" />
       </HoverCardContent>
     </HoverCard>
     <span v-else class="text-xs font-normal">

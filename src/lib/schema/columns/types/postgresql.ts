@@ -262,8 +262,8 @@ export const PostgresDataTypeDefinitions = {
     },
     getDDLDeclaration: (def) => {
       const labels =
-        def.enumLabels?.map((it) => `'${it}'`).join(', ') ?? '/* ??? */'
-      return `CREATE TYPE ${def.typeName} AS ENUM (${labels})`
+        def.enumLabels?.map((it) => `    '${it}'`).join(',\n') ?? '/* ??? */'
+      return `CREATE TYPE ${def.typeName} AS ENUM (\n${labels}\n)`
     },
     getDDLUsage: (def) => {
       return def.typeName
