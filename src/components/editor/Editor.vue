@@ -16,8 +16,10 @@ const { isMacOS, isWindows } = useEnv()
 <template>
   <EditorLayout>
     <template #aside="{ compactHeader }">
-      <EditorHeader v-if="compactHeader" />
-      <DatabaseExplorer />
+      <div class="h-full flex flex-col">
+        <EditorHeader v-if="compactHeader" />
+        <DatabaseExplorer class="flex-grow overflow-y-hidden"/>
+      </div>
     </template>
     <template #main="{ compactHeader, noAside }">
       <TabView :data-tauri-drag-region="compactHeader">

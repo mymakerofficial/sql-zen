@@ -25,12 +25,12 @@ function handleRefresh() {
 </script>
 
 <template>
-  <section class="flex-1 flex flex-col h-full">
+  <section class="flex flex-col">
     <div
       class="px-3 h-12 flex items-center justify-between border-b border-border"
     >
       <DatabaseEngineSelect @select="handleCreate">
-        <Button size="sm" variant="ghost" class="justify-start gap-3 flex-1">
+        <Button size="sm" variant="ghost" class="justify-start gap-3 flex-grow">
           <PlusIcon class="size-4" />
           <span>Add Data Source</span>
         </Button>
@@ -39,6 +39,6 @@ function handleRefresh() {
         <RefreshCwIcon class="size-4" />
       </Button>
     </div>
-    <DatabaseExplorerContent class="py-4 pl-6 pr-3 overflow-y-auto" />
+    <DatabaseExplorerContent class="p-3 overflow-y-auto" />
   </section>
 </template>
