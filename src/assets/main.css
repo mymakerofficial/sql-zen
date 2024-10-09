@@ -100,3 +100,7 @@
     @apply !text-primary;
   }
 }
+
+html {
+  overscroll-behavior: none;
+}
