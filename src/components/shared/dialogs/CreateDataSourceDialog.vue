@@ -359,10 +359,10 @@ const { mutate: create, error } = useMutation({
           <span
             class="flex items-center gap-2 text-sm font-medium text-amber-400"
           >
-            <InfoIcon class="size-4 min-w-max" />
+            <InfoIcon class="size-4 min-size-4" />
             <span>Watch out!</span>
           </span>
-          <p class="ml-8 text-xs text-amber-500/80">
+          <p class="ml-6 text-xs text-amber-500/80">
             Due to technical limitations you can
             only create one data source of this type.
           </p>
@@ -374,10 +374,10 @@ const { mutate: create, error } = useMutation({
           <span
             class="flex items-center gap-2 text-sm font-medium text-amber-400"
           >
-            <FlaskConicalIcon class="size-4 min-w-max" />
+            <FlaskConicalIcon class="size-4 min-size-4" />
             <span>Experimental</span>
           </span>
-          <p class="ml-8 text-xs text-amber-500/80">
+          <p class="ml-6 text-xs text-amber-500/80">
             Support for {{ engineInfo.name }} is still in it's early stages.
             Expect bugs and missing features.
           </p>
@@ -386,7 +386,7 @@ const { mutate: create, error } = useMutation({
           v-if="canCreate"
           class="mx-4 md:mx-0 bg-foreground/10 p-2 rounded-md flex gap-2 text-muted-foreground text-xs"
         >
-          <InfoIcon class="size-4 min-w-max" />
+          <InfoIcon class="size-4 min-size-4" />
           <p>
             <template v-if="worksInBrowser">
               This database lives in your browser. No data is ever sent to our

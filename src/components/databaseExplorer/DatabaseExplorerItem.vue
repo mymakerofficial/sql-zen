@@ -68,7 +68,7 @@ function handleDelete() {
       <span
         class="flex items-center gap-3 text-sm font-medium text-amber-400"
       >
-        <FlaskConicalIcon class="size-4 max-w-min" />
+        <FlaskConicalIcon class="size-4 min-size-4" />
         <span>Experimental</span>
       </span>
       <p class="ml-7 text-xs text-amber-500/80">
