@@ -1,7 +1,7 @@
 import type { QueryResult } from '@/lib/queries/interface'
 import { getId } from '@/lib/getId'
 import { DataSource } from '@/lib/dataSources/impl/base'
-import { DatabaseEngine, DataSourceDriver } from '@/lib/engines/enums'
+import { DataSourceDriver } from '@/lib/engines/enums'
 import { DataSourceStatus } from '@/lib/dataSources/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import { invoke } from '@tauri-apps/api/core'
@@ -9,9 +9,6 @@ import type { PostgresQueryResult } from '@/lib/dataSources/impl/postgres/base'
 import { FieldDefinition } from '@/lib/schema/columns/column'
 
 export class MySqlDataSource extends DataSource {
-  get engine() {
-    return DatabaseEngine.MySQL
-  }
 
   get driver() {
     return DataSourceDriver.MySQL

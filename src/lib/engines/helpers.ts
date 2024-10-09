@@ -14,5 +14,5 @@ export function getDriverCapabilities(driver: DataSourceDriver) {
 }
 
 export function getDataSourceDriversForEngine(engine: DatabaseEngine) {
-  return dataSourceDrivers.filter((info) => info.engine === engine)
+  return dataSourceDrivers.filter((info) => info.engines.includes(engine))
 }
