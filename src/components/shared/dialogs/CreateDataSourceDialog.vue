@@ -87,11 +87,9 @@ watchEffect(
         break
       case DataSourceDriver.MySQL:
         if (data.engine === DatabaseEngine.MariaDB) {
-          data.connectionString =
-            'mysql://user:password@localhost:3306/mariadb'
+          data.connectionString = 'mysql://user:password@localhost:3306/mariadb'
         } else {
-          data.connectionString =
-            'mysql://user:password@localhost:3306/mysql'
+          data.connectionString = 'mysql://user:password@localhost:3306/mysql'
         }
         break
       default:
@@ -99,7 +97,10 @@ watchEffect(
         break
     }
 
-    if (data.driver === DataSourceDriver.SQLiteWASM && data.mode === DataSourceMode.BrowserPersisted) {
+    if (
+      data.driver === DataSourceDriver.SQLiteWASM &&
+      data.mode === DataSourceMode.BrowserPersisted
+    ) {
       data.identifier = ''
       return
     }
@@ -204,9 +205,8 @@ const canCreate = computed(() => {
 // only one of this type can be created
 const showOnlyOneWarning = computed(() => {
   return (
-    data.driver === DataSourceDriver.SQLiteWASM &&
-    data.mode === DataSourceMode.BrowserPersisted
-  ) || (
+    (data.driver === DataSourceDriver.SQLiteWASM &&
+      data.mode === DataSourceMode.BrowserPersisted) ||
     data.driver === DataSourceDriver.DuckDBWASM
   )
 })
@@ -340,18 +340,25 @@ const { mutate: create, error } = useMutation({
         <div v-if="error" class="mx-4 md:mx-0 text-red-500 text-sm mt-2">
           {{ error.message }}
         </div>
-        <div
-          v-if="showRequiresDesktop"
-          class="mx-4 md:mx-0 bg-gradient-to-br from-blue-300 to-blue-600 p-4 rounded-md flex gap-3 text-neutral-900 text-xs"
-        >
-          <AppWindowIcon class="size-5 mt-1" />
-          <div class="space-y-1">
-            <p class="text-lg font-bold">Ready for more?</p>
-            <p class="font-medium">
-              This driver only works using the desktop app of SqlZen.
-            </p>
+        <template v-if="showRequiresDesktop">
+          <Separator />
+          <div
+            class="mt-3 mx-4 md:mx-0 bg-gradient-to-br from-blue-300 to-blue-600 p-4 rounded-md flex flex-col gap-5 text-neutral-900 text-xs"
+          >
+            <div class="flex gap-3">
+              <AppWindowIcon class="size-5 mt-1" />
+              <div class="space-y-1">
+                <p class="text-lg font-bold">Ready for more?</p>
+                <p class="font-medium">
+                  This driver only works using the desktop app of SqlZen.
+                </p>
+              </div>
+            </div>
+            <Button as-child @click="close">
+              <RouterLink to="/download">Download the App</RouterLink>
+            </Button>
           </div>
-        </div>
+        </template>
         <div
           v-if="canCreate && showOnlyOneWarning"
           class="mx-4 md:mx-0 bg-yellow-400/10 p-2 rounded-md space-y-1"
@@ -363,8 +370,8 @@ const { mutate: create, error } = useMutation({
             <span>Watch out!</span>
           </span>
           <p class="ml-6 text-xs text-amber-500/80">
-            Due to technical limitations you can
-            only create one data source of this type.
+            Due to technical limitations you can only create one data source of
+            this type.
           </p>
         </div>
         <div
@@ -396,11 +403,9 @@ const { mutate: create, error } = useMutation({
           </p>
         </div>
       </div>
-      <ResponsiveDialogFooter>
+      <ResponsiveDialogFooter v-if="canCreate">
         <Button @click="close" variant="ghost">Cancel</Button>
-        <Button :disabled="!canCreate" @click="create" type="submit"
-          >Create</Button
-        >
+        <Button @click="create" type="submit">Create</Button>
       </ResponsiveDialogFooter>
     </ResponsiveDialogContent>
   </ResponsiveDialog>
