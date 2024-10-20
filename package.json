@@ -34,6 +34,7 @@
     "clsx": "^2.1.1",
     "lucide-vue-next": "^0.408.0",
     "monaco-editor": "^0.50.0",
+    "octokit": "^4.0.2",
     "radix-vue": "^1.9.1",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
