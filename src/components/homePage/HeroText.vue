@@ -26,10 +26,10 @@ import { DownloadIcon, ExternalLinkIcon } from 'lucide-vue-next'
         </RouterLink>
       </Button>
       <Button as-child size="lg" variant="secondary" class="gap-3 text-md py-6">
-        <a href="https://github.com/mymakerofficial/sql-zen" target="_blank">
+        <RouterLink to="/download">
           <DownloadIcon class="size-4" />
-          <span>Get for Windows</span>
-        </a>
+          <span>Download</span>
+        </RouterLink>
       </Button>
     </div>
   </section>
