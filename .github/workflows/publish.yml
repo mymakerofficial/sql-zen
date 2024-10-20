@@ -3,8 +3,8 @@ name: 'publish'
 on:
   workflow_dispatch:
   push:
-    branches:
-      - release
+    tags:
+      - v* # This will trigger the workflow on any tag that starts with 'v'.
 
 jobs:
   publish-tauri:
