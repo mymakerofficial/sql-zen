@@ -22,6 +22,10 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     ...routes,
+    {
+      path: '/dl',
+      redirect: () => '/download',
+    },
     ...selectableDatabaseEngines.map(({ engine }) => ({
       path: `/${engine}`,
       redirect: () => `/app?createDataSource=true&engine=${engine}`,

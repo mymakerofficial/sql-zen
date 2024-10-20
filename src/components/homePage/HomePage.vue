@@ -10,13 +10,11 @@ import Container from '@/components/homePage/Container.vue'
 
 <template>
   <HomePageHeader />
-  <Container as-child>
-    <main class="flex flex-col gap-20 md:gap-32 md:pt-[10vh]">
-      <HeroSection />
-      <SupportedDatabases />
-      <HighlightsSection />
-      <HowItWorks />
-      <HomeFooter />
-    </main>
+  <Container as="main" class="flex flex-col gap-20 md:gap-32 md:pt-[10vh]">
+    <HeroSection />
+    <SupportedDatabases />
+    <HighlightsSection />
+    <HowItWorks />
+    <HomeFooter />
   </Container>
 </template>
