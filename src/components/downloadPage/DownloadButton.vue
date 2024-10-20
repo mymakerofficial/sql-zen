@@ -44,7 +44,7 @@ const arch = computed(() => {
 </script>
 
 <template>
-  <Button as-child variant="ghost" class="justify-between gap-2 h-auto">
+  <Button as-child variant="outline" class="justify-between gap-2 h-auto">
     <a :href="asset.browser_download_url">
       <span class="flex flex-col gap-1">
         <span>Download {{ fileType }}</span>
