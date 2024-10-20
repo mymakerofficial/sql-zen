@@ -1,6 +1,6 @@
 {
   "productName": "SqlZen",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "identifier": "de.maiker.sqlzen",
   "build": {
     "beforeDevCommand": "npm run dev",
