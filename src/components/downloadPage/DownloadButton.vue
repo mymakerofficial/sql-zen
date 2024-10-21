@@ -4,6 +4,7 @@ import { DownloadIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { computed } from 'vue'
 import { Platform } from '@/composables/useEnv'
+import { useSeline } from '@/composables/seline/seline'
 
 const props = defineProps<{
   platform: Platform
@@ -11,6 +12,8 @@ const props = defineProps<{
     ReturnType<Octokit['rest']['repos']['getLatestRelease']>
   >['data']['assets'][number]
 }>()
+
+const { track } = useSeline()
 
 const fileType = computed(() => {
   const name = props.asset.name
@@ -41,10 +44,22 @@ const arch = computed(() => {
     return '64-bit'
   return ''
 })
+
+function handleClick() {
+  track('downloaded-installer', {
+    platform: props.platform,
+    asset: props.asset.name,
+  })
+}
 </script>
 
 <template>
-  <Button as-child variant="outline" class="justify-between gap-2 h-auto">
+  <Button
+    @click="handleClick"
+    as-child
+    variant="outline"
+    class="justify-between gap-2 h-auto"
+  >
     <a :href="asset.browser_download_url">
       <span class="flex flex-col gap-1">
         <span>Download {{ fileType }}</span>
