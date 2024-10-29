@@ -20,7 +20,7 @@ const fileType = computed(() => {
   if (name.endsWith('dmg')) return '.dmg'
   if (name.endsWith('exe')) return '.exe'
   if (name.endsWith('AppImage')) return 'AppImage'
-  if (name.endsWith('deb')) return '.dep'
+  if (name.endsWith('deb')) return '.deb'
   if (name.endsWith('rpm')) return '.rpm'
   if (name.endsWith('msi')) return '.msi'
   if (name.endsWith('app.tar.gz')) return 'Portable'
