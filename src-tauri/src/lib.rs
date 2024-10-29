@@ -84,10 +84,8 @@ fn position_traffic_lights(window: WebviewWindow, x: f64, y: f64) {
     use objc::{msg_send, sel, sel_impl};
 
     unsafe {
-        let ns_window = window
-            .ns_window()
-            .expect("Failed to get ns window handle")
-            as cocoa::base::id;
+        let ns_window =
+            window.ns_window().expect("Failed to get ns window handle") as cocoa::base::id;
 
         let close = ns_window.standardWindowButton_(NSWindowButton::NSWindowCloseButton);
         let miniaturize =
@@ -161,6 +159,7 @@ fn setup_window(app: &mut tauri::App) -> Result<(), tauri::Error> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
