@@ -1,4 +1,4 @@
-import { check, Update } from '@tauri-apps/plugin-updater'
+import { check, type Update } from '@tauri-apps/plugin-updater'
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { relaunch } from '@tauri-apps/plugin-process'
 import { toast } from 'vue-sonner'
