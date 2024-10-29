@@ -1,6 +1,6 @@
 [package]
 name = "sql-zen"
-version = "0.1.0"
+version = "0.1.1"
 description = "SqlZen"
 authors = ["My_Maker"]
 edition = "2021"
