@@ -6,6 +6,7 @@ import TitleBarControls from '@/components/shared/appHeader/TitleBarControls.vue
 import { cn } from '@/lib/utils'
 import { useEnv } from '@/composables/useEnv'
 import AppLogo from '@/components/shared/appHeader/AppLogo.vue'
+import UpdateAppButton from '@/components/shared/UpdateAppButton.vue'
 
 const { isWindows, isMacOS, isTauri, isSmallScreen } = useEnv()
 </script>
@@ -17,7 +18,7 @@ const { isWindows, isMacOS, isTauri, isSmallScreen } = useEnv()
       cn(
         'relative flex items-center justify-between border-b border-border',
         isTauri ? 'h-12' : 'px-3 h-16',
-        isMacOS ? 'pl-24' : ''
+        isMacOS ? 'pl-24' : '',
       )
     "
   >
@@ -28,6 +29,7 @@ const { isWindows, isMacOS, isTauri, isSmallScreen } = useEnv()
     </div>
     <div class="h-full flex items-center gap-3">
       <ColorModeSelect v-if="!isSmallScreen" />
+      <UpdateAppButton />
       <TitleBarControls v-if="isWindows" />
     </div>
   </nav>
