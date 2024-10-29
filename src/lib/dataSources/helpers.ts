@@ -13,7 +13,14 @@ export function simplifyIdentifier(identifier: string) {
 
 export function generateDataSourceKey(info: DataSourceBase): string {
   const hash = djb2(
-    [info.engine, info.driver, info.mode, info.connectionString].join(':'),
+    [
+      info.engine,
+      info.driver,
+      info.mode,
+      info.displayName,
+      info.identifier,
+      info.connectionString,
+    ].join(':'),
   )
   return `ds_${hash}`
 }
