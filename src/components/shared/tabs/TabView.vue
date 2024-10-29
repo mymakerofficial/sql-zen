@@ -31,7 +31,7 @@ const activeTab = useActiveTabId()
       </TabsTrigger>
       <div
         v-if="!!$slots.afterTabs"
-        class="ml-auto h-full sticky right-0 bg-background flex z-10"
+        class="ml-auto h-full sticky right-0 bg-background flex items-center z-10"
       >
         <slot name="afterTabs" />
       </div>

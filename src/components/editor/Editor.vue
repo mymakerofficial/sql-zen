@@ -9,6 +9,7 @@ import { MenuIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import TitleBarControls from '@/components/shared/appHeader/TitleBarControls.vue'
 import EditorHeader from '@/components/editor/EditorHeader.vue'
+import UpdateAppButton from '@/components/shared/UpdateAppButton.vue'
 
 const { isMacOS, isWindows } = useEnv()
 </script>
@@ -18,7 +19,7 @@ const { isMacOS, isWindows } = useEnv()
     <template #aside="{ compactHeader }">
       <div class="h-full flex flex-col">
         <EditorHeader v-if="compactHeader" />
-        <DatabaseExplorer class="flex-grow overflow-y-hidden"/>
+        <DatabaseExplorer class="flex-grow overflow-y-hidden" />
       </div>
     </template>
     <template #main="{ compactHeader, noAside }">
@@ -36,8 +37,9 @@ const { isMacOS, isWindows } = useEnv()
           </EditorSidebar>
           <Separator orientation="vertical" />
         </template>
-        <template #afterTabs v-if="compactHeader && isWindows">
-          <TitleBarControls />
+        <template #afterTabs v-if="compactHeader">
+          <UpdateAppButton />
+          <TitleBarControls v-if="isWindows" />
         </template>
       </TabView>
     </template>
