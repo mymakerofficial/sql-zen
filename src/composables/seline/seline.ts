@@ -1,6 +1,7 @@
 import * as seline from '@seline-analytics/web'
 import { useDebounceFn } from '@vueuse/core'
 import { toast } from 'vue-sonner'
+import { isTauri } from '@tauri-apps/api/core'
 
 const AnalyticsConsent = {
   NotAsked: 'not-asked',
@@ -57,6 +58,11 @@ function askForConsent() {
 }
 
 function init() {
+  if (isTauri()) {
+    log('Analytics are disabled on Desktop')
+    return
+  }
+
   // Always track page views, we do this to know how many users are using the app.
   //  Only track more detailed events if the user consents!
 
