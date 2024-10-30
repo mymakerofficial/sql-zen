@@ -46,6 +46,7 @@ const family: Family = isTauri ? getFamily() : Family.Browser
 export function useEnv() {
   return {
     isTauri,
+    isBrowser: !isTauri,
     platform,
     type,
     family,

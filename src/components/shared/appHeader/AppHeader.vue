@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { useEnv } from '@/composables/useEnv'
 import AppLogo from '@/components/shared/appHeader/AppLogo.vue'
 import UpdateAppButton from '@/components/shared/UpdateAppButton.vue'
+import DownloadAppButton from '@/components/shared/DownloadAppButton.vue'
 
 const { isWindows, isMacOS, isTauri, isSmallScreen } = useEnv()
 </script>
@@ -28,8 +29,9 @@ const { isWindows, isMacOS, isTauri, isSmallScreen } = useEnv()
       <AppHeaderMenu v-if="!isSmallScreen" />
     </div>
     <div class="h-full flex items-center gap-3">
-      <ColorModeSelect v-if="!isSmallScreen" />
+      <DownloadAppButton />
       <UpdateAppButton />
+      <ColorModeSelect v-if="!isSmallScreen" />
       <TitleBarControls v-if="isWindows" />
     </div>
   </nav>
