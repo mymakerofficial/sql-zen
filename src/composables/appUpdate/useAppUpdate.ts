@@ -2,6 +2,7 @@ import { check, type Update } from '@tauri-apps/plugin-updater'
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { relaunch } from '@tauri-apps/plugin-process'
 import { toast } from 'vue-sonner'
+import { useEnv } from '@/composables/useEnv'
 
 export interface UpdateMetadata {
   available: boolean
@@ -20,11 +21,16 @@ const UPDATE_METADATA_DEFAULT: UpdateMetadata = {
 let update: Update | null = null
 
 export function useCheckForUpdates() {
+  const { isTauri } = useEnv()
   const { mutate: handleUpdate } = useInstallUpdate()
 
   return useQuery({
     queryKey: ['check-for-app-updates'],
     queryFn: async (): Promise<UpdateMetadata> => {
+      if (!isTauri) {
+        return UPDATE_METADATA_DEFAULT
+      }
+
       update = await check()
 
       if (!update) {
