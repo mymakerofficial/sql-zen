@@ -26,6 +26,7 @@ async-trait = "0.1.83"
 mysql_async = "0.34.2"
 tauri-plugin-os = "2"
 tauri-plugin-process = "2"
+sqlite = "0.36.1"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "0.26.0"
