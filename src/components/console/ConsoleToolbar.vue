@@ -4,8 +4,14 @@ import { Toggle } from '@/components/ui/toggle'
 import type { UseEditor } from '@/composables/editor/useEditor'
 import { Separator } from '@/components/ui/separator'
 import RunButton from '@/components/console/RunButton.vue'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
-const enableInlineResults = defineModel<boolean>('enableInlineResults')
+// kept for future use
+defineModel<boolean>('enableInlineResults')
 const runTransacting = defineModel<boolean>('runTransacting')
 
 defineProps<{
@@ -20,14 +26,17 @@ defineProps<{
     <div class="h-full flex items-center gap-3">
       <RunButton :editor="editor" :transacting="runTransacting" />
       <Separator orientation="vertical" />
-      <Toggle v-model:pressed="runTransacting" class="gap-3 h-9">
-        <ArrowLeftRightIcon class="size-4" />
-        <span class="hidden md:block">Transaction</span>
-      </Toggle>
-      <Toggle v-model:pressed="enableInlineResults" class="gap-3 h-9">
-        <TableRowsSplitIcon class="size-4" />
-        <span class="hidden md:block">Inline Results</span>
-      </Toggle>
+      <Tooltip>
+        <TooltipTrigger>
+          <Toggle v-model:pressed="runTransacting" class="gap-3 h-9">
+            <ArrowLeftRightIcon class="size-4" />
+            <span class="hidden md:block">Transaction</span>
+          </Toggle>
+        </TooltipTrigger>
+        <TooltipContent>
+          When enabled, multiple queries are executed as a single transaction.
+        </TooltipContent>
+      </Tooltip>
     </div>
     <div class="h-full flex items-center"></div>
   </section>
