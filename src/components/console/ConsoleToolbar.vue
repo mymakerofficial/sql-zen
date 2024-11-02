@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeftRightIcon, TableRowsSplitIcon } from 'lucide-vue-next'
+import { ArrowLeftRightIcon } from 'lucide-vue-next'
 import { Toggle } from '@/components/ui/toggle'
 import type { UseEditor } from '@/composables/editor/useEditor'
 import { Separator } from '@/components/ui/separator'
