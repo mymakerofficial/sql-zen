@@ -14,6 +14,7 @@ export const DataSourceDriver = {
   PGLite: 'pglite',
   PostgreSQL: 'postgresql',
   SQLiteWASM: 'sqlite-wasm',
+  SQLite: 'sqlite',
   MySQL: 'mysql',
   DuckDBWASM: 'duckdb-wasm',
 } as const
