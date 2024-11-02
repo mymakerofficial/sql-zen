@@ -1,7 +1,7 @@
 import { DatabaseEngine, DataSourceDriver } from '@/lib/engines/enums'
 import { DuckDB } from '@/lib/dataSources/impl/duckdb'
 import { DataSourceDummy } from '@/lib/dataSources/impl/dummy'
-import { SQLite } from '@/lib/dataSources/impl/sqlite'
+import { SQLiteWASM } from '@/lib/dataSources/impl/sqliteWasm'
 import { PGLiteDataSource } from '@/lib/dataSources/impl/postgres/pglite'
 import type { DataSource } from '@/lib/dataSources/impl/base'
 import type { DataSourceData } from '@/lib/dataSources/types'
@@ -9,6 +9,7 @@ import { DataSourceMode } from '@/lib/dataSources/enums'
 import { PostgreSQLProxy } from '@/lib/dataSources/impl/postgres/postgresqlproxy'
 import { FileAccessor } from '@/lib/files/fileAccessor'
 import { MySqlDataSource } from '@/lib/dataSources/impl/mysql'
+import { SQLiteDataSource } from '@/lib/dataSources/impl/sqlite'
 
 const dummy = new DataSourceDummy({
   engine: DatabaseEngine.None,
@@ -29,8 +30,10 @@ export class DataSourceFactory {
         return new PGLiteDataSource(info)
       case DataSourceDriver.MySQL:
         return new MySqlDataSource(info)
+      case DataSourceDriver.SQLite:
+        return new SQLiteDataSource(info)
       case DataSourceDriver.SQLiteWASM:
-        return new SQLite(info)
+        return new SQLiteWASM(info)
       case DataSourceDriver.DuckDBWASM:
         return new DuckDB(info)
       default:
