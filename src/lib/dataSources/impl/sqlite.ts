@@ -33,21 +33,16 @@ export class SQLiteDataSource extends DataSource {
 
     this.setStatus(DataSourceStatus.Running)
     this.emit(DataSourceEvent.Initialized)
-
-    const { rows } = await this.queryRaw<{
-      database: string
-      version: string
-    }>("SELECT database() AS 'database', version() AS 'version'")
-
-    this.logger.log(`Connected to MySQL version: ${rows[0].version}`)
-    this.logger.log(`Current database: ${rows[0].database}`)
   }
 
   async queryRaw<T extends object = object>(
     sql: string,
-  ): Promise<PostgresQueryResult<T>> {
+  ): Promise<{
+    rows: T[]
+    fields: { name: string; dataTypeName: string }[]
+  }> {
     const res = await invoke<{
-      columns: { name: string; dataTypeID: number }[]
+      columns: { name: string; dataTypeID: number; dataTypeName: string }[]
       rows: string[][]
     }>('query', {
       key: this.key,
@@ -77,7 +72,10 @@ export class SQLiteDataSource extends DataSource {
       const end = performance.now()
 
       const fields = rawResponse.fields.map((field) => {
-        return FieldDefinition.fromUnknown(field.name).toFieldInfo()
+        return FieldDefinition.fromSqliteNameAndType(
+          field.name,
+          field.dataTypeName ?? 'unknown',
+        ).toFieldInfo()
       })
 
       return {

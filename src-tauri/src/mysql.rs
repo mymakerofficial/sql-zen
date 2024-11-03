@@ -29,7 +29,8 @@ impl Client for MySQLClient {
             .iter()
             .map(|c| Column {
                 name: c.name_str().to_string(),
-                type_id: 0,
+                type_id: None,
+                type_name: None,
             })
             .collect::<Vec<_>>();
         let columns_len = columns.len();

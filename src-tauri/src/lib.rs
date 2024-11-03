@@ -3,11 +3,13 @@ mod error;
 mod mysql;
 mod postgres;
 mod types;
+mod sqlite;
 
 use client::Client;
 use error::Error;
 use mysql::MySQLClient;
 use postgres::PostgresClient;
+use sqlite::SQLiteClient;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tauri::{Manager, State, WebviewUrl, WebviewWindowBuilder};
@@ -28,6 +30,8 @@ enum DatabaseDriver {
     Postgres,
     #[serde(rename = "mysql")]
     MySQL,
+    #[serde(rename = "sqlite")]
+    SQLite,
 }
 
 async fn connect_postgres(state: &mut AppState, key: String, url: String) -> Result<(), Error> {
@@ -38,6 +42,12 @@ async fn connect_postgres(state: &mut AppState, key: String, url: String) -> Res
 
 async fn connect_mysql(state: &mut AppState, key: String, url: String) -> Result<(), Error> {
     let client = MySQLClient::connect(&url).await?;
+    state.clients.insert(key, Box::new(client));
+    Ok(())
+}
+
+async fn connect_sqlite(state: &mut AppState, key: String, url: String) -> Result<(), Error> {
+    let client = SQLiteClient::connect(&url).await?;
     state.clients.insert(key, Box::new(client));
     Ok(())
 }
@@ -53,6 +63,7 @@ async fn connect(
     match driver {
         DatabaseDriver::Postgres => connect_postgres(&mut state, key, url).await,
         DatabaseDriver::MySQL => connect_mysql(&mut state, key, url).await,
+        DatabaseDriver::SQLite => connect_sqlite(&mut state, key, url).await,
     }
 }
 
