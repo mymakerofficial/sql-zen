@@ -8,8 +8,21 @@ import { useDebounceFn } from '@vueuse/core'
 import { TabEvent } from '@/lib/tabs/events'
 import { getExampleSql } from '@/lib/examples/getExampleSql'
 import { getEngineInfo } from '@/lib/engines/helpers'
+import { isTauri } from '@tauri-apps/api/core'
 
 const registry = useRegistry()
+
+function getModelValue(tab: ConsoleTabData) {
+  if (tab.modelValue) {
+    return tab.modelValue
+  }
+
+  if (isTauri()) {
+    return ''
+  }
+
+  return getExampleSql(registry.getDataSource(tab.dataSourceKey).engine)
+}
 
 export class ConsoleTab extends Tab implements ConsoleTabInfo {
   readonly #dataSourceKey: string
@@ -18,11 +31,7 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
   constructor(tab: ConsoleTabData, manager: TabManager) {
     super(tab, manager)
     this.#dataSourceKey = tab.dataSourceKey
-    this.#model = monaco.editor.createModel(
-      tab.modelValue ??
-        getExampleSql(registry.getDataSource(this.dataSourceKey).engine),
-      'sql',
-    )
+    this.#model = monaco.editor.createModel(getModelValue(tab), 'sql')
 
     const debouncedSave = useDebounceFn(() => {
       this.emit(TabEvent.RequestSave)
