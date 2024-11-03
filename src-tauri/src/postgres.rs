@@ -34,7 +34,8 @@ impl Client for PostgresClient {
             .iter()
             .map(|c| Column {
                 name: c.name().to_owned(),
-                type_id: c.type_().oid().to_owned(),
+                type_id: Some(c.type_().oid().to_owned()),
+                type_name: Some(c.type_().name().to_owned()),
             })
             .collect::<Vec<_>>();
         let columns_len = columns.len();

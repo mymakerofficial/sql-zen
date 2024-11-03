@@ -7,6 +7,8 @@ pub enum Error {
     #[error("{0}")]
     MySQL(#[from] mysql_async::Error),
     #[error("{0}")]
+    SQLite(#[from] tokio_rusqlite::Error),
+    #[error("{0}")]
     Io(#[from] std::io::Error),
 }
 

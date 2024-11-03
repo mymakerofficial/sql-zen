@@ -5,7 +5,9 @@ use serde::Serialize;
 pub struct Column {
     pub name: String,
     #[serde(rename = "dataTypeID")]
-    pub type_id: u32,
+    pub type_id: Option<u32>,
+    #[serde(rename = "dataTypeName")]
+    pub type_name: Option<String>,
 }
 
 #[derive(Clone, Serialize)]
