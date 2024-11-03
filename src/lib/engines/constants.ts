@@ -38,7 +38,9 @@ export const databaseEnginesMap = {
     description:
       'SQLite is a lightweight, embedded database ideal for small-scale applications, offering simplicity, speed, and zero configuration.',
     icon: sqliteIcon,
-    defaultDriver: DataSourceDriver.SQLiteWASM,
+    defaultDriver: isTauri()
+      ? DataSourceDriver.SQLite
+      : DataSourceDriver.SQLiteWASM,
   },
   [DatabaseEngine.MySQL]: {
     name: 'MySQL',
@@ -92,8 +94,9 @@ export const dataSourceDriversMap = {
   },
   [DataSourceDriver.SQLite]: {
     engines: [DatabaseEngine.SQLite],
-    name: 'SQLite Connector',
-    description: 'Attach to a SQLite database file on your local filesystem.',
+    name: 'SQLite',
+    description:
+      'Attach to a SQLite database file on your local filesystem or open an in-memory database.',
     icon: sqliteIcon,
   },
   [DataSourceDriver.SQLiteWASM]: {
@@ -182,9 +185,9 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.RequiresDesktopApp]: true,
     [DataSourceDriverCapability.WorksInBrowser]: false,
     [DataSourceDriverCapability.Identifier]: false,
-    [DataSourceDriverCapability.ConnectionString]: false,
-    [DataSourceDriverCapability.Mode]: false,
-    [DataSourceDriverCapability.Experimental]: true,
+    [DataSourceDriverCapability.ConnectionString]: true,
+    [DataSourceDriverCapability.Mode]: true,
+    [DataSourceDriverCapability.Experimental]: false,
   },
   [DataSourceDriver.DuckDBWASM]: {
     [DataSourceDriverCapability.ExportDump]: false,
