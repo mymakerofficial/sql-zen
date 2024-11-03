@@ -14,6 +14,7 @@
     "core:window:allow-start-dragging",
     "os:default",
     "updater:default",
-    "process:default"
+    "process:default",
+    "dialog:default"
   ]
 }

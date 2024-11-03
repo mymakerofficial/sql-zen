@@ -2,15 +2,15 @@ mod client;
 mod error;
 mod mysql;
 mod postgres;
-mod types;
 mod sqlite;
+mod types;
 
 use client::Client;
 use error::Error;
 use mysql::MySQLClient;
 use postgres::PostgresClient;
-use sqlite::SQLiteClient;
 use serde::{Deserialize, Serialize};
+use sqlite::SQLiteClient;
 use std::collections::HashMap;
 use tauri::{Manager, State, WebviewUrl, WebviewWindowBuilder};
 use tokio::sync::Mutex;
@@ -170,6 +170,7 @@ fn setup_window(app: &mut tauri::App) -> Result<(), tauri::Error> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_os::init())
