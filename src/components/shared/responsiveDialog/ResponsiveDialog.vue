@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useMediaQuery } from '@vueuse/core'
 import { Dialog } from '@/components/ui/dialog'
 import { Drawer } from '@/components/ui/drawer'
 import {
@@ -7,17 +6,18 @@ import {
   type DialogRootProps,
   useForwardPropsEmits,
 } from 'radix-vue'
+import { useEnv } from '@/composables/useEnv'
 
 const props = defineProps<DialogRootProps>()
 const emits = defineEmits<DialogRootEmits>()
 
-const desktop = useMediaQuery('(min-width: 768px)')
+const { isMediumScreen } = useEnv()
 
 const forwarded = useForwardPropsEmits(props, emits)
 </script>
 
 <template>
-  <Dialog v-if="desktop" v-bind="forwarded">
+  <Dialog v-if="isMediumScreen" v-bind="forwarded">
     <slot />
   </Dialog>
   <Drawer v-else v-bind="forwarded">

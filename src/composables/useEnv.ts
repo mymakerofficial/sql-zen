@@ -53,5 +53,6 @@ export function useEnv() {
     isWindows: family === Family.Windows,
     isMacOS: type === OsType.MacOS,
     isSmallScreen: useMediaQuery('(max-width: 640px)'),
+    isMediumScreen: useMediaQuery('(min-width: 768px)'),
   }
 }
