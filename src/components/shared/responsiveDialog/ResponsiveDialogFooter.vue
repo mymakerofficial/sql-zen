@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { useMediaQuery } from '@vueuse/core'
 import { DialogFooter } from '@/components/ui/dialog'
 import { DrawerFooter } from '@/components/ui/drawer'
+import { useEnv } from '@/composables/useEnv'
 
-const desktop = useMediaQuery('(min-width: 768px)')
+const { isMediumScreen } = useEnv()
 </script>
 
 <template>
-  <DialogFooter v-if="desktop">
+  <DialogFooter v-if="isMediumScreen">
     <slot />
   </DialogFooter>
   <DrawerFooter v-else>

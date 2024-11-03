@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useMediaQuery } from '@vueuse/core'
 import { DialogScrollContent } from '@/components/ui/dialog'
 import { DrawerContent } from '@/components/ui/drawer'
 import {
@@ -9,6 +8,7 @@ import {
 } from 'radix-vue'
 import { cn } from '@/lib/utils'
 import type { HTMLAttributes } from 'vue'
+import { useEnv } from '@/composables/useEnv'
 
 const props = defineProps<
   DialogContentProps & {
@@ -17,13 +17,17 @@ const props = defineProps<
 >()
 const emits = defineEmits<DialogContentEmits>()
 
-const desktop = useMediaQuery('(min-width: 768px)')
+const { isMediumScreen } = useEnv()
 
 const forwarded = useForwardPropsEmits(props, emits)
 </script>
 
 <template>
-  <DialogScrollContent v-if="desktop" v-bind="forwarded" :class="props.class">
+  <DialogScrollContent
+    v-if="isMediumScreen"
+    v-bind="forwarded"
+    :class="props.class"
+  >
     <slot />
   </DialogScrollContent>
   <DrawerContent
