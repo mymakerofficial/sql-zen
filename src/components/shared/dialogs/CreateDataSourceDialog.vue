@@ -28,12 +28,18 @@ import { getEngineInfo } from '@/lib/engines/helpers'
 import DataSourceDriverSelect from '@/components/shared/dataSourceDriverSelect/DataSourceDriverSelect.vue'
 import { useDriverSupports } from '@/composables/engines/useDriverSupports'
 import { isTauri } from '@tauri-apps/api/core'
-import { AppWindowIcon, FlaskConicalIcon, InfoIcon } from 'lucide-vue-next'
+import {
+  AppWindowIcon,
+  FlaskConicalIcon,
+  InfoIcon,
+  FileIcon,
+} from 'lucide-vue-next'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { open as openFileSelector } from '@tauri-apps/plugin-dialog'
 
 const props = withDefaults(
   defineProps<{
@@ -126,6 +132,10 @@ watchEffect(
     } else {
       data.identifier = ''
     }
+
+    if (data.driver === DataSourceDriver.SQLite) {
+      data.mode = DataSourceMode.BrowserPersisted
+    }
   },
   {
     flush: 'post',
@@ -150,6 +160,30 @@ watchEffect(
       }
 
       data.displayName = [database, host].join('@')
+    } else if (data.driver === DataSourceDriver.SQLite) {
+      if (data.connectionString.startsWith('file://')) {
+        data.connectionString = data.connectionString.replace('file://', '')
+        return
+      }
+
+      if (
+        data.connectionString.startsWith('"') &&
+        data.connectionString.endsWith('"')
+      ) {
+        data.connectionString = data.connectionString.slice(1, -1)
+        return
+      }
+
+      // parts of file path / or \ depending on OS
+      const parts = data.connectionString.match(/[/\\]([^/\\]+)$/)
+      const fileName = parts?.[1]
+
+      if (!fileName) {
+        data.displayName = getEngineInfo(data.engine).name
+        return
+      }
+
+      data.displayName = fileName
     } else {
       data.displayName = getEngineInfo(data.engine).name
     }
@@ -216,6 +250,22 @@ const engineInfo = computed(() => getEngineInfo(data.engine))
 async function handleFileSelected(value: FileAccessor) {
   data.fileAccessor = value
   data.identifier = value.getName().split('.')[0]
+}
+
+async function handleSelectConnectionFile() {
+  const file = await openFileSelector({
+    title: 'Select SQLite Database',
+    multiple: false,
+    directory: false,
+    filter: [
+      {
+        name: 'SQLite Databases',
+        extensions: ['db', 'sqlite', 'sqlite3'],
+      },
+    ],
+  })
+
+  data.connectionString = file ?? ''
 }
 
 const { mutate: create, error } = useMutation({
@@ -299,7 +349,29 @@ const { mutate: create, error } = useMutation({
             </p>
           </div>
           <div
-            v-if="enableConnectionString"
+            v-if="data.driver === DataSourceDriver.SQLite"
+            class="grid grid-cols-4 items-center gap-4"
+          >
+            <template v-if="data.mode === DataSourceMode.BrowserPersisted">
+              <Label for="connectionString" class="text-right">URL</Label>
+              <span class="col-span-3 flex gap-1">
+                <Input v-model="data.connectionString" id="connectionString" />
+                <Button
+                  @click="handleSelectConnectionFile"
+                  variant="secondary"
+                  class="gap-3"
+                >
+                  <FileIcon class="size-4" />
+                  <span>Select File</span>
+                </Button>
+              </span>
+              <p class="col-span-3 col-start-2 text-xs text-muted-foreground">
+                Absolute path to the SQLite file.
+              </p>
+            </template>
+          </div>
+          <div
+            v-else-if="enableConnectionString"
             class="grid grid-cols-4 items-center gap-4"
           >
             <Label for="connectionString" class="text-right">URL</Label>
