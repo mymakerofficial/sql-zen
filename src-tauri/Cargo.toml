@@ -26,7 +26,8 @@ async-trait = "0.1.83"
 mysql_async = "0.34.2"
 tauri-plugin-os = "2"
 tauri-plugin-process = "2"
-sqlite = "0.36.1"
+rusqlite = { version = "0.32.1", features = ["bundled", "column_decltype"] }
+tokio-rusqlite = { version = "0.6.0", features = ["bundled"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "0.26.0"
