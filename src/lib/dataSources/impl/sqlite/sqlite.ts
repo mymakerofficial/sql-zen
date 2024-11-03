@@ -5,8 +5,12 @@ import { DataSourceDriver } from '@/lib/engines/enums'
 import { DataSourceStatus } from '@/lib/dataSources/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import { invoke } from '@tauri-apps/api/core'
-import type { PostgresQueryResult } from '@/lib/dataSources/impl/postgres/base'
 import { FieldDefinition } from '@/lib/schema/columns/column'
+import {
+  ipcQuery,
+  type IpcQueryObjectResult,
+  ipcQueryRowsToObjects,
+} from '@/lib/dataSources/impl/ipc'
 
 export class SQLiteDataSource extends DataSource {
   get driver() {
@@ -37,41 +41,18 @@ export class SQLiteDataSource extends DataSource {
 
   async queryRaw<T extends object = object>(
     sql: string,
-  ): Promise<{
-    rows: T[]
-    fields: { name: string; dataTypeName: string }[]
-  }> {
-    const res = await invoke<{
-      columns: { name: string; dataTypeID: number; dataTypeName: string }[]
-      rows: string[][]
-    }>('query', {
-      key: this.key,
-      sql,
-    }).catch((e) => {
-      throw new Error(e)
-    })
-
-    const rows = res.rows.map((row) => {
-      const obj: Record<string, string> = {}
-      res.columns.forEach((field, i) => {
-        obj[field.name] = row[i]
-      })
-      return obj as T
-    })
-
-    return {
-      rows,
-      fields: res.columns,
-    }
+  ): Promise<IpcQueryObjectResult<T>> {
+    const res = await ipcQuery(this.key, sql)
+    return ipcQueryRowsToObjects<T>(res)
   }
 
   query<T extends object = object>(sql: string) {
     return this.logger.query(sql, async () => {
       const start = performance.now()
-      const rawResponse = await this.queryRaw<T>(sql)
+      const { rows, columns } = await this.queryRaw<T>(sql)
       const end = performance.now()
 
-      const fields = rawResponse.fields.map((field) => {
+      const fields = columns.map((field) => {
         return FieldDefinition.fromSqliteNameAndType(
           field.name,
           field.dataTypeName ?? 'unknown',
@@ -80,7 +61,7 @@ export class SQLiteDataSource extends DataSource {
 
       return {
         fields,
-        rows: rawResponse.rows,
+        rows,
         affectedRows: null,
         duration: end - start,
         systemDuration: 0,
