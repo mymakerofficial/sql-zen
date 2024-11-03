@@ -13,7 +13,7 @@ import { DataSourceEvent } from '@/lib/dataSources/events'
 import type { FieldInfo } from '@/lib/schema/columns/column'
 import { FieldDefinition } from '@/lib/schema/columns/column'
 
-export class DuckDB extends DataSource {
+export class DuckDBWASMDataSource extends DataSource {
   #worker: Worker | null = null
   #database: duckdb.AsyncDuckDB | null = null
   #connection: duckdb.AsyncDuckDBConnection | null = null

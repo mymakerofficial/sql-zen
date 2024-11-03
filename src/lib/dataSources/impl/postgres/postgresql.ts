@@ -6,8 +6,9 @@ import {
   PostgresDataSource,
   type PostgresQueryResult,
 } from '@/lib/dataSources/impl/postgres/base'
+import { ipcQuery, ipcQueryRowsToObjects } from '@/lib/dataSources/impl/ipc'
 
-export class PostgreSQLProxy extends PostgresDataSource {
+export class PostgreSQLDataSource extends PostgresDataSource {
   get engine() {
     return DatabaseEngine.PostgreSQL
   }
@@ -46,27 +47,15 @@ export class PostgreSQLProxy extends PostgresDataSource {
   async queryRaw<T extends object = object>(
     sql: string,
   ): Promise<PostgresQueryResult<T>> {
-    const res = await invoke<{
-      columns: { name: string; dataTypeID: number }[]
-      rows: string[][]
-    }>('query', {
-      key: this.key,
-      sql,
-    }).catch((e) => {
-      throw new Error(e)
-    })
-
-    const rows = res.rows.map((row) => {
-      const obj: Record<string, string> = {}
-      res.columns.forEach((field, i) => {
-        obj[field.name] = row[i]
-      })
-      return obj as T
-    })
+    const res = await ipcQuery(this.key, sql)
+    const { rows, columns } = ipcQueryRowsToObjects<T>(res)
 
     return {
       rows,
-      fields: res.columns,
+      fields: columns.map((column) => ({
+        name: column.name,
+        dataTypeID: column.dataTypeID ?? 0,
+      })),
     }
   }
 }

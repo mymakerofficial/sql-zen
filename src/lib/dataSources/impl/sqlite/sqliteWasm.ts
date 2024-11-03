@@ -13,7 +13,7 @@ import { DatabaseEngine, DataSourceDriver } from '@/lib/engines/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import { FieldDefinition, type FieldInfo } from '@/lib/schema/columns/column'
 
-export class SQLiteWASM extends DataSource {
+export class SQLiteWASMDataSource extends DataSource {
   #sqlite3: Sqlite3Static | null = null
   #database: SqliteWasmDatabase | null = null
 
