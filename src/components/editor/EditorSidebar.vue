@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/sheet'
 import LogoButton from '@/components/shared/appHeader/LogoButton.vue'
 import { useDialog } from '@/composables/useDialog'
-import CreateDataSourceDialog from '@/components/shared/dialogs/CreateDataSourceDialog.vue'
+import CreateDataSourceDialog from '@/components/shared/dialogs/dataSource/CreateDataSourceDialog.vue'
 import { Button } from '@/components/ui/button'
 import DatabaseExplorerContent from '@/components/databaseExplorer/DatabaseExplorerContent.vue'
 import { useEnv } from '@/composables/useEnv'
