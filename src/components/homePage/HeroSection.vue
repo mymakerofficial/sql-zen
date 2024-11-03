@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import HeroText from '@/components/homePage/HeroText.vue'
 import { LazyHeroConsole } from '@/components/homePage/lazyHeroConsole'
-import { useMediaQuery } from '@vueuse/core'
-
-const smallScreen = useMediaQuery('(max-width: 1024px)')
 </script>
 
 <template>
   <section
-    class="p-6 md:p-0 sm:w-2/3 lg:w-full lg:grid lg:grid-cols-8 lg:gap-12 lg:h-[70vh] max-h-[860px]"
+    class="p-6 md:p-0 flex flex-col xl:grid xl:grid-cols-8 gap-20 mg:gap-12"
   >
-    <HeroText class="col-span-4 xl:col-span-3 mt-6" />
-    <LazyHeroConsole v-if="!smallScreen" class="col-span-4 xl:col-span-5" />
+    <HeroText class="col-span-3 mt-6 md:w-2/3 xl:w-full" />
+    <LazyHeroConsole class="col-span-5 h-[50vh] xl:h-[70vh] xl:max-h-[620px]" />
   </section>
 </template>
