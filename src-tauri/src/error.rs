@@ -1,7 +1,7 @@
 use fmt::Display;
+use serde::{Serialize, Serializer};
 use std::error::Error as StdError;
 use std::fmt;
-use serde::{Serialize, Serializer};
 
 #[derive(Debug)]
 pub enum Error {
@@ -17,10 +17,14 @@ impl Display for Error {
             Error::Postgres(err) => err.fmt(f),
             Error::MySQL(err) => err.fmt(f),
             // tokio_rusqlite wraps rusqlite errors in `Rusqlite(...)`
-            Error::SQLite(err) => write!(f, "{}", match err.source() {
-                Some(source) => source.to_string(),
-                None => err.to_string(),
-            }),
+            Error::SQLite(err) => write!(
+                f,
+                "{}",
+                match err.source() {
+                    Some(source) => source.to_string(),
+                    None => err.to_string(),
+                }
+            ),
             Error::Io(err) => err.fmt(f),
         }
     }
