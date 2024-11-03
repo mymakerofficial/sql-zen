@@ -6,27 +6,14 @@ import ResponsiveDialogDescription from '@/components/shared/responsiveDialog/Re
 import ResponsiveDialog from '@/components/shared/responsiveDialog/ResponsiveDialog.vue'
 import { useDialogContext } from '@/composables/useDialog'
 import ResponsiveDialogBody from '@/components/shared/responsiveDialog/ResponsiveDialogBody.vue'
-import { selectableDatabaseEngines } from '@/lib/engines/constants'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command'
 import { ref } from 'vue'
+import LargeDatabaseEngineSelect from '@/components/shared/dialogs/dataSource/inputs/LargeDatabaseEngineSelect.vue'
+import { DatabaseEngine } from '@/lib/engines/enums'
+import LargeDataSourceModeSelect from '@/components/shared/dialogs/dataSource/inputs/LargeDataSourceModeSelect.vue'
 
 const { open } = useDialogContext()
 
-const modelValue = ref()
-const selected = ref()
-
-function handleFocusInput() {
-  document
-    .querySelector<HTMLInputElement>('[cmdk-input-wrapper] input')
-    ?.focus()
-}
+const engine = ref(DatabaseEngine.None)
 </script>
 
 <template>
@@ -39,48 +26,12 @@ function handleFocusInput() {
         </ResponsiveDialogDescription>
       </ResponsiveDialogHeader>
       <ResponsiveDialogBody class="flex flex-col gap-2">
-        <Command v-model="modelValue" v-model:selected-value="selected">
-          <CommandInput placeholder="Select DBMS" />
-          <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup>
-              <CommandItem
-                v-for="item in selectableDatabaseEngines"
-                :value="item.engine"
-                :key="item.engine"
-                as-child
-              >
-                <button
-                  tabindex=""
-                  @focusin="selected = item.engine"
-                  @keydown.up.prevent="handleFocusInput"
-                  @keydown.down.prevent="handleFocusInput"
-                  class="flex flex-row gap-4 px-4 py-6 cursor-pointer"
-                >
-                  <img
-                    :src="item.icon"
-                    :alt="`${item.name} Icon`"
-                    class="size-6 mb-auto mt-1"
-                  />
-                  <span class="space-y-1 text-start">
-                    <span class="block font-medium">{{ item.name }}</span>
-                    <span
-                      class="block text-xs text-muted-foreground"
-                      data-description
-                    >
-                      {{ item.description }}
-                    </span>
-                  </span>
-                </button>
-              </CommandItem>
-            </CommandGroup>
-          </CommandList>
-        </Command>
+        <LargeDatabaseEngineSelect
+          v-if="engine === DatabaseEngine.None"
+          v-model="engine"
+        />
+        <LargeDataSourceModeSelect v-else v-model="engine" />
       </ResponsiveDialogBody>
-      <!--      <ResponsiveDialogFooter>-->
-      <!--        <Button variant="ghost">Cancel</Button>-->
-      <!--        <Button type="submit">Create</Button>-->
-      <!--      </ResponsiveDialogFooter>-->
     </ResponsiveDialogContent>
   </ResponsiveDialog>
 </template>

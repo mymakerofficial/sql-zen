@@ -4,7 +4,7 @@ import DatabaseEngineSelect from '@/components/shared/databaseEngineSelect/Datab
 import { PlusIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { useDialog } from '@/composables/useDialog'
-import CreateDataSourceDialog from '@/components/shared/dialogs/CreateDataSourceDialog.vue'
+import CreateDataSourceDialog from '@/components/shared/dialogs/dataSource/CreateDataSourceDialog.vue'
 import type { DatabaseEngine } from '@/lib/engines/enums'
 import { TabType } from '@/lib/tabs/enums'
 import { useTabManager } from '@/composables/tabs/useTabManager'
