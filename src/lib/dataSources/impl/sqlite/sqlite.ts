@@ -2,7 +2,7 @@ import type { QueryResult } from '@/lib/queries/interface'
 import { getId } from '@/lib/getId'
 import { DataSource } from '@/lib/dataSources/impl/base'
 import { DataSourceDriver } from '@/lib/engines/enums'
-import { DataSourceStatus } from '@/lib/dataSources/enums'
+import { DataSourceMode, DataSourceStatus } from '@/lib/dataSources/enums'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import { invoke } from '@tauri-apps/api/core'
 import { FieldDefinition } from '@/lib/schema/columns/column'
@@ -26,10 +26,13 @@ export class SQLiteDataSource extends DataSource {
     this.emit(DataSourceEvent.Initializing)
 
     await this.logger.step('Connecting', async () => {
+      const url =
+        this.mode === DataSourceMode.Memory ? ':memory:' : this.connectionString
+
       await invoke('connect', {
         key: this.key,
         driver: this.driver,
-        url: this.connectionString,
+        url,
       }).catch((e) => {
         throw new Error(e)
       })

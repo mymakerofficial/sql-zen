@@ -11,7 +11,7 @@ pub struct SQLiteClient {
 
 impl SQLiteClient {
     pub async fn connect(path: &str) -> Result<Self, Error> {
-        let connection = Connection::open_in_memory().await?;
+        let connection = Connection::open(path).await?;
         Ok(Self { connection })
     }
 }
