@@ -1,23 +1,29 @@
 <script setup lang="ts">
 import LargeSelect from '@/components/shared/dialogs/dataSource/inputs/LargeSelect.vue'
-import { type Component, computed } from 'vue'
+import { computed } from 'vue'
 import { useField } from 'vee-validate'
 import { DataSourceMode } from '@/lib/dataSources/enums'
 import { getDataSourceModeInfo } from '@/lib/dataSources/helpers'
-import {
-  type DataSourceModeInfo,
-  dataSourceModes,
-} from '@/lib/dataSources/constants'
+import { type DataSourceModeInfo } from '@/lib/dataSources/constants'
+import type { DatabaseEngine } from '@/lib/engines/enums'
+import { getAvailableModesForEngine } from '@/lib/engines/helpers'
 
 const props = withDefaults(
   defineProps<{
     name: string
+    engine: DatabaseEngine
     show?: boolean
   }>(),
   {
     show: true,
   },
 )
+
+const modes = computed(() => {
+  return getAvailableModesForEngine(props.engine).map((mode) => {
+    return getDataSourceModeInfo(mode)
+  })
+})
 
 const { value } = useField<DataSourceMode>(props.name)
 
@@ -44,7 +50,7 @@ function filterFunction(items: DataSourceModeInfo[], term: string) {
   <LargeSelect
     v-if="show"
     v-model="translatedValue"
-    :items="dataSourceModes"
+    :items="modes"
     :filter-function="filterFunction"
     :key="name"
     placeholder="How do you want to connect?"

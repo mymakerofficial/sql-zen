@@ -17,6 +17,7 @@ import { computed } from 'vue'
 import ResponsiveDialogFooter from '@/components/shared/responsiveDialog/ResponsiveDialogFooter.vue'
 import { Button } from '@/components/ui/button'
 import InputField from '@/components/shared/dialogs/dataSource/inputs/InputField.vue'
+import { getDriverForEngineAndMode } from '@/lib/engines/helpers'
 
 const Step = {
   Engine: 1,
@@ -33,7 +34,7 @@ const schema = z.object({
   displayName: z.string().min(1).max(64),
 })
 
-const { values, handleSubmit } = useForm({
+const { values, handleSubmit } = useForm<z.infer<typeof schema>>({
   validationSchema: toTypedSchema(schema),
   initialValues: {
     engine: DatabaseEngine.None,
@@ -69,12 +70,15 @@ const onSubmit = handleSubmit(async (values) => {
         </ResponsiveDialogDescription>
       </ResponsiveDialogHeader>
       <ResponsiveDialogBody class="flex flex-col gap-2">
+        <pre>{{ values }}</pre>
+        <pre>{{ getDriverForEngineAndMode(values.engine, values.mode) }}</pre>
         <LargeDatabaseEngineSelectField
           name="engine"
           :show="step === Step.Engine"
         />
         <LargeDataSourceModeSelectField
           name="mode"
+          :engine="values.engine"
           :show="step === Step.Mode"
         />
         <template v-if="step === Step.Details">

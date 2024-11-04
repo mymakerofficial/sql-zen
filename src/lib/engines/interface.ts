@@ -3,6 +3,7 @@ import {
   DataSourceDriverCapability,
   type DataSourceDriver,
 } from '@/lib/engines/enums'
+import type { DataSourceMode } from '@/lib/dataSources/enums'
 
 export type DatabaseEngineInfo = {
   engine: DatabaseEngine
@@ -21,5 +22,14 @@ export type DataSourceDriverInfo = {
 }
 
 export type DataSourceDriverCapabilities = {
-  [key in DataSourceDriverCapability]: boolean
+  [DataSourceDriverCapability.ExportDump]: boolean
+  [DataSourceDriverCapability.ImportDump]: boolean
+  [DataSourceDriverCapability.LocalFileSystems]: boolean
+  [DataSourceDriverCapability.Embeddings]: boolean
+  [DataSourceDriverCapability.RequiresDesktopApp]: boolean
+  [DataSourceDriverCapability.WorksInBrowser]: boolean
+  [DataSourceDriverCapability.Identifier]: boolean
+  [DataSourceDriverCapability.ConnectionString]: boolean
+  [DataSourceDriverCapability.Modes]: DataSourceMode[]
+  [DataSourceDriverCapability.Experimental]: boolean
 }

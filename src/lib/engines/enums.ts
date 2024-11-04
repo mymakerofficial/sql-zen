@@ -22,18 +22,17 @@ export type DataSourceDriver =
   (typeof DataSourceDriver)[keyof typeof DataSourceDriver]
 
 export const DataSourceDriverCapability = {
-  ImportDump: 'import-dump',
-  ExportDump: 'export-dump',
-  LocalFileSystems: 'local-file-systems',
+  ImportDump: 'importDump',
+  ExportDump: 'exportDump',
+  LocalFileSystems: 'localFileSystems',
   Embeddings: 'embeddings',
-  RequiresDesktopApp: 'requires-desktop-app',
-  WorksInBrowser: 'works-in-browser',
+  RequiresDesktopApp: 'requiresDesktopApp',
+  WorksInBrowser: 'worksInBrowser',
   // show the 'identifier' option in the connection dialog
   Identifier: 'identifier',
   // show the 'connection string' option in the connection dialog
-  ConnectionString: 'uses-connection-string',
-  // temporary: show the 'mode' option in the connection dialog
-  Mode: 'supports-mode',
+  ConnectionString: 'usesConnectionString',
+  Modes: 'modes',
   Experimental: 'experimental',
 } as const
 export type DataSourceDriverCapability =
