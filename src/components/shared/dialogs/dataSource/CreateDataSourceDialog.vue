@@ -38,16 +38,27 @@ import {
   DownloadIcon,
 } from 'lucide-vue-next'
 import { useEnv } from '@/composables/useEnv'
+import { useMutation } from '@tanstack/vue-query'
+import { useRegistry } from '@/composables/useRegistry'
+import type { DataSourceData } from '@/lib/dataSources/types'
 
 const Step = {
   Engine: 1,
   Mode: 2,
   Details: 3,
 } as const
-type Step = (typeof Step)[keyof typeof Step]
 
 const { open, close } = useDialogContext()
 const { isTauri, isBrowser } = useEnv()
+const registry = useRegistry()
+
+const { mutate: create } = useMutation({
+  mutationFn: (data: DataSourceData) => {
+    registry.register(data)
+    return Promise.resolve()
+  },
+  onSuccess: close,
+})
 
 const { values, handleSubmit, setValues } = useForm<
   z.infer<typeof dataSourceSchema>
@@ -64,7 +75,7 @@ const { values, handleSubmit, setValues } = useForm<
   },
 })
 
-const step = computed<Step>(() => {
+const step = computed(() => {
   if (values.engine === DatabaseEngine.None) {
     return Step.Engine
   }
@@ -165,7 +176,7 @@ const showRequiresDesktop = computed(() => {
 })
 
 const onSubmit = handleSubmit(async (values) => {
-  console.log(values)
+  create(values)
 })
 </script>
 
@@ -247,6 +258,13 @@ const onSubmit = handleSubmit(async (values) => {
             <FileInputField name="fileAccessor" />
           </BaseField>
         </template>
+        <Alert v-if="supportsImportDump">
+          <InfoIcon class="size-4" />
+          <AlertDescription>
+            This configuration allows you to import a database dump. Note that
+            no data entered here will be stored to the original file.
+          </AlertDescription>
+        </Alert>
         <Alert v-if="values.mode === DataSourceMode.Memory">
           <InfoIcon class="size-4" />
           <AlertTitle>Heads up!</AlertTitle>
@@ -255,7 +273,7 @@ const onSubmit = handleSubmit(async (values) => {
               Data written to In-memory databases will be lost when you close
               this tab or refresh the page.
             </template>
-            <template>
+            <template v-else>
               Data written to In-memory databases will be lost when the
               application is closed.
             </template>
