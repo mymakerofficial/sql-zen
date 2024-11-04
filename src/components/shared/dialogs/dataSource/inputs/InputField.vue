@@ -11,5 +11,5 @@ const [value, attrs] = defineField(props.name)
 </script>
 
 <template>
-  <Input v-model="value" v-bind="attrs" />
+  <Input v-model="value" v-bind="attrs" :id="name" />
 </template>
