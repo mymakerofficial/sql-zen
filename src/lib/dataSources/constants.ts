@@ -3,6 +3,7 @@ import type { Component } from 'vue'
 import {
   CableIcon,
   CpuIcon,
+  FileInputIcon,
   FileQuestionIcon,
   HardDriveIcon,
 } from 'lucide-vue-next'
@@ -20,6 +21,11 @@ export const dataSourceModesMap = {
     name: 'None',
     description: 'The data is stored nowhere. o.o',
     icon: FileQuestionIcon,
+  },
+  [DataSourceMode.AttachFile]: {
+    name: 'Attach',
+    description: 'Attach to a local database file.',
+    icon: FileInputIcon,
   },
   [DataSourceMode.Connection]: {
     name: 'Connection',

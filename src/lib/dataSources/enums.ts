@@ -1,5 +1,6 @@
 export const DataSourceMode = {
   None: 'none',
+  AttachFile: 'attachFile',
   Connection: 'connection',
   Memory: 'memory',
   BrowserPersisted: 'browserPersisted',
