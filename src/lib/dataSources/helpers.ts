@@ -43,5 +43,5 @@ export function getDataSourceDisplayName(info: DataSourceBase): string {
 }
 
 export function getDataSourceModeInfo(mode: DataSourceMode) {
-  return dataSourceModesMap[mode] as DataSourceModeInfo
+  return { mode, ...dataSourceModesMap[mode] } as DataSourceModeInfo
 }

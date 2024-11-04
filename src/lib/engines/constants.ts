@@ -16,6 +16,7 @@ import type {
   DataSourceDriverInfo,
 } from '@/lib/engines/interface'
 import { isTauri } from '@tauri-apps/api/core'
+import { DataSourceMode } from '@/lib/dataSources/enums'
 
 export const databaseEnginesMap = {
   [DatabaseEngine.None]: {
@@ -126,7 +127,7 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.WorksInBrowser]: false,
     [DataSourceDriverCapability.Identifier]: false,
     [DataSourceDriverCapability.ConnectionString]: false,
-    [DataSourceDriverCapability.Mode]: false,
+    [DataSourceDriverCapability.Modes]: [DataSourceMode.None],
     [DataSourceDriverCapability.Experimental]: false,
   },
   [DataSourceDriver.PostgreSQL]: {
@@ -138,7 +139,7 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.WorksInBrowser]: false,
     [DataSourceDriverCapability.Identifier]: false,
     [DataSourceDriverCapability.ConnectionString]: true,
-    [DataSourceDriverCapability.Mode]: false,
+    [DataSourceDriverCapability.Modes]: [DataSourceMode.Connection],
     [DataSourceDriverCapability.Experimental]: false,
   },
   [DataSourceDriver.PGLite]: {
@@ -150,19 +151,10 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.WorksInBrowser]: true,
     [DataSourceDriverCapability.Identifier]: true,
     [DataSourceDriverCapability.ConnectionString]: false,
-    [DataSourceDriverCapability.Mode]: true,
-    [DataSourceDriverCapability.Experimental]: false,
-  },
-  [DataSourceDriver.SQLiteWASM]: {
-    [DataSourceDriverCapability.ExportDump]: true,
-    [DataSourceDriverCapability.ImportDump]: true,
-    [DataSourceDriverCapability.LocalFileSystems]: false,
-    [DataSourceDriverCapability.Embeddings]: false,
-    [DataSourceDriverCapability.RequiresDesktopApp]: false,
-    [DataSourceDriverCapability.WorksInBrowser]: true,
-    [DataSourceDriverCapability.Identifier]: true,
-    [DataSourceDriverCapability.ConnectionString]: false,
-    [DataSourceDriverCapability.Mode]: true,
+    [DataSourceDriverCapability.Modes]: [
+      DataSourceMode.Memory,
+      DataSourceMode.BrowserPersisted,
+    ],
     [DataSourceDriverCapability.Experimental]: false,
   },
   [DataSourceDriver.MySQL]: {
@@ -174,7 +166,7 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.WorksInBrowser]: false,
     [DataSourceDriverCapability.Identifier]: false,
     [DataSourceDriverCapability.ConnectionString]: true,
-    [DataSourceDriverCapability.Mode]: false,
+    [DataSourceDriverCapability.Modes]: [DataSourceMode.Connection],
     [DataSourceDriverCapability.Experimental]: true,
   },
   [DataSourceDriver.SQLite]: {
@@ -186,7 +178,25 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.WorksInBrowser]: false,
     [DataSourceDriverCapability.Identifier]: false,
     [DataSourceDriverCapability.ConnectionString]: true,
-    [DataSourceDriverCapability.Mode]: true,
+    [DataSourceDriverCapability.Modes]: [
+      DataSourceMode.AttachFile,
+      DataSourceMode.Memory,
+    ],
+    [DataSourceDriverCapability.Experimental]: false,
+  },
+  [DataSourceDriver.SQLiteWASM]: {
+    [DataSourceDriverCapability.ExportDump]: true,
+    [DataSourceDriverCapability.ImportDump]: true,
+    [DataSourceDriverCapability.LocalFileSystems]: false,
+    [DataSourceDriverCapability.Embeddings]: false,
+    [DataSourceDriverCapability.RequiresDesktopApp]: false,
+    [DataSourceDriverCapability.WorksInBrowser]: true,
+    [DataSourceDriverCapability.Identifier]: true,
+    [DataSourceDriverCapability.ConnectionString]: false,
+    [DataSourceDriverCapability.Modes]: [
+      DataSourceMode.Memory,
+      DataSourceMode.BrowserPersisted,
+    ],
     [DataSourceDriverCapability.Experimental]: false,
   },
   [DataSourceDriver.DuckDBWASM]: {
@@ -198,7 +208,7 @@ export const dataSourceDriverCapabilities = {
     [DataSourceDriverCapability.WorksInBrowser]: true,
     [DataSourceDriverCapability.Identifier]: false,
     [DataSourceDriverCapability.ConnectionString]: false,
-    [DataSourceDriverCapability.Mode]: false,
+    [DataSourceDriverCapability.Modes]: [DataSourceMode.Memory],
     [DataSourceDriverCapability.Experimental]: false,
   },
 } as const satisfies Record<DataSourceDriver, DataSourceDriverCapabilities>

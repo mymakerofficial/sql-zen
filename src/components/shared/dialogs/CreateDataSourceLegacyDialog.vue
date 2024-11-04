@@ -205,7 +205,7 @@ const enableConnectionString = useDriverSupports(
 
 const enableMode = useDriverSupports(
   () => data.driver,
-  DataSourceDriverCapability.Mode,
+  DataSourceDriverCapability.Modes,
 )
 
 const enableIdentifier = useDriverSupports(
