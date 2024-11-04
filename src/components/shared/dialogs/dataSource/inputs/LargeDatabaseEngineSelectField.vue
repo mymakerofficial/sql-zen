@@ -5,17 +5,26 @@ import type { DatabaseEngineInfo } from '@/lib/engines/interface'
 import { DatabaseEngine } from '@/lib/engines/enums'
 import { getEngineInfo } from '@/lib/engines/helpers'
 import { computed } from 'vue'
+import { useField } from 'vee-validate'
 
-const modelValue = defineModel<DatabaseEngine>({
-  default: DatabaseEngine.None,
-})
+const props = withDefaults(
+  defineProps<{
+    name: string
+    show?: boolean
+  }>(),
+  {
+    show: true,
+  },
+)
+
+const { value } = useField<DatabaseEngine>(props.name)
 
 const translatedValue = computed<DatabaseEngineInfo | undefined>({
   get: () => {
-    return getEngineInfo(modelValue.value)
+    return getEngineInfo(value.value)
   },
   set: (newValue) => {
-    modelValue.value = newValue?.engine ?? DatabaseEngine.None
+    value.value = newValue?.engine ?? DatabaseEngine.None
   },
 })
 
@@ -31,6 +40,7 @@ function filterFunction(items: DatabaseEngineInfo[], term: string) {
 
 <template>
   <LargeSelect
+    v-if="show"
     v-model="translatedValue"
     :items="selectableDatabaseEngines"
     :filter-function="filterFunction"

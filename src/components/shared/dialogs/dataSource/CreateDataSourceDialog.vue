@@ -6,14 +6,57 @@ import ResponsiveDialogDescription from '@/components/shared/responsiveDialog/Re
 import ResponsiveDialog from '@/components/shared/responsiveDialog/ResponsiveDialog.vue'
 import { useDialogContext } from '@/composables/useDialog'
 import ResponsiveDialogBody from '@/components/shared/responsiveDialog/ResponsiveDialogBody.vue'
-import { ref } from 'vue'
-import LargeDatabaseEngineSelect from '@/components/shared/dialogs/dataSource/inputs/LargeDatabaseEngineSelect.vue'
 import { DatabaseEngine } from '@/lib/engines/enums'
-import LargeDataSourceModeSelect from '@/components/shared/dialogs/dataSource/inputs/LargeDataSourceModeSelect.vue'
+import { useForm } from 'vee-validate'
+import * as z from 'zod'
+import { DataSourceMode } from '@/lib/dataSources/enums'
+import { toTypedSchema } from '@vee-validate/zod'
+import LargeDatabaseEngineSelectField from '@/components/shared/dialogs/dataSource/inputs/LargeDatabaseEngineSelectField.vue'
+import LargeDataSourceModeSelectField from '@/components/shared/dialogs/dataSource/inputs/LargeDataSourceModeSelectField.vue'
+import { computed } from 'vue'
+import ResponsiveDialogFooter from '@/components/shared/responsiveDialog/ResponsiveDialogFooter.vue'
+import { Button } from '@/components/ui/button'
+import InputField from '@/components/shared/dialogs/dataSource/inputs/InputField.vue'
 
-const { open } = useDialogContext()
+const Step = {
+  Engine: 1,
+  Mode: 2,
+  Details: 3,
+} as const
+type Step = (typeof Step)[keyof typeof Step]
 
-const engine = ref(DatabaseEngine.None)
+const { open, close } = useDialogContext()
+
+const schema = z.object({
+  engine: z.nativeEnum(DatabaseEngine),
+  mode: z.nativeEnum(DataSourceMode),
+  displayName: z.string().min(1).max(64),
+})
+
+const { values, handleSubmit } = useForm({
+  validationSchema: toTypedSchema(schema),
+  initialValues: {
+    engine: DatabaseEngine.None,
+    mode: DataSourceMode.None,
+    displayName: '',
+  },
+})
+
+const step = computed<Step>(() => {
+  if (values.engine === DatabaseEngine.None) {
+    return Step.Engine
+  }
+
+  if (values.mode === DataSourceMode.None) {
+    return Step.Mode
+  }
+
+  return Step.Details
+})
+
+const onSubmit = handleSubmit(async (values) => {
+  console.log(values)
+})
 </script>
 
 <template>
@@ -26,12 +69,22 @@ const engine = ref(DatabaseEngine.None)
         </ResponsiveDialogDescription>
       </ResponsiveDialogHeader>
       <ResponsiveDialogBody class="flex flex-col gap-2">
-        <LargeDatabaseEngineSelect
-          v-if="engine === DatabaseEngine.None"
-          v-model="engine"
+        <LargeDatabaseEngineSelectField
+          name="engine"
+          :show="step === Step.Engine"
         />
-        <LargeDataSourceModeSelect v-else v-model="engine" />
+        <LargeDataSourceModeSelectField
+          name="mode"
+          :show="step === Step.Mode"
+        />
+        <template v-if="step === Step.Details">
+          <InputField name="displayName" />
+        </template>
       </ResponsiveDialogBody>
+      <ResponsiveDialogFooter v-if="step === Step.Details">
+        <Button @click="close" variant="ghost">Cancel</Button>
+        <Button @click="onSubmit">Create</Button>
+      </ResponsiveDialogFooter>
     </ResponsiveDialogContent>
   </ResponsiveDialog>
 </template>
