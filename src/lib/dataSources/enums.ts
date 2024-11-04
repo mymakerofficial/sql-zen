@@ -1,5 +1,6 @@
 export const DataSourceMode = {
   None: 'none',
+  Connection: 'connection',
   Memory: 'memory',
   BrowserPersisted: 'browserPersisted',
 } as const
