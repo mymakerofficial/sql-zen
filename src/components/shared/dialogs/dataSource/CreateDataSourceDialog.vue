@@ -30,6 +30,14 @@ import FileInputField from '@/components/shared/dialogs/dataSource/inputs/FileIn
 import { dataSourceSchema } from '@/components/shared/dialogs/dataSource/schema'
 import FileSelectField from '@/components/shared/dialogs/dataSource/inputs/FileSelectField.vue'
 import { useDriverSupports } from '@/composables/engines/useDriverSupports'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import {
+  InfoIcon,
+  FlaskConicalIcon,
+  AppWindowIcon,
+  DownloadIcon,
+} from 'lucide-vue-next'
+import { useEnv } from '@/composables/useEnv'
 
 const Step = {
   Engine: 1,
@@ -39,6 +47,7 @@ const Step = {
 type Step = (typeof Step)[keyof typeof Step]
 
 const { open, close } = useDialogContext()
+const { isTauri, isBrowser } = useEnv()
 
 const { values, handleSubmit, setValues } = useForm<
   z.infer<typeof dataSourceSchema>
@@ -141,6 +150,20 @@ const supportsImportDump = useDriverSupports(
   DataSourceDriverCapability.ImportDump,
 )
 
+const isExperimental = useDriverSupports(
+  () => values.driver,
+  DataSourceDriverCapability.Experimental,
+)
+
+const requiresDesktop = useDriverSupports(
+  () => values.driver,
+  DataSourceDriverCapability.RequiresDesktopApp,
+)
+
+const showRequiresDesktop = computed(() => {
+  return requiresDesktop.value && !isTauri
+})
+
 const onSubmit = handleSubmit(async (values) => {
   console.log(values)
 })
@@ -224,10 +247,67 @@ const onSubmit = handleSubmit(async (values) => {
             <FileInputField name="fileAccessor" />
           </BaseField>
         </template>
+        <Alert v-if="values.mode === DataSourceMode.Memory">
+          <InfoIcon class="size-4" />
+          <AlertTitle>Heads up!</AlertTitle>
+          <AlertDescription>
+            <template v-if="isBrowser">
+              Data written to In-memory databases will be lost when you close
+              this tab or refresh the page.
+            </template>
+            <template>
+              Data written to In-memory databases will be lost when the
+              application is closed.
+            </template>
+          </AlertDescription>
+        </Alert>
+        <Alert
+          v-if="values.mode === DataSourceMode.BrowserPersisted && isBrowser"
+        >
+          <InfoIcon class="size-4" />
+          <AlertDescription>
+            This database lives in your browser. Data written to it will be
+            stored in your browser's local storage. No data is ever sent to our
+            servers.
+          </AlertDescription>
+        </Alert>
+        <Alert v-if="values.mode === DataSourceMode.Memory && isBrowser">
+          <InfoIcon class="size-4" />
+          <AlertDescription>
+            This database lives in your browser. No data is ever sent to our
+            servers.
+          </AlertDescription>
+        </Alert>
+        <Alert v-if="isExperimental">
+          <FlaskConicalIcon class="size-4" />
+          <AlertTitle>Experimental Feature</AlertTitle>
+          <AlertDescription>
+            Support for this database is still in it's early stages. Expect bugs
+            and missing features.
+          </AlertDescription>
+        </Alert>
+        <Alert v-if="showRequiresDesktop">
+          <AppWindowIcon class="size-4" />
+          <AlertTitle>Ready for more?</AlertTitle>
+          <AlertDescription>
+            This driver only works using the desktop app of SqlZen.
+          </AlertDescription>
+        </Alert>
       </ResponsiveDialogBody>
       <ResponsiveDialogFooter v-if="step === Step.Details">
         <Button @click="close" variant="ghost">Cancel</Button>
-        <Button @click="onSubmit">Create</Button>
+        <Button
+          v-if="showRequiresDesktop"
+          as-child
+          @click="close"
+          class="gap-3"
+        >
+          <RouterLink to="/download">
+            <DownloadIcon class="size-4" />
+            <span>Download the App</span>
+          </RouterLink>
+        </Button>
+        <Button v-else @click="onSubmit">Create</Button>
       </ResponsiveDialogFooter>
     </ResponsiveDialogContent>
   </ResponsiveDialog>
