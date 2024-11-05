@@ -25,6 +25,12 @@ export function getDriverCapabilities(driver: DataSourceDriver) {
   return dataSourceDriverCapabilities[driver] as DataSourceDriverCapabilities
 }
 
+export function getDriverCapability<
+  C extends keyof DataSourceDriverCapabilities,
+>(driver: DataSourceDriver, capability: C) {
+  return getDriverCapabilities(driver)[capability]
+}
+
 export function getDataSourceDriversForEngine(engine: DatabaseEngine) {
   return dataSourceDrivers.filter((info) => info.engines.includes(engine))
 }
