@@ -41,6 +41,7 @@ import { useEnv } from '@/composables/useEnv'
 import { useMutation } from '@tanstack/vue-query'
 import { useRegistry } from '@/composables/useRegistry'
 import type { DataSourceData } from '@/lib/dataSources/types'
+import { getIdentifier } from '@/components/shared/dialogs/dataSource/helpers'
 
 const Step = {
   Engine: 1,
@@ -60,9 +61,7 @@ const { mutate: create } = useMutation({
   onSuccess: close,
 })
 
-const { values, handleSubmit, setValues } = useForm<
-  z.infer<typeof dataSourceSchema>
->({
+const { values, handleSubmit, setValues } = useForm<DataSourceData>({
   validationSchema: toTypedSchema(dataSourceSchema),
   initialValues: {
     engine: DatabaseEngine.None,
@@ -97,9 +96,11 @@ watchImmediate([() => values.engine, () => values.mode], () => {
 
 watchImmediate([() => values.engine], ([engine]) => {
   const engineInfo = getEngineInfo(engine)
+  const identifier = getIdentifier(engine)
 
   setValues({
     displayName: engineInfo.name,
+    identifier,
   })
 })
 
@@ -214,12 +215,12 @@ const onSubmit = handleSubmit(async (values) => {
             label="Identifier"
             helper-text="The identifier is used to uniquely identify the database."
           >
-            <InputField name="Identifier" />
+            <InputField name="identifier" />
           </BaseField>
           <BaseField
             v-if="values.mode === DataSourceMode.AttachFile"
             name="connectionString"
-            label="File"
+            label="File Path"
             helper-text="The absolute path to the file that should be attached."
           >
             <FileSelectField name="connectionString" />
