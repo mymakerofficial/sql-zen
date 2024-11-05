@@ -9,6 +9,10 @@ export const DatabaseEngine = {
 export type DatabaseEngine =
   (typeof DatabaseEngine)[keyof typeof DatabaseEngine]
 
+export function isDatabaseEngine(arg: any): arg is DatabaseEngine {
+  return Object.values(DatabaseEngine).includes(arg)
+}
+
 export const DataSourceDriver = {
   None: 'none',
   PGLite: 'pglite',
@@ -20,6 +24,10 @@ export const DataSourceDriver = {
 } as const
 export type DataSourceDriver =
   (typeof DataSourceDriver)[keyof typeof DataSourceDriver]
+
+export function isDataSourceDriver(arg: any): arg is DataSourceDriver {
+  return Object.values(DataSourceDriver).includes(arg)
+}
 
 export const DataSourceDriverCapability = {
   ImportDump: 'importDump',

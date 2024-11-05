@@ -12,7 +12,6 @@ import {
   DataSourceDriverCapability,
 } from '@/lib/engines/enums'
 import { useForm } from 'vee-validate'
-import * as z from 'zod'
 import { DataSourceMode } from '@/lib/dataSources/enums'
 import { toTypedSchema } from '@vee-validate/zod'
 import LargeDatabaseEngineSelectField from '@/components/shared/dialogs/dataSource/inputs/LargeDatabaseEngineSelectField.vue'
@@ -25,23 +24,29 @@ import { getDriverForEngineAndMode, getEngineInfo } from '@/lib/engines/helpers'
 import { watchImmediate } from '@vueuse/core'
 import BaseField from '@/components/shared/dialogs/dataSource/inputs/BaseField.vue'
 import { Separator } from '@/components/ui/separator'
-import { FileAccessor } from '@/lib/files/fileAccessor'
 import FileInputField from '@/components/shared/dialogs/dataSource/inputs/FileInputField.vue'
 import { dataSourceSchema } from '@/components/shared/dialogs/dataSource/schema'
 import FileSelectField from '@/components/shared/dialogs/dataSource/inputs/FileSelectField.vue'
 import { useDriverSupports } from '@/composables/engines/useDriverSupports'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
-  InfoIcon,
-  FlaskConicalIcon,
   AppWindowIcon,
   DownloadIcon,
+  FlaskConicalIcon,
+  InfoIcon,
 } from 'lucide-vue-next'
 import { useEnv } from '@/composables/useEnv'
 import { useMutation } from '@tanstack/vue-query'
 import { useRegistry } from '@/composables/useRegistry'
 import type { DataSourceData } from '@/lib/dataSources/types'
-import { getIdentifier } from '@/components/shared/dialogs/dataSource/helpers'
+import {
+  getDataSourceDefaults,
+  getIdentifier,
+} from '@/components/shared/dialogs/dataSource/helpers'
+
+const props = defineProps<{
+  data?: Partial<DataSourceData>
+}>()
 
 const Step = {
   Engine: 1,
@@ -63,15 +68,7 @@ const { mutate: create } = useMutation({
 
 const { values, handleSubmit, setValues } = useForm<DataSourceData>({
   validationSchema: toTypedSchema(dataSourceSchema),
-  initialValues: {
-    engine: DatabaseEngine.None,
-    mode: DataSourceMode.None,
-    driver: DataSourceDriver.None,
-    displayName: '',
-    identifier: '',
-    connectionString: '',
-    fileAccessor: FileAccessor.Dummy,
-  },
+  initialValues: { ...getDataSourceDefaults(), ...props.data },
 })
 
 const step = computed(() => {
