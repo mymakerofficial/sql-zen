@@ -1,4 +1,6 @@
-import { DatabaseEngine } from '@/lib/engines/enums'
+import { DatabaseEngine, DataSourceDriver } from '@/lib/engines/enums'
+import { FileAccessor } from '@/lib/files/fileAccessor'
+import { DataSourceMode } from '@/lib/dataSources/enums'
 
 const adjectives = [
   'awesome',
@@ -34,4 +36,16 @@ export function getIdentifier(engine: DatabaseEngine): string {
   const randomNoun = nouns[Math.floor(Math.random() * nouns.length)]
 
   return `${randomAdjective}-${databases[engine]}-${randomNoun}`
+}
+
+export function getDataSourceDefaults() {
+  return {
+    engine: DatabaseEngine.None,
+    mode: DataSourceMode.None,
+    driver: DataSourceDriver.None,
+    displayName: '',
+    identifier: '',
+    connectionString: '',
+    fileAccessor: FileAccessor.Dummy,
+  }
 }

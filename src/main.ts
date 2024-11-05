@@ -26,6 +26,10 @@ const router = createRouter({
       path: '/dl',
       redirect: () => '/download',
     },
+    {
+      path: '/new',
+      redirect: () => '/app?createDataSource=true',
+    },
     ...selectableDatabaseEngines.map(({ engine }) => ({
       path: `/${engine}`,
       redirect: () => `/app?createDataSource=true&engine=${engine}`,
