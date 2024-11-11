@@ -80,7 +80,7 @@ onKeyStroke(['ArrowUp', 'ArrowDown'], (e) => {
                 <slot name="icon" v-bind="{ item }" />
               </span>
               <span class="space-y-1 text-start">
-                <span class="block font-medium">
+                <span class="flex font-medium gap-2 items-center">
                   <slot name="title" v-bind="{ item }" />
                 </span>
                 <span
