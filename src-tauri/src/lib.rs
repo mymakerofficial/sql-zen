@@ -34,36 +34,36 @@ enum DatabaseDriver {
     SQLite,
 }
 
-async fn connect_postgres(state: &mut AppState, key: String, url: String) -> Result<(), Error> {
+async fn connect_postgres(state: &mut AppState, id: String, url: String) -> Result<(), Error> {
     let client = PostgresClient::connect(&url).await?;
-    state.clients.insert(key, Box::new(client));
+    state.clients.insert(id, Box::new(client));
     Ok(())
 }
 
-async fn connect_mysql(state: &mut AppState, key: String, url: String) -> Result<(), Error> {
+async fn connect_mysql(state: &mut AppState, id: String, url: String) -> Result<(), Error> {
     let client = MySQLClient::connect(&url).await?;
-    state.clients.insert(key, Box::new(client));
+    state.clients.insert(id, Box::new(client));
     Ok(())
 }
 
-async fn connect_sqlite(state: &mut AppState, key: String, url: String) -> Result<(), Error> {
+async fn connect_sqlite(state: &mut AppState, id: String, url: String) -> Result<(), Error> {
     let client = SQLiteClient::connect(&url).await?;
-    state.clients.insert(key, Box::new(client));
+    state.clients.insert(id, Box::new(client));
     Ok(())
 }
 
 #[tauri::command]
 async fn connect(
     state: State<'_, Mutex<AppState>>,
-    key: String,
+    id: String,
     driver: DatabaseDriver,
     url: String,
 ) -> Result<(), Error> {
     let mut state = state.lock().await;
     match driver {
-        DatabaseDriver::Postgres => connect_postgres(&mut state, key, url).await,
-        DatabaseDriver::MySQL => connect_mysql(&mut state, key, url).await,
-        DatabaseDriver::SQLite => connect_sqlite(&mut state, key, url).await,
+        DatabaseDriver::Postgres => connect_postgres(&mut state, id, url).await,
+        DatabaseDriver::MySQL => connect_mysql(&mut state, id, url).await,
+        DatabaseDriver::SQLite => connect_sqlite(&mut state, id, url).await,
     }
 }
 

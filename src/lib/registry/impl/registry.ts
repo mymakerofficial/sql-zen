@@ -14,74 +14,72 @@ export class Registry extends EventPublisher<RegistryEventMap> {
     return plugin(this)
   }
 
-  getDataSourceKeys(): Array<string> {
+  getDataSourceIds(): Array<string> {
     return Array.from(this.#dataSources.keys())
   }
 
   getDataSources(): Array<DataSourceInfo> {
-    return this.getDataSourceKeys().map((key) =>
-      this.getDataSource(key).getInfo(),
-    )
+    return this.getDataSourceIds().map((id) => this.getDataSource(id).getInfo())
   }
 
-  getDataSource(key: string): DataSource {
-    return this.#dataSources.get(key) ?? DataSourceFactory.dummy
+  getDataSource(id: string): DataSource {
+    return this.#dataSources.get(id) ?? DataSourceFactory.dummy
   }
 
-  getRunner(key: string): Runner {
-    return this.getDataSource(key).getRunner()
+  getRunner(id: string): Runner {
+    return this.getDataSource(id).getRunner()
   }
 
-  getInfo(key: string): DataSourceInfo {
-    return this.getDataSource(key).getInfo()
+  getInfo(id: string): DataSourceInfo {
+    return this.getDataSource(id).getInfo()
   }
 
-  getStatus(key: string): DataSourceStatus {
-    return this.getDataSource(key).status
+  getStatus(id: string): DataSourceStatus {
+    return this.getDataSource(id).status
   }
 
-  register(info: DataSourceData): string {
-    const dataSource = DataSourceFactory.create(info)
-    if (this.#dataSources.has(dataSource.key)) {
-      // ignore duplicate keys
-      return dataSource.key
+  register(info: DataSourceData, id?: string): string {
+    const dataSource = DataSourceFactory.create(info, id)
+    if (this.#dataSources.has(dataSource.id)) {
+      // ignore duplicate ids
+      return dataSource.id
     }
     // TODO: check for duplicate display names
-    this.#dataSources.set(dataSource.key, dataSource)
-    this.emit(RegistryEvent.Registered, dataSource.key)
-    return dataSource.key
+    this.#dataSources.set(dataSource.id, dataSource)
+    this.emit(RegistryEvent.Registered, dataSource.id)
+    return dataSource.id
   }
 
-  async asyncStart(key: string) {
-    const dataSource = this.getDataSource(key)
+  async asyncStart(id: string) {
+    const dataSource = this.getDataSource(id)
 
     const startTime = Date.now()
-    this.emit(RegistryEvent.Initializing, key)
+    this.emit(RegistryEvent.Initializing, id)
     await dataSource.init()
     const endTime = Date.now()
     const duration = endTime - startTime
-    this.emit(RegistryEvent.Initialized, key, duration)
+    this.emit(RegistryEvent.Initialized, id, duration)
   }
 
-  start(key: string) {
-    this.asyncStart(key).then()
+  start(id: string) {
+    this.asyncStart(id).then()
   }
 
-  async close(key: string) {
-    const dataSource = this.getDataSource(key)
+  async close(id: string) {
+    const dataSource = this.getDataSource(id)
 
     dataSource.once(DataSourceEvent.Closing, () => {
-      this.emit(RegistryEvent.Closing, key)
+      this.emit(RegistryEvent.Closing, id)
     })
     dataSource.once(DataSourceEvent.Closed, () => {
-      this.emit(RegistryEvent.Closed, key)
+      this.emit(RegistryEvent.Closed, id)
     })
     await dataSource.close()
   }
 
-  async unregister(key: string) {
-    await this.close(key)
-    this.#dataSources.delete(key)
-    this.emit(RegistryEvent.Unregistered, key)
+  async unregister(id: string) {
+    await this.close(id)
+    this.#dataSources.delete(id)
+    this.emit(RegistryEvent.Unregistered, id)
   }
 }

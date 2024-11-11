@@ -4,12 +4,12 @@ import { useExternalStore } from '@/composables/useExternalStore'
 import { EventType } from '@/lib/events/publisher'
 import type { QueryInfo } from '@/lib/queries/interface'
 
-export function useQueriesWithResult(dataSourceKey: MaybeRefOrGetter<string>) {
+export function useQueriesWithResult(dataSourceId: MaybeRefOrGetter<string>) {
   const registry = useRegistry()
   const [queries, setQueries] = useExternalStore<QueryInfo[]>([])
 
   watchEffect((onCleanup) => {
-    const runner = registry.getRunner(toValue(dataSourceKey))
+    const runner = registry.getRunner(toValue(dataSourceId))
 
     function handle() {
       setQueries(runner.getQueries().filter((it) => it.hasResult))

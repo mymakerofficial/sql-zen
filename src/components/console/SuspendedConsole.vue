@@ -9,16 +9,16 @@ import { DataSourceStatus } from '@/lib/dataSources/enums'
 import * as monaco from 'monaco-editor'
 
 const props = defineProps<{
-  dataSourceKey: string
+  dataSourceId: string
   model: monaco.editor.ITextModel
   autoStart?: boolean
 }>()
 
 const registry = useRegistry()
-const dataSourceInfo = useDataSourceInfo(props.dataSourceKey)
+const dataSourceInfo = useDataSourceInfo(props.dataSourceId)
 
 function handleStart() {
-  registry.start(props.dataSourceKey)
+  registry.start(props.dataSourceId)
 }
 
 watchEffect(() => {
@@ -43,9 +43,9 @@ watchEffect(() => {
   </div>
   <div v-else class="flex-1">
     <Console
-      :data-source-key="dataSourceKey"
+      :data-source-id="dataSourceId"
       :model="model"
-      :key="dataSourceKey"
+      :key="dataSourceId"
     />
   </div>
 </template>

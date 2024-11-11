@@ -54,7 +54,7 @@ VALUES
 const queryClient = useQueryClient()
 const registry = useRegistry()
 
-const dataSourceKey = registry.register({
+const dataSourceId = registry.register({
   engine: DatabaseEngine.SQLite,
   driver: DataSourceDriver.SQLiteWASM,
   mode: DataSourceMode.Memory,
@@ -65,10 +65,10 @@ const dataSourceKey = registry.register({
 })
 const model = monaco.editor.createModel(EDITOR_VALUE, 'sql')
 
-registry.start(dataSourceKey)
-const isRunning = useIsRunning(dataSourceKey)
+registry.start(dataSourceId)
+const isRunning = useIsRunning(dataSourceId)
 
-const runner = registry.getRunner(dataSourceKey)
+const runner = registry.getRunner(dataSourceId)
 const editor = useEditor({
   model,
   runner,
@@ -96,7 +96,7 @@ whenever(isRunning, async () => {
       </ResizablePanel>
       <ResizableHandle />
       <ResizablePanel>
-        <ConsoleResultPanel :data-source-key="dataSourceKey" />
+        <ConsoleResultPanel :data-source-id="dataSourceId" />
       </ResizablePanel>
     </ResizablePanelGroup>
   </div>

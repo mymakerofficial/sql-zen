@@ -22,16 +22,16 @@ queryClient.setDefaultOptions({
   },
 })
 
-registry.on(RegistryEvent.Initialized, (key) => {
+registry.on(RegistryEvent.Initialized, (id) => {
   queryClient.invalidateQueries({
-    queryKey: ['schemaTree', key],
+    queryKey: ['schemaTree', id],
   })
 })
 
-registry.on(RegistryEvent.Registered, (key) => {
+registry.on(RegistryEvent.Registered, (id) => {
   const existing = tabManager
     .getTabs()
-    .find((tab) => isConsoleTab(tab) && tab.dataSourceKey === key)
+    .find((tab) => isConsoleTab(tab) && tab.dataSourceId === id)
 
   if (existing) {
     tabManager.setActiveTabId(existing.id)
@@ -40,7 +40,7 @@ registry.on(RegistryEvent.Registered, (key) => {
 
   tabManager.createTab({
     type: TabType.Console,
-    dataSourceKey: key,
+    dataSourceId: id,
   })
 })
 </script>

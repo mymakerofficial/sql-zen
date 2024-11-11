@@ -4,12 +4,12 @@ import { EventType } from '@/lib/events/publisher'
 import { useRegistry } from '@/composables/useRegistry'
 import { DataSourceFactory } from '@/lib/dataSources/factory'
 
-export function useDataSourceInfo(dataSourceKey: MaybeRefOrGetter<string>) {
+export function useDataSourceInfo(dataSourceId: MaybeRefOrGetter<string>) {
   const registry = useRegistry()
   const [info, setInfo] = useExternalStore(DataSourceFactory.dummy.getInfo())
 
   watchEffect((onCleanup) => {
-    const dataSource = registry.getDataSource(toValue(dataSourceKey))
+    const dataSource = registry.getDataSource(toValue(dataSourceId))
 
     function handle() {
       setInfo(dataSource.getInfo())

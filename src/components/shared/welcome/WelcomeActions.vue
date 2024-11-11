@@ -6,16 +6,16 @@ import { useDialog } from '@/composables/useDialog'
 import CreateDataSourceDialog from '@/components/shared/dialogs/dataSource/CreateDataSourceDialog.vue'
 import { TabType } from '@/lib/tabs/enums'
 import { useTabManager } from '@/composables/tabs/useTabManager'
-import { useDataSourceKeys } from '@/composables/dataSources/useDataSourceKeys'
+import { useDataSourceIds } from '@/composables/dataSources/useDataSourceIds'
 
 const { open: openCreate } = useDialog(CreateDataSourceDialog)
-const dataSources = useDataSourceKeys()
+const dataSources = useDataSourceIds()
 const tabManager = useTabManager()
 
-function handleSelect(key: string) {
+function handleSelect(id: string) {
   tabManager.createTab({
     type: TabType.Console,
-    dataSourceKey: key,
+    dataSourceId: id,
   })
 }
 </script>
@@ -34,7 +34,7 @@ function handleSelect(key: string) {
     <WelcomeDataSourceItem
       v-for="dataSource in dataSources"
       :key="dataSource"
-      :data-source-key="dataSource"
+      :data-source-id="dataSource"
       @select="() => handleSelect(dataSource)"
     />
   </div>

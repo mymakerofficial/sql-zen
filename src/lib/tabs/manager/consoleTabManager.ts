@@ -12,9 +12,9 @@ const registry = useRegistry()
 export class ConsoleTabManager extends TabManager {
   #dataSource: DataSource
 
-  constructor(dataSourceKey: string) {
+  constructor(dataSourceId: string) {
     super()
-    this.#dataSource = registry.getDataSource(dataSourceKey)
+    this.#dataSource = registry.getDataSource(dataSourceId)
     this.createTab({
       type: TabType.Logger,
       loggerId: this.dataSource.logger.id,
@@ -36,7 +36,7 @@ export class ConsoleTabManager extends TabManager {
     }
     this.createTab({
       type: TabType.Query,
-      dataSourceKey: this.dataSource.key,
+      dataSourceId: this.dataSource.id,
       queryId: query.id,
     })
   }

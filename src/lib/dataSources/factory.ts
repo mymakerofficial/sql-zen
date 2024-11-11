@@ -22,20 +22,20 @@ const dummy = new DataSourceDummy({
 })
 
 export class DataSourceFactory {
-  static create(info: DataSourceData): DataSource {
+  static create(info: DataSourceData, id?: string): DataSource {
     switch (info.driver) {
       case DataSourceDriver.PostgreSQL:
-        return new PostgreSQLDataSource(info)
+        return new PostgreSQLDataSource(info, id)
       case DataSourceDriver.PGLite:
-        return new PGLiteDataSource(info)
+        return new PGLiteDataSource(info, id)
       case DataSourceDriver.MySQL:
-        return new MySqlDataSource(info)
+        return new MySqlDataSource(info, id)
       case DataSourceDriver.SQLite:
-        return new SQLiteDataSource(info)
+        return new SQLiteDataSource(info, id)
       case DataSourceDriver.SQLiteWASM:
-        return new SQLiteWASMDataSource(info)
+        return new SQLiteWASMDataSource(info, id)
       case DataSourceDriver.DuckDBWASM:
-        return new DuckDBWASMDataSource(info)
+        return new DuckDBWASMDataSource(info, id)
       default:
         return new DataSourceDummy(info)
     }

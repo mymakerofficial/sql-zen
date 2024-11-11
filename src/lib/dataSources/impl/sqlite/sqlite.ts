@@ -30,7 +30,7 @@ export class SQLiteDataSource extends DataSource {
         this.mode === DataSourceMode.Memory ? ':memory:' : this.connectionString
 
       await invoke('connect', {
-        key: this.key,
+        id: this.id,
         driver: this.driver,
         url,
       }).catch((e) => {
@@ -45,7 +45,7 @@ export class SQLiteDataSource extends DataSource {
   async queryRaw<T extends object = object>(
     sql: string,
   ): Promise<IpcQueryObjectResult<T>> {
-    const res = await ipcQuery(this.key, sql)
+    const res = await ipcQuery(this.id, sql)
     return ipcQueryRowsToObjects<T>(res)
   }
 

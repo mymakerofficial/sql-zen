@@ -5,7 +5,7 @@ import { ConsoleTabManager } from '@/lib/tabs/manager/consoleTabManager'
 
 const props = withDefaults(
   defineProps<{
-    dataSourceKey: string
+    dataSourceId: string
     showResults?: boolean
   }>(),
   {
@@ -13,7 +13,7 @@ const props = withDefaults(
   },
 )
 
-provideTabManager(new ConsoleTabManager(props.dataSourceKey))
+provideTabManager(new ConsoleTabManager(props.dataSourceId))
 </script>
 
 <template>

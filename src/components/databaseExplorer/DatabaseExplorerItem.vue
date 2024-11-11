@@ -10,7 +10,7 @@ import { useDriverSupports } from '@/composables/engines/useDriverSupports'
 import { DataSourceDriverCapability } from '@/lib/engines/enums'
 
 const props = defineProps<{
-  dataSourceKey: string
+  dataSourceId: string
   hideActions?: boolean
 }>()
 
@@ -19,7 +19,7 @@ const emit = defineEmits<{
   delete: []
 }>()
 
-const info = useDataSourceInfo(props.dataSourceKey)
+const info = useDataSourceInfo(props.dataSourceId)
 const engineInfo = computed(() => getEngineInfo(info.value.engine))
 
 const isExperimental = useDriverSupports(
@@ -65,9 +65,7 @@ function handleDelete() {
       </div>
     </div>
     <div v-if="isExperimental" class="mx-3 my-2 space-y-1">
-      <span
-        class="flex items-center gap-3 text-sm font-medium text-amber-400"
-      >
+      <span class="flex items-center gap-3 text-sm font-medium text-amber-400">
         <FlaskConicalIcon class="size-4 min-size-4" />
         <span>Experimental</span>
       </span>
@@ -78,7 +76,7 @@ function handleDelete() {
     </div>
     <DSTree
       v-if="info.status === DataSourceStatus.Running"
-      :data-source-key="dataSourceKey"
+      :data-source-id="dataSourceId"
     />
   </article>
 </template>

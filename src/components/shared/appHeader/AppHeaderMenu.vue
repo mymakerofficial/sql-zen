@@ -24,12 +24,12 @@ import { DataSourceDriverCapability } from '@/lib/engines/enums'
 import { downloadFile } from '@/lib/downloadFile'
 import { useRegistry } from '@/composables/useRegistry'
 import { useDataSourceInfo } from '@/composables/dataSources/useDataSourceInfo'
-import { useActiveDataSourceKey } from '@/composables/dataSources/useActiveDataSourceKey'
+import { useActiveDataSourceId } from '@/composables/dataSources/useActiveDataSourceId'
 import { useDriverSupports } from '@/composables/engines/useDriverSupports'
 import { DataSourceStatus } from '@/lib/dataSources/enums'
 
 const registry = useRegistry()
-const dataSource = useActiveDataSourceKey()
+const dataSource = useActiveDataSourceId()
 const info = useDataSourceInfo(dataSource)
 
 const { open: openFileExplorer } = useDialog(FileExplorer)
@@ -55,21 +55,21 @@ function handleOpenFileExplorer() {
   if (!dataSource.value) {
     return
   }
-  openFileExplorer({ dataSourceKey: dataSource.value })
+  openFileExplorer({ dataSourceId: dataSource.value })
 }
 
 function handleOpenEmbeddings() {
   if (!dataSource.value) {
     return
   }
-  openEmbeddings({ dataSourceKey: dataSource.value })
+  openEmbeddings({ dataSourceId: dataSource.value })
 }
 
 function handleOpenEmbeddingsSearch() {
   if (!dataSource.value) {
     return
   }
-  openEmbeddingsSearch({ dataSourceKey: dataSource.value })
+  openEmbeddingsSearch({ dataSourceId: dataSource.value })
 }
 
 async function handleDump() {

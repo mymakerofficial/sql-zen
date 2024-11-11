@@ -14,7 +14,7 @@ const tab = tabManager.getTab(props.tabId)
 <template>
   <SuspendedConsole
     v-if="isConsoleTab(tab)"
-    :data-source-key="tab.dataSourceKey"
+    :data-source-id="tab.dataSourceId"
     :model="tab.getModel()"
     auto-start
   />

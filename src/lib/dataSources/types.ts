@@ -19,6 +19,6 @@ export type DataSourceBase = {
 export type DataSourceData = DataSourceBase & {}
 
 export type DataSourceInfo = DataSourceBase & {
-  key: string
+  id: string
   status: DataSourceStatus
 }

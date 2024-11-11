@@ -19,7 +19,7 @@ const props = defineProps<{
   transacting?: boolean
 }>()
 
-const isRunning = useIsRunning(props.editor.runner?.getKey() ?? '')
+const isRunning = useIsRunning(props.editor.runner?.getId() ?? '')
 const suggestions = useRunSuggestions(props.editor)
 
 const hovered = ref<Statement[]>([])

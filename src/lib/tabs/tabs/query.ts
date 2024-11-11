@@ -1,10 +1,5 @@
 import { Tab } from '@/lib/tabs/tabs/base'
-import type {
-  QueryTabData,
-  QueryTabInfo,
-  TabData,
-  TabInfo,
-} from '@/lib/tabs/types'
+import type { QueryTabData, QueryTabInfo, TabInfo } from '@/lib/tabs/types'
 import type { TabManager } from '@/lib/tabs/manager/manager'
 import { TabType } from '@/lib/tabs/enums'
 import { useRegistry } from '@/composables/useRegistry'
@@ -12,12 +7,12 @@ import { useRegistry } from '@/composables/useRegistry'
 const registry = useRegistry()
 
 export class QueryTab extends Tab implements QueryTabInfo {
-  #dataSourceKey: string
+  #dataSourceId: string
   #queryId: string
 
   constructor(tab: QueryTabData, manager: TabManager) {
     super(tab, manager)
-    this.#dataSourceKey = tab.dataSourceKey
+    this.#dataSourceId = tab.dataSourceId
     this.#queryId = tab.queryId
   }
 
@@ -34,15 +29,15 @@ export class QueryTab extends Tab implements QueryTabInfo {
   }
 
   getDefaultDisplayName(): string {
-    const runner = registry.getRunner(this.dataSourceKey)
+    const runner = registry.getRunner(this.dataSourceId)
     const comment = runner
       .getQuery(this.queryId)
       .statement.comment?.replace(/\s/g, ' ')
     return comment ?? 'Query'
   }
 
-  get dataSourceKey() {
-    return this.#dataSourceKey
+  get dataSourceId() {
+    return this.#dataSourceId
   }
 
   get queryId() {
@@ -53,7 +48,7 @@ export class QueryTab extends Tab implements QueryTabInfo {
     return {
       ...super.getBaseInfo(),
       type: TabType.Query,
-      dataSourceKey: this.dataSourceKey,
+      dataSourceId: this.dataSourceId,
       queryId: this.queryId,
     }
   }
@@ -62,13 +57,13 @@ export class QueryTab extends Tab implements QueryTabInfo {
     return {
       ...super.getBaseData(),
       type: TabType.Query,
-      dataSourceKey: this.dataSourceKey,
+      dataSourceId: this.dataSourceId,
       queryId: this.queryId,
     }
   }
 
   destroy() {
-    registry.getDataSource(this.dataSourceKey).runner.removeQuery(this.queryId)
+    registry.getDataSource(this.dataSourceId).runner.removeQuery(this.queryId)
   }
 }
 

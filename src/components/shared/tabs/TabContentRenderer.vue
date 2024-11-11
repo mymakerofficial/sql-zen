@@ -18,7 +18,7 @@ const tab = useTabInfo(props.tabId)
   <LoggerPanel v-else-if="tab.type === TabType.Logger" :id="tab.loggerId" />
   <QueryDisplay
     v-else-if="tab.type === TabType.Query"
-    :data-source-key="tab.dataSourceKey"
+    :data-source-id="tab.dataSourceId"
     :query-id="tab.queryId"
   />
   <TheWelcome v-else-if="tab.type === TabType.Empty" />

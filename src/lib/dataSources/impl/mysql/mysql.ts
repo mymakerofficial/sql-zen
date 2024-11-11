@@ -27,7 +27,7 @@ export class MySqlDataSource extends DataSource {
 
     await this.logger.step('Connecting', async () => {
       await invoke('connect', {
-        key: this.key,
+        id: this.id,
         driver: this.driver,
         url: this.connectionString,
       }).catch((e) => {
@@ -50,7 +50,7 @@ export class MySqlDataSource extends DataSource {
   async queryRaw<T extends object = object>(
     sql: string,
   ): Promise<IpcQueryObjectResult<T>> {
-    const res = await ipcQuery(this.key, sql)
+    const res = await ipcQuery(this.id, sql)
     return ipcQueryRowsToObjects<T>(res)
   }
 

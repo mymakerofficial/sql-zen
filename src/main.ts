@@ -70,10 +70,9 @@ const tabManager = useTabManager()
 
 tabManager.use(persistTabs)
 
-registry.on(RegistryEvent.Unregistered, (dataSourceKey) => {
-  console.log('Unregistering', dataSourceKey)
+registry.on(RegistryEvent.Unregistered, (dataSourceId) => {
   tabManager.getTabInfos().forEach((tab) => {
-    if (tab.type === TabType.Console && tab.dataSourceKey === dataSourceKey) {
+    if (tab.type === TabType.Console && tab.dataSourceId === dataSourceId) {
       tabManager.removeTab(tab.id)
     }
   })
