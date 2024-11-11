@@ -1,7 +1,6 @@
 import { DatabaseEngine, DataSourceDriver } from '@/lib/engines/enums'
 import { type DataSourceMode, DataSourceStatus } from '@/lib/dataSources/enums'
 import { FileAccessor } from '@/lib/files/fileAccessor'
-import { generateDataSourceKey } from '@/lib/dataSources/helpers'
 import type { QueryResult } from '@/lib/queries/interface'
 import { SqlDialectFactory } from '@/lib/dialect/factory'
 import type { FileInfo } from '@/lib/files/interface'
@@ -12,12 +11,13 @@ import type { DataSourceEventMap } from '@/lib/dataSources/events'
 import { DataSourceEvent } from '@/lib/dataSources/events'
 import type { SqlDialect } from '@/lib/dialect/impl/base'
 import { Runner } from '@/lib/runner/impl/runner'
+import { getId } from '@/lib/getId'
 
 export abstract class DataSource
   extends EventPublisher<DataSourceEventMap>
   implements Readonly<DataSourceInfo>
 {
-  readonly #key: string
+  readonly #id: string
   // some drivers support multiple engines, so store the engine here
   readonly #engine: DatabaseEngine
   readonly #mode: DataSourceMode
@@ -32,7 +32,7 @@ export abstract class DataSource
   readonly #logger: Logger
   readonly #dialect: SqlDialect
 
-  constructor(data: DataSourceData) {
+  constructor(data: DataSourceData, id?: string) {
     super()
     this.#engine = data.engine
     this.#mode = data.mode
@@ -41,19 +41,15 @@ export abstract class DataSource
     this.#connectionString = data.connectionString
     this.#fileAccessor = data.fileAccessor
 
-    this.#key = generateDataSourceKey(this)
+    this.#id = id ?? getId('ds')
 
     this.#runner = Runner.for(this)
     this.#logger = new Logger()
     this.#dialect = SqlDialectFactory.create(this)
   }
 
-  getKey(): string {
-    return this.#key
-  }
-
-  get key(): string {
-    return this.#key
+  get id(): string {
+    return this.#id
   }
 
   get engine(): DatabaseEngine {
@@ -120,7 +116,7 @@ export abstract class DataSource
 
   getInfo(): DataSourceInfo {
     return {
-      key: this.key,
+      id: this.id,
       engine: this.engine,
       driver: this.driver,
       mode: this.mode,

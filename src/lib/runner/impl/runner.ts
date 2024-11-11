@@ -32,12 +32,12 @@ export class Runner extends EventPublisher<RunnerEventMap> {
     return this.getDataSource()
   }
 
-  getKey(): string {
-    return this.#dataSource.key
+  getId(): string {
+    return this.#dataSource.id
   }
 
-  get key(): string {
-    return this.getKey()
+  get id(): string {
+    return this.getId()
   }
 
   getQueries(): Array<QueryInfo> {

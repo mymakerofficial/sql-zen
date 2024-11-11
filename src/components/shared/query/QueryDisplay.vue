@@ -11,13 +11,13 @@ import LimitSelect from '@/components/shared/LimitSelect.vue'
 import { useRegistry } from '@/composables/useRegistry'
 
 const props = defineProps<{
-  dataSourceKey: string
+  dataSourceId: string
   queryId: string
 }>()
 
 const registry = useRegistry()
 const query = registry
-  .getDataSource(props.dataSourceKey)
+  .getDataSource(props.dataSourceId)
   .runner.getQuery(props.queryId)
 
 const offset = ref(0)

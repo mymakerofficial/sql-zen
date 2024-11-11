@@ -22,6 +22,6 @@ export interface ILoggerStore {
     eventId: string,
     data: Partial<LoggerStoreEntry>,
   ): void
-  getAllFromLogger(dataStoreKey: string): Array<LoggerStoreEntry>
-  clearLogger(dataStoreKey: string): void
+  getAllFromLogger(dataStoreId: string): Array<LoggerStoreEntry>
+  clearLogger(dataStoreId: string): void
 }

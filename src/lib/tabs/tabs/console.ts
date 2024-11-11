@@ -21,16 +21,16 @@ function getModelValue(tab: ConsoleTabData) {
     return ''
   }
 
-  return getExampleSql(registry.getDataSource(tab.dataSourceKey).engine)
+  return getExampleSql(registry.getDataSource(tab.dataSourceId).engine)
 }
 
 export class ConsoleTab extends Tab implements ConsoleTabInfo {
-  readonly #dataSourceKey: string
+  readonly #dataSourceId: string
   readonly #model: monaco.editor.ITextModel
 
   constructor(tab: ConsoleTabData, manager: TabManager) {
     super(tab, manager)
-    this.#dataSourceKey = tab.dataSourceKey
+    this.#dataSourceId = tab.dataSourceId
     this.#model = monaco.editor.createModel(getModelValue(tab), 'sql')
 
     const debouncedSave = useDebounceFn(() => {
@@ -55,8 +55,8 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
     return this.getDataSourceInfo().displayName
   }
 
-  get dataSourceKey() {
-    return this.#dataSourceKey
+  get dataSourceId() {
+    return this.#dataSourceId
   }
 
   get engineName() {
@@ -71,7 +71,7 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
     return {
       ...super.getBaseInfo(),
       type: TabType.Console,
-      dataSourceKey: this.dataSourceKey,
+      dataSourceId: this.dataSourceId,
       engineName: this.engineName,
       engineIcon: this.engineIcon,
     }
@@ -81,7 +81,7 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
     return {
       ...super.getBaseData(),
       type: TabType.Console,
-      dataSourceKey: this.dataSourceKey,
+      dataSourceId: this.dataSourceId,
       modelValue: this.getModel().getValue(),
     }
   }
@@ -91,7 +91,7 @@ export class ConsoleTab extends Tab implements ConsoleTabInfo {
   }
 
   getDataSource() {
-    return registry.getDataSource(this.dataSourceKey)
+    return registry.getDataSource(this.dataSourceId)
   }
 
   getDataSourceInfo() {

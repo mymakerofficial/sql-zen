@@ -23,7 +23,7 @@ export type EmptyTabData = Omit<BaseTabData, 'type'> & {
 
 export type ConsoleTabData = Omit<BaseTabData, 'type'> & {
   type: typeof TabType.Console
-  dataSourceKey: string
+  dataSourceId: string
   modelValue?: string
 }
 
@@ -34,7 +34,7 @@ export type LoggerTabData = Omit<BaseTabData, 'type'> & {
 
 export type QueryTabData = Omit<BaseTabData, 'type'> & {
   type: typeof TabType.Query
-  dataSourceKey: string
+  dataSourceId: string
   queryId: string
 }
 
@@ -65,7 +65,7 @@ export type EmptyTabInfo = Omit<BaseTabInfo, 'type'> & {
 
 export type ConsoleTabInfo = Omit<BaseTabInfo, 'type'> & {
   type: typeof TabType.Console
-  dataSourceKey: string
+  dataSourceId: string
   engineName: string
   engineIcon: string
 }
@@ -77,7 +77,7 @@ export type LoggerTabInfo = Omit<BaseTabInfo, 'type'> & {
 
 export type QueryTabInfo = Omit<BaseTabInfo, 'type'> & {
   type: typeof TabType.Query
-  dataSourceKey: string
+  dataSourceId: string
   queryId: string
 }
 

@@ -42,7 +42,7 @@ import {
 import { useSeline } from '@/composables/seline/seline'
 
 const props = defineProps<{
-  dataSourceKey: string
+  dataSourceId: string
 }>()
 
 const { track } = useSeline()
@@ -50,7 +50,7 @@ const { track } = useSeline()
 const { open, close } = useDialogContext()
 
 const registry = useRegistry()
-const dataSource = registry.getDataSource(props.dataSourceKey)
+const dataSource = registry.getDataSource(props.dataSourceId)
 
 const {
   pipeline,
@@ -70,7 +70,7 @@ const tableName = ref('')
 const primaryColumnName = ref('id')
 
 const { data: tables } = useQuery({
-  queryKey: [dataSource.key, 'tables'],
+  queryKey: [dataSource.id, 'tables'],
   queryFn: async () => {
     const allTables = await dataSource.dialect.getTableNames()
     const filteredTables = allTables.filter(
@@ -85,7 +85,7 @@ const { data: tables } = useQuery({
 })
 
 const { data: columns } = useQuery({
-  queryKey: [dataSource.key, tableName, 'columns'],
+  queryKey: [dataSource.id, tableName, 'columns'],
   queryFn: () =>
     dataSource.dialect
       .getTableColumnDefinitions({

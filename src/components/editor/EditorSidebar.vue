@@ -23,7 +23,7 @@ import {
   SearchIcon,
 } from 'lucide-vue-next'
 import { useRegistry } from '@/composables/useRegistry'
-import { useActiveDataSourceKey } from '@/composables/dataSources/useActiveDataSourceKey'
+import { useActiveDataSourceId } from '@/composables/dataSources/useActiveDataSourceId'
 import { useDataSourceInfo } from '@/composables/dataSources/useDataSourceInfo'
 import FileExplorer from '@/components/shared/dialogs/fileExplorer/FileExplorer.vue'
 import EmbeddingsDialog from '@/components/shared/dialogs/embeddings/EmbeddingsDialog.vue'
@@ -50,7 +50,7 @@ const { isMacOS, isTauri } = useEnv()
 
 const queryClient = useQueryClient()
 const registry = useRegistry()
-const dataSource = useActiveDataSourceKey()
+const dataSource = useActiveDataSourceId()
 const info = useDataSourceInfo(dataSource)
 
 const { open: openCreate } = useDialog(CreateDataSourceDialog)
@@ -85,7 +85,7 @@ function handleOpenFileExplorer() {
     return
   }
   close()
-  openFileExplorer({ dataSourceKey: dataSource.value })
+  openFileExplorer({ dataSourceId: dataSource.value })
 }
 
 function handleOpenEmbeddings() {
@@ -93,7 +93,7 @@ function handleOpenEmbeddings() {
     return
   }
   close()
-  openEmbeddings({ dataSourceKey: dataSource.value })
+  openEmbeddings({ dataSourceId: dataSource.value })
 }
 
 function handleOpenEmbeddingsSearch() {
@@ -101,7 +101,7 @@ function handleOpenEmbeddingsSearch() {
     return
   }
   close()
-  openEmbeddingsSearch({ dataSourceKey: dataSource.value })
+  openEmbeddingsSearch({ dataSourceId: dataSource.value })
 }
 
 async function handleDump() {

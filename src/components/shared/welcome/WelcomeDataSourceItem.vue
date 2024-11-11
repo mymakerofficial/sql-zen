@@ -5,14 +5,14 @@ import { Button } from '@/components/ui/button'
 import { useDataSourceInfo } from '@/composables/dataSources/useDataSourceInfo'
 
 const props = defineProps<{
-  dataSourceKey: string
+  dataSourceId: string
 }>()
 
 const emit = defineEmits<{
   select: []
 }>()
 
-const dataSourceInfo = useDataSourceInfo(props.dataSourceKey)
+const dataSourceInfo = useDataSourceInfo(props.dataSourceId)
 const engineInfo = computed(() => getEngineInfo(dataSourceInfo.value.engine))
 
 function handleSelect() {

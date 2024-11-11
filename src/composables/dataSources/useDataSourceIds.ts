@@ -3,14 +3,14 @@ import { onMounted, onUnmounted } from 'vue'
 import { useRegistry } from '@/composables/useRegistry'
 import { RegistryEvent } from '@/lib/registry/events'
 
-export function useDataSourceKeys() {
+export function useDataSourceIds() {
   const registry = useRegistry()
   const [datSources, setDatSources] = useExternalStore(
-    registry.getDataSourceKeys(),
+    registry.getDataSourceIds(),
   )
 
   function handleChange() {
-    setDatSources(registry.getDataSourceKeys())
+    setDatSources(registry.getDataSourceIds())
   }
 
   onMounted(() => {

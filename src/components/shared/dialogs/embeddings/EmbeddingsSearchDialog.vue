@@ -30,7 +30,7 @@ import { useSeline } from '@/composables/seline/seline'
 env.allowLocalModels = false
 
 const props = defineProps<{
-  dataSourceKey: string
+  dataSourceId: string
 }>()
 
 const { track } = useSeline()
@@ -38,7 +38,7 @@ const { track } = useSeline()
 const { open, close } = useDialogContext()
 
 const registry = useRegistry()
-const runner = registry.getRunner(props.dataSourceKey)
+const runner = registry.getRunner(props.dataSourceId)
 
 const {
   pipeline,
@@ -51,7 +51,7 @@ const tableName = ref('')
 const primaryColumnName = ref('id')
 
 const { data: tables } = useQuery({
-  queryKey: [runner.key, 'tables'],
+  queryKey: [runner.id, 'tables'],
   queryFn: async () => {
     const allTables = await runner.dataSource.dialect.getTableNames()
     const filteredTables = allTables.filter(
@@ -68,7 +68,7 @@ const { data: tables } = useQuery({
 })
 
 const { data: columns } = useQuery({
-  queryKey: [runner.key, tableName, 'columns'],
+  queryKey: [runner.id, tableName, 'columns'],
   queryFn: () =>
     runner.dataSource.dialect
       .getTableColumnDefinitions({
@@ -184,10 +184,7 @@ const {
       <p v-if="error" class="text-red-500">{{ error }}</p>
       <ResponsiveDialogFooter>
         <Button @click="handleSearch" :disabled="isPending" class="gap-3">
-          <LoaderCircleIcon
-            v-if="isPending"
-            class="size-4 animate-spin"
-          />
+          <LoaderCircleIcon v-if="isPending" class="size-4 animate-spin" />
           <SearchIcon v-else class="size-4" />
           <span>Search</span>
         </Button>

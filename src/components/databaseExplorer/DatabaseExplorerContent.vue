@@ -3,20 +3,20 @@ import DatabaseExplorerItem from '@/components/databaseExplorer/DatabaseExplorer
 import { useRegistry } from '@/composables/useRegistry'
 import { TabType } from '@/lib/tabs/enums'
 import { useTabManager } from '@/composables/tabs/useTabManager'
-import { useDataSourceKeys } from '@/composables/dataSources/useDataSourceKeys'
+import { useDataSourceIds } from '@/composables/dataSources/useDataSourceIds'
 
 const registry = useRegistry()
 const tabManager = useTabManager()
-const dataSources = useDataSourceKeys()
+const dataSources = useDataSourceIds()
 
-function handleDelete(key: string) {
-  registry.unregister(key)
+function handleDelete(id: string) {
+  registry.unregister(id)
 }
 
-function handleSelect(key: string) {
+function handleSelect(id: string) {
   tabManager.createTab({
     type: TabType.Console,
-    dataSourceKey: key,
+    dataSourceId: id,
   })
 }
 </script>
@@ -26,7 +26,7 @@ function handleSelect(key: string) {
     <DatabaseExplorerItem
       v-for="dataSource in dataSources"
       :key="dataSource"
-      :data-source-key="dataSource"
+      :data-source-id="dataSource"
       @select="() => handleSelect(dataSource)"
       @delete="() => handleDelete(dataSource)"
     />

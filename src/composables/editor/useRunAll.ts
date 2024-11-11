@@ -7,7 +7,7 @@ export function useRunAll({ statements, runner }: UseEditor) {
     throw new Error('Runner is required for useRunAll')
   }
 
-  const isRunning = useIsRunning(runner.getKey())
+  const isRunning = useIsRunning(runner.getId())
   const canRunAll = computed(
     () => statements.value.length > 0 && isRunning.value,
   )

@@ -9,7 +9,20 @@ export default function persistTabs(manager: TabManager) {
 
   if (serializedData) {
     const tabData = JSON.parse(serializedData) as TabData[]
-    tabData.forEach((data) => manager.createTab(data))
+    tabData.forEach((data) => {
+      // for backward compatibility
+      //  dataSourceId used to be dataSourceKey
+      // @ts-expect-error
+      if (data['dataSourceKey']) {
+        // @ts-expect-error
+        data['dataSourceId'] = data['dataSourceKey']
+        // @ts-expect-error
+        delete data['dataSourceKey']
+      }
+      manager.createTab(data)
+    })
+    // update in case of version change
+    handleChange()
   }
 
   function handleChange() {

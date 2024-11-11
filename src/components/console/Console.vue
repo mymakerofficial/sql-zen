@@ -18,7 +18,7 @@ import { ref } from 'vue'
 import { useEditorCursorPosition } from '@/composables/editor/useEditorCursorPosition'
 
 const props = defineProps<{
-  dataSourceKey: string
+  dataSourceId: string
   model: monaco.editor.ITextModel
 }>()
 
@@ -26,8 +26,8 @@ const enableInlineResults = useStorage('enable-inline-results', false)
 const runTransacting = ref(true)
 
 const registry = useRegistry()
-const runner = registry.getRunner(props.dataSourceKey)
-const isRunning = useIsRunning(props.dataSourceKey)
+const runner = registry.getRunner(props.dataSourceId)
+const isRunning = useIsRunning(props.dataSourceId)
 const editor = useEditor({
   model: props.model,
   runner,
@@ -62,7 +62,7 @@ const eol = ['LF', 'CRLF', '?'][
     <ResizableHandle />
     <ResizablePanel :default-size="33">
       <ConsoleResultPanel
-        :data-source-key="dataSourceKey"
+        :data-source-id="dataSourceId"
         :show-results="!enableInlineResults"
       />
     </ResizablePanel>

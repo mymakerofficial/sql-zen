@@ -26,7 +26,7 @@ export class PostgreSQLDataSource extends PostgresDataSource {
     this.emit(DataSourceEvent.Initializing)
     await this.logger.step('Connecting', async () => {
       await invoke('connect', {
-        key: this.key,
+        id: this.id,
         driver: this.driver,
         url: this.connectionString,
       }).catch((e) => {
@@ -47,7 +47,7 @@ export class PostgreSQLDataSource extends PostgresDataSource {
   async queryRaw<T extends object = object>(
     sql: string,
   ): Promise<PostgresQueryResult<T>> {
-    const res = await ipcQuery(this.key, sql)
+    const res = await ipcQuery(this.id, sql)
     const { rows, columns } = ipcQueryRowsToObjects<T>(res)
 
     return {

@@ -127,8 +127,8 @@ ORDER BY typcategory = 'A'`,
 export abstract class PostgresDataSource extends DataSource {
   #typeManager: PostgresTypeManager = new PostgresTypeManager(this)
 
-  constructor(data: DataSourceData) {
-    super(data)
+  constructor(data: DataSourceData, id?: string) {
+    super(data, id)
 
     this.on(DataSourceEvent.Initialized, async () => {
       const { rows } = await this.queryRaw<{

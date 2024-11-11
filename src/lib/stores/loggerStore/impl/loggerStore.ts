@@ -7,10 +7,10 @@ export class LoggerStore implements ILoggerStore {
   #store: Map<string, Array<LoggerStoreEntry>> = new Map()
 
   create(entry: LoggerStoreEntry): void {
-    const key = entry.loggerId
-    const entries = this.#store.get(key) || []
+    const id = entry.loggerId
+    const entries = this.#store.get(id) || []
     entries.push(entry)
-    this.#store.set(key, entries)
+    this.#store.set(id, entries)
   }
 
   update(

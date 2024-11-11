@@ -26,7 +26,7 @@ import { TabType } from '@/lib/tabs/enums'
 import { StatementExtractor } from '@/lib/statements/extractStatements'
 
 const props = defineProps<{
-  dataSourceKey: string
+  dataSourceId: string
 }>()
 
 const { track } = useSeline()
@@ -37,7 +37,7 @@ const { open: openFileViewer } = useDialog(FileViewerDialog)
 const tabManager = useTabManager()
 
 const registry = useRegistry()
-const dataSource = registry.getDataSource(props.dataSourceKey)
+const dataSource = registry.getDataSource(props.dataSourceId)
 
 // TODO: use engine capabilities config for this
 const canCreateAsTable = dataSource.engine === DatabaseEngine.DuckDB
@@ -47,7 +47,7 @@ const {
   refetch,
   error: fetchError,
 } = useQuery({
-  queryKey: ['getFiles', props.dataSourceKey],
+  queryKey: ['getFiles', props.dataSourceId],
   queryFn: () => dataSource.getFiles(),
   initialData: [],
   throwOnError: true,
@@ -117,7 +117,7 @@ SELECT * FROM ${tableName};`
 
   tabManager.createTab({
     type: TabType.Console,
-    dataSourceKey: props.dataSourceKey,
+    dataSourceId: props.dataSourceId,
     displayName: `Table from ${fileName}`,
     modelValue: sql,
   })

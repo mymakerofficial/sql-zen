@@ -9,11 +9,11 @@ import { LogEventType, PromiseState } from '@/lib/logger/enums'
 
 export function logEventToLoggerStoreEntry(
   event: LogEvent,
-  dataStoreKey: string,
+  dataStoreId: string,
 ): LoggerStoreEntry {
   return {
     eventId: event.id,
-    loggerId: dataStoreKey,
+    loggerId: dataStoreId,
     type: event.type,
     when: event.when,
     // @ts-expect-error

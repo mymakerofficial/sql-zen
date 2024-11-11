@@ -9,7 +9,7 @@ export function useRunSelected(editor: UseEditor) {
   }
 
   const statement = useSelectedStatement(editor)
-  const isRunning = useIsRunning(editor.runner.getKey())
+  const isRunning = useIsRunning(editor.runner.getId())
 
   function runSelected() {
     if (!statement.value) {
