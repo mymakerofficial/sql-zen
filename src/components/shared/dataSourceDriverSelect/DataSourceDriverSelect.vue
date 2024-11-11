@@ -12,9 +12,11 @@ import { computed, type HTMLAttributes, watch } from 'vue'
 import { type DatabaseEngine, DataSourceDriver } from '@/lib/engines/enums'
 import {
   getDataSourceDriversForEngine,
+  getDataSourceDriversForEngineAndMode,
   getEngineInfo,
 } from '@/lib/engines/helpers'
 import DataSourceDriverSelectItemContent from '@/components/shared/dataSourceDriverSelect/DataSourceDriverSelectItemContent.vue'
+import type { DataSourceMode } from '@/lib/dataSources/enums'
 
 const model = defineModel<DataSourceDriver>({
   default: DataSourceDriver.None,
@@ -26,6 +28,7 @@ const emit = defineEmits<{
 
 const props = defineProps<{
   engine: DatabaseEngine
+  mode?: DataSourceMode
   class?: HTMLAttributes['class']
 }>()
 
@@ -33,7 +36,12 @@ function handleSelect(value: string) {
   emit('select', value as DataSourceDriver)
 }
 
-const options = computed(() => getDataSourceDriversForEngine(props.engine))
+const options = computed(() => {
+  if (!props.mode) {
+    return getDataSourceDriversForEngine(props.engine)
+  }
+  return getDataSourceDriversForEngineAndMode(props.engine, props.mode)
+})
 
 watch(
   () => props.engine,

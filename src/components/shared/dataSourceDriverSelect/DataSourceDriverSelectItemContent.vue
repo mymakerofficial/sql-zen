@@ -25,11 +25,11 @@ const showRequiresDesktop = computed(() => {
       <span>{{ name }}</span>
       <span
         v-if="showRequiresDesktop"
-        class="flex gap-1 items-center text-xs px-1 py-0.5 rounded-sm bg-rose-500/20 text-rose-200 text-nowrap"
+        class="flex items-center gap-1 text-xs text-muted-foreground"
         data-description
       >
-        <AppWindowIcon class="size-3" />
-        <span>Requires Desktop App</span>
+        <AppWindowIcon class="size-3.5" />
+        <span>Desktop App Required</span>
       </span>
     </div>
     <p

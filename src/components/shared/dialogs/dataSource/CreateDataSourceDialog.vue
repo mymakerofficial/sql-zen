@@ -16,7 +16,7 @@ import { DataSourceMode } from '@/lib/dataSources/enums'
 import { toTypedSchema } from '@vee-validate/zod'
 import LargeDatabaseEngineSelectField from '@/components/shared/dialogs/dataSource/inputs/LargeDatabaseEngineSelectField.vue'
 import LargeDataSourceModeSelectField from '@/components/shared/dialogs/dataSource/inputs/LargeDataSourceModeSelectField.vue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import ResponsiveDialogFooter from '@/components/shared/responsiveDialog/ResponsiveDialogFooter.vue'
 import { Button } from '@/components/ui/button'
 import InputField from '@/components/shared/dialogs/dataSource/inputs/InputField.vue'
@@ -43,6 +43,9 @@ import {
   getDataSourceDefaults,
   getIdentifier,
 } from '@/components/shared/dialogs/dataSource/helpers'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
+import DataSourceDriverSelectField from '@/components/shared/dialogs/dataSource/inputs/DataSourceDriverSelectField.vue'
 
 const props = defineProps<{
   data?: Partial<DataSourceData>
@@ -70,6 +73,8 @@ const { values, handleSubmit, setValues } = useForm<DataSourceData>({
   validationSchema: toTypedSchema(dataSourceSchema),
   initialValues: { ...getDataSourceDefaults(), ...props.data },
 })
+
+const showAdvancedOptions = ref(false)
 
 const step = computed(() => {
   if (values.engine === DatabaseEngine.None) {
@@ -205,6 +210,18 @@ const onSubmit = handleSubmit(async (values) => {
           >
             <InputField name="displayName" />
           </BaseField>
+          <BaseField
+            v-show="showAdvancedOptions"
+            name="driver"
+            label="Driver"
+            helper-text="The driver used to connect to the database."
+          >
+            <DataSourceDriverSelectField
+              name="driver"
+              :engine="values.engine"
+              :mode="values.mode"
+            />
+          </BaseField>
           <Separator />
           <BaseField
             v-if="supportsIdentifier"
@@ -311,6 +328,10 @@ const onSubmit = handleSubmit(async (values) => {
         </Alert>
       </ResponsiveDialogBody>
       <ResponsiveDialogFooter v-if="step === Step.Details">
+        <Label v-if="isTauri" class="flex gap-2 items-center mr-auto">
+          <Checkbox v-model:checked="showAdvancedOptions" />
+          <span>Advanced Options</span>
+        </Label>
         <Button @click="close" variant="ghost">Cancel</Button>
         <Button
           v-if="showRequiresDesktop"
