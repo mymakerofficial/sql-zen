@@ -6,7 +6,14 @@ import { DataSourceMode } from '@/lib/dataSources/enums'
 import { getDataSourceModeInfo } from '@/lib/dataSources/helpers'
 import { type DataSourceModeInfo } from '@/lib/dataSources/constants'
 import type { DatabaseEngine } from '@/lib/engines/enums'
-import { getAvailableModesForEngine } from '@/lib/engines/helpers'
+import {
+  getAvailableModesForEngine,
+  getEngineAndModeRequiresDesktop,
+  getEngineRequiresDesktop,
+  sortModesByAvailability,
+} from '@/lib/engines/helpers'
+import { useEnv } from '@/composables/useEnv'
+import { AppWindowIcon } from 'lucide-vue-next'
 
 const props = withDefaults(
   defineProps<{
@@ -19,8 +26,11 @@ const props = withDefaults(
   },
 )
 
+const { isBrowser } = useEnv()
+
 const modes = computed(() => {
-  return getAvailableModesForEngine(props.engine).map((mode) => {
+  const modes = getAvailableModesForEngine(props.engine)
+  return sortModesByAvailability(props.engine, modes).map((mode) => {
     return getDataSourceModeInfo(mode)
   })
 })
@@ -58,7 +68,16 @@ function filterFunction(items: DataSourceModeInfo[], term: string) {
     <template #icon="{ item }">
       <component :is="item.icon" class="size-6" />
     </template>
-    <template #title="{ item }">{{ item.name }}</template>
+    <template #title="{ item }">
+      <span>{{ item.name }}</span>
+      <span
+        v-if="isBrowser && getEngineAndModeRequiresDesktop(engine, item.mode)"
+        class="flex items-center gap-1 text-xs text-muted-foreground"
+      >
+        <AppWindowIcon class="size-3.5" />
+        <span>Desktop App Required</span>
+      </span>
+    </template>
     <template #description="{ item }">{{ item.description }}</template>
   </LargeSelect>
 </template>

@@ -35,6 +35,15 @@ export function getDataSourceDriversForEngine(engine: DatabaseEngine) {
   return dataSourceDrivers.filter((info) => info.engines.includes(engine))
 }
 
+export function getDataSourceDriversForEngineAndMode(
+  engine: DatabaseEngine,
+  mode: DataSourceMode,
+) {
+  return getDataSourceDriversForEngine(engine).filter((info) => {
+    return getDriverCapabilities(info.driver).modes.includes(mode)
+  })
+}
+
 export function getAvailableModesForEngine(engine: DatabaseEngine) {
   const list = getDataSourceDriversForEngine(engine)
     .map((info) => getDriverCapabilities(info.driver))
@@ -49,26 +58,80 @@ export function getDriverForEngineAndMode(
 ) {
   const isTauri = getIsTauri()
 
-  const drivers = [...getDataSourceDriversForEngine(engine)].sort((a, b) => {
-    const aCapabilities = getDriverCapabilities(a.driver)
-    const bCapabilities = getDriverCapabilities(b.driver)
+  const drivers = [...getDataSourceDriversForEngineAndMode(engine, mode)].sort(
+    (a, b) => {
+      const aCapabilities = getDriverCapabilities(a.driver)
+      const bCapabilities = getDriverCapabilities(b.driver)
 
-    // if is tauri, prioritize drivers that require the desktop app
+      // if is tauri, prioritize drivers that require the desktop app
 
-    if (aCapabilities.requiresDesktopApp) {
-      return isTauri ? -1 : 1
-    }
+      if (aCapabilities.requiresDesktopApp) {
+        return isTauri ? -1 : 1
+      }
 
-    if (bCapabilities.requiresDesktopApp) {
-      return isTauri ? 1 : -1
-    }
+      if (bCapabilities.requiresDesktopApp) {
+        return isTauri ? 1 : -1
+      }
 
-    return 0
+      return 0
+    },
+  )
+
+  return drivers[0]?.driver ?? DataSourceDriver.None
+}
+
+export function getEngineRequiresDesktop(engine: DatabaseEngine) {
+  const drivers = getDataSourceDriversForEngine(engine)
+  return !drivers.some(
+    (info) => !getDriverCapabilities(info.driver).requiresDesktopApp,
+  )
+}
+
+export function getEngineAndModeRequiresDesktop(
+  engine: DatabaseEngine,
+  mode: DataSourceMode,
+) {
+  const drivers = getDataSourceDriversForEngineAndMode(engine, mode)
+  return !drivers.some(
+    (info) => !getDriverCapabilities(info.driver).requiresDesktopApp,
+  )
+}
+
+export function sortEnginesByAvailability(engines: DatabaseEngine[]) {
+  const isTauri = getIsTauri()
+
+  if (isTauri) {
+    return engines
+  }
+
+  const requiresDesktop = engines.filter((engine) => {
+    return getEngineRequiresDesktop(engine)
   })
 
-  const driver = drivers.find((info) => {
-    return getDriverCapabilities(info.driver).modes.includes(mode)
+  const doesNotRequireDesktop = engines.filter((engine) => {
+    return !getEngineRequiresDesktop(engine)
   })
 
-  return driver?.driver ?? DataSourceDriver.None
+  return [...doesNotRequireDesktop, ...requiresDesktop]
+}
+
+export function sortModesByAvailability(
+  engine: DatabaseEngine,
+  modes: DataSourceMode[],
+) {
+  const isTauri = getIsTauri()
+
+  if (isTauri) {
+    return modes
+  }
+
+  const requiresDesktop = modes.filter((mode) => {
+    return getEngineAndModeRequiresDesktop(engine, mode)
+  })
+
+  const doesNotRequireDesktop = modes.filter((mode) => {
+    return !getEngineAndModeRequiresDesktop(engine, mode)
+  })
+
+  return [...doesNotRequireDesktop, ...requiresDesktop]
 }
