@@ -275,13 +275,6 @@ const onSubmit = handleSubmit(async (values) => {
             <FileInputField name="fileAccessor" />
           </BaseField>
         </template>
-        <Alert v-if="supportsImportDump">
-          <InfoIcon class="size-4" />
-          <AlertDescription>
-            This configuration allows you to import a database dump. Note that
-            no data entered here will be stored to the original file.
-          </AlertDescription>
-        </Alert>
         <Alert v-if="values.mode === DataSourceMode.Memory">
           <InfoIcon class="size-4" />
           <AlertTitle>Heads up!</AlertTitle>
@@ -294,6 +287,13 @@ const onSubmit = handleSubmit(async (values) => {
               Data written to In-memory databases will be lost when the
               application is closed.
             </template>
+          </AlertDescription>
+        </Alert>
+        <Alert v-if="supportsImportDump">
+          <InfoIcon class="size-4" />
+          <AlertDescription>
+            This configuration allows you to import a database dump. Note that
+            no data entered here will be stored to the original file.
           </AlertDescription>
         </Alert>
         <Alert
