@@ -58,7 +58,7 @@ function filterFunction(items: DataSourceModeInfo[], term: string) {
 
 <template>
   <LargeSelect
-    v-if="show"
+    v-show="show"
     v-model="translatedValue"
     :items="modes"
     :filter-function="filterFunction"
