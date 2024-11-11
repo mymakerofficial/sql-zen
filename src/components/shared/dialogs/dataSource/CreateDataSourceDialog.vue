@@ -46,6 +46,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import DataSourceDriverSelectField from '@/components/shared/dialogs/dataSource/inputs/DataSourceDriverSelectField.vue'
+import DataSourceDialogHeaderControlls from '@/components/shared/dialogs/dataSource/inputs/DataSourceDialogHeaderControlls.vue'
 
 const props = defineProps<{
   data?: Partial<DataSourceData>
@@ -203,6 +204,7 @@ const onSubmit = handleSubmit(async (values) => {
           :show="step === Step.Mode"
         />
         <template v-if="step === Step.Details">
+          <DataSourceDialogHeaderControlls />
           <BaseField
             name="displayName"
             label="Display Name"

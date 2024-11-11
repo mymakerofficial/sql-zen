@@ -55,11 +55,12 @@ function filterFunction(items: DatabaseEngineInfo[], term: string) {
 
 <template>
   <LargeSelect
-    v-if="show"
+    v-show="show"
     v-model="translatedValue"
     :items="engines"
     :filter-function="filterFunction"
     placeholder="Select DBMS"
+    :key="name"
   >
     <template #icon="{ item }">
       <img :src="item.icon" :alt="`${item.name} Logo`" class="size-6" />
