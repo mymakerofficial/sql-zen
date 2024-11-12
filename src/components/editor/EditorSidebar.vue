@@ -36,6 +36,7 @@ import { DataSourceStatus } from '@/lib/dataSources/enums'
 import { Separator } from '@/components/ui/separator'
 import { downloadFile } from '@/lib/downloadFile'
 import { useQueryClient } from '@tanstack/vue-query'
+import ColorModeSelect from '@/components/shared/ColorModeSelect.vue'
 
 function useAnd(values: MaybeRefOrGetter<boolean>[]) {
   return useArrayEvery(values, (value) => value)
@@ -209,6 +210,9 @@ function handleRefresh() {
           </div>
           <DatabaseExplorerContent class="w-full h-min" />
         </div>
+      </div>
+      <div class="mt-auto pt-3">
+        <ColorModeSelect />
       </div>
     </SheetContent>
   </Sheet>

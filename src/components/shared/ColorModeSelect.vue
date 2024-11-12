@@ -5,21 +5,21 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { SelectTrigger } from 'radix-vue'
 import { SunMoonIcon, SunIcon, MoonIcon } from 'lucide-vue-next'
+import { Button } from '@/components/ui/button'
 
 const mode = useColorMode()
 </script>
 
 <template>
   <Select v-model="mode">
-    <SelectTrigger
-      class="w-fit bg-transparent border-transparent [&_[data-description]]:hidden"
-      hide-chevron
-    >
-      <SelectValue />
+    <SelectTrigger class="[&_[data-description]]:hidden" hide-chevron>
+      <Button size="icon" variant="ghost">
+        <SelectValue />
+      </Button>
     </SelectTrigger>
     <SelectContent>
       <SelectGroup>
