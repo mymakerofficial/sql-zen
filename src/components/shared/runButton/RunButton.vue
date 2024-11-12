@@ -3,6 +3,7 @@ import type { UseEditor } from '@/composables/editor/useEditor'
 import {
   ChevronDownIcon,
   FastForwardIcon,
+  LoaderCircleIcon,
   PlayIcon,
   StepForwardIcon,
 } from 'lucide-vue-next'
@@ -38,6 +39,7 @@ import {
   type RunButtonModeOption,
 } from '@/components/shared/runButton/types'
 import RunButtonModeItem from '@/components/shared/runButton/RunButtonModeItem.vue'
+import { useIsExecutingQueries } from '@/composables/dataSources/useIsExecutingQueries'
 
 const mode = defineModel<RunButtonMode>('mode', {
   default: RunButtonMode.RunSelected,
@@ -54,6 +56,9 @@ const isHovered = useElementHover(runButton)
 const popoverOpen = ref(false)
 
 const isRunning = useIsRunning(() => props.editor.runner?.dataSource.id ?? '')
+const isExecuting = useIsExecutingQueries(
+  () => props.editor.runner?.dataSource.id ?? '',
+)
 
 const statementsInSelection = useStatementsInSelection(props.editor)
 const statementsAfterSelected = useStatementsAfterSelected(props.editor)
@@ -112,7 +117,9 @@ const highlightHovered = highlightStatements(highlightedStatements, {
 })
 props.editor.use(highlightHovered)
 
-const enabled = computed(() => isRunning.value && statements.value.length > 0)
+const enabled = computed(
+  () => isRunning.value && !isExecuting.value && statements.value.length > 0,
+)
 
 function handleSelectMode(value: RunButtonMode) {
   mode.value = value
@@ -143,7 +150,11 @@ function handleRun() {
               variant="success"
               class="gap-3 rounded-r-none"
             >
-              <Component :is="modeData.icon" class="size-4" />
+              <LoaderCircleIcon
+                v-if="isExecuting"
+                class="size-4 animate-spin"
+              />
+              <Component v-else :is="modeData.icon" class="size-4" />
               <span>{{ modeData.label }}</span>
             </Button>
           </TooltipTrigger>
@@ -155,7 +166,7 @@ function handleRun() {
           <TooltipTrigger as-child>
             <PopoverTrigger as-child>
               <Button
-                :disabled="!isRunning"
+                :disabled="!enabled"
                 size="sm"
                 variant="success"
                 class="w-8 p-0 rounded-l-none"
