@@ -63,7 +63,8 @@ export const dataSourceSchema = z
       DataSourceDriverCapability.ConnectionString,
     )
 
-    if (requiresConnectionString) {
+    // The SQLite driver does not require a connection string when in memory mode
+    if (requiresConnectionString && data.mode !== DataSourceMode.Memory) {
       validateConnectionString(data, ctx)
     }
   })
