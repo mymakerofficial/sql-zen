@@ -3,12 +3,12 @@ import { ArrowLeftRightIcon } from 'lucide-vue-next'
 import { Toggle } from '@/components/ui/toggle'
 import type { UseEditor } from '@/composables/editor/useEditor'
 import { Separator } from '@/components/ui/separator'
-import RunButton from '@/components/console/RunButton.vue'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import RunButtonBar from '@/components/shared/runButton/RunButtonBar.vue'
 
 // kept for future use
 defineModel<boolean>('enableInlineResults')
@@ -24,7 +24,7 @@ defineProps<{
     class="min-h-12 h-12 px-3 flex justify-between gap-3 border-b border-border overflow-x-auto"
   >
     <div class="h-full flex items-center gap-3">
-      <RunButton :editor="editor" :transacting="runTransacting" />
+      <RunButtonBar :editor="editor" :transacting="runTransacting" />
       <Separator orientation="vertical" />
       <Tooltip>
         <TooltipTrigger>
