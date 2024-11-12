@@ -134,6 +134,16 @@ function handleRun() {
   if (!enabled.value) return
   props.editor.runner?.batch(statements.value, props.transacting)
 }
+
+function filterFunction(items: RunButtonMode[], term: string) {
+  return items.filter((item) => {
+    const option = options[item]
+    return (
+      option.label.toLowerCase().includes(term.toLowerCase()) ||
+      option.description.toLowerCase().includes(term.toLowerCase())
+    )
+  })
+}
 </script>
 
 <template>
@@ -185,6 +195,7 @@ function handleRun() {
     <PopoverContent class="p-0">
       <Command
         v-model:selected-value="selectedMode"
+        :filter-function="filterFunction as any"
         @mouseleave="popoverOpen = false"
       >
         <CommandInput
