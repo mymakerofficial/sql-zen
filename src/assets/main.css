@@ -94,7 +94,7 @@
     @apply bg-muted/50;
   }
   .selected-statement-run-bg {
-    @apply bg-green-500/50;
+    @apply bg-green-500/60;
   }
   .selected-statement-run {
     @apply !text-primary;

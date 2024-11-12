@@ -1,6 +1,6 @@
 import type { UseEditor } from '@/composables/editor/useEditor'
 import type * as monaco from 'monaco-editor'
-import { type MaybeRefOrGetter, watchEffect } from 'vue'
+import { type MaybeRefOrGetter, onScopeDispose, watchEffect } from 'vue'
 import type { Statement } from '@/lib/statements/interface'
 import { toValue } from '@vueuse/core'
 
@@ -33,6 +33,10 @@ export default function highlightStatementsPlugin(
     watchEffect(() => {
       clear()
       highlight()
+    })
+
+    onScopeDispose(() => {
+      clear()
     })
   }
 }
