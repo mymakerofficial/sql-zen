@@ -7,7 +7,7 @@ import {
   StepForwardIcon,
 } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
-import { computed, ref, toValue } from 'vue'
+import { computed, nextTick, ref, toValue } from 'vue'
 import highlightStatements from '@/composables/editor/highlightStatements'
 import { useIsRunning } from '@/composables/useIsRunning'
 import {
@@ -39,7 +39,7 @@ import {
 } from '@/components/shared/runButton/types'
 import RunButtonModeItem from '@/components/shared/runButton/RunButtonModeItem.vue'
 
-const selectedMode = defineModel<RunButtonMode>('mode', {
+const mode = defineModel<RunButtonMode>('mode', {
   default: RunButtonMode.RunSelected,
 })
 
@@ -90,9 +90,14 @@ const filteredOptions = computed(() => {
   )
 })
 
-const mode = computed(() => options[selectedMode.value])
+// whatever mode was last hovered
+const selectedMode = ref<RunButtonMode>(mode.value)
 
-const statements = computed(() => toValue(mode.value.statements))
+// data from options based on the selected mode
+const modeData = computed(() => options[mode.value])
+
+// the statements to run based on the selected mode
+const statements = computed(() => toValue(modeData.value.statements))
 
 const highlightedStatements = computed(() => {
   if (isHovered.value) {
@@ -110,12 +115,16 @@ props.editor.use(highlightHovered)
 const enabled = computed(() => isRunning.value && statements.value.length > 0)
 
 function handleSelectMode(value: RunButtonMode) {
-  selectedMode.value = value
-  popoverOpen.value = false
+  mode.value = value
+  // wait for vue to update then run using the new mode
+  nextTick(() => {
+    handleRun()
+  })
 }
 
 function handleRun() {
-  close()
+  popoverOpen.value = false
+  if (!enabled.value) return
   props.editor.runner?.batch(statements.value, props.transacting)
 }
 </script>
@@ -134,12 +143,12 @@ function handleRun() {
               variant="success"
               class="gap-3 rounded-r-none"
             >
-              <Component :is="mode.icon" class="size-4" />
-              <span>{{ mode.label }}</span>
+              <Component :is="modeData.icon" class="size-4" />
+              <span>{{ modeData.label }}</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            {{ mode.description }}
+            {{ modeData.description }}
           </TooltipContent>
         </Tooltip>
         <Tooltip>
@@ -156,13 +165,21 @@ function handleRun() {
               </Button>
             </PopoverTrigger>
           </TooltipTrigger>
-          <TooltipContent> Change the run button behavior. </TooltipContent>
+          <TooltipContent>
+            More options for running statements.
+          </TooltipContent>
         </Tooltip>
       </div>
     </PopoverAnchor>
     <PopoverContent class="p-0">
-      <Command @mouseleave="popoverOpen = false">
-        <CommandInput class="h-9" placeholder="Select run button mode..." />
+      <Command
+        v-model:selected-value="selectedMode"
+        @mouseleave="popoverOpen = false"
+      >
+        <CommandInput
+          class="h-9"
+          placeholder="Select what statements to run..."
+        />
         <CommandEmpty><i>*crickets*</i></CommandEmpty>
         <CommandList>
           <CommandGroup>
@@ -171,6 +188,7 @@ function handleRun() {
               :key="option.value"
               :option="option"
               :editor="props.editor"
+              :is-selected="option.value === selectedMode"
               @select="(_e) => handleSelectMode(option.value)"
             />
           </CommandGroup>
