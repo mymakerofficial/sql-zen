@@ -54,15 +54,20 @@ VALUES
 const queryClient = useQueryClient()
 const registry = useRegistry()
 
-const dataSourceId = registry.register({
-  engine: DatabaseEngine.SQLite,
-  driver: DataSourceDriver.SQLiteWASM,
-  mode: DataSourceMode.Memory,
-  displayName: 'SQLite',
-  identifier: 'sqlite',
-  connectionString: '',
-  fileAccessor: FileAccessor.Dummy,
-})
+const dataSourceId =
+  // find existing data source or create a new one
+  registry.getDataSources().find((it) => {
+    return it.identifier === 'home-page-hero-sqlite'
+  })?.id ??
+  registry.register({
+    engine: DatabaseEngine.SQLite,
+    driver: DataSourceDriver.SQLiteWASM,
+    mode: DataSourceMode.Memory,
+    displayName: 'SQLite',
+    identifier: 'home-page-hero-sqlite',
+    connectionString: '',
+    fileAccessor: FileAccessor.Dummy,
+  })
 const model = monaco.editor.createModel(EDITOR_VALUE, 'sql')
 
 registry.start(dataSourceId)
