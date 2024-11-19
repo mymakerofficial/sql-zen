@@ -37,12 +37,12 @@ const table = useVueTable({
 
 <template>
   <div class="flex-1 relative overflow-hidden">
-    <Separator class="absolute top-12 z-1" />
+    <Separator class="absolute top-12 z-10" />
     <Table
       container-class="h-[calc(100%-3rem)] relative"
       :class="cn('', props.class)"
     >
-      <TableHeader class="sticky top-0 bg-background [&_tr]:border-b-0">
+      <TableHeader class="sticky top-0 z-10 bg-background [&_tr]:border-b-0">
         <TableRow
           v-for="headerGroup in table.getHeaderGroups()"
           :key="headerGroup.id"
