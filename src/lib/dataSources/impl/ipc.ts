@@ -6,11 +6,11 @@ export type IpcColumn = {
   dataTypeName: string | null
 }
 
-export type IpcValue = string
+export type IpcCellValue = string | number | null
 
 export type IpcQueryResult = {
   columns: IpcColumn[]
-  rows: IpcValue[][]
+  rows: IpcCellValue[][]
 }
 
 export type IpcQueryObjectResult<T extends object = object> = {

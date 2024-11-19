@@ -1,6 +1,6 @@
 use crate::client::Client;
 use crate::error::Error;
-use crate::types::{Column, QueryResult};
+use crate::types::{CellValue, Column, QueryResult};
 use async_trait::async_trait;
 use mysql_async::{prelude::*, Pool};
 use std::sync::Arc;
@@ -42,7 +42,7 @@ impl Client for MySQLClient {
 
                 for i in 0..columns_len {
                     let val = r.take(i).unwrap_or_default();
-                    cells.push(val)
+                    cells.push(CellValue::Text(val)) // TODO: handle other types
                 }
 
                 cells
