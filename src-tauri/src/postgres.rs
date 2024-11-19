@@ -1,6 +1,6 @@
 use crate::client::Client;
 use crate::error::Error;
-use crate::types::{Column, QueryResult};
+use crate::types::{CellValue, Column, QueryResult};
 use async_trait::async_trait;
 use std::sync::Arc;
 use tokio_postgres::NoTls;
@@ -55,7 +55,7 @@ impl Client for PostgresClient {
 
                 for i in 0..columns_len {
                     let val = r.get(i).unwrap_or_default();
-                    cells.push(val.to_owned());
+                    cells.push(CellValue::Text(val.to_owned())); // TODO: handle other types
                 }
 
                 cells

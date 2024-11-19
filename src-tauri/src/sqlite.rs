@@ -1,6 +1,6 @@
 use crate::client::Client;
 use crate::error::Error;
-use crate::types::{Column, QueryResult};
+use crate::types::{CellValue, Column, QueryResult};
 use async_trait::async_trait;
 use tokio_rusqlite::types::ValueRef;
 use tokio_rusqlite::Connection;
@@ -39,14 +39,13 @@ impl Client for SQLiteClient {
                 let rows = stmt.query_map([], |row| {
                     let mut cells = Vec::with_capacity(columns.len());
                     for i in 0..columns.len() {
-                        // let value = row.get::<_, String>(i)?;
                         let value = row.get_ref(i)?;
                         let value = match value {
-                            ValueRef::Null => "NULL".to_string(),
-                            ValueRef::Integer(i) => i.to_string(),
-                            ValueRef::Real(f) => f.to_string(),
-                            ValueRef::Text(s) => String::from_utf8_lossy(s).to_string(),
-                            ValueRef::Blob(_b) => "BLOB".to_string(),
+                            ValueRef::Null => CellValue::Null,
+                            ValueRef::Integer(i) => CellValue::Int64(i),
+                            ValueRef::Real(f) => CellValue::Float64(f),
+                            ValueRef::Text(s) => CellValue::Text(String::from_utf8_lossy(s).to_string()),
+                            ValueRef::Blob(b) => CellValue::Blob(b.to_vec()),
                         };
                         cells.push(value);
                     }
