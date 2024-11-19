@@ -31,7 +31,7 @@ export function ipcQueryRowsToObjects<T extends object = object>(
   res: IpcQueryResult,
 ): IpcQueryObjectResult<T> {
   const rows = res.rows.map((row) => {
-    const obj: Record<string, string> = {}
+    const obj: Record<string, IpcCellValue> = {}
     res.columns.forEach((field, i) => {
       obj[field.name] = row[i]
     })
