@@ -2,23 +2,40 @@
 import DataTable from '@/components/shared/table/DataTable.vue'
 import { createColumnHelper } from '@tanstack/vue-table'
 import { computed, h } from 'vue'
-import type { QueryResult } from '@/lib/queries/interface'
+import type { PaginatedQueryResult, QueryResult } from '@/lib/queries/interface'
 import ResultTableHeader from '@/components/shared/table/ResultTableHeader.vue'
 import ResultTableCell from '@/components/shared/table/ResultTableCell.vue'
+import ResultTableIndexCell from '@/components/shared/table/ResultTableIndexCell.vue'
 
 const props = defineProps<{
-  data: QueryResult
+  data: QueryResult & Partial<PaginatedQueryResult>
 }>()
 
 const columnHelper = createColumnHelper<object>()
 const columns = computed(() => {
-  return props.data.fields.map((field) =>
+  const resultColumns = props.data.fields.map((field) =>
     // @ts-expect-error
     columnHelper.accessor(field.name, {
       header: () => h(ResultTableHeader, { field }),
       cell: (ctx) => h(ResultTableCell, { field, value: ctx.getValue() }),
     }),
   )
+
+  return [
+    columnHelper.display({
+      id: '__row-number__',
+      header: () => h('span', { class: 'sr-only' }, 'Row number'),
+      cell: (ctx) => h(ResultTableIndexCell, {
+        index: ctx.row.index,
+        offset: props.data.offset ?? 0
+      }),
+      meta: {
+        className:
+          'border-r border-border flex items-center justify-center sticky left-0 bg-background',
+      }
+    }),
+    ...resultColumns,
+  ]
 })
 </script>
 
