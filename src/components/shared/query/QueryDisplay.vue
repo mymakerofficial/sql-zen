@@ -88,6 +88,7 @@ const { mutateAsync: computeTotalRowCount } = useMutation({
         <ArrowRightIcon class="size-4" />
       </Button>
       <span class="ml-auto mx-2 text-xs text-muted-foreground space-x-2">
+        <span>{{ query.getResult().rows.length }} rows</span>
         <span>{{ Math.round(query.getResult().duration * 100) / 100 }}ms</span>
         <span
           >({{ Math.round(query.getResult().systemDuration * 100) / 100 }}ms
