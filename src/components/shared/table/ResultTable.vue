@@ -4,6 +4,7 @@ import { createColumnHelper } from '@tanstack/vue-table'
 import { computed, h } from 'vue'
 import type { QueryResult } from '@/lib/queries/interface'
 import ResultTableHeader from '@/components/shared/table/ResultTableHeader.vue'
+import ResultTableCell from '@/components/shared/table/ResultTableCell.vue'
 
 const props = defineProps<{
   data: QueryResult
@@ -15,6 +16,7 @@ const columns = computed(() => {
     // @ts-expect-error
     columnHelper.accessor(field.name, {
       header: () => h(ResultTableHeader, { field }),
+      cell: (ctx) => h(ResultTableCell, { field, value: ctx.getValue() }),
     }),
   )
 })
