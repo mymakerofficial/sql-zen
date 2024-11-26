@@ -49,6 +49,7 @@ export type DSTreeColumnItem = DSTreeBaseItem & {
   type: typeof DSTreeItemType.Column
   dataType: string
   isNullable: boolean
+  isPrimaryKey: boolean
 }
 
 export type DSTreeItem =

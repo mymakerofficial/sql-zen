@@ -281,6 +281,7 @@ function genColumns(
       type: DSTreeItemType.Column,
       dataType: column.data_type,
       isNullable: column.is_nullable === 'YES',
+      isPrimaryKey: false,
     }))
 }
 
