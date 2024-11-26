@@ -7,6 +7,7 @@ import {
   FolderOpenIcon,
   TableIcon,
   TablePropertiesIcon,
+  KeyRoundIcon,
   SquareFunctionIcon,
   ToyBrickIcon,
   ChevronDownIcon,
@@ -14,6 +15,7 @@ import {
 } from 'lucide-vue-next'
 import type { DSTreeItem } from '@/lib/dialect/interface'
 import { DSTreeItemType } from '@/lib/dialect/enums'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 defineProps<{
   items: DSTreeItem[]
@@ -80,10 +82,22 @@ defineProps<{
             v-else-if="item.value.type === DSTreeItemType.Function"
             class="size-4 text-muted-foreground"
           />
-          <TablePropertiesIcon
-            v-else-if="item.value.type === DSTreeItemType.Column"
-            class="size-4 text-muted-foreground"
-          />
+          <template v-else-if="item.value.type === DSTreeItemType.Column">
+            <Tooltip v-if="item.value.isPrimaryKey">
+              <TooltipTrigger>
+                <KeyRoundIcon
+                  class="size-4 text-yellow-500"
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                Primary Key
+              </TooltipContent>
+            </Tooltip>
+            <TablePropertiesIcon
+              v-else
+              class="size-4 text-muted-foreground"
+            />
+          </template>
           <span
             v-if="item.value.type === DSTreeItemType.Extension"
             :data-state="item.value.loaded ? 'on' : 'off'"

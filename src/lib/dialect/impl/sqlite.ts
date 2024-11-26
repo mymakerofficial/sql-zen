@@ -19,7 +19,14 @@ export class SQLiteDialect extends SqlDialect {
     )
 
     const { rows: columns } = await this.dataSource.query<Column>(
-      `SELECT t.schema AS schemaname, t.name AS tablename, c.* FROM pragma_table_list AS t JOIN pragma_table_info(t.name) AS c WHERE t.type = 'table' ORDER BY c.cid`,
+      `SELECT
+  t.schema AS schemaname,
+  t.name AS tablename,
+  c.*
+FROM pragma_table_list AS t
+  JOIN pragma_table_info(t.name) AS c
+WHERE t.type = 'table'
+ORDER BY c.cid;`,
     )
 
     const { rows: functions } = await this.dataSource.query<Function>(
@@ -139,6 +146,7 @@ function genColumns(
       type: DSTreeItemType.Column,
       dataType: column.type,
       isNullable: column.notnull !== 1,
+      isPrimaryKey: column.pk === 1,
     }))
 }
 
