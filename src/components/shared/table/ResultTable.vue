@@ -31,7 +31,7 @@ const columns = computed(() => {
       }),
       meta: {
         className:
-          'border-r border-border flex items-center justify-center sticky left-0 bg-background',
+          'border-r border-border text-center sticky left-0 h-full bg-background',
       }
     }),
     ...resultColumns,
