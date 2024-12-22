@@ -10,7 +10,7 @@ import type {
   DataSourceDriverCapabilities,
   DataSourceDriverInfo,
 } from '@/lib/engines/interface'
-import type { DataSourceMode } from '@/lib/dataSources/enums'
+import { DataSourceMode } from '@/lib/dataSources/enums'
 import { isTauri as getIsTauri } from '@tauri-apps/api/core'
 
 export function getEngineInfo(engine: DatabaseEngine) {
@@ -50,6 +50,12 @@ export function getAvailableModesForEngine(engine: DatabaseEngine) {
     .flatMap((capabilities) => capabilities.modes)
 
   return Array.from(new Set(list))
+}
+
+export function getFirstAvailableModeForEngine(engine: DatabaseEngine) {
+  const availableModes = getAvailableModesForEngine(engine)
+  const inMemoryAvailable = availableModes.includes(DataSourceMode.Memory)
+  return inMemoryAvailable ? DataSourceMode.Memory : availableModes[0]
 }
 
 export function getDriverForEngineAndMode(

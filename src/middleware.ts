@@ -9,10 +9,9 @@ import {
   isDatabaseEngine,
 } from '@/lib/engines/enums'
 import {
-  getAvailableModesForEngine,
   getDriverCapability,
   getDriverForEngineAndMode,
-  getEngineInfo,
+  getEngineInfo, getFirstAvailableModeForEngine,
 } from '@/lib/engines/helpers'
 import { DataSourceMode } from '@/lib/dataSources/enums'
 import {
@@ -46,11 +45,12 @@ export const MiddlewareProvider = defineComponent(() => {
       return
     }
 
-    const availableModes = getAvailableModesForEngine(engine)
-    const inMemoryAvailable = availableModes.includes(DataSourceMode.Memory)
-    const mode = inMemoryAvailable ? DataSourceMode.Memory : availableModes[0]
+    const mode = getFirstAvailableModeForEngine(engine)
 
-    if (!inMemoryAvailable) {
+    // if this engine can be created in memory, do that.
+    //  otherwise, the user might need to enter some configuration so we'll open the dialog
+
+    if (!mode === DataSourceMode.Memory) {
       router.replace({ path: '/app', query }).then(() => {
         openCreateDataSource({
           data: { engine, mode },

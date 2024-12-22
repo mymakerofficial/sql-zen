@@ -178,7 +178,21 @@ const requiresDesktop = useRequiresDesktop(
 )
 
 const showRequiresDesktop = computed(() => {
-  return requiresDesktop.value && !isTauri
+  return requiresDesktop.value && isBrowser
+})
+
+const showDialogShortcut = computed(() => {
+  return isBrowser && step.value === Step.Engine
+})
+
+const showEngineShortcut = computed(() => {
+  return isBrowser && step.value === Step.Mode && !requiresDesktop.value
+})
+
+const shortcutUrl = computed(() => {
+  const info = getEngineInfo(values.engine)
+
+  return `https://${info.shortSlug ?? info.engine}.sql.pet`
 })
 
 const onSubmit = handleSubmit(async (values) => {
@@ -276,60 +290,91 @@ const onSubmit = handleSubmit(async (values) => {
           >
             <FileInputField name="fileAccessor" />
           </BaseField>
+          <Alert v-if="values.mode === DataSourceMode.Memory">
+            <InfoIcon class="size-4" />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>
+              <template v-if="isBrowser">
+                Data written to In-memory databases will be lost when you close
+                this tab or refresh the page.
+              </template>
+              <template v-else>
+                Data written to In-memory databases will be lost when the
+                application is closed.
+              </template>
+            </AlertDescription>
+          </Alert>
+          <Alert v-if="supportsImportDump">
+            <InfoIcon class="size-4" />
+            <AlertDescription>
+              This configuration allows you to import a database dump. Note that
+              no data entered here will be stored to the original file.
+            </AlertDescription>
+          </Alert>
+          <Alert
+            v-if="values.mode === DataSourceMode.BrowserPersisted && isBrowser"
+          >
+            <InfoIcon class="size-4" />
+            <AlertDescription>
+              This database lives in your browser. Data written to it will be
+              stored in your browser's local storage. No data is ever sent to
+              our servers.
+            </AlertDescription>
+          </Alert>
+          <Alert v-if="values.mode === DataSourceMode.Memory && isBrowser">
+            <InfoIcon class="size-4" />
+            <AlertDescription>
+              This database lives in your browser. No data is ever sent to our
+              servers.
+            </AlertDescription>
+          </Alert>
+          <Alert v-if="isExperimental">
+            <FlaskConicalIcon class="size-4" />
+            <AlertTitle>Experimental Feature</AlertTitle>
+            <AlertDescription>
+              Support for this database is still in it's early stages. Expect
+              bugs and missing features.
+            </AlertDescription>
+          </Alert>
+          <Alert v-if="showRequiresDesktop">
+            <AppWindowIcon class="size-4" />
+            <AlertTitle>Ready for more?</AlertTitle>
+            <AlertDescription>
+              This driver only works using the desktop app of SqlZen.
+            </AlertDescription>
+          </Alert>
         </template>
-        <Alert v-if="values.mode === DataSourceMode.Memory">
-          <InfoIcon class="size-4" />
-          <AlertTitle>Heads up!</AlertTitle>
-          <AlertDescription>
-            <template v-if="isBrowser">
-              Data written to In-memory databases will be lost when you close
-              this tab or refresh the page.
-            </template>
-            <template v-else>
-              Data written to In-memory databases will be lost when the
-              application is closed.
-            </template>
-          </AlertDescription>
-        </Alert>
-        <Alert v-if="supportsImportDump">
-          <InfoIcon class="size-4" />
-          <AlertDescription>
-            This configuration allows you to import a database dump. Note that
-            no data entered here will be stored to the original file.
-          </AlertDescription>
-        </Alert>
-        <Alert
-          v-if="values.mode === DataSourceMode.BrowserPersisted && isBrowser"
-        >
-          <InfoIcon class="size-4" />
-          <AlertDescription>
-            This database lives in your browser. Data written to it will be
-            stored in your browser's local storage. No data is ever sent to our
-            servers.
-          </AlertDescription>
-        </Alert>
-        <Alert v-if="values.mode === DataSourceMode.Memory && isBrowser">
-          <InfoIcon class="size-4" />
-          <AlertDescription>
-            This database lives in your browser. No data is ever sent to our
-            servers.
-          </AlertDescription>
-        </Alert>
-        <Alert v-if="isExperimental">
-          <FlaskConicalIcon class="size-4" />
-          <AlertTitle>Experimental Feature</AlertTitle>
-          <AlertDescription>
-            Support for this database is still in it's early stages. Expect bugs
-            and missing features.
-          </AlertDescription>
-        </Alert>
-        <Alert v-if="showRequiresDesktop">
-          <AppWindowIcon class="size-4" />
-          <AlertTitle>Ready for more?</AlertTitle>
-          <AlertDescription>
-            This driver only works using the desktop app of SqlZen.
-          </AlertDescription>
-        </Alert>
+        <template v-else>
+          <p
+            v-if="showDialogShortcut"
+            class="ml-1 text-xs text-muted-foreground"
+          >
+            Pro Tip: Use
+            <a
+              href="https://new.sql.pet"
+              target="_blank"
+              class="text-foreground underline"
+            >
+              https://new.sql.pet
+            </a>
+            to open this dialog instantly.
+          </p>
+          <p
+            v-if="showEngineShortcut"
+            class="ml-1 text-xs text-muted-foreground"
+          >
+            Pro Tip: Use
+            <a
+              :href="shortcutUrl"
+              target="_blank"
+              class="text-foreground underline"
+            >
+              {{ shortcutUrl }}
+            </a>
+            to instantly create a new
+            {{ getEngineInfo(values.engine).name }} database.
+          </p>
+        </template>
       </ResponsiveDialogBody>
       <ResponsiveDialogFooter v-if="step === Step.Details">
         <Label v-if="isTauri" class="flex gap-2 items-center mr-auto">
