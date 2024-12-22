@@ -52,7 +52,7 @@ export const MiddlewareProvider = defineComponent(() => {
     // if this engine can be created in memory, do that.
     //  otherwise, the user might need to enter some configuration so we'll open the dialog
 
-    if (!mode === DataSourceMode.Memory) {
+    if (mode !== DataSourceMode.Memory) {
       router.replace({ path: '/app', query }).then(() => {
         openCreateDataSource({
           data: { engine, mode },

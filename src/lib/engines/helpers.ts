@@ -44,7 +44,7 @@ export function getDataSourceDriversForEngineAndMode(
   })
 }
 
-export function getAvailableModesForEngine(engine: DatabaseEngine) {
+export function getAvailableModesForEngine(engine: DatabaseEngine): DataSourceMode[] {
   const list = getDataSourceDriversForEngine(engine)
     .map((info) => getDriverCapabilities(info.driver))
     .flatMap((capabilities) => capabilities.modes)
@@ -52,7 +52,7 @@ export function getAvailableModesForEngine(engine: DatabaseEngine) {
   return Array.from(new Set(list))
 }
 
-export function getFirstAvailableModeForEngine(engine: DatabaseEngine) {
+export function getFirstAvailableModeForEngine(engine: DatabaseEngine): DataSourceMode {
   const availableModes = getAvailableModesForEngine(engine)
   const inMemoryAvailable = availableModes.includes(DataSourceMode.Memory)
   return inMemoryAvailable ? DataSourceMode.Memory : availableModes[0]
@@ -101,6 +101,22 @@ export function getEngineAndModeRequiresDesktop(
   return !drivers.some(
     (info) => !getDriverCapabilities(info.driver).requiresDesktopApp,
   )
+}
+
+export function getEngineOrModeOrDriverRequiresDesktop(
+  engine: DatabaseEngine,
+  mode: DataSourceMode,
+  driver: DataSourceDriver,
+) {
+  if (driver !== DataSourceDriver.None) {
+    return getDriverCapability(driver, 'requiresDesktopApp')
+  }
+
+  if (mode !== DataSourceMode.None) {
+    return getEngineAndModeRequiresDesktop(engine, mode)
+  }
+
+  return getEngineRequiresDesktop(engine)
 }
 
 export function sortEnginesByAvailability(engines: DatabaseEngine[]) {
