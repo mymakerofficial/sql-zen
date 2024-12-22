@@ -11,6 +11,7 @@ export type DatabaseEngineInfo = {
   description: string
   icon: string
   defaultDriver: DataSourceDriver
+  shortSlug?: string
 }
 
 export type DataSourceDriverInfo = {
