@@ -47,6 +47,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import DataSourceDriverSelectField from '@/components/shared/dialogs/dataSource/inputs/DataSourceDriverSelectField.vue'
 import DataSourceDialogHeaderControlls from '@/components/shared/dialogs/dataSource/inputs/DataSourceDialogHeaderControlls.vue'
+import { useRequiresDesktop } from '@/composables/engines/useRequiresDesktop'
 
 const props = defineProps<{
   data?: Partial<DataSourceData>
@@ -170,9 +171,10 @@ const isExperimental = useDriverSupports(
   DataSourceDriverCapability.Experimental,
 )
 
-const requiresDesktop = useDriverSupports(
+const requiresDesktop = useRequiresDesktop(
+  () => values.engine,
+  () => values.mode,
   () => values.driver,
-  DataSourceDriverCapability.RequiresDesktopApp,
 )
 
 const showRequiresDesktop = computed(() => {
