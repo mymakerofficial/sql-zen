@@ -15,8 +15,13 @@ import persistTabs from '@/lib/tabs/plugins/persistTabs'
 import { useSeline } from '@/composables/seline/seline'
 import { registryAnalytics } from '@/lib/registry/plugins/analytics'
 import { selectableDatabaseEngines } from '@/lib/engines/constants'
+import { DatabaseEngine } from '@/lib/engines/enums'
 
 const app = createApp(App)
+
+function getEngineRedirect(engine: string) {
+  return `/app?createDataSource=true&engine=${engine}`
+}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,28 +29,26 @@ const router = createRouter({
     ...routes,
     {
       path: '/dl',
-      redirect: () => '/download',
+      redirect: '/download',
     },
     {
       path: '/new',
-      redirect: () => '/app?createDataSource=true',
+      redirect: '/app?createDataSource=true',
     },
     ...selectableDatabaseEngines.map(({ engine }) => ({
       path: `/${engine}`,
-      redirect: () => `/app?createDataSource=true&engine=${engine}`,
+      redirect: getEngineRedirect(engine),
     })),
-    {
-      path: '/duck',
-      redirect: () => '/duckdb',
-    },
+    ...selectableDatabaseEngines
+      .filter((it) => it.shortSlug)
+      .map(({ shortSlug, engine }) => ({
+        path: `/${shortSlug}`,
+        redirect: getEngineRedirect(engine),
+      })),
     {
       path: '/postgres',
-      redirect: () => '/postgresql',
-    },
-    {
-      path: '/pg',
-      redirect: () => '/postgresql',
-    },
+      redirect: getEngineRedirect(DatabaseEngine.PostgreSQL),
+    }
   ],
 })
 

@@ -33,6 +33,7 @@ export const databaseEnginesMap = {
     defaultDriver: isTauri()
       ? DataSourceDriver.PostgreSQL
       : DataSourceDriver.PGLite,
+    shortSlug: 'pg',
   },
   [DatabaseEngine.SQLite]: {
     name: 'SQLite',
@@ -56,6 +57,7 @@ export const databaseEnginesMap = {
       'MariaDB is a community-developed fork of MySQL, designed to remain free and open-source.',
     icon: mariadbIcon,
     defaultDriver: DataSourceDriver.MySQL,
+    shortSlug: 'maria',
   },
   [DatabaseEngine.DuckDB]: {
     name: 'DuckDB',
@@ -63,6 +65,7 @@ export const databaseEnginesMap = {
       'DuckDB is a fast in-process analytical database offering a feature-rich SQL dialect that is compatible with PostgreSQL.',
     icon: duckdbIcon,
     defaultDriver: DataSourceDriver.DuckDBWASM,
+    shortSlug: 'duck',
   },
 } as const satisfies Record<DatabaseEngine, Omit<DatabaseEngineInfo, 'engine'>>
 
