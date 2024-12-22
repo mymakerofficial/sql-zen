@@ -11,13 +11,15 @@ import {
 import {
   getDriverCapability,
   getDriverForEngineAndMode,
-  getEngineInfo, getFirstAvailableModeForEngine,
+  getEngineInfo,
+  getFirstAvailableModeForEngine,
 } from '@/lib/engines/helpers'
 import { DataSourceMode } from '@/lib/dataSources/enums'
 import {
   getDataSourceDefaults,
   getIdentifier,
 } from '@/components/shared/dialogs/dataSource/helpers'
+import { toast } from 'vue-sonner'
 
 export const MiddlewareProvider = defineComponent(() => {
   const router = useRouter()
@@ -66,19 +68,25 @@ export const MiddlewareProvider = defineComponent(() => {
       DataSourceDriverCapability.RequiresDesktopApp,
     )
 
+    const engineInfo = getEngineInfo(engine)
+
     if (requiresDesktop) {
       router.replace({ path: '/app', query }).then(() => {
         openCreateDataSource({
           data: { engine, driver, mode },
         })
       })
+
+      toast.info('We need some more information', {
+        description: `You used a shortcut to create a data source, but we need some more information to create a ${engineInfo.name} data source.`,
+        duration: 5000,
+      })
       return
     }
 
-    const engineInfo = getEngineInfo(engine)
-    const identifier = getIdentifier(engine)
-
     router.replace({ path: '/app', query }).then(() => {
+      const identifier = getIdentifier(engine)
+
       registry.register({
         ...getDataSourceDefaults(),
         engine,
@@ -86,6 +94,11 @@ export const MiddlewareProvider = defineComponent(() => {
         mode,
         displayName: engineInfo.name,
         identifier,
+      })
+
+      toast.info('You used a shortcut!', {
+        description: `A new ${engineInfo.name} data source has been created.`,
+        duration: 5000,
       })
     })
   })
