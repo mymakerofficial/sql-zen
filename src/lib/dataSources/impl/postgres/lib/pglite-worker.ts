@@ -1,6 +1,6 @@
 import { PGlite } from '@electric-sql/pglite'
 import { type PGliteWorkerOptions, worker } from '@electric-sql/pglite/worker'
-import { vector } from '@electric-sql/pglite/vector'
+import { vector } from '@electric-sql/pglite-pgvector'
 import { WorkerFSMessage } from '@/lib/dataSources/impl/postgres/lib/PGliteWorkerFS'
 
 let pglite: PGlite | null = null

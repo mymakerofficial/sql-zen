@@ -19,7 +19,8 @@
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
-    "@electric-sql/pglite": "0.2.9",
+    "@electric-sql/pglite": "0.5.2",
+    "@electric-sql/pglite-pgvector": "^0.0.3",
     "@seline-analytics/web": "^0.0.15",
     "@sqlite.org/sqlite-wasm": "^3.46.0-build2",
     "@tanstack/vue-query": "^5.51.9",
